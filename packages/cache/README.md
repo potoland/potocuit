@@ -25,7 +25,7 @@ import Redis from 'ioredis';
 const bootstrap = async () => {
 	const cache = new Cache(new RedisAdapter({ client: new Redis() }));
 
-    // You can listen to the raw potocuit event
+	// You can listen to the raw potocuit event
 
 	await cache.onPacket(<Shard>, <payloads>);
 };
