@@ -27,7 +27,7 @@ const bootstrap = async () => {
 
     // You can listen to the raw potocuit event
 
-    await cache.onPacket(<Shard>, <payloads>);
+	await cache.onPacket(<Shard>, <payloads>);
 };
 
 bootstrap();
