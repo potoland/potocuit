@@ -1,8 +1,4 @@
-# @potoland/framework
-
-## A brand new bleeding edge non bloated Discord library
-
-<img align="right" src="./assets/icon.png" alt="potocuit" width="200px"/>
+![Banner](https://i.imgur.com/3GBgpsM.png)
 
 ## Install (for [node18](https://nodejs.org/en/download/))
 
