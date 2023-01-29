@@ -2,7 +2,7 @@
 
 ## A brand new bleeding edge non bloated Discord library
 
-<img align="right" src="../../assets/icon.svg" alt="biscuit" width="200px"/>
+<img align="right" src="../../assets/icon.png" alt="potocuit" width="200px"/>
 
 ## Install (for [node18](https://nodejs.org/en/download/))
 

@@ -8,7 +8,7 @@ policies
 [<img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white">](https://github.com/potoland/potocuit)
 [<img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white">](https://discord.gg/XNw2RZFzaP)
 
-<img align="right" src="../../assets/icon.svg" alt="biscuit" width="200px"/>
+<img align="right" src="../../assets/icon.png" alt="potocuit" width="200px"/>
 
 ## Install (for [node18](https://nodejs.org/en/download/))
 
