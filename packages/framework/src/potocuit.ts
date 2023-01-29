@@ -41,6 +41,7 @@ export class Potocuit {
 	public readonly commands = new Map<string, Map<string, Command>>();
 	public events = {
 		interactionCreate: (_data: Interaction): any => { return; },
+		ready: (_shards: [number, number]): any => { return; },
 		listenerError: (_event: string, _error: unknown): any => { return; }
 	};
 
@@ -68,7 +69,7 @@ export class Potocuit {
 			...DefaultRestAdapter.DEFAULTS,
 			...options.restAdapterOptions,
 		});
-		this.cache = new Cache(options.cache.adapter, options.cache.disabledEvents as string[]);
+		this.cache = new Cache(options.cache.adapter, options.cache.disabledEvents);
 
 		// Object.defineProperties(this, {
 		// 	rest: {
@@ -86,6 +87,13 @@ export class Potocuit {
 	private async __onPacket(shard: Shard, payload: any) {
 		await this.cache.onPacket(shard, payload);
 		switch (payload.t) {
+			case 'READY':
+				try {
+					await this.events.ready(payload.d.shard ?? [0, 0]);
+				} catch (e) {
+					await this.events.listenerError(payload.t, e);
+				}
+				break;
 			case 'INTERACTION_CREATE':
 				switch (payload.d.type) {
 					case InteractionTypes.MessageComponent: {

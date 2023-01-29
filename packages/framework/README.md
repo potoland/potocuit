@@ -1,79 +1,93 @@
 # @potoland/framework
 
-Classes, functions and main structures to create an application with biscuit.
-Core contains the essentials to launch you to develop your own customized and
-scalable bot.
+## A brand new bleeding edge non bloated Discord library
 
-[<img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white">](https://github.com/potoland/potocuit)
-[<img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white">](https://discord.gg/XNw2RZFzaP)
+<img align="right" src="../../assets/icon.svg" alt="biscuit" width="200px"/>
 
-## Getting Started
-
-### Install (for [node18](https://nodejs.org/en/download/))
+## Install (for [node18](https://nodejs.org/en/download/))
 
 ```sh-session
 npm install @potoland/framework
 yarn add @potoland/framework
 ```
 
-### Example bot
+for further reading join our [Discord](https://discord.com/invite/XNw2RZFzaP)
 
-`project/index.js`:
+## Most importantly, @potoland/framework is:
 
-```js
-import { Session } from "@potoland/framework";
-import { GatewayIntents } from "@potoland/api-types";
+- A wrapper to interface the Discord API
 
-const session = new Session({
-  token: "your token",
-  intents: GatewayIntents.Guilds,
+@potoland/* is primarily inspired by biscuit
+
+## Why @potoland/*?:
+
+- Scalable
+
+## Example bot (TS/JS)
+
+```ts
+import Redis from "ioredis";
+
+import { Potocuit /*, Command */ } from "@potoland/framework";
+import { RedisAdapter } from "@potoland/cache";
+import { type DiscordGetGatewayBot, Intents } from "@biscuitland/api-types";
+import { DefaultRestAdapter } from "@biscuitland/rest";
+import { ShardManager } from "@biscuitland/ws";
+
+const TOKEN = "pxx.xotx.xxo";
+
+const restAdapter = new DefaultRestAdapter({
+  token: TOKEN,
 });
 
-const commands = [
-  {
-    name: "ping",
-    description: "Replies with pong!",
+const gwy = await restAdapter.get<DiscordGetGatewayBot>("/gateway/bot");
+
+const shardManager = new ShardManager({
+  gateway: gwy,
+  config: {
+    token: TOKEN,
+    intents: Intents.GuildMembers |
+      Intents.GuildEmojis |
+      Intents.Guilds |
+      Intents.GuildMessages |
+      Intents.GuildPresences |
+      Intents.GuildVoiceStates,
   },
-];
-
-session.events.on("ready", ({ user }) => {
-  console.log("Logged in as:", user.tag);
-  session.upsertApplicationCommands(commands, "GUILD_ID");
+  handleDiscordPayload(_shard, _payload) {
+  },
 });
 
-session.events.on("interactionCreate", (interaction) => {
-  if (interaction.isCommand()) {
-    // your commands go here
-    if (interaction.commandName === "ping") {
-      interaction.respondWith({ content: "pong!" });
-    }
-  }
+const bot = new Potocuit({
+  token: TOKEN,
+  shardManager,
+  restAdapter,
+  cache: {
+    adapter: new RedisAdapter({
+      client: new Redis(),
+      options: { namespace: "bot" },
+    }),
+    disabledEvents: [],
+  },
 });
 
-session.start();
-```
+bot.events.ready = ([id, num]) => {
+  console.log(`[${id}] handling ${num} shards`);
+};
 
-### Execute
+// await bot.publishApplicationCommands(Command[])
 
-For node 18.+:
-
-```
-B:\project> node index.js
-```
-
-For node 16.+:
-
-```
-B:\project> node --experimental-fetch index.js
+await bot.start();
 ```
 
 ## Links
 
-- [Website](https://biscuitjs.com/)
-- [Documentation](https://docs.biscuitjs.com/)
+<!-- - [Website](https://biscuitjs.com/) -->
+<!-- - [Documentation](https://docs.biscuitjs.com/) -->
+
 - [Discord](https://discord.gg/XNw2RZFzaP)
-- [api-types](https://www.npmjs.com/package/@potoland/api-types) |
-  [cache](https://www.npmjs.com/package/@potoland/cache) |
-  [rest](https://www.npmjs.com/package/@potoland/rest) |
-  [ws](https://www.npmjs.com/package/@potoland/ws) |
-  [helpers](https://www.npmjs.com/package/@potoland/helpers)
+- [core](https://www.npmjs.com/package/@potoland/framework) |
+  <!-- [api-types](https://www.npmjs.com/package/@potoland/api-types) | -->
+  [cache](https://www.npmjs.com/package/@potoland/cache)
+  <!-- [rest](https://www.npmjs.com/package/@potoland/rest) | -->
+  <!-- [ws](https://www.npmjs.com/package/@potoland/ws) | -->
+  <!-- [helpers](https://www.npmjs.com/package/@potoland/helpers) -->
