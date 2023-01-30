@@ -7,7 +7,11 @@ import {
 	ApplicationCommandOptionTypes,
 	ApplicationCommandTypes,
 } from '@biscuitland/api-types';
-import type { ApplicationCommandInteraction, AutocompleteInteraction, Interaction } from '../structures';
+import type {
+	ApplicationCommandInteraction, AutocompleteInteraction,
+	ContextMenuMessageInteraction, ContextMenuUserInteraction,
+	Interaction
+} from '../structures';
 
 interface BaseCommand {
 	name: string;
@@ -19,7 +23,22 @@ interface BaseCommand {
 	guild_id?: string;
 }
 
-abstract class BaseCommand {
+class BaseCommand {
+	constructor(data?: Omit<BaseCommand, 'getInvoker' | 'getInvokerOption'>) {
+		this.__metadata__ = data?.__metadata__ ?? this.__metadata__;
+		this.description = data?.description ?? this.description;
+		this.description_localizations = data?.description_localizations ?? this.description_localizations;
+		this.guild_id = data?.guild_id ?? data?.guild_id;
+		this.name = data?.name ?? this.name;
+		this.name_localizations = data?.name_localizations ?? this.name_localizations;
+		this.nsfw = data?.nsfw ?? this.nsfw;
+		this.onAutocomplete = data?.onAutocomplete.bind(this) ?? this.onAutocomplete;
+		this.onError = data?.onError.bind(this) ?? this.onError;
+		this.options = data?.options ?? this.options;
+		this.run = data?.run.bind(this) ?? this.run;
+		this.type = data?.type ?? this.type;
+	}
+
 	__metadata__: Record<string, any> = {};
 	nsfw = false;
 	getInvoker(data: DiscordInteractionData | DiscordInteractionDataOption): { invoker: SubCommand | Command | null; options: DiscordInteractionDataOption[] } {
@@ -39,16 +58,16 @@ abstract class BaseCommand {
 		return { invoker: null, options: [] };
 	}
 
-	run(_interaction: ApplicationCommandInteraction, _options: OptionsContext): any {
+	run(_interaction: ApplicationCommandInteraction | ContextMenuMessageInteraction | ContextMenuUserInteraction): any {
 		return;
 	}
 
 
-	onAutocomplete(_interaction: AutocompleteInteraction, _focused: DiscordInteractionDataOption, _options: OptionsContext): any {
+	onAutocomplete(_interaction: AutocompleteInteraction, _focused: DiscordInteractionDataOption): any {
 		return;
 	}
 
-	onError(_interaction: Interaction, _options: OptionsContext, _error: unknown): any {
+	onError(_interaction: Interaction, _error: unknown): any {
 		return;
 	}
 }
@@ -59,6 +78,23 @@ export interface Command {
 
 export class Command extends BaseCommand {
 	type = ApplicationCommandTypes.ChatInput;
+
+	run(_interaction: ApplicationCommandInteraction): any {
+		return;
+	}
+}
+
+export interface ContextMenu {
+	description: never;
+	// type: ContextMenuTypes;
+}
+
+export class ContextMenu extends BaseCommand {
+	type: ApplicationCommandTypes = ApplicationCommandTypes.User;
+
+	run(_interaction: ContextMenuUserInteraction | ContextMenuMessageInteraction): any {
+		return;
+	}
 }
 
 export interface SubCommand {
@@ -67,6 +103,10 @@ export interface SubCommand {
 
 export class SubCommand extends BaseCommand {
 	type = ApplicationCommandOptionTypes.SubCommand;
+
+	run(_interaction: ApplicationCommandInteraction): any {
+		return;
+	}
 }
 
 export interface SubGroupCommand {

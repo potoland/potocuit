@@ -1,10 +1,14 @@
 import {
 	InteractionTypes, MessageComponentTypes,
 	INTERACTION_ID_TOKEN,
+	ApplicationCommandTypes
 } from '@biscuitland/api-types';
 import type {
-	DiscordInteraction, DiscordInteractionDataOption,
-	DiscordInteractionData
+	DiscordInteraction,
+	DiscordInteractionData,
+	DiscordMessage,
+	DiscordUser,
+	DiscordMember
 } from '@biscuitland/api-types';
 import type {
 	Potocuit
@@ -14,6 +18,7 @@ import type {
 	DeferredChannelMessageWithSourceCallback, DeferredUpdateMessageCallback,
 	ModalCallback, UpdateMessageCallback
 } from './types/interaction';
+import type { OptionsContext } from '../utils';
 
 type ResolveDiscordInteractionRaw<
 	O extends keyof DiscordInteractionData = never,
@@ -45,7 +50,7 @@ export type ApplicationCommandInteraction = ResolveInteraction<
 	| DeferredChannelMessageWithSourceCallback
 	| ApplicationCommandAutocompleteResultCallback
 	| ModalCallback
->;
+> & { options: OptionsContext };
 
 export type AutocompleteInteraction = ResolveInteraction<
 	// 'id'
@@ -61,7 +66,45 @@ export type AutocompleteInteraction = ResolveInteraction<
 	| 'values',
 	never,
 	ApplicationCommandAutocompleteResultCallback
->;
+> & { options: OptionsContext };
+
+export type ContextMenuUserInteraction = ResolveInteraction<
+	// 'id'
+	// | 'name'
+	// | 'type'
+	// | 'resolved'
+	// | 'options'
+	// | 'guild_id'
+	// | 'target_id'
+	| 'component_type'
+	| 'components'
+	| 'custom_id'
+	| 'values',
+	'target_id',
+	ChannelMessageWithSourceCallback
+	| DeferredChannelMessageWithSourceCallback
+	| ApplicationCommandAutocompleteResultCallback
+	| ModalCallback
+> & { target: { user: DiscordUser; member?: DiscordMember } };
+
+export type ContextMenuMessageInteraction = ResolveInteraction<
+	// 'id'
+	// | 'name'
+	// | 'type'
+	// | 'resolved'
+	// | 'options'
+	// | 'guild_id'
+	// | 'target_id'
+	| 'component_type'
+	| 'components'
+	| 'custom_id'
+	| 'values',
+	'target_id',
+	ChannelMessageWithSourceCallback
+	| DeferredChannelMessageWithSourceCallback
+	| ApplicationCommandAutocompleteResultCallback
+	| ModalCallback
+> & { target: { message: DiscordMessage } };
 
 export type SelectMenuInteraction = ResolveInteraction<
 	'id'
@@ -139,10 +182,23 @@ export class Interaction<
 > {
 	data: DiscordInteraction;
 	client: Potocuit;
-	options: DiscordInteractionDataOption[];
+	options?: OptionsContext;
+	target?: { message?: DiscordMessage; user?: DiscordUser; member?: DiscordMember };
 
 	isApplicationCommand(): this is ApplicationCommandInteraction {
 		return this.data.type === InteractionTypes.ApplicationCommand;
+	}
+
+	isChatInput(): this is ApplicationCommandInteraction {
+		return this.isApplicationCommand() && this.data.data.type === ApplicationCommandTypes.ChatInput;
+	}
+
+	isContextMenuUser(): this is ContextMenuUserInteraction {
+		return this.isApplicationCommand() && this.data.data.type === ApplicationCommandTypes.User;
+	}
+
+	isContextMenuMessage(): this is ContextMenuMessageInteraction {
+		return this.isApplicationCommand() && this.data.data.type === ApplicationCommandTypes.Message;
 	}
 
 	isAutocomplete(): this is AutocompleteInteraction {
@@ -170,10 +226,23 @@ export class Interaction<
 		return this.data.type === InteractionTypes.MessageComponent;
 	}
 
-	constructor(data: DiscordInteraction, options: DiscordInteractionDataOption[], client: Potocuit) {
+	constructor(data: DiscordInteraction, options: OptionsContext | null, client: Potocuit) {
 		this.data = data;
-		this.options = options;
+		if (options) {
+			this.options = options;
+		}
 		this.client = client;
+
+		if ('target_id' in (data.data ?? {})) {
+			if (this.isContextMenuUser()) {
+				const user = this.data.data.resolved!.users![data.data!.target_id!];
+				const member = this.data.data.resolved!.members![data.data!.target_id!];
+				this.target = { user, member };
+			} else if (this.isContextMenuMessage()) {
+				const message = this.data.data.resolved!.messages![data.data!.target_id!];
+				this.target = { message };
+			}
+		}
 	}
 
 	get author() {

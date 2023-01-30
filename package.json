@@ -1,5 +1,5 @@
 {
-	"name": "@potocuit/core",
+	"name": "@potocuit/framework",
 	"workspaces": [
 		"packages/*"
 	],

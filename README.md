@@ -66,9 +66,34 @@ const bot = new Potocuit({
       client: new Redis(),
       options: { namespace: "bot" },
     }),
-    disabledEvents: [],
+    disabledEvents: [], //Can pass 'ALL'
   },
 });
+
+/*
+//Without <ShardManager> instance
+
+const bot = new Potocuit({
+	token: TOKEN,
+	intents: Intents.GuildMembers |
+		Intents.GuildEmojis |
+		Intents.Guilds |
+		Intents.GuildMessages |
+		Intents.GuildPresences |
+		Intents.GuildVoiceStates,
+	shardManagerOptions: { //<--- Must specify options
+		gateway: gwy,
+	},
+	restAdapter,//<--- Not necessary, it is created automatically
+	cache: {
+		adapter: new RedisAdapter({
+			client: new Redis(),
+			options: { namespace: "bot" },
+		}),
+		disabledEvents: [],
+	},
+});
+*/
 
 bot.events.ready = ([id, num]) => {
   console.log(`[${id}] handling ${num} shards`);

@@ -91,7 +91,7 @@ export class Cache {
 	voiceStates: VoiceStates;
 	stageInstances: StageInstances;
 
-	constructor(adapter: Adapter, private disabledEvents: string[] = []) {
+	constructor(adapter: Adapter, private disabledEvents: string[] | 'ALL') {
 		this.adapter = adapter;
 
 		// non-guild based
@@ -183,7 +183,7 @@ export class Cache {
 
 	async onPacket(_shard: Shard, event: any) {
 
-		if (this.disabledEvents.includes(event.t)) {
+		if (this.disabledEvents === 'ALL' || this.disabledEvents.includes(event.t)) {
 			return;
 		}
 

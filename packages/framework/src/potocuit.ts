@@ -1,11 +1,15 @@
 import type {
-	ApplicationCommandInteraction, AutocompleteInteraction
+	ApplicationCommandInteraction, AutocompleteInteraction, ContextMenuMessageInteraction, ContextMenuUserInteraction
 } from './structures/interaction';
 import type {
 	Adapter, CachedEvents
 } from '@potoland/cache';
 import type {
-	Command
+	Command,
+	ContextMenu
+} from './utils/command';
+import {
+	OptionsContext
 } from './utils/command';
 import type {
 	RestAdapter
@@ -26,9 +30,9 @@ import {
 import {
 	Interaction,
 } from './structures/interaction';
-import {
-	OptionsContext
-} from './utils/command';
+import type {
+	DiscordGatewayPayload
+} from '@biscuitland/api-types';
 import {
 	ApplicationCommandTypes, APPLICATION_COMMANDS,
 	GUILD_APPLICATION_COMMANDS, InteractionTypes
@@ -38,8 +42,9 @@ export class Potocuit {
 	public readonly ws: ShardManager;
 	public readonly rest: RestAdapter;
 	public readonly cache: Cache;
-	public readonly commands = new Map<string, Map<string, Command>>();
+	public readonly commands = new Map<string, Map<string, Command | ContextMenu>>();
 	public events = {
+		raw: (_shard: Shard, _payload: DiscordGatewayPayload): any => { return; },
 		interactionCreate: (_data: Interaction): any => { return; },
 		ready: (_shards: [number, number]): any => { return; },
 		listenerError: (_event: string, _error: unknown): any => { return; }
@@ -97,7 +102,7 @@ export class Potocuit {
 			case 'INTERACTION_CREATE':
 				switch (payload.d.type) {
 					case InteractionTypes.MessageComponent: {
-						const interaction = new Interaction(payload.d, [], this);
+						const interaction = new Interaction(payload.d, null, this);
 						try {
 							await this.events.interactionCreate(interaction);
 						} catch (e) {
@@ -106,7 +111,7 @@ export class Potocuit {
 						break;
 					}
 					case InteractionTypes.ModalSubmit: {
-						const interaction = new Interaction(payload.d, [], this);
+						const interaction = new Interaction(payload.d, null, this);
 						try {
 							await this.events.interactionCreate(interaction);
 						} catch (e) {
@@ -116,16 +121,31 @@ export class Potocuit {
 					}
 					case InteractionTypes.ApplicationCommand: {
 						switch (payload.d.data.type) {
+							case ApplicationCommandTypes.Message:
+							case ApplicationCommandTypes.User: {
+								const command = this.commands.get(payload.d.guild_id ?? '@me')?.get(payload.d.data.name) as ContextMenu | undefined;
+								const interaction = new Interaction(payload.d, null, this) as ContextMenuMessageInteraction | ContextMenuUserInteraction;
+								try {
+									await command?.run(interaction);
+								} catch (e) {
+									await command?.onError(interaction, e);
+								}
+								try {
+									await this.events.interactionCreate(interaction);
+								} catch (e) {
+									await this.events.listenerError(payload.t, e);
+								}
+							} break;
 							case ApplicationCommandTypes.ChatInput: {
 								const command = this.commands.get(payload.d.guild_id ?? '@me')?.get(payload.d.data.name);
 								if (!command) { return; }
 								const { invoker, options } = command.getInvoker(payload.d.data);
-								const interaction = new Interaction(payload.d, options, this) as ApplicationCommandInteraction;
 								const optionsContext = new OptionsContext(payload.d, options);
+								const interaction = new Interaction(payload.d, optionsContext, this) as ApplicationCommandInteraction;
 								try {
-									await invoker?.run(interaction, optionsContext);
+									await invoker?.run(interaction);
 								} catch (e) {
-									await invoker?.onError(interaction, optionsContext, e);
+									await invoker?.onError(interaction, e);
 								}
 								try {
 									await this.events.interactionCreate(interaction);
@@ -140,12 +160,12 @@ export class Potocuit {
 						const command = this.commands.get(payload.d.guild_id ?? '@me')?.get(payload.d.data.name);
 						if (!command) { return; }
 						const { invoker, options } = command.getInvoker(payload.d.data);
-						const interaction = new Interaction(payload.d, options, this) as AutocompleteInteraction;
 						const optionsContext = new OptionsContext(payload.d, options);
+						const interaction = new Interaction(payload.d, optionsContext, this) as AutocompleteInteraction;
 						try {
-							await invoker?.onAutocomplete(interaction, options.find(x => x.focused)!, optionsContext);
+							await invoker?.onAutocomplete(interaction, options.find(x => x.focused)!);
 						} catch (e) {
-							await invoker?.onError(interaction, optionsContext, e);
+							await invoker?.onError(interaction, e);
 						}
 						try {
 							await this.events.interactionCreate(interaction);
@@ -156,13 +176,18 @@ export class Potocuit {
 				}
 				break;
 		}
+		try {
+			await this.events.raw(shard, payload);
+		} catch (e) {
+			await this.events.listenerError(payload.t, e);
+		}
 	}
 
 	public async start() {
 		await this.ws.spawns();
 	}
 
-	public updateLocalCommands(commands: Command[]) {
+	public updateLocalCommands(commands: (Command | ContextMenu)[]) {
 		for (const i of commands) {
 			if (!this.commands.has(i.guild_id ?? '@me')) {
 				this.commands.set(i.guild_id ?? '@me', new Map());
@@ -171,7 +196,7 @@ export class Potocuit {
 		}
 	}
 
-	public async publishApplicationCommands(commands: Command[], __botId?: string) {
+	public async publishApplicationCommands(commands: (Command | ContextMenu)[], __botId?: string) {
 		const botId = __botId ?? Potocuit.getBotIdFromToken(this.ws.options.config.token);
 
 		this.updateLocalCommands(commands);
@@ -197,7 +222,7 @@ export class Potocuit {
 type BasePotocuitOptions = {
 	cache: {
 		adapter: Adapter;
-		disabledEvents: CachedEvents[];
+		disabledEvents: CachedEvents[] | 'ALL';
 	};
 };
 
