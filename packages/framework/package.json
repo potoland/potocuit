@@ -25,7 +25,8 @@
 	"dependencies": {
 		"@biscuitland/api-types": "^2.2.2",
 		"@biscuitland/rest": "^2.2.2",
-		"@biscuitland/ws": "^2.2.2"
+		"@biscuitland/ws": "^2.2.2",
+		"@potoland/cache": "^0.0.2"
 	},
 	"devDependencies": {
 		"@types/node": "^18.7.14",
