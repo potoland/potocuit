@@ -17,6 +17,9 @@ import type {
 import type {
 	Shard
 } from '@biscuitland/ws';
+import type {
+	DiscordGatewayPayload, DiscordInteractionData, DiscordInteractionDataOption
+} from '@biscuitland/api-types';
 
 import {
 	DefaultRestAdapter,
@@ -30,12 +33,10 @@ import {
 import {
 	Interaction,
 } from './structures/interaction';
-import type {
-	DiscordGatewayPayload
-} from '@biscuitland/api-types';
 import {
+	ApplicationCommandOptionTypes,
+	GUILD_APPLICATION_COMMANDS, InteractionTypes,
 	ApplicationCommandTypes, APPLICATION_COMMANDS,
-	GUILD_APPLICATION_COMMANDS, InteractionTypes
 } from '@biscuitland/api-types';
 
 export class Potocuit {
@@ -137,11 +138,10 @@ export class Potocuit {
 								}
 							} break;
 							case ApplicationCommandTypes.ChatInput: {
-								const command = this.commands.get(payload.d.guild_id ?? '@me')?.get(payload.d.data.name);
-								if (!command) { return; }
-								const { invoker, options } = command.getInvoker(payload.d.data);
-								const optionsContext = new OptionsContext(payload.d, options);
+								const optionsContext = new OptionsContext(payload.d, this.getOptions(payload.d.data));
 								const interaction = new Interaction(payload.d, optionsContext, this) as ApplicationCommandInteraction;
+								const command = this.commands.get(payload.d.guild_id ?? '@me')?.get(payload.d.data.name);
+								const { invoker } = command?.getInvoker(payload.d.data) || { invoker: null, options: [] };
 								try {
 									await invoker?.run(interaction);
 								} catch (e) {
@@ -157,11 +157,10 @@ export class Potocuit {
 						break;
 					}
 					case InteractionTypes.ApplicationCommandAutocomplete: {
-						const command = this.commands.get(payload.d.guild_id ?? '@me')?.get(payload.d.data.name);
-						if (!command) { return; }
-						const { invoker, options } = command.getInvoker(payload.d.data);
-						const optionsContext = new OptionsContext(payload.d, options);
+						const optionsContext = new OptionsContext(payload.d, this.getOptions(payload.d.data));
 						const interaction = new Interaction(payload.d, optionsContext, this) as AutocompleteInteraction;
+						const command = this.commands.get(payload.d.guild_id ?? '@me')?.get(payload.d.data.name);
+						const { invoker, options } = command?.getInvoker(payload.d.data) || { invoker: null, options: [] };
 						try {
 							await invoker?.onAutocomplete(interaction, options.find(x => x.focused)!);
 						} catch (e) {
@@ -216,6 +215,13 @@ export class Potocuit {
 
 	public static getBotIdFromToken(token: string): string {
 		return Buffer.from(token.split('.')[0], 'base64').toString();
+	}
+
+	private getOptions(data: DiscordInteractionData | DiscordInteractionDataOption): DiscordInteractionDataOption[] {
+		if (data.options?.some(x => [ApplicationCommandOptionTypes.SubCommand, ApplicationCommandOptionTypes.SubCommandGroup].includes(x.type))) {
+			return this.getOptions(data.options[0]);
+		}
+		return data.options ?? [];
 	}
 }
 
