@@ -124,7 +124,7 @@ export class Potocuit {
 						switch (payload.d.data.type) {
 							case ApplicationCommandTypes.Message:
 							case ApplicationCommandTypes.User: {
-								const command = this.commands.get(payload.d.guild_id ?? '@me')?.get(payload.d.data.name) as ContextMenu | undefined;
+								const command = this.commands.get(payload.d.data.guild_id ?? '@me')?.get(payload.d.data.name) as ContextMenu | undefined;
 								const interaction = new Interaction(payload.d, null, this) as ContextMenuMessageInteraction | ContextMenuUserInteraction;
 								try {
 									await command?.run(interaction);
@@ -140,7 +140,7 @@ export class Potocuit {
 							case ApplicationCommandTypes.ChatInput: {
 								const optionsContext = new OptionsContext(payload.d, this.getOptions(payload.d.data));
 								const interaction = new Interaction(payload.d, optionsContext, this) as ApplicationCommandInteraction;
-								const command = this.commands.get(payload.d.guild_id ?? '@me')?.get(payload.d.data.name);
+								const command = this.commands.get(payload.d.data.guild_id ?? '@me')?.get(payload.d.data.name);
 								const { invoker } = command?.getInvoker(payload.d.data) || { invoker: null, options: [] };
 								try {
 									await invoker?.run(interaction);
@@ -159,7 +159,7 @@ export class Potocuit {
 					case InteractionTypes.ApplicationCommandAutocomplete: {
 						const optionsContext = new OptionsContext(payload.d, this.getOptions(payload.d.data));
 						const interaction = new Interaction(payload.d, optionsContext, this) as AutocompleteInteraction;
-						const command = this.commands.get(payload.d.guild_id ?? '@me')?.get(payload.d.data.name);
+						const command = this.commands.get(payload.d.data.guild_id ?? '@me')?.get(payload.d.data.name);
 						const { invoker, options } = command?.getInvoker(payload.d.data) || { invoker: null, options: [] };
 						try {
 							await invoker?.onAutocomplete(interaction, options.find(x => x.focused)!);
