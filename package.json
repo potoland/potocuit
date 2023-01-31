@@ -7,7 +7,8 @@
 		"build": "turbo run build",
 		"clean": "turbo run clean",
 		"lint": "turbo run lint",
-		"dev": "turbo run dev --parallel"
+		"dev": "turbo run dev --parallel",
+		"pub": "npm publish --workspaces"
 	},
 	"engines": {
 		"npm": ">=7.0.0",

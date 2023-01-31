@@ -10,7 +10,8 @@
 	"scripts": {
 		"build": "tsup",
 		"clean": "rm -rf dist && rm -rf .turbo",
-		"dev": "tsup --watch"
+		"dev": "tsup --watch",
+		"prepublishOnly": "npm run build"
 	},
 	"exports": {
 		"./package.json": "./package.json",
