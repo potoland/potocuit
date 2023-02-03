@@ -1,118 +1,86 @@
-# @potoland/framework
+<div align='center'>
 
-## A brand new bleeding edge non bloated Discord library
+  # **@potoland/framework**
 
-<img align="right" src="./assets/icon.png" alt="potocuit" width="200px"/>
+  <img src="https://github.com/potoland/potocuit/raw/main/assets/icon.png" alt="potocuit" width="100px" />
+  
+  **A brand new bleeding edge non bloated Discord framework**
 
-## Install (for [node18](https://nodejs.org/en/download/))
+  [![License](https://img.shields.io/npm/l/@potoland/framework?style=flat-square&logo=apache&color=white)](https://github.com/potoland/potocuit/blob/main/LICENSE)
+  [![Version](https://img.shields.io/npm/v/@potoland/framework?color=%23ff0000&logo=npm&style=flat-square)](https://www.npmjs.com/package/@potoland/framework)
+  [![Discord](https://img.shields.io/discord/973427352560365658?color=%23406da2&label=support&logo=discord&style=flat-square)](https://discord.com/invite/XNw2RZFzaP)
 
-```sh-session
+</div>
+
+# F.A.Q
+
+### What is `@potoland/framework`?
+- **A wrapper for interfacing with the Discord API.**
+
+### Why you should use it?
+- **Because of its scalability.**
+
+# How to use
+
+## Installation
+
+**You need `Node.js 18` or newer to use this package.**
+
+If you don't want to use NPM, replace **`npm install`** with your package manager of choice. If that is not the case, you can proceed with this command.
+
+```sh
 npm install @potoland/framework
-yarn add @potoland/framework
 ```
 
-for further reading join our [Discord](https://discord.com/invite/XNw2RZFzaP)
+## Basic bot example
 
-## Most importantly, @potoland/framework is:
+```js
+const Redis = require('ioredis');
 
-- A wrapper to interface the Discord API
+const { DefaultRestAdapter } = require('@biscuitland/rest');
+const { Intents } = require('@biscuitland/api-types');
+const { Potocuit } = require('@potoland/framework');
+const { RedisAdapter } = require('@potoland/cache');
 
-@potoland/* is primarily inspired by biscuit
+const TOKEN = 'YOUR-BOT-TOKEN';
 
-## Why @potoland/*?:
+// This should be inside of an async function cuz marcrock sucks.
+(async () => {
+  const restAdapter = new DefaultRestAdapter({
+    token: TOKEN
+  });
 
-- Scalable
-
-## Example bot (TS/JS)
-
-```ts
-import Redis from "ioredis";
-
-import { Potocuit /*, Command */ } from "@potoland/framework";
-import { RedisAdapter } from "@potoland/cache";
-import { type DiscordGetGatewayBot, Intents } from "@biscuitland/api-types";
-import { DefaultRestAdapter } from "@biscuitland/rest";
-import { ShardManager } from "@biscuitland/ws";
-
-const TOKEN = "pxx.xotx.xxo";
-
-const restAdapter = new DefaultRestAdapter({
-  token: TOKEN,
-});
-
-const gwy = await restAdapter.get<DiscordGetGatewayBot>("/gateway/bot");
-
-const shardManager = new ShardManager({
-  gateway: gwy,
-  config: {
+  const gateway = await restAdapter.get('/gateway/bot');
+  
+  const bot = new Potocuit({
     token: TOKEN,
-    intents: Intents.GuildMembers |
-      Intents.GuildEmojis |
-      Intents.Guilds |
-      Intents.GuildMessages |
-      Intents.GuildPresences |
-      Intents.GuildVoiceStates,
-  },
-  handleDiscordPayload(_shard, _payload) {
-  },
-});
+    intents: Intents.GuildMembers
+      | Intents.Guilds
+      | Intents.GuildMessages,
+    shardManagerOptions: {
+      gateway
+    },
+    restAdapter,
+    cache: {
+      adapter: new RedisAdapter({
+        options: { namespace: 'bot' },
+        client: new Redis()
+      }),
+      disabledEvents: [] // You can pass 'ALL' instead of [] if you want to disable all events.
+    }
+  });
 
-const bot = new Potocuit({
-  token: TOKEN,
-  shardManager,
-  restAdapter,
-  cache: {
-    adapter: new RedisAdapter({
-      client: new Redis(),
-      options: { namespace: "bot" },
-    }),
-    disabledEvents: [], //Can pass 'ALL'
-  },
-});
+  bot.events.ready = ([id, shards]) => {
+    console.log(`[${id}] handling ${shards} shards`);
+  };
 
-/*
-//Without <ShardManager> instance
-
-const bot = new Potocuit({
-	token: TOKEN,
-	intents: Intents.GuildMembers |
-		Intents.GuildEmojis |
-		Intents.Guilds |
-		Intents.GuildMessages |
-		Intents.GuildPresences |
-		Intents.GuildVoiceStates,
-	shardManagerOptions: { //<--- Must specify options
-		gateway: gwy,
-	},
-	restAdapter,//<--- Not necessary, it is created automatically
-	cache: {
-		adapter: new RedisAdapter({
-			client: new Redis(),
-			options: { namespace: "bot" },
-		}),
-		disabledEvents: [],
-	},
-});
-*/
-
-bot.events.ready = ([id, num]) => {
-  console.log(`[${id}] handling ${num} shards`);
-};
-
-// await bot.publishApplicationCommands(Command[])
-
-await bot.start();
+  await bot.start();
+})();
 ```
 
-## Links
+# Useful links
 
-<!-- - [Website](https://biscuitjs.com/) -->
-<!-- - [Documentation](https://docs.biscuitjs.com/) -->
-
-- [Discord](https://discord.gg/XNw2RZFzaP)
-- [core](https://www.npmjs.com/package/@potoland/framework) |
-  <!-- [api-types](https://www.npmjs.com/package/@potoland/api-types) | -->
-  [cache](https://www.npmjs.com/package/@potoland/cache)
-  <!-- [rest](https://www.npmjs.com/package/@potoland/rest) | -->
-  <!-- [ws](https://www.npmjs.com/package/@potoland/ws) | -->
-  <!-- [helpers](https://www.npmjs.com/package/@potoland/helpers) -->
+- [GitHub Repository](https://github.com/potoland/potocuit)
+- [Discord server](https://discord.com/invite/XNw2RZFzaP)
+- [npm - core](https://www.npmjs.com/package/@potoland/framework)
+- [npm - cache](https://www.npmjs.com/package/@potoland/cache)
