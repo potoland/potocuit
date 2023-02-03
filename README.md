@@ -71,7 +71,7 @@ const TOKEN = 'YOUR-BOT-TOKEN';
   });
 
   bot.events.ready = ([id, shards]) => {
-    console.log(`[${id}] handling ${num} shards`);
+    console.log(`[${id}] handling ${shards} shards`);
   };
 
   await bot.start();
