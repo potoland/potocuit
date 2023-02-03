@@ -97,17 +97,39 @@ class Member implements PotoMember {
 
 	private cache!: Cache;
 
+	async higherThan(member: Member | Role[]) {
+		const ownRoles = await this.getRoles();
+		const memberRoles = Array.isArray(member) ? member : await member.getRoles();
+
+		const higherOwnRole = ownRoles.reduce((acc, val) => val.position > acc.position ? val : acc, ownRoles[0]) as Role | undefined;
+		const higherMemberRole = memberRoles.reduce((acc, val) => val.position > acc.position ? val : acc, memberRoles[0]) as Role | undefined;
+
+		if (!higherOwnRole) {
+			return false;
+		}
+
+		if (!higherMemberRole) {
+			return true;
+		}
+
+		return higherOwnRole.position > higherMemberRole.position;
+	}
+
 	async getUser() {
 		return this.cache.users.get(this.user_id);
+	}
+
+	async getGuild() {
+		return this.cache.guilds.get(this.guild_id);
 	}
 
 	async getRoles() {
 		const roles: Role[] = [];
 
 		for (const i of this.roles) {
-			// if (!await this.cache.roles.contains(i, this.guild_id)) {
-			// 	continue;
-			// }
+			if (!await this.cache.roles.contains(i, this.guild_id)) {
+				continue;
+			}
 			roles.push((await this.cache.roles.get(i, this.guild_id))!);
 		}
 
@@ -123,7 +145,7 @@ class Member implements PotoMember {
 	}
 }
 
-interface PotoMember extends DiscordMember {
+export interface PotoMember extends DiscordMember {
 	guild_id: string;
 	user_id: string;
 }

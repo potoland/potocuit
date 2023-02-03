@@ -52,4 +52,4 @@ export class Role {
 	guild_id: string;
 }
 
-type PotoRole = DiscordRole & { guild_id: string };
+export type PotoRole = DiscordRole & { guild_id: string };

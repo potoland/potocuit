@@ -11,4 +11,4 @@ export class Presences extends GuildBasedResource<PotoPresence> {
 	}
 }
 
-type PotoPresence = Omit<DiscordPresenceUpdate, 'user'> & { user_id: string };
+export type PotoPresence = Omit<DiscordPresenceUpdate, 'user'> & { user_id: string };

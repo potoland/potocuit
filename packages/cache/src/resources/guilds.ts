@@ -126,7 +126,7 @@ export class Guilds extends BaseResource<PotoGuild> {
 	}
 }
 
-class Guild implements PotoGuild {
+export class Guild implements PotoGuild {
 	name: string;
 	owner?: boolean | undefined;
 	afk_timeout: number;
@@ -340,7 +340,7 @@ class Guild implements PotoGuild {
 	}
 }
 
-type PotoGuild = Omit<DiscordGuild,
+export type PotoGuild = Omit<DiscordGuild,
 	'members' |
 	'roles' |
 	'channels' |

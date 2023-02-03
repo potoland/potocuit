@@ -11,4 +11,4 @@ export class VoiceStates extends GuildBasedResource<PotoVoiceState> {
 	}
 }
 
-type PotoVoiceState = Omit<DiscordVoiceState, 'member'> & { guild_id: string };
+export type PotoVoiceState = Omit<DiscordVoiceState, 'member'> & { guild_id: string };

@@ -18,7 +18,7 @@ import { Presences } from './resources/presence';
 import { VoiceStates } from './resources/voice-states';
 import { StageInstances } from './resources/stage-instances';
 
-type GuildBased =
+export type GuildBased =
 	'roles' |
 	'emojis' |
 	'threads' |
@@ -30,7 +30,7 @@ type GuildBased =
 	'stageInstances';
 
 // ClientBased
-type NonGuildBased =
+export type NonGuildBased =
 	'users' |
 	'guilds';
 
