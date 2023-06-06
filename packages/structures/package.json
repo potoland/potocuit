@@ -1,0 +1,65 @@
+{
+	"name": "@potoland/structures",
+	"version": "0.0.5",
+	"main": "./dist/index.js",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
+	"files": [
+		"dist/**"
+	],
+	"scripts": {
+		"build": "tsup",
+		"clean": "rm -rf dist && rm -rf .turbo",
+		"dev": "tsup --watch",
+		"prepublishOnly": "npm run build"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"import": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.mjs"
+			},
+			"require": "./dist/index.js"
+		}
+	},
+	"dependencies": {
+		"@biscuitland/common": "^0.0.3",
+		"@biscuitland/rest": "^3.0.2"
+	},
+	"devDependencies": {
+		"tsup": "^6.7.0"
+	},
+	"license": "Apache-2.0",
+	"author": "MARCROCK22",
+	"contributors": [
+		{
+			"name": "MARCROCK22",
+			"url": "https://github.com/MARCROCK22",
+			"author": true
+		},
+		{
+			"name": "socram03",
+			"url": "https://github.com/socram03",
+			"author": true
+		}
+	],
+	"homepage": "https://biscuitjs.com",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/potoland/potocuit.git"
+	},
+	"bugs": {
+		"url": "https://github.com/potoland/potocuit"
+	},
+	"keywords": [
+		"api",
+		"discord",
+		"bots",
+		"typescript",
+		"botdev"
+	],
+	"publishConfig": {
+		"access": "public"
+	}
+}

@@ -1,0 +1,26 @@
+{
+	"$schema": "https://turborepo.org/schema.json",
+	"baseBranch": "origin/main",
+	"pipeline": {
+		"@potoland/cache#build": {
+			"dependsOn": []
+		},
+		"@potoland/framework#build": {
+			"dependsOn": [
+				"@potoland/cache#build"
+			]
+		},
+		"@potoland/structures#build": {
+			"dependsOn": []
+		},
+		"clean": {
+			"cache": false
+		},
+		"lint": {
+			"outputs": []
+		},
+		"dev": {
+			"cache": false
+		}
+	}
+}
