@@ -1,4 +1,4 @@
-import type { Cache } from '../indexindex';
+import type { Cache } from '../../index';
 
 export class BaseResource<T = any> {
 	namespace = 'base';
