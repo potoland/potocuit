@@ -1,83 +1,56 @@
 import type {
 	APIGuildMember,
+	APIInteractionDataResolvedGuildMember,
+	APIUser,
 	GatewayGuildMemberAddDispatchData,
 	GatewayGuildMemberUpdateDispatchData
 } from '@biscuitland/common';
 import type { BiscuitREST } from '@biscuitland/rest';
-import type { ImageOptions } from './index';
 import { DiscordBase } from './extra/DiscordBase';
+import type { ImageOptions } from './index';
+
+export type GuildMemberData = APIGuildMember | GatewayGuildMemberUpdateDispatchData | GatewayGuildMemberAddDispatchData | APIInteractionDataResolvedGuildMember;
+
+import type { ObjectToLower } from '.';
 import { User } from './User';
 
-export type GuildMemberData = APIGuildMember | GatewayGuildMemberUpdateDispatchData | GatewayGuildMemberAddDispatchData;
-
+export interface GuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user'> { }
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
  */
 export class GuildMember extends DiscordBase {
+	user: User;
+	joinedTimestamp?: number;
+	communicationDisabledUntilTimestamp?: number | null;
+
 	constructor(
 		rest: BiscuitREST,
 		data: GuildMemberData,
+		user: APIUser,
 		/** the choosen guild id */
 		readonly guildId: string
 	) {
-		super(rest, data.user!.id);
-		this.user = new User(rest, data.user!);
-		this.guildId = guildId;
-		this.avatar = data.avatar ?? undefined;
-		this.nickname = data.nick ?? undefined;
-		this.premiumSince = Date.parse(data.premium_since ?? '');
-		this.roles = data.roles;
-		this.deaf = !!data.deaf;
-		this.mute = !!data.mute;
-		this.pending = !!data.pending;
+		super(rest, { ...data, id: user.id });
+		this.user = user instanceof User ? user : new User(rest, user);
+		// this.guildId = guildId;
+		// this.avatar = data.avatar ?? undefined;
+		// this.nickname = data.nick ?? undefined;
+		// this.premiumSince = Date.parse(data.premium_since ?? '');
+		// this.roles = data.roles;
+		// this.deaf = !!data.deaf;
+		// this.mute = !!data.mute;
+		// this.pending = !!data.pending;
 		this.patch(data);
 	}
 
-	/** the user this guild member represents */
-	user: User;
-
-	/** the member's guild avatar hash */
-	avatar?: string;
-
-	/** this user's guild nickname */
-	nickname?: string;
-
-	/** when the user started boosting the guild */
-	premiumSince?: number;
-
-	/** when the user joined the guild */
-	joinedTimestamp?: number;
-
-	/** array of role object ids */
-	roles: string[];
-
-	/** whether the user is deafened in voice channels */
-	deaf: boolean;
-
-	/** whether the user is muted in voice channels */
-	mute: boolean;
-
-	/** whether the user has not yet passed the guild's Membership Screening requirements */
-	pending: boolean;
-
-	/**
-	 * when the user's timeout will expire and the user will be able to communicate in the guild again,
-	 * null or a time in the past if the user is not timed out
-	 */
-	communicationDisabledUntilTimestamp?: number | null;
+	get username() {
+		return this.user.username;
+	}
 
 	/** gets the nickname or the username */
 	get nicknameOrUsername(): string {
-		return this.nickname ?? this.user.username;
-	}
-
-	/** gets the joinedAt timestamp as a Date */
-	get joinedAt(): Date | null {
-		if (!this.joinedTimestamp) {
-			return null;
-		}
-		return new Date(this.joinedTimestamp);
+		return this.nick ?? this.user.username;
 	}
 
 	dynamicAvatarURL(options?: ImageOptions): string | null {
@@ -86,11 +59,10 @@ export class GuildMember extends DiscordBase {
 		}
 
 		return this.rest.api.cdn.guildMemberAvatar(this.guildId, this.id, this.avatar, options);
-		// return this.session.managers.members.dynamicAvatarURL(this.guildId, this.id, this.avatar, options);
 	}
 
 	toString(): string {
-		return `<@!${this.user.id}>`;
+		return `<@!${this.user!.id}>`;
 	}
 
 	private patch(data: GuildMemberData) {
@@ -102,5 +74,24 @@ export class GuildMember extends DiscordBase {
 				? Date.parse(data.communication_disabled_until)
 				: null;
 		}
+	}
+}
+
+export interface InteractionGuildMember extends GuildMember, ObjectToLower<APIInteractionDataResolvedGuildMember> { }
+/**
+ * Represents a guild member
+ * @link https://discord.com/developers/docs/resources/guild#guild-member-object
+ */
+export class InteractionGuildMember extends GuildMember {
+	declare mute: never;
+	declare deaf: never;
+	constructor(
+		rest: BiscuitREST,
+		data: APIInteractionDataResolvedGuildMember,
+		user: APIUser,
+		/** the choosen guild id */
+		guildId: string
+	) {
+		super(rest, data, user, guildId);
 	}
 }

@@ -64,6 +64,7 @@
 		"@biscuitland/helpers": "^3.0.4",
 		"@biscuitland/rest": "^3.0.2",
 		"@biscuitland/ws": "^3.0.2",
-		"@potoland/cache": "0.0.5"
+		"@potoland/cache": "^0.0.5",
+		"@potoland/structures": "^0.0.5"
 	}
 }

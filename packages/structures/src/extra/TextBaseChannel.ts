@@ -1,23 +1,30 @@
 import type {
-	APIChannel,
-	APIDMChannel,
-	APIGroupDMChannel,
-	APIGuildTextChannel,
-	GuildTextChannelType
+	APITextBasedChannel,
+	ChannelType,
+	RESTPostAPIChannelMessageJSONBody
 } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
+import type { RawFile } from '@discordjs/rest';
+import type { ObjectToLower } from '..';
+import { Webhook } from '../Webhook';
 import { BaseChannel } from './BaseChannel';
 
+export interface TextBaseChannel
+	extends BaseChannel,
+	ObjectToLower<APITextBasedChannel<ChannelType>> { }
+
 export class TextBaseChannel extends BaseChannel {
-	constructor(rest: BiscuitREST, data: APIGuildTextChannel<GuildTextChannelType> | APIDMChannel | APIGroupDMChannel) {
-		super(rest, data as APIChannel);
+	createMessage(body: RESTPostAPIChannelMessageJSONBody, files?: RawFile[]) {
+		return this.api.channels(this.id).messages.post({
+			body,
+			files
+		});
 	}
 
-	async sendTyping() {
-		await this.api.channels(this.id).typing.post();
+	startTyping() {
+		return this.api.channels(this.id).typing.post();
 	}
 
-	// fetchWebhoks() {
-	// 	return this.api.channels(this.id).webhooks.get();
-	// }
+	async fetchWebhooks() {
+		return (await this.api.channels(this.id).webhooks.get()).map(w => new Webhook(this.rest, w));
+	}
 }

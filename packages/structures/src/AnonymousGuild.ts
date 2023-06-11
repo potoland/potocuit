@@ -1,5 +1,3 @@
-import type { APIPartialGuild, GuildVerificationLevel } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
 import { BaseGuild } from './extra/BaseGuild';
 import type { ImageOptions } from './index';
 
@@ -8,39 +6,6 @@ import type { ImageOptions } from './index';
  * @link https://discord.com/developers/docs/resources/guild#guild-resource
  */
 export class AnonymousGuild extends BaseGuild {
-	constructor(rest: BiscuitREST, data: APIPartialGuild) {
-		super(rest, data);
-		this.verificationLevel = data.verification_level;
-		this.splash = data.splash ?? undefined;
-		this.banner = data.banner ?? undefined;
-		this.vanityUrlCode = data.vanity_url_code ?? undefined;
-		this.description = data.description ?? undefined;
-	}
-
-	/**
-	 * The guild's splash hash.
-	 * @link https://discord.com/developers/docs/reference#image-formatting
-	 */
-	splash?: string;
-
-	/**
-	 * The guild's banner hash.
-	 * @link https://discord.com/developers/docs/reference#image-formatting
-	 */
-	banner?: string;
-
-	/**
-	 * The guild's verification level.
-	 * @link https://discord.com/developers/docs/resources/guild#guild-object-verification-level
-	 */
-	verificationLevel?: GuildVerificationLevel;
-
-	/** The guild's vanity url code. */
-	vanityUrlCode?: string;
-
-	/** The guild's description. */
-	description?: string;
-
 	/**
 	 * splashURL gets the current guild splash as a string.
 	 * @link https://discord.com/developers/docs/reference#image-formatting

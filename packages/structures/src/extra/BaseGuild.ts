@@ -1,39 +1,17 @@
-import type { APIGuild, APIPartialGuild } from '@biscuitland/common';
-import { GuildFeature } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
-import type { ImageOptions } from '../index';
+import type {
+	APIGuild
+} from '@biscuitland/common';
+import {
+	GuildFeature
+} from '@biscuitland/common';
+import type { ImageOptions, ObjectToLower } from '..';
 import { DiscordBase } from './DiscordBase';
 
+export interface BaseGuild extends DiscordBase, ObjectToLower<APIGuild> { }
 /**
- * Class for {@link Guild} and {@link AnonymousGuild}
+ * Base guild class
  */
 export class BaseGuild extends DiscordBase {
-	constructor(rest: BiscuitREST, data: APIGuild | APIPartialGuild) {
-		super(rest, data.id);
-		this.name = data.name;
-		this.icon = data.icon ?? undefined;
-		this.features = data.features;
-	}
-
-	/** Guild name. */
-	name: string;
-
-	/**
-	 * Icon hash. Discord uses ids and hashes to render images in the client.
-	 * @link https://discord.com/developers/docs/reference#image-formatting
-	 */
-	icon?: string;
-
-	/**
-	 * Enabled guild features (animated banner, news, auto moderation, etc).
-	 * @link https://discord.com/developers/docs/resources/guild#guild-object-guild-features
-	 */
-	features?: `${GuildFeature}`[];
-
-	/**
-	 * If the guild features includes partnered.
-	 * @link https://discord.com/developers/docs/resources/guild#guild-object-guild-features
-	 */
 	get partnered(): boolean {
 		if (!this.features) {
 			return false;
@@ -45,7 +23,7 @@ export class BaseGuild extends DiscordBase {
 	 * If the guild is verified.
 	 * @link https://discord.com/developers/docs/resources/guild#guild-object-guild-features
 	 */
-	get verifed(): boolean {
+	get verified(): boolean {
 		if (!this.features) {
 			return false;
 		}

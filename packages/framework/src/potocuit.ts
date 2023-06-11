@@ -1,27 +1,27 @@
-import { readdir } from 'fs/promises';
-import { join } from 'path';
-import { BiscuitREST, Router } from '@biscuitland/rest';
-import { Cache, DefaultMemoryAdapter } from '@potoland/cache';
-import { GatewayManager } from '@biscuitland/ws';
 import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	InteractionResponseType,
 	InteractionType,
 } from '@biscuitland/common';
+import { BiscuitREST, Router } from '@biscuitland/rest';
+import { GatewayManager } from '@biscuitland/ws';
+import { Cache, DefaultMemoryAdapter } from '@potoland/cache';
+import { readdir } from 'fs/promises';
+import { join } from 'path';
 
 import type {
 	APIApplicationCommand,
 	APIApplicationCommandBasicOption,
-	APIApplicationCommandSubcommandGroupOption,
-	APIApplicationCommandSubcommandOption,
-	GatewayDispatchPayload,
-	APIChatInputApplicationCommandInteractionData,
 	APIApplicationCommandInteractionDataBasicOption,
 	APIApplicationCommandInteractionDataOption,
-	APIApplicationCommandInteractionDataSubcommandOption
+	APIApplicationCommandInteractionDataSubcommandOption,
+	APIApplicationCommandSubcommandGroupOption,
+	APIApplicationCommandSubcommandOption,
+	APIChatInputApplicationCommandInteractionData,
+	GatewayDispatchPayload
 } from '@biscuitland/common';
-import type { CreateGatewayManagerOptions, Shard, GatewayEvents } from '@biscuitland/ws';
+import type { CreateGatewayManagerOptions, GatewayEvents } from '@biscuitland/ws';
 import type { Adapter, CachedEvents } from '@potoland/cache';
 
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
@@ -41,19 +41,20 @@ export class Potocuit {
 		};
 	} = {}) {
 		const onPayload = this.onPayload.bind(this);
-		const cache = this.cache = new Cache(
+		const cache = new Cache(
 			options.cache?.adapter ?? new DefaultMemoryAdapter(),
 			options.cache?.disabledEvents ?? [],
 		);
+		this.cache = cache;
 		this.rest = options.rest ? options.rest : new BiscuitREST({
 			token,
 		});
 		if (options.gateway) {
 			const handlePayload = options.gateway.options.handlePayload;
-			options.gateway.options.handlePayload = async (...data: any[]) => {
-				await cache.onPacket(data[0], data[1]);
-				onPayload(data[1]);
-				await handlePayload(data[0], data[1]);
+			options.gateway.options.handlePayload = async (shardId: number, data: Parameters<CreateGatewayManagerOptions['handlePayload']>[1]) => {
+				await cache.onPacket(data as GatewayDispatchPayload);
+				onPayload(data as GatewayDispatchPayload);
+				await handlePayload(shardId, data);
 			};
 			this.gateway = options.gateway;
 		}
@@ -85,7 +86,6 @@ export class Potocuit {
 				token: this.token,
 				async handlePayload(shardId, data) {
 					await cache.onPacket(
-						undefined as unknown as Shard,
 						data as unknown as GatewayDispatchPayload,
 					);
 					onPayload(data as unknown as GatewayDispatchPayload);

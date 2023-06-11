@@ -1,0 +1,32 @@
+{
+	"$schema": "https://docs.rome.tools/schemas/12.1.0/schema.json",
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"suspicious": {
+				"noEmptyInterface": "off",
+				"noExplicitAny": "off"
+			},
+			"nursery": {
+				"useCamelCase": "warn"
+			},
+			"style": {
+				"noNonNullAssertion": "off"
+			},
+			"complexity": {
+				"noUselessConstructor": "off"
+			},
+			"correctness": {
+				"noUnreachableSuper": "off"
+			}
+		}
+	},
+	"vcs": {
+		"clientKind": "git"
+	},
+	"files": {
+		"ignore": [
+			"tsup.config.ts"
+		]
+	}
+}

@@ -1,13 +1,15 @@
-import type { APIBaseComponent, ComponentType } from '@biscuitland/common';
+import type { APIBaseComponent, ComponentType, ObjectToLower } from '@biscuitland/common';
+
+export interface BaseComponent<T extends ComponentType>
+  extends ObjectToLower<APIBaseComponent<T>> {
+}
 
 export class BaseComponent<T extends ComponentType> {
-	constructor(private data: APIBaseComponent<T>) {
-		this.type = data.type;
-	}
+  constructor(data: APIBaseComponent<T>) {
+    Object.assign(this, data);
+  }
 
-	type: T;
-
-	toJSON() {
-		return { ...this.data };
-	}
+  toJSON() {
+    return { type: this.type };
+  }
 }

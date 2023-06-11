@@ -3,7 +3,7 @@
   # **@potoland/framework**
 
   <img src="https://github.com/potoland/potocuit/raw/main/assets/icon.png" alt="potocuit" width="100px" />
-  
+
   **A brand new bleeding edge non bloated Discord framework**
 
   [![License](https://img.shields.io/npm/l/@potoland/framework?style=flat-square&logo=apache&color=white)](https://github.com/potoland/potocuit/blob/main/LICENSE)
@@ -51,7 +51,7 @@ const TOKEN = 'YOUR-BOT-TOKEN';
   });
 
   const gateway = await restAdapter.get('/gateway/bot');
-  
+
   const bot = new Potocuit({
     token: TOKEN,
     intents: Intents.GuildMembers

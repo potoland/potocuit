@@ -1,105 +1,22 @@
 import type {
-	APIGuild,
-	GatewayGuildCreateDispatchData,
-	GatewayGuildModifyDispatchData,
-	GuildDefaultMessageNotifications,
-	GuildNSFWLevel,
-	GuildPremiumTier
+	APIGuild, APIGuildMember, GatewayGuildCreateDispatchData, RESTPatchAPIGuildRoleJSONBody, RESTPostAPIGuildRoleJSONBody
+} from '@biscuitland/common';
+import {
+	toCamelCase
 } from '@biscuitland/common';
 import type { BiscuitREST } from '@biscuitland/rest';
+import type { ObjectToLower } from '.';
 import { AnonymousGuild } from './AnonymousGuild';
-import { GuildEmoji } from './GuildEmoji';
-import { GuildMember } from './GuildMember';
-import { Role } from './GuildRole';
 
-export type GuildData = GatewayGuildCreateDispatchData | APIGuild | GatewayGuildModifyDispatchData;
+export interface Guild extends AnonymousGuild, ObjectToLower<APIGuild> { }
 
 export class Guild extends AnonymousGuild {
-	constructor(rest: BiscuitREST, data: GuildData) {
+	members?: ObjectToLower<APIGuildMember>[];
+	constructor(rest: BiscuitREST, data: APIGuild | GatewayGuildCreateDispatchData) {
 		super(rest, data);
-		this.ownerId = data.owner_id;
-		this.nsfwLevel = data.nsfw_level;
-		this.widgetEnabled = !!data.widget_enabled;
-		this.defaultMessageNotificationLevel = data.default_message_notifications;
-		this.premiumTier = data.premium_tier;
-		this.premiumSubscriptionCount = data.premium_subscription_count;
-		this.roles = new Map(data.roles.map(role => [role.id, new Role(this.rest, role, this.id)]));
-		this.emojis = new Map(data.emojis.map(emoji => [emoji.id!, new GuildEmoji(this.rest, emoji, this.id)]));
-		this.channels = [];
-
-		this.gatewayPatch(data as GatewayGuildCreateDispatchData);
+		this.gatewayPatch(data);
 	}
 
-	/**
-	 * ID of the guild owner.
-	 * There are servers that do not return this property
-	 */
-	ownerId: string;
-
-	/**
-	 * The guild's nsfw level.
-	 * @link https://discord.com/developers/docs/resources/guild#guild-object-guild-nsfw-level
-	 */
-	nsfwLevel: GuildNSFWLevel;
-
-	/** True if the server widget is enabled */
-	widgetEnabled: boolean;
-
-	/** The channel id that the widget will generate an invite to, or undefined if set to no invite. */
-	widgetChannelId?: string;
-
-	/**
-	 * The default message notification level.
-	 * @link https://discord.com/developers/docs/resources/guild#guild-object-default-message-notification-level
-	 */
-	defaultMessageNotificationLevel: GuildDefaultMessageNotifications;
-
-	/**
-	 * Premium tier (Server Boost level).
-	 * @link https://discord.com/developers/docs/resources/guild#guild-object-premium-tier
-	 */
-	premiumTier: GuildPremiumTier;
-
-	/** The number of boosts this guild currently has. */
-	premiumSubscriptionCount?: number;
-
-	/**
-	 * A map with the guild's roles.
-	 * @link https://discord.com/developers/docs/topics/permissions#role-object
-	 */
-	roles: Map<string, Role>;
-
-	/**
-	 * A map with the guild's emojis.
-	 * @link https://discord.com/developers/docs/resources/emoji#emoji-object-emoji-structure
-	 */
-	emojis: Map<string, GuildEmoji>;
-
-	/**
-	 * A map with the guild's channels.
-	 * @link https://discord.com/developers/docs/resources/channel#channel-object
-	 */
-	channels: any[]; // TODO
-
-	/**
-	 * A map with the guild's members.
-	 * @link https://discord.com/developers/docs/resources/guild#guild-member-object
-	 */
-	members?: Map<string, GuildMember>;
-
-	/**	When this guild was joined at */
-	joinedTimestamp?: string;
-
-	/** if this is considered a large guild */
-	large?: boolean;
-
-	/** if this guild is unavailable due to an outage */
-	unavailable?: boolean;
-
-	/** total number of members in this guild */
-	memberCount?: number;
-
-	/** Returns the maximum number of custom sticker slots */
 	get maxStickers(): MaxStickers {
 		switch (this.premiumTier) {
 			case 1:
@@ -127,24 +44,77 @@ export class Guild extends AnonymousGuild {
 		}
 	}
 
-	get joinedAt(): Date | null {
-		if (!this.joinedTimestamp) {
-			return null;
-		}
-		return new Date(this.joinedTimestamp);
+	/**
+	 * Get guild template if existing
+	 */
+	getTemplates() {
+		return this.api.guilds(this.id).templates.get();
 	}
 
-	private gatewayPatch(data: GatewayGuildCreateDispatchData) {
+	/**
+	 * Get guild stickers
+	 */
+	getStickers() {
+		return this.api.guilds(this.id).stickers.get();
+	}
+
+	/**
+	 * Get guild emojis
+	 */
+	getEmojis() {
+		return this.api.guilds(this.id).emojis.get();
+	}
+
+	/**
+	 * Creates a role
+	 * @param body Body of the request
+	 */
+	createRole(body: RESTPostAPIGuildRoleJSONBody) {
+		return this.api.guilds(this.id).roles.post({
+			body
+		});
+	}
+
+	/**
+	 * Deletes a role
+	 * @param roleId ID of the role to delete
+	 */
+	deleteRole(roleId: string) {
+		return this.api.guilds(this.id).roles(roleId).delete();
+	}
+
+	/**
+	 * Deletes a role
+	 * @param roleId ID of the role to delete
+	 */
+	editRole(roleId: string, body: RESTPatchAPIGuildRoleJSONBody) {
+		return this.api.guilds(this.id).roles(roleId).patch({
+			body
+		});
+	}
+
+	/**
+	 * Assigns a role to a member
+	 * @param memberId ID of the member
+	 * @param roleId ID of the role
+	 */
+	assignRole(memberId: string, roleId: string) {
+		return this.api.guilds(this.id).members(memberId).roles(roleId).put({});
+	}
+
+
+	private gatewayPatch(data: APIGuild | GatewayGuildCreateDispatchData) {
 		if ('members' in data && data.members.length) {
-			this.members = new Map(
-				data.members.map(member => [`${member.user?.id}`, new GuildMember(this.rest, member, this.id)])
-			);
+			this.members = data.members.map(x => toCamelCase(x as any) as ObjectToLower<APIGuildMember>);
+			// this.members = new Map(
+			// data.members.map(member => [`${member.user?.id}`, new GuildMember(this.rest, member, this.id)])
+			// );
 		}
 
-		this.joinedTimestamp = data.joined_at;
-		this.large = !!data.large;
-		this.memberCount = data.member_count;
-		this.unavailable = !!data.unavailable;
+		// 	this.joinedAt = data.joined_at;
+		// 	this.large = !!data.large;
+		// 	this.memberCount = data.member_count;
+		// 	this.unavailable = !!data.unavailable;
 	}
 }
 

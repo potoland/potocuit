@@ -25,7 +25,8 @@
 	},
 	"dependencies": {
 		"@biscuitland/common": "^0.0.3",
-		"@biscuitland/rest": "^3.0.2"
+		"@biscuitland/rest": "^3.0.2",
+		"ts-mixer": "^6.0.3"
 	},
 	"devDependencies": {
 		"tsup": "^6.7.0"

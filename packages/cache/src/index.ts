@@ -1,22 +1,23 @@
 import type {
-	APIEmoji, APISticker, GatewayReadyDispatchData, GatewayDispatchPayload,
+	APIEmoji, APISticker,
+	GatewayDispatchPayload,
+	GatewayReadyDispatchData,
 } from '@biscuitland/common';
-import type { Shard } from '@biscuitland/ws';
 
 import type { Adapter } from './adapters';
 
-import { Users } from './resources/users';
 import { Guilds } from './resources/guilds';
+import { Users } from './resources/users';
 
-import { Roles } from './resources/roles';
-import { Emojis } from './resources/emojis';
-import { Threads } from './resources/threads';
-import { Members } from './resources/members';
 import { Channels } from './resources/channels';
-import { Stickers } from './resources/stickers';
+import { Emojis } from './resources/emojis';
+import { Members } from './resources/members';
 import { Presences } from './resources/presence';
-import { VoiceStates } from './resources/voice-states';
+import { Roles } from './resources/roles';
 import { StageInstances } from './resources/stage-instances';
+import { Stickers } from './resources/stickers';
+import { Threads } from './resources/threads';
+import { VoiceStates } from './resources/voice-states';
 
 export type GuildBased =
 	'roles' |
@@ -162,7 +163,7 @@ export class Cache {
 				}
 					break;
 				default:
-					throw new Error('Invalid type ' + type);
+					throw new Error(`Invalid type ${type}`);
 			}
 		}
 
@@ -181,7 +182,7 @@ export class Cache {
 		return allData;
 	}
 
-	async onPacket(_shard: Shard, event: GatewayDispatchPayload) {
+	async onPacket(event: GatewayDispatchPayload) {
 
 		if (this.disabledEvents === 'ALL' || this.disabledEvents.includes(event.t)) {
 			return;

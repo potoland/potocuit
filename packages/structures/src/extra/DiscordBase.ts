@@ -1,16 +1,19 @@
+import { toCamelCase } from '@biscuitland/common';
 import type { BiscuitREST } from '@biscuitland/rest';
 import { snowflakeToTimestamp } from '../index';
 import { Base } from './Base';
 
 
 export class DiscordBase extends Base {
+	id: string;
 	constructor(
 		rest: BiscuitREST,
 		/** Unique ID of the object */
-		// rome-ignore lint/correctness/noUnusedVariables: Declaring them here avoids reassigning them manually
-		readonly id: string
+		data: { id: string }
 	) {
 		super(rest);
+		this.id = data.id;
+		Object.assign(this, toCamelCase(data));
 	}
 
 	/**

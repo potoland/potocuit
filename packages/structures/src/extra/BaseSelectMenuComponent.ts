@@ -1,4 +1,5 @@
-import type { APIBaseSelectMenuComponent, ComponentType } from '@biscuitland/common';
+import type { APIBaseSelectMenuComponent, ComponentType, Identify } from '@biscuitland/common';
+import type { ObjectToLower } from '..';
 import { BaseComponent } from './BaseComponent';
 
 export type APISelectMenuComponentTypes =
@@ -8,21 +9,22 @@ export type APISelectMenuComponentTypes =
 	| ComponentType.StringSelect
 	| ComponentType.UserSelect;
 
+export interface BaseSelectMenuComponent<T extends APISelectMenuComponentTypes>
+	extends BaseComponent<T>,
+		ObjectToLower<
+			Identify<
+				Omit<APIBaseSelectMenuComponent<APISelectMenuComponentTypes>, 'type'>
+			>
+		> {}
+
 export class BaseSelectMenuComponent<
-	T extends APISelectMenuComponentTypes
-> extends BaseComponent<APISelectMenuComponentTypes> {
+	T extends APISelectMenuComponentTypes,
+> extends BaseComponent<T> {
 	constructor(data: APIBaseSelectMenuComponent<T>) {
 		super(data);
-		this.customId = data.custom_id;
-		this.disabled = !!data.disabled;
-		this.placedholder = data.placeholder;
-		this.maxValues = data.max_values;
-		this.minValues = data.max_values;
 	}
 
-	placedholder?: string;
-	maxValues?: number;
-	minValues?: number;
-	customId: string;
-	disabled: boolean;
+	toJSON() {
+		return { ...this };
+	}
 }
