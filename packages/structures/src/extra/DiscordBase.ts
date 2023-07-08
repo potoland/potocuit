@@ -2,18 +2,19 @@ import { toCamelCase } from '@biscuitland/common';
 import type { BiscuitREST } from '@biscuitland/rest';
 import { snowflakeToTimestamp } from '../index';
 import { Base } from './Base';
+import type { Cache } from '../cache';
 
-
-export class DiscordBase extends Base {
+export class DiscordBase<Data extends Record<string, any> = { id: string }> extends Base {
 	id: string;
 	constructor(
 		rest: BiscuitREST,
+		cache: Cache,
 		/** Unique ID of the object */
-		data: { id: string }
+		data: Data
 	) {
-		super(rest);
+		super(rest, cache);
 		this.id = data.id;
-		Object.assign(this, toCamelCase(data));
+		this._patchThis(data);
 	}
 
 	/**
@@ -28,5 +29,10 @@ export class DiscordBase extends Base {
 	 */
 	get createdAt(): Date | null {
 		return new Date(this.createdTimestamp);
+	}
+
+	protected _patchThis(data: Record<string, any>) {
+		Object.assign(this, toCamelCase(data));
+		return this;
 	}
 }

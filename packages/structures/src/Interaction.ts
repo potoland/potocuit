@@ -1,6 +1,8 @@
 import type {
 	APIApplicationCommandAutocompleteInteraction,
 	APIApplicationCommandAutocompleteResponse,
+	APIApplicationCommandInteractionDataSubcommandGroupOption,
+	APIApplicationCommandInteractionDataSubcommandOption,
 	APIChatInputApplicationCommandInteraction,
 	APIContextMenuInteraction,
 	APIInteraction,
@@ -20,12 +22,14 @@ import type {
 	RESTPostAPIInteractionFollowupJSONBody
 } from '@biscuitland/common';
 import {
+	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	ComponentType
 } from '@biscuitland/common';
 import type { BiscuitREST, RawFile } from '@biscuitland/rest';
-import type { BiscuitChannels } from '.';
-import { channelFactory } from '.';
+import type { BiscuitChannels } from './miscellaneous';
+import type { Cache } from './cache';
+import { channelFactory } from './miscellaneous';
 import { GuildMember, InteractionGuildMember } from './GuildMember';
 import { Role } from './GuildRole';
 import { Message } from './Message';
@@ -38,8 +42,8 @@ export class BaseInteraction extends Base {
 	applicationId: string;
 	type: InteractionType;
 	version: number;
-	constructor(readonly rest: BiscuitREST, interaction: APIInteraction) {
-		super(rest);
+	constructor(rest: BiscuitREST, cache: Cache, interaction: APIInteraction) {
+		super(rest, cache);
 		this.id = interaction.id;
 		this.token = interaction.token;
 		this.applicationId = interaction.application_id;
@@ -64,13 +68,15 @@ export class Interaction extends BaseInteraction {
 	guildLocale?: LocaleString;
 	locale: LocaleString;
 	constructor(
-		readonly rest: BiscuitREST,
+		rest: BiscuitREST,
+		cache: Cache,
 		interaction: Exclude<APIInteraction, APIPingInteraction>,
 	) {
-		super(rest, interaction);
+		super(rest, cache, interaction);
 		if (interaction.member) {
 			this.member = new GuildMember(
 				rest,
+				cache,
 				interaction.member,
 				interaction.member?.user ?? interaction.user!,
 				interaction.guild_id!,
@@ -78,12 +84,12 @@ export class Interaction extends BaseInteraction {
 		}
 		this.user =
 			this.member?.user ??
-			new User(rest, interaction.member?.user ?? interaction.user!);
+			new User(rest, cache, interaction.member?.user ?? interaction.user!);
 		if ('app_permissions' in interaction) {
 			this.appPermissions = interaction.app_permissions;
 		}
 		if (interaction.channel) {
-			this.channel = channelFactory(rest, interaction.channel);
+			this.channel = channelFactory(rest, cache, interaction.channel);
 		}
 		if (interaction.guild_id) {
 			this.guildId = interaction.guild_id;
@@ -136,10 +142,11 @@ export class ContextMenuInteraction extends Interaction {
 	data: APIContextMenuInteraction['data'];
 
 	constructor(
-		readonly rest: BiscuitREST,
+		rest: BiscuitREST,
+		cache: Cache,
 		interaction: APIContextMenuInteraction,
 	) {
-		super(rest, interaction);
+		super(rest, cache, interaction);
 		this.data = interaction.data;
 	}
 
@@ -149,16 +156,17 @@ export class ContextMenuInteraction extends Interaction {
 
 	get target(): unknown {
 		if ('messages' in this.resolved) {
-			return new Message(this.rest, this.resolved.messages[this.targetId]);
+			return new Message(this.rest, this.cache, this.resolved.messages[this.targetId]);
 		}
 		return this.resolved.members
 			? new InteractionGuildMember(
 				this.rest,
+				this.cache,
 				this.resolved.members[this.targetId],
 				this.resolved.users[this.targetId],
 				this.guildId!
 			)
-			: new User(this.rest, this.resolved.users[this.targetId]);
+			: new User(this.rest, this.cache, this.resolved.users[this.targetId]);
 	}
 
 	get targetId() {
@@ -197,10 +205,11 @@ export interface ContextUserMenuInteraction {
 export class AutocompleteInteraction extends Interaction {
 	data: APIApplicationCommandAutocompleteInteraction['data'];
 	constructor(
-		readonly rest: BiscuitREST,
+		rest: BiscuitREST,
+		cache: Cache,
 		interaction: APIApplicationCommandAutocompleteInteraction,
 	) {
-		super(rest, interaction);
+		super(rest, cache, interaction);
 		this.data = interaction.data;
 	}
 
@@ -209,7 +218,11 @@ export class AutocompleteInteraction extends Interaction {
 	}
 
 	get options() {
-		return this.data.options;
+		let options = this.data.options ?? [];
+		while (options.some(x => [ApplicationCommandOptionType.Subcommand, ApplicationCommandOptionType.SubcommandGroup].includes(x.type))) {
+			options = (options[0] as APIApplicationCommandInteractionDataSubcommandOption | APIApplicationCommandInteractionDataSubcommandGroupOption).options ?? [];
+		}
+		return options;
 	}
 
 	get commandId() {
@@ -234,10 +247,11 @@ export class ChatInputInteraction extends Interaction {
 	declare appPermissions: string;
 	declare channel: BiscuitChannels;
 	constructor(
-		readonly rest: BiscuitREST,
+		rest: BiscuitREST,
+		cache: Cache,
 		interaction: APIChatInputApplicationCommandInteraction,
 	) {
-		super(rest, interaction);
+		super(rest, cache, interaction);
 		this.data = interaction.data;
 	}
 
@@ -246,7 +260,11 @@ export class ChatInputInteraction extends Interaction {
 	}
 
 	get options() {
-		return this.data.options;
+		let options = this.data.options ?? [];
+		while (options.some(x => [ApplicationCommandOptionType.Subcommand, ApplicationCommandOptionType.SubcommandGroup].includes(x.type))) {
+			options = (options[0] as APIApplicationCommandInteractionDataSubcommandOption | APIApplicationCommandInteractionDataSubcommandGroupOption).options ?? [];
+		}
+		return options;
 	}
 
 	get commandId() {
@@ -268,12 +286,13 @@ export class ComponentInteraction extends Interaction {
 	declare appPermissions: string;
 	declare channel: BiscuitChannels;
 	constructor(
-		readonly rest: BiscuitREST,
+		rest: BiscuitREST,
+		cache: Cache,
 		interaction: APIMessageComponentInteraction,
 	) {
-		super(rest, interaction);
+		super(rest, cache, interaction);
 		this.data = interaction.data;
-		this.message = new Message(rest, interaction.message);
+		this.message = new Message(rest, cache, interaction.message);
 	}
 
 	get customId() {
@@ -295,16 +314,17 @@ export class SelectMenuInteraction extends ComponentInteraction {
 	channels?: BiscuitChannels[];
 
 	constructor(
-		readonly rest: BiscuitREST,
+		rest: BiscuitREST,
+		cache: Cache,
 		interaction: APIMessageComponentSelectMenuInteraction,
 	) {
-		super(rest, interaction);
+		super(rest, cache, interaction);
 		switch (this.componentType) {
 			case ComponentType.ChannelSelect:
 				{
 					const resolved = (interaction.data as APIMessageChannelSelectInteractionData).resolved;
 					this.channels = resolved.channels
-						? this.values.map(x => channelFactory(this.rest, resolved.channels[x]))
+						? this.values.map(x => channelFactory(this.rest, this.cache, resolved.channels[x]))
 						: [];
 					break;
 				}
@@ -312,28 +332,28 @@ export class SelectMenuInteraction extends ComponentInteraction {
 				{
 					const resolved = (interaction.data as APIMessageMentionableSelectInteractionData).resolved;
 					this.roles = resolved.roles
-						? this.values.map(x => new Role(this.rest, resolved.roles![x], this.guildId!))
+						? this.values.map(x => new Role(this.rest, this.cache, resolved.roles![x], this.guildId!))
 						: [];
 					this.members = resolved.members
 						? this.values
-							.map(x => new InteractionGuildMember(this.rest, resolved.members![x], this.users!.find(u => u.id === x)!, this.guildId!))
+							.map(x => new InteractionGuildMember(this.rest, this.cache, resolved.members![x], this.users!.find(u => u.id === x)!, this.guildId!))
 						: [];
 					this.users = resolved.users
-						? this.values.map(x => new User(this.rest, resolved.users![x]))
+						? this.values.map(x => new User(this.rest, this.cache, resolved.users![x]))
 						: [];
 					break;
 				}
 			case ComponentType.RoleSelect: {
 				const resolved = (interaction.data as APIMessageRoleSelectInteractionData).resolved;
-				this.roles = this.values.map(x => new Role(this.rest, resolved.roles[x], this.guildId!));
+				this.roles = this.values.map(x => new Role(this.rest, this.cache, resolved.roles[x], this.guildId!));
 				break;
 			}
 			case ComponentType.UserSelect: {
 				const resolved = (interaction.data as APIMessageUserSelectInteractionData).resolved;
-				this.users = this.values.map(x => new User(this.rest, resolved.users[x]));
+				this.users = this.values.map(x => new User(this.rest, this.cache, resolved.users[x]));
 				this.members = resolved.members
 					? this.values
-						.map(x => new InteractionGuildMember(this.rest, resolved.members![x], this.users!.find(u => u.id === x)!, this.guildId!))
+						.map(x => new InteractionGuildMember(this.rest, this.cache, resolved.members![x], this.users!.find(u => u.id === x)!, this.guildId!))
 					: [];
 				break;
 			}
@@ -392,10 +412,11 @@ export interface UserSelectMenuInteraction {
 export class ModalSubmitInteraction extends Interaction {
 	data: APIModalSubmitInteraction['data'];
 	constructor(
-		readonly rest: BiscuitREST,
+		rest: BiscuitREST,
+		cache: Cache,
 		interaction: APIModalSubmitInteraction,
 	) {
-		super(rest, interaction);
+		super(rest, cache, interaction);
 		this.data = interaction.data;
 	}
 

@@ -3,11 +3,15 @@ import type {
 	APIChatInputApplicationCommandInteraction,
 	APIContextMenuInteraction,
 	APIDMChannel,
+	APIGuildCategoryChannel,
+	APIGuildForumChannel,
+	APIGuildTextChannel,
+	APIGuildVoiceChannel,
 	APIInteraction,
 	APIMessageComponentSelectMenuInteraction,
-	CamelCase,
-	Identify,
-	SnakeCase,
+	APINewsChannel,
+	APIThreadChannel,
+	GuildTextChannelType,
 } from '@biscuitland/common';
 import {
 	ApplicationCommandType,
@@ -17,7 +21,6 @@ import {
 	InteractionType,
 } from '@biscuitland/common';
 import type { BiscuitREST } from '@biscuitland/rest';
-import { DMChannel } from './DMChannel';
 import {
 	AutocompleteInteraction,
 	BaseInteraction,
@@ -28,7 +31,23 @@ import {
 	SelectMenuInteraction,
 } from './Interaction';
 import { BaseChannel } from './extra/BaseChannel';
-export type BiscuitChannels = DMChannel | BaseChannel;
+import { TextBaseGuildChannel } from './extra/TextBaseGuildChannel';
+import { AnnouncementChannel } from './AnnouncementChannel';
+import { CategoryChannel } from './CategoryChannel';
+import { DMChannel } from './DMChannel';
+import { ForumChannel } from './ForumChannel';
+import { ThreadChannel } from './ThreadChannel';
+import { VoiceChannel } from './VoiceChannel';
+import type { Cache } from './cache';
+
+export type BiscuitChannels = |
+	DMChannel |
+	CategoryChannel |
+	ThreadChannel |
+	ForumChannel |
+	AnnouncementChannel |
+	BaseChannel;
+
 export type BiscuitInteractions =
 	| ComponentInteraction
 	| SelectMenuInteraction
@@ -40,38 +59,51 @@ export type BiscuitInteractions =
 export type ImageOptions = NonNullable<
 	Parameters<BiscuitREST['api']['cdn']['icon']>[2]
 >;
-export function channelLink(channelId: string, guildId?: string) {
-	return `https://discord.com/channels/${guildId ?? '@me'}/${channelId}`;
-}
 export function channelFactory(
 	rest: BiscuitREST,
+	cache: Cache,
 	channel: { type: ChannelType },
 ): BiscuitChannels {
 	switch (channel.type) {
+		case ChannelType.GuildAnnouncement:
+			return new AnnouncementChannel(rest, cache, channel as APINewsChannel);
+		case ChannelType.GuildCategory:
+			return new CategoryChannel(rest, cache, channel as APIGuildCategoryChannel);
+		case ChannelType.GuildForum:
+			return new ForumChannel(rest, cache, channel as APIGuildForumChannel);
+		case ChannelType.GuildText:
+			return new TextBaseGuildChannel(rest, cache, channel as APIGuildTextChannel<GuildTextChannelType>);
+		case ChannelType.GuildVoice:
+			return new VoiceChannel(rest, cache, channel as APIGuildVoiceChannel);
 		case ChannelType.DM:
-			return new DMChannel(rest, channel as APIDMChannel);
+			return new DMChannel(rest, cache, channel as APIDMChannel);
+		case ChannelType.PublicThread:
+		case ChannelType.PrivateThread:
+		case ChannelType.AnnouncementThread:
+			return new ThreadChannel(rest, cache, channel as APIThreadChannel);
 		default:
-			return new BaseChannel(rest, channel as APIChannel);
+			return new BaseChannel(rest, cache, channel as APIChannel);
 	}
 }
 export function interactionFactory(
 	rest: BiscuitREST,
+	cache: Cache,
 	interaction: APIInteraction,
 ): BiscuitInteractions {
 	switch (interaction.type) {
 		case InteractionType.Ping:
-			return new BaseInteraction(rest, interaction);
+			return new BaseInteraction(rest, cache, interaction);
 		case InteractionType.ModalSubmit:
-			return new ModalSubmitInteraction(rest, interaction);
+			return new ModalSubmitInteraction(rest, cache, interaction);
 		case InteractionType.ApplicationCommandAutocomplete:
-			return new AutocompleteInteraction(rest, interaction);
+			return new AutocompleteInteraction(rest, cache, interaction);
 		case InteractionType.MessageComponent: {
 			switch (interaction.data.component_type) {
 				case ComponentType.Button:
-					return new ComponentInteraction(rest, interaction);
+					return new ComponentInteraction(rest, cache, interaction);
 				default:
 					return new SelectMenuInteraction(
-						rest,
+						rest, cache,
 						interaction as APIMessageComponentSelectMenuInteraction,
 					);
 			}
@@ -80,12 +112,12 @@ export function interactionFactory(
 			switch (interaction.data.type) {
 				case ApplicationCommandType.ChatInput:
 					return new ChatInputInteraction(
-						rest,
+						rest, cache,
 						interaction as APIChatInputApplicationCommandInteraction,
 					);
 				default:
 					return new ContextMenuInteraction(
-						rest,
+						rest, cache,
 						interaction as APIContextMenuInteraction,
 					);
 			}
@@ -93,24 +125,9 @@ export function interactionFactory(
 	}
 }
 
-/** * Convert a timestamp to a snowflake. * @param timestamp The timestamp to convert. * @returns The snowflake. */ export function snowflakeToTimestamp(
+/** * Convert a timestamp to a snowflake. * @param timestamp The timestamp to convert. * @returns The snowflake. */
+export function snowflakeToTimestamp(
 	id: string,
 ): number {
 	return (Number(id) >> 22) + DiscordEpoch;
 }
-export type ObjectToLower<T> = Identify<{
-	[K in
-	keyof T as CamelCase<Exclude<K, symbol | number>>]: T[K] extends unknown[]
-	? Identify<ObjectToLower<T[K][0]>[]>
-	: T[K] extends object
-	? Identify<ObjectToLower<T[K]>>
-	: T[K];
-}>;
-export type ObjectToSnake<T> = Identify<{
-	[K in
-	keyof T as SnakeCase<Exclude<K, symbol | number>>]: T[K] extends unknown[]
-	? Identify<ObjectToSnake<T[K][0]>[]>
-	: T[K] extends object
-	? Identify<ObjectToSnake<T[K]>>
-	: T[K];
-}>;

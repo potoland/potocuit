@@ -1,16 +1,13 @@
 import type {
-	APIUser,
-	GatewayUserUpdateDispatchData,
+	APIUser, ObjectToLower
 } from '@biscuitland/common';
 import { DMChannel } from './DMChannel';
 import { DiscordBase } from './extra/DiscordBase';
-import type { ImageOptions, ObjectToLower } from './index';
+import type { ImageOptions } from './index';
 
-export type DataUser = APIUser | GatewayUserUpdateDispatchData;
+export interface User extends ObjectToLower<APIUser> { }
 
-export interface User extends DiscordBase, ObjectToLower<DataUser> { }
-
-export class User extends DiscordBase {
+export class User extends DiscordBase<APIUser> {
 	get tag(): string {
 		return `${this.username}#${this.discriminator}`;
 	}
@@ -26,7 +23,7 @@ export class User extends DiscordBase {
 	 * Fetch user
 	 */
 	fetch() {
-		return this.api.users(this.id).get().then(x => new User(this.rest, x));
+		return this.api.users(this.id).get().then(this._patchThis);
 	}
 
 	/**
@@ -35,7 +32,7 @@ export class User extends DiscordBase {
 	createDirectMessage() {
 		return this.api.users('@me').channels.post({
 			body: { recipient_id: this.id },
-		}).then(x => new DMChannel(this.rest, x));
+		}).then(x => new DMChannel(this.rest, this.cache, x));
 	}
 
 	toString(): string {

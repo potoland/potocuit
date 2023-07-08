@@ -15,14 +15,14 @@
 		"node": ">=14.0.0"
 	},
 	"devDependencies": {
-		"@changesets/cli": "^2.26.1",
-		"@types/node": "^20.2.3",
-		"@typescript-eslint/eslint-plugin": "^5.59.5",
-		"@typescript-eslint/parser": "^5.59.5",
-		"eslint": "^8.40.0",
+		"@changesets/cli": "^2.26.2",
+		"@types/node": "^20.4.0",
+		"@typescript-eslint/eslint-plugin": "^5.61.0",
+		"@typescript-eslint/parser": "^5.61.0",
+		"eslint": "^8.44.0",
 		"eslint-config-prettier": "^8.8.0",
-		"turbo": "^1.9.4",
-		"typescript": "^5.0.4"
+		"turbo": "^1.10.7",
+		"typescript": "^5.1.6"
 	},
 	"packageManager": "npm@8.14.0",
 	"bugs": {
@@ -53,8 +53,5 @@
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/potoland/potocuit.git"
-	},
-	"dependencies": {
-		"@discordjs/rest": "^1.7.1"
 	}
 }

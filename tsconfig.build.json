@@ -8,8 +8,8 @@
 		"sourceMap": false,
 		"strict": true,
 		"esModuleInterop": true,
-		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true,
+		"experimentalDecorators": false,
+		"emitDecoratorMetadata": false,
 		"preserveConstEnums": true,
 
 		/* Type Checking */

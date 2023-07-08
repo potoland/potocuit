@@ -9,7 +9,7 @@ import type {
 import type { Cache } from '..';
 import { BaseResource } from './default/base';
 
-export class Guilds extends BaseResource<PotoGuild> {
+export class Guilds extends BaseResource {
 	namespace = 'guild';
 
 	override async get(id: string): Promise<Guild | undefined> {
@@ -259,6 +259,7 @@ export class Guild implements PotoGuild {
 		this.public_updates_channel_id = guild.public_updates_channel_id;
 		this.welcome_screen = guild.welcome_screen;
 		this.hub_type = guild.hub_type;
+		this.safety_alerts_channel_id = guild.safety_alerts_channel_id;
 
 		this.members = {
 			get(id: string) {
@@ -343,6 +344,9 @@ export class Guild implements PotoGuild {
 
 
 	}
+
+	max_stage_video_channel_users?: number | undefined;
+	safety_alerts_channel_id: string | null;
 }
 
 export type PotoGuild = Omit<APIGuild,

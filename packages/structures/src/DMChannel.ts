@@ -1,19 +1,11 @@
-// import type { APIDMChannel } from '@biscuitland/common';
-// import type { BiscuitREST } from '@biscuitland/rest';
-import { applyToClass } from '@biscuitland/common';
-import { BaseChannel } from './extra/BaseChannel';
+import type { APIDMChannel, ChannelType, ObjectToLower } from '@biscuitland/common';
 import { TextBaseChannel } from './extra/TextBaseChannel';
 
-interface DM extends BaseChannel {
-	fetch(): Promise<DMChannel>;
+export interface DMChannel extends TextBaseChannel, ObjectToLower<APIDMChannel> {
+	fetch(): Promise<this>;
 }
 
-class DM extends BaseChannel {
-	// constructor(rest: BiscuitREST, data: APIDMChannel) {
-	// 	super(rest, data);
-	// }
+export class DMChannel extends TextBaseChannel {
+	declare name: null;
+	declare type: ChannelType.DM;
 }
-
-export const DMChannel = applyToClass(TextBaseChannel, DM);
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export type DMChannel = InstanceType<typeof DMChannel>;

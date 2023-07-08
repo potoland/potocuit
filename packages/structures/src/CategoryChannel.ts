@@ -1,5 +1,4 @@
-import type { APIGuildCategoryChannel, ChannelType } from '@biscuitland/common';
-import type { ObjectToLower } from '.';
+import type { APIGuildCategoryChannel, ChannelType, ObjectToLower } from '@biscuitland/common';
 import { BaseChannel } from './extra/BaseChannel';
 
 export interface CategoryChannel

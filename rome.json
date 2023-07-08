@@ -11,7 +11,8 @@
 				"useCamelCase": "warn"
 			},
 			"style": {
-				"noNonNullAssertion": "off"
+				"noNonNullAssertion": "off",
+				"noParameterAssign": "off"
 			},
 			"complexity": {
 				"noUselessConstructor": "off"

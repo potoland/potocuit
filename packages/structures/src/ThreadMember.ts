@@ -2,7 +2,7 @@
 
 // import type { APIGuildMember, APIThreadMember, GatewayThreadMemberUpdateDispatchData, MakeRequired, ThreadMemberFlags } from '@biscuitland/common';
 // import type { BiscuitREST } from '@biscuitland/rest';
-// import type { ObjectToLower } from '.';
+// import type { ObjectToLower } from '@biscuitland/common';
 // import { Base } from './extra/Base';
 // import { DiscordBase } from './extra/DiscordBase';
 

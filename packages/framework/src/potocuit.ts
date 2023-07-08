@@ -1,28 +1,35 @@
 import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
-	InteractionResponseType,
 	InteractionType,
+	ReplaceRegex,
+	Logger
 } from '@biscuitland/common';
 import { BiscuitREST, Router } from '@biscuitland/rest';
 import { GatewayManager } from '@biscuitland/ws';
-import { Cache, DefaultMemoryAdapter } from '@potoland/cache';
 import { readdir } from 'fs/promises';
+
 import { join } from 'path';
+import * as RawEvents from './events';
 
 import type {
 	APIApplicationCommand,
+	APIApplicationCommandAutocompleteInteraction,
 	APIApplicationCommandBasicOption,
 	APIApplicationCommandInteractionDataBasicOption,
 	APIApplicationCommandInteractionDataOption,
 	APIApplicationCommandInteractionDataSubcommandOption,
 	APIApplicationCommandSubcommandGroupOption,
 	APIApplicationCommandSubcommandOption,
+	APIChatInputApplicationCommandInteraction,
 	APIChatInputApplicationCommandInteractionData,
-	GatewayDispatchPayload
+	CamelCase,
+	GatewayDispatchPayload,
+	LoggerOptions
 } from '@biscuitland/common';
 import type { CreateGatewayManagerOptions, GatewayEvents } from '@biscuitland/ws';
-import type { Adapter, CachedEvents } from '@potoland/cache';
+import type { Adapter, CachedEvents } from '@potoland/structures';
+import { ChatInputInteraction, AutocompleteInteraction, Cache, DefaultMemoryAdapter } from '@potoland/structures';
 
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
@@ -31,6 +38,11 @@ export class Potocuit {
 	gateway!: GatewayManager;
 	rest: BiscuitREST;
 	cache: Cache;
+	events: Partial<{
+		[E in keyof typeof RawEvents as CamelCase<E>]: (arg: ReturnType<typeof RawEvents[E]>) => any
+	}>;
+
+	private logger: Logger;
 
 	constructor(readonly token: string, options: {
 		rest?: BiscuitREST;
@@ -39,35 +51,43 @@ export class Potocuit {
 			adapter?: Adapter;
 			disabledEvents?: CachedEvents[];
 		};
+		events?: Partial<{
+			[E in keyof typeof RawEvents as CamelCase<E>]: (arg: ReturnType<typeof RawEvents[E]>) => any
+		}>;
+		logger?: Logger | LoggerOptions;
 	} = {}) {
 		const onPayload = this.onPayload.bind(this);
+		this.events = options.events ?? {};
+		this.rest = options.rest ? options.rest : new BiscuitREST({
+			token,
+		});
 		const cache = new Cache(
+			this.rest,
 			options.cache?.adapter ?? new DefaultMemoryAdapter(),
 			options.cache?.disabledEvents ?? [],
 		);
 		this.cache = cache;
-		this.rest = options.rest ? options.rest : new BiscuitREST({
-			token,
-		});
 		if (options.gateway) {
 			const handlePayload = options.gateway.options.handlePayload;
-			options.gateway.options.handlePayload = async (shardId: number, data: Parameters<CreateGatewayManagerOptions['handlePayload']>[1]) => {
+			options.gateway.options.handlePayload = async (...[shardId, data]: Parameters<CreateGatewayManagerOptions['handlePayload']>) => {
 				await cache.onPacket(data as GatewayDispatchPayload);
 				onPayload(data as GatewayDispatchPayload);
 				await handlePayload(shardId, data);
 			};
 			this.gateway = options.gateway;
 		}
+		this.logger = options.logger instanceof Logger ? options.logger : new Logger(options.logger ?? {});
 	}
 
 	get api() {
+		const rest = this.rest;
 		return Router.prototype.createProxy.call({
-			rest: this.rest,
+			rest,
 			noop: () => {
 				return;
 			},
 			createProxy(route?: string[]) {
-				return Router.prototype.createProxy.call(this, route);
+				return Router.prototype.createProxy.call({ ...this, rest }, route);
 			},
 		});
 	}
@@ -106,14 +126,13 @@ export class Potocuit {
 		const result: Command[] = [];
 
 		for (const i of await readdir(fullPath, { withFileTypes: true })) {
-			// console.log(i.name);
 			if (i.isDirectory()) {
 				const folder = new Command(join(fullPath, i.name), (await import(`file:///${join(fullPath, i.name, '_parent.js')}`)).data);
 				await folder.read();
 				result.push(folder);
 			} else {
 				const rawCommand = await import(`file:///${join(fullPath, i.name)}`);
-				const command = rawCommand.default instanceof Command ? rawCommand.default : new Command(join(fullPath, i.name), rawCommand.data, rawCommand.execute?.bind(rawCommand), rawCommand.onAutocomplete?.bind(rawCommand));
+				const command = rawCommand.default instanceof Command ? rawCommand.default : new Command(join(fullPath, i.name), rawCommand.data, rawCommand.execute.bind(rawCommand), rawCommand.onAutocomplete?.bind(rawCommand));
 				result.push(command);
 			}
 		}
@@ -132,11 +151,15 @@ export class Potocuit {
 	}
 
 	private onPayload(raw: GatewayDispatchPayload) {
+		this.logger.debug(`Received ${raw.t ?? 'UNKNOWN'} event XDD`);
 		switch (raw.t) {
 			case 'INTERACTION_CREATE':
 				this.onInteractionCreate(raw.d);
 				break;
 		}
+		const camelCased = ReplaceRegex.snake(raw.t?.toLowerCase() ?? '') as CamelCase<keyof typeof RawEvents>;
+		// @ts-expect-error
+		this.events[camelCased]?.(RawEvents[raw.t](this.rest, this.cache, raw.d));
 	}
 
 	private async onInteractionCreate(interaction: GatewayEvents['INTERACTION_CREATE']) {
@@ -146,25 +169,27 @@ export class Potocuit {
 					case ApplicationCommandType.ChatInput: {
 						const command = this.commands.get(interaction.data.name);
 						if (!command) {
-							throw new Error('No command found.');
+							return this.logger.info('No command found', interaction.data.name);
 						}
 						const { data, invoker } = command.getInvoker(interaction.data);
 						if (invoker.execute) {
-							const api = this.api;
-							const reply = (str: string) => {
-								return api.interactions(interaction.id)(interaction.token).callback.post({
-									body: {
-										type: InteractionResponseType.ChannelMessageWithSource,
-										data: {
-											content: str ?? 'xd'
-										}
-									}
-								});
-							};
-							await invoker.execute(reply, data);
+							const chatinputinteraction = new ChatInputInteraction(this.rest, this.cache, interaction as APIChatInputApplicationCommandInteraction);
+							await invoker.execute(chatinputinteraction, data);
 						}
 						break;
 					}
+				}
+				break;
+			}
+			case InteractionType.ApplicationCommandAutocomplete: {
+				const command = this.commands.get(interaction.data.name);
+				if (!command) {
+					return this.logger.info('No command found', interaction.data.name);
+				}
+				const { data, invoker } = command.getInvoker(interaction.data);
+				if (invoker.onAutocomplete) {
+					const autocompleteinteraction = new AutocompleteInteraction(this.rest, this.cache, interaction as APIApplicationCommandAutocompleteInteraction);
+					await invoker.onAutocomplete(autocompleteinteraction, data);
 				}
 				break;
 			}
@@ -231,9 +256,8 @@ export class Command extends BaseCommand {
 	constructor(
 		readonly path: string,
 		readonly data: APIApplicationCommand,
-		readonly execute?: (...interaction: unknown[]) => Promise<void>,
+		readonly execute?: (interaction: ChatInputInteraction, data: APIApplicationCommandInteractionDataBasicOption[]) => Promise<void>,
 		readonly onAutocomplete?: (interaction: unknown, focused: unknown) => Promise<void>
-
 	) {
 		super(data);
 	}
@@ -251,7 +275,7 @@ export class Command extends BaseCommand {
 					const rawCommand = await import(`file:///${join(this.path, i.name)}`);
 					const cmd = rawCommand.default instanceof SubCommand
 						? rawCommand.default
-						: new SubCommand(rawCommand.data, rawCommand.execute?.bind(rawCommand), rawCommand.onAutocomplete?.bind(rawCommand));
+						: new SubCommand(rawCommand.data, rawCommand.execute.bind(rawCommand), rawCommand.onAutocomplete?.bind(rawCommand));
 					this.options.push(cmd);
 				}
 				// console.log(i.name, this.path);
@@ -294,7 +318,7 @@ export class SubGroupCommand extends BaseCommand {
 export class SubCommand extends BaseCommand {
 	constructor(
 		readonly data: APIApplicationCommandSubcommandOption,
-		readonly execute: (...interaction: unknown[]) => Promise<void>,
+		readonly execute: (interaction: ChatInputInteraction, data: APIApplicationCommandInteractionDataBasicOption[]) => Promise<void>,
 		readonly onAutocomplete?: (interaction: unknown, focused: unknown) => Promise<void>
 	) {
 		super(data);

@@ -1,11 +1,10 @@
+import type { BiscuitREST } from '@biscuitland/rest';
 import type { Cache } from '../../index';
 
 export class BaseResource<T = any> {
 	namespace = 'base';
-	protected cache: Cache;
 
-	constructor(cache: Cache) {
-		this.cache = cache;
+	constructor(protected rest: BiscuitREST, protected cache: Cache) {
 	}
 
 	get adapter() {

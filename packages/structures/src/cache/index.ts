@@ -18,6 +18,7 @@ import { StageInstances } from './resources/stage-instances';
 import { Stickers } from './resources/stickers';
 import { Threads } from './resources/threads';
 import { VoiceStates } from './resources/voice-states';
+import type { BiscuitREST } from '@biscuitland/rest';
 
 export type GuildBased =
 	'roles' |
@@ -92,23 +93,23 @@ export class Cache {
 	voiceStates: VoiceStates;
 	stageInstances: StageInstances;
 
-	constructor(adapter: Adapter, private disabledEvents: string[] | 'ALL') {
+	constructor(rest: BiscuitREST, adapter: Adapter, private disabledEvents: string[] | 'ALL') {
 		this.adapter = adapter;
 
 		// non-guild based
-		this.users = new Users(this);
-		this.guilds = new Guilds(this);
+		this.users = new Users(rest, this);
+		this.guilds = new Guilds(rest, this);
 
 		// guild based
-		this.members = new Members(this);
-		this.roles = new Roles(this);
-		this.channels = new Channels(this);
-		this.emojis = new Emojis(this);
-		this.stickers = new Stickers(this);
-		this.presences = new Presences(this);
-		this.voiceStates = new VoiceStates(this);
-		this.threads = new Threads(this);
-		this.stageInstances = new StageInstances(this);
+		this.members = new Members(rest, this);
+		this.roles = new Roles(rest, this);
+		this.channels = new Channels(rest, this);
+		this.emojis = new Emojis(rest, this);
+		this.stickers = new Stickers(rest, this);
+		this.presences = new Presences(rest, this);
+		this.voiceStates = new VoiceStates(rest, this);
+		this.threads = new Threads(rest, this);
+		this.stageInstances = new StageInstances(rest, this);
 	}
 
 	async bulkSet(keys:
@@ -135,7 +136,6 @@ export class Cache {
 	) {
 		const allData: [string, any][] = [];
 		const relationshipsData: Record<string, string[]> = {};
-
 		for (const [type, data, id, guildId] of keys) {
 			switch (type) {
 				case 'roles':
@@ -178,8 +178,6 @@ export class Cache {
 		await this.adapter.bulkAddToRelationShip(
 			relationshipsData
 		);
-
-		return allData;
 	}
 
 	async onPacket(event: GatewayDispatchPayload) {
@@ -255,7 +253,7 @@ export class Cache {
 
 			case 'MESSAGE_CREATE':
 				if (event.d.member && event.d.author && event.d.guild_id) {
-					await this.members.set(event.d.author.id, event.d.guild_id, event.d.member);
+					await this.members.set(event.d.author.id, event.d.guild_id, { user: event.d.author, ...event.d.member });
 				}
 				break;
 
