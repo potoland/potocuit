@@ -3,7 +3,7 @@
   # **@potoland/framework**
 
   <img src="https://github.com/potoland/potocuit/raw/main/assets/icon.png" alt="potocuit" width="100px" />
-  
+
   **A brand new bleeding edge non bloated Discord framework**
 
   [![License](https://img.shields.io/npm/l/@potoland/framework?style=flat-square&logo=apache&color=white)](https://github.com/potoland/potocuit/blob/main/LICENSE)
@@ -35,52 +35,12 @@ npm install @potoland/framework
 ## Basic bot example
 
 ```js
-const Redis = require('ioredis');
-
-const { DefaultRestAdapter } = require('@biscuitland/rest');
-const { Intents } = require('@biscuitland/api-types');
-const { Potocuit } = require('@potoland/framework');
-const { RedisAdapter } = require('@potoland/cache');
-
-const TOKEN = 'YOUR-BOT-TOKEN';
-
-// This should be inside of an async function cuz marcrock sucks.
-(async () => {
-  const restAdapter = new DefaultRestAdapter({
-    token: TOKEN
-  });
-
-  const gateway = await restAdapter.get('/gateway/bot');
-  
-  const bot = new Potocuit({
-    token: TOKEN,
-    intents: Intents.GuildMembers
-      | Intents.Guilds
-      | Intents.GuildMessages,
-    shardManagerOptions: {
-      gateway
-    },
-    restAdapter,
-    cache: {
-      adapter: new RedisAdapter({
-        options: { namespace: 'bot' },
-        client: new Redis()
-      }),
-      disabledEvents: [] // You can pass 'ALL' instead of [] if you want to disable all events.
-    }
-  });
-
-  bot.events.ready = ([id, shards]) => {
-    console.log(`[${id}] handling ${shards} shards`);
-  };
-
-  await bot.start();
-})();
+const client = new PotoClient();
+client.execute('TOKEN')
 ```
 
 # Useful links
 
 - [GitHub Repository](https://github.com/potoland/potocuit)
 - [Discord server](https://discord.com/invite/XNw2RZFzaP)
-- [npm - core](https://www.npmjs.com/package/@potoland/framework)
-- [npm - cache](https://www.npmjs.com/package/@potoland/cache)
+- [npm - core](https://www.npmjs.com/package/potocuit)
