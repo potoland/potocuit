@@ -1,20 +1,20 @@
 <div align='center'>
 
-  # **@potoland/framework**
+  # **potocuit**
 
   <img src="https://github.com/potoland/potocuit/raw/main/assets/icon.png" alt="potocuit" width="100px" />
 
   **A brand new bleeding edge non bloated Discord framework**
 
-  [![License](https://img.shields.io/npm/l/@potoland/framework?style=flat-square&logo=apache&color=white)](https://github.com/potoland/potocuit/blob/main/LICENSE)
-  [![Version](https://img.shields.io/npm/v/@potoland/framework?color=%23ff0000&logo=npm&style=flat-square)](https://www.npmjs.com/package/@potoland/framework)
+  [![License](https://img.shields.io/npm/l/potocuit?style=flat-square&logo=apache&color=white)](https://github.com/potoland/potocuit/blob/main/LICENSE)
+  [![Version](https://img.shields.io/npm/v/potocuit?color=%23ff0000&logo=npm&style=flat-square)](https://www.npmjs.com/package/potocuit)
   [![Discord](https://img.shields.io/discord/973427352560365658?color=%23406da2&label=support&logo=discord&style=flat-square)](https://discord.com/invite/XNw2RZFzaP)
 
 </div>
 
 # F.A.Q
 
-### What is `@potoland/framework`?
+### What is `potocuit`?
 - **A wrapper for interfacing with the Discord API.**
 
 ### Why you should use it?
@@ -29,7 +29,7 @@
 If you don't want to use NPM, replace **`npm install`** with your package manager of choice. If that is not the case, you can proceed with this command.
 
 ```sh
-npm install @potoland/framework
+npm install potocuit
 ```
 
 ## Basic bot example
