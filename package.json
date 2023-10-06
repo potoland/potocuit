@@ -1,0 +1,64 @@
+{
+	"name": "potocuit",
+	"version": "0.0.1",
+	"main": "./dist/index.js",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
+	"files": [
+		"dist/**"
+	],
+	"scripts": {
+		"build": "tsup",
+		"clean": "rm -rf dist && rm -rf .turbo",
+		"dev": "tsup --watch",
+		"prepublishOnly": "npm run build",
+		"test": "nodemon --watch ./__test__ --exec \"node ./__test__\""
+	},
+	"author": "MARCROCK22",
+	"license": "ISC",
+	"dependencies": {
+		"@biscuitland/common": "^0.0.9",
+		"@biscuitland/rest": "^3.0.7",
+		"@biscuitland/ws": "^3.0.10",
+		"ioredis": "^5.3.2",
+		"ts-mixer": "^6.0.3"
+	},
+	"devDependencies": {
+		"@types/node": "^20.6.3",
+		"@typescript-eslint/eslint-plugin": "^6.7.2",
+		"@typescript-eslint/parser": "^6.7.2",
+		"eslint": "^8.50.0",
+		"eslint-config-prettier": "^9.0.0",
+		"nodemon": "^3.0.1",
+		"tsup": "^7.2.0",
+		"typescript": "^5.2.2"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"import": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.mjs"
+			},
+			"require": "./dist/index.js"
+		}
+	},
+	"homepage": "https://biscuitjs.com",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/potoland/potocuit.git"
+	},
+	"bugs": {
+		"url": "https://github.com/potoland/potocuit"
+	},
+	"keywords": [
+		"api",
+		"discord",
+		"bots",
+		"typescript",
+		"botdev"
+	],
+	"publishConfig": {
+		"access": "public"
+	}
+}

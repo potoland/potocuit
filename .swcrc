@@ -1,0 +1,26 @@
+{
+    "module": {
+        "type": "es6"
+    },
+    "jsc": {
+        "externalHelpers": false,
+        "target": "es2022",
+        "parser": {
+            "syntax": "typescript",
+            "tsx": false,
+            "decorators": true
+        },
+        "transform": {
+            "legacyDecorator": true,
+            "decoratorMetadata": false
+        },
+        "keepClassNames": false,
+        "loose": false,
+        "minify": {
+            "compress": false,
+            "mangle": false
+        }
+    },
+    "minify": false
+}
+// https://swc.rs/playground
