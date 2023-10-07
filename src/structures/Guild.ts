@@ -8,6 +8,7 @@ import { GuildTemplate } from "./GuildTemplate";
 import { Sticker } from "./Sticker";
 import { GuildRole } from "./GuildRole";
 import { AutoModerationRule } from "./AutoModerationRule";
+import { BaseChannel } from "./methods/channel/base";
 
 export interface Guild extends Omit<ObjectToLower<APIGuild>, 'stickers' | 'emojis' | 'roles'>, DiscordBase {
 }
@@ -54,6 +55,7 @@ export class Guild extends (BaseGuild as unknown as ToClass<Omit<BaseGuild, keyo
 	members = GuildMember.methods(this);
 	moderationRules = AutoModerationRule.methods(this);
 	roles = GuildRole.methods(this);
+	channels = BaseChannel.methods(this);
 }
 
 /** Maximun custom guild emojis per level */

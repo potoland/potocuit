@@ -21,6 +21,7 @@ export class BaseResource<T = any> {
 	async setIfNI(intent: keyof typeof GatewayIntentBits, id: string, data: any) {
 		if (!this.cache.hasIntent(intent)) {
 			await this.set(id, data);
+			return data;
 		}
 	}
 

@@ -17,7 +17,7 @@ export class GuildBasedResource<T = any> {
 		return this.cache.adapter;
 	}
 
-	async removeIfNI(intent: keyof typeof GatewayIntentBits, id: string, guildId: string) {
+	async removeIfNI(intent: keyof typeof GatewayIntentBits, id: string | string[], guildId: string) {
 		if (!this.cache.hasIntent(intent)) {
 			await this.remove(id, guildId)
 		}
@@ -26,6 +26,7 @@ export class GuildBasedResource<T = any> {
 	async setIfNI(intent: keyof typeof GatewayIntentBits, id: string, guildId: string, data: any) {
 		if (!this.cache.hasIntent(intent)) {
 			await this.set(id, guildId, data);
+			return data;
 		}
 	}
 

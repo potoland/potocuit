@@ -164,7 +164,7 @@ export class GuildMember extends DiscordBase {
 
 				return new GuildMember(ctx.rest, ctx.cache, member, member.user!, ctx.id);
 			},
-			fetch: async (id: string, force = false): Promise<GuildMember> => {
+			fetch: async (id: string, force = false) => {
 				let member: APIGuildMember;
 				if (!force) {
 					member = await ctx.cache.members?.get(ctx.id, id);
@@ -176,7 +176,7 @@ export class GuildMember extends DiscordBase {
 				return new GuildMember(ctx.rest, ctx.cache, member, member.user!, ctx.id);
 			},
 
-			list: async (query?: RESTGetAPIGuildMembersQuery, force = false): Promise<GuildMember[]> => {
+			list: async (query?: RESTGetAPIGuildMembersQuery, force = false) => {
 				let members: RESTGetAPIGuildMembersResult;
 				if (!force) {
 					members = await ctx.cache.members?.values(ctx.id) ?? [];
