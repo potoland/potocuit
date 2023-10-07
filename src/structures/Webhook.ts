@@ -1,6 +1,6 @@
 import { ObjectToLower, APIWebhook, RESTPostAPIWebhookWithTokenJSONBody, RESTPostAPIWebhookWithTokenQuery, RESTPatchAPIWebhookWithTokenMessageJSONBody, RESTGetAPIWebhookWithTokenMessageQuery, RESTPatchAPIWebhookWithTokenJSONBody, RESTPatchAPIWebhookJSONBody } from "@biscuitland/common";
 import { BiscuitREST } from "@biscuitland/rest";
-import { AnonymousGuild } from "./AnonymusGuild";
+import { AnonymousGuild } from "./AnonymousGuild";
 import { User } from "./User";
 import { DiscordBase } from "./extra/DiscordBase";
 import { Cache } from "../cache";

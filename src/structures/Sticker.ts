@@ -50,26 +50,27 @@ export class Sticker extends DiscordBase {
 				await ctx.cache.stickers?.setIfNI('GuildEmojisAndStickers', sticker.id, ctx.id, sticker);
 				return new Sticker(ctx.rest, ctx.cache, sticker);
 			},
-			edit: async (body: RESTPatchAPIGuildStickerJSONBody, reason?: string, id = ctx.stickerId) => {
-				if (!id) throw new Error('No sticker id');
-				const sticker = await ctx.api.guilds(ctx.id).stickers(id).patch({ body, reason });
-				await ctx.cache.stickers?.setIfNI('GuildEmojisAndStickers', id, ctx.id, sticker);
+			edit: async (body: RESTPatchAPIGuildStickerJSONBody, reason?: string) => {
+				if (!ctx.stickerId) throw new Error('No stickerId');
+				const sticker = await ctx.api.guilds(ctx.id).stickers(ctx.stickerId).patch({ body, reason });
+				await ctx.cache.stickers?.setIfNI('GuildEmojisAndStickers', ctx.stickerId, ctx.id, sticker);
 				return new Sticker(ctx.rest, ctx.cache, sticker);
 			},
-			fetch: async (force = false, id = ctx.stickerId) => {
-				if (!id) throw new Error('No sticker id');
+			fetch: async (force = false) => {
+				if (!ctx.stickerId) throw new Error('No stickerId');
 				let sticker;
 				if (!force) {
-					sticker = await ctx.cache.stickers?.get(id);
+					sticker = await ctx.cache.stickers?.get(ctx.stickerId);
 					if (sticker) return new Sticker(ctx.rest, ctx.cache, sticker);
 				}
-				sticker = await ctx.api.guilds(ctx.id).stickers(id).get()
-				await ctx.cache.stickers?.patch(id, ctx.id, sticker);
+				sticker = await ctx.api.guilds(ctx.id).stickers(ctx.stickerId).get()
+				await ctx.cache.stickers?.patch(ctx.stickerId, ctx.id, sticker);
 				return new Sticker(ctx.rest, ctx.cache, sticker);
 			},
-			delete: async (reason?: string, id = ctx.id) => {
-				await ctx.api.guilds(ctx.id).stickers(id).delete({ reason });
-				await ctx.cache.stickers?.removeIfNI('GuildEmojisAndStickers', id, ctx.id);
+			delete: async (reason?: string) => {
+				if (!ctx.stickerId) throw new Error('No stickerId')
+				await ctx.api.guilds(ctx.id).stickers(ctx.stickerId).delete({ reason });
+				await ctx.cache.stickers?.removeIfNI('GuildEmojisAndStickers', ctx.stickerId, ctx.id);
 			}
 		}
 	}

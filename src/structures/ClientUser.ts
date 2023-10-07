@@ -2,9 +2,10 @@ import { APIGuild, GatewayReadyDispatchData, RESTGetAPICurrentUserGuildsQuery, R
 import { BiscuitREST } from "@biscuitland/rest";
 import { User } from "./User";
 import type { Cache } from '../cache'
-import { AnonymousGuild } from "./AnonymusGuild";
+import { AnonymousGuild } from "./AnonymousGuild";
 import { Guild } from './Guild';
 import { GuildMember } from "./GuildMember";
+import { MethodContext } from "../types";
 
 
 export class ClientUser extends User {
@@ -23,25 +24,28 @@ export class ClientUser extends User {
 		return this._patchThis(data);
 	}
 
-	guilds = {
-		list: (query?: RESTGetAPICurrentUserGuildsQuery) => {
-			return this.api.users('@me').guilds.get({ query })
-				// tengo pensado en hacer un patch aqui tambien, luego veo
-				.then(guilds =>
-					guilds
-						.map(guild => new AnonymousGuild(this.rest, this.cache, { ...guild, splash: null })));
-		},
-		fetch: async (id: string) => {
-			const guild = await this.api.guilds(id).get().then(g => this.cache.guilds?.patch<APIGuild>(id, g) ?? g);
-			return new Guild(this.rest, this.cache, guild);
-		},
-		fetchSelf: async (id: string) => {
-			const self = await this.api.users('@me').guilds(id).member.get();
-			await this.cache.members?.patch(this.id, id, self)
-			return new GuildMember(this.rest, this.cache, self, self.user ?? this, id);
-		},
-		leave: async (id: string) => {
-			return this.api.users('@me').guilds(id).delete().then(() => this.cache.guilds?.removeIfNI('Guilds', id))
+	guilds = ClientUser.guilds(this);
+
+	static guilds(ctx: MethodContext) {
+		return {
+			list: (query?: RESTGetAPICurrentUserGuildsQuery) => {
+				return ctx.api.users('@me').guilds.get({ query })
+					.then(guilds =>
+						guilds
+							.map(guild => new AnonymousGuild(ctx.rest, ctx.cache, { ...guild, splash: null })));
+			},
+			fetch: async (id: string) => {
+				const guild = await ctx.api.guilds(id).get().then(g => ctx.cache.guilds?.patch<APIGuild>(id, g) ?? g);
+				return new Guild(ctx.rest, ctx.cache, guild);
+			},
+			fetchSelf: async (id: string) => {
+				const self = await ctx.api.users('@me').guilds(id).member.get();
+				await ctx.cache.members?.patch(ctx.id, id, self)
+				return new GuildMember(ctx.rest, ctx.cache, self, self.user!, id);
+			},
+			leave: async (id: string) => {
+				return ctx.api.users('@me').guilds(id).delete().then(() => ctx.cache.guilds?.removeIfNI('Guilds', id));
+			}
 		}
 	}
 }
