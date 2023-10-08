@@ -1,23 +1,23 @@
 import { mix } from 'ts-mixer';
 import { BaseChannel } from './methods/channel/base';
-import { MessagesMethod } from './methods/channel/messages';
+import { MessagesMethods } from './methods/channel/messages';
 import { APIDMChannel, APIGuildForumChannel, APIGuildMediaChannel, APIGuildStageVoiceChannel, APIGuildVoiceChannel, APITextChannel, APIThreadChannel, ChannelFlags, ObjectToLower, VideoQualityMode } from '@biscuitland/common';
 import { DiscordBase } from './extra/DiscordBase';
 import { ThreadOnlyMethods } from './methods/channel/threadonly';
 
-export interface TextBaseChannel extends ObjectToLower<APITextChannel>, BaseChannel, MessagesMethod { }
-@mix(BaseChannel, MessagesMethod)
+export interface TextBaseChannel extends ObjectToLower<APITextChannel>, BaseChannel, MessagesMethods { }
+@mix(MessagesMethods)
 export class TextBaseChannel extends DiscordBase { }
 
 export interface TextGuildChannel extends ObjectToLower<APITextChannel>, BaseChannel, TextBaseChannel { }
 @mix(TextBaseChannel)
 export class TextGuildChannel extends DiscordBase { }
 
-export interface DMChannel extends ObjectToLower<APIDMChannel>, BaseChannel, MessagesMethod { }
+export interface DMChannel extends ObjectToLower<APIDMChannel>, BaseChannel, MessagesMethods { }
 @mix(TextBaseChannel)
 export class DMChannel extends DiscordBase { }
 
-export interface VoiceChannel extends ObjectToLower<APIGuildVoiceChannel>, BaseChannel, MessagesMethod { }
+export interface VoiceChannel extends ObjectToLower<APIGuildVoiceChannel>, BaseChannel, MessagesMethods { }
 @mix(TextBaseChannel)
 export class VoiceChannel extends DiscordBase {
 	setBitrate(bitrate: number | null, reason?: string) {
@@ -54,10 +54,9 @@ export interface ForumChannel extends ObjectToLower<APIGuildForumChannel>, Threa
 export class ForumChannel extends DiscordBase { }
 
 
-export interface ThreadChannel extends ObjectToLower<APIThreadChannel>, BaseChannel, MessagesMethod { }
+export interface ThreadChannel extends ObjectToLower<APIThreadChannel>, BaseChannel, MessagesMethods { }
 @mix(TextBaseChannel)
 export class ThreadChannel extends DiscordBase {
-
 	pin(reason?: string) {
 		return this.edit({ flags: (this.flags ?? 0) | ChannelFlags.Pinned }, reason);
 	}
@@ -67,7 +66,10 @@ export class ThreadChannel extends DiscordBase {
 	}
 
 	setTags(tags: string[], reason?: string) {
-		// The available_tags field can be set when creating or updating a channel, which determines which tags can be set on individual threads within the thread's applied_tags field. a
+		/*
+		The available_tags field can be set when creating or updating a channel,
+			which determines which tags can be set on individual threads within the thread's applied_tags field.
+		*/
 		//@ts-expect-error
 		return this.edit({ applied_tags: tags }, reason);
 	}
@@ -75,9 +77,7 @@ export class ThreadChannel extends DiscordBase {
 	setArchived(archived = true, reason?: string) {
 		return this.edit({ archived }, reason);
 	}
-
-	// xd ta bien
-}//a mimir
+}
 
 export type PotocuitChannels = BaseChannel |
 	TextGuildChannel |

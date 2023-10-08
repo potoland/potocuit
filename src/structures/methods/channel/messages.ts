@@ -1,19 +1,17 @@
 import { APIPartialEmoji, RESTGetAPIChannelMessageReactionUsersQuery, RESTPostAPIChannelMessageJSONBody, RESTPatchAPIChannelMessageJSONBody, RESTPostAPIChannelMessagesBulkDeleteJSONBody } from "@biscuitland/common";
-import { BiscuitREST, RawFile, Routes } from "@biscuitland/rest";
+import { RawFile } from "@biscuitland/rest";
 import { encodeEmoji, resolveEmoji } from "../../extra/functions"
-import { Cache } from "../../../cache";
 import { User } from "../../User";
 import { Message } from "../../Message";
 import { MethodContext } from "../../..";
 import { EmojiResolvable } from "../../../types/resolvables";
+import { mix } from "ts-mixer";
+import { DiscordBase } from "../../extra/DiscordBase";
+import { BaseChannel } from "./base";
 
-export class MessagesMethod {
-	//channelId
-	id!: string
-	rest!: BiscuitREST;
-	cache!: Cache
-	readonly api!: Routes;
-
+export interface MessagesMethods extends BaseChannel { }
+@mix(BaseChannel)
+export class MessagesMethods extends DiscordBase {
 	typing() {
 		return this.api.channels(this.id).typing.post();
 	}
@@ -21,9 +19,9 @@ export class MessagesMethod {
 	// creo que esto da error de runtime XDDDDDD si no mal recuerdo me paso algo parecido en biscuit
 	// era algo como que esto se iniciaba antes que el constructor y this daba error, aunque supongo que aqui no pasa nada
 	// solo afectaria a los que tengan constructor i guess
-	messages = MessagesMethod.messages(this);
-	pins = MessagesMethod.pins(this);
-	reactions = MessagesMethod.reactions(this);
+	messages = MessagesMethods.messages(this);
+	pins = MessagesMethods.pins(this);
+	reactions = MessagesMethods.reactions(this);
 	static reactions(ctx: MethodContext) {
 		return {
 			add: async (messageId: string, emoji: EmojiResolvable) => {
