@@ -14,7 +14,7 @@ import { GuildMember } from './GuildMember';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 import type { Cache } from '../cache';
-import { MessagesMethod } from './methods/channel/messages';
+import { MessagesMethods } from './methods/channel/messages';
 import { EmojiResolvable } from '../types/resolvables';
 
 export type MessageData = APIMessage | GatewayMessageCreateDispatchData;
@@ -51,17 +51,17 @@ export class Message extends DiscordBase {
 	}
 
 	fetch() {
-		return MessagesMethod.messages({ id: this.channelId, api: this.api, rest: this.rest, cache: this.cache })
+		return MessagesMethods.messages({ id: this.channelId, api: this.api, rest: this.rest, cache: this.cache })
 			.fetch(this.id).then(this._patchThis);
 	}
 
 	edit(body: RESTPostAPIChannelMessageJSONBody, files?: RawFile[]) {
-		return MessagesMethod.messages({ id: this.channelId, api: this.api, rest: this.rest, cache: this.cache })
+		return MessagesMethods.messages({ id: this.channelId, api: this.api, rest: this.rest, cache: this.cache })
 			.edit(this.id, body, files);
 	}
 
 	write(body: RESTPostAPIChannelMessageJSONBody, files?: RawFile[]) {
-		return MessagesMethod.messages({ id: this.channelId, api: this.api, rest: this.rest, cache: this.cache })
+		return MessagesMethods.messages({ id: this.channelId, api: this.api, rest: this.rest, cache: this.cache })
 			.write(body, files);
 	}
 
@@ -81,15 +81,15 @@ export class Message extends DiscordBase {
 	}
 
 	react(emoji: EmojiResolvable) {
-		return MessagesMethod.reactions({ id: this.channelId, api: this.api, rest: this.rest, cache: this.cache }).add(this.id, emoji);
+		return MessagesMethods.reactions({ id: this.channelId, api: this.api, rest: this.rest, cache: this.cache }).add(this.id, emoji);
 	}
 
 	delete(reason?: string) {
-		return MessagesMethod.messages({ id: this.channelId, api: this.api, rest: this.rest, cache: this.cache }).delete(this.id, reason);
+		return MessagesMethods.messages({ id: this.channelId, api: this.api, rest: this.rest, cache: this.cache }).delete(this.id, reason);
 	}
 
 	crosspost(reason?: string) {
-		return MessagesMethod.messages({ id: this.channelId, api: this.api, rest: this.rest, cache: this.cache }).crosspost(this.id, reason);
+		return MessagesMethods.messages({ id: this.channelId, api: this.api, rest: this.rest, cache: this.cache }).crosspost(this.id, reason);
 	}
 
 	private patch(data: MessageData) {

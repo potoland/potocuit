@@ -6,7 +6,7 @@ import { DiscordBase } from '../../extra/DiscordBase';
 import { MethodContext } from '../../../types';
 import { BiscuitREST } from '@biscuitland/rest';
 import { Cache } from '../../../cache';
-import { PotocuitChannels } from '../../channels';
+import { BaseGuildChannel, PotocuitChannels } from '../../channels';
 
 // export interface BaseChannel extends ObjectToLower<APIChannelBase<ChannelType>> { }
 
@@ -57,6 +57,7 @@ export class BaseChannel extends DiscordBase<APIChannelBase<ChannelType>> {
 	static from(data: APIChannelBase<ChannelType>, rest: BiscuitREST, cache: Cache): PotocuitChannels {
 		switch (data.type) {
 			default:
+				if ('guild_id' in data) return new BaseGuildChannel(rest, cache, data);
 				return new BaseChannel(rest, cache, data)
 		}
 	}

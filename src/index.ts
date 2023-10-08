@@ -36,7 +36,7 @@ export class PotoClient {
 		}
 	}
 
-	async execute(token?: string) {
+	async execute(token?: string, intents = 0) {
 		this.rest ??= (!token && throwError('Token expected')) || new BiscuitREST({
 			token: token!
 		});
@@ -44,7 +44,7 @@ export class PotoClient {
 		this.gateway ??= (!token && throwError('Token expected')) || new GatewayManager({
 			token: token!,
 			info: await this.proxy.gateway.bot.get(),
-			intents: 0,
+			intents: intents,
 			handlePayload: (shardId, packet) => {
 				return this.onPacket(shardId, packet)
 			},
@@ -57,6 +57,7 @@ export class PotoClient {
 
 	protected async onPacket(shardId: number, packet: GatewayDispatchPayload) {
 		if (packet.t === 'READY') console.log(`${shardId}`, packet.d.user.username);
+		else console.log(`${shardId}`, packet.d, packet.t);
 		await this.cache.onPacket(packet);
 	}
 }

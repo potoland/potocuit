@@ -1,10 +1,10 @@
 import { APIGuildForumTag, ThreadAutoArchiveDuration, APIGuildForumDefaultReactionEmoji, SortOrderType } from "@biscuitland/common";
-import { BaseChannel } from "./base";
 import { DiscordBase } from "../../extra/DiscordBase";
 import { mix } from "ts-mixer";
+import { TopicableGuildChannel } from "../../channels";
 
-export interface ThreadOnlyMethods extends BaseChannel { }
-@mix(BaseChannel)
+export interface ThreadOnlyMethods extends TopicableGuildChannel { }
+@mix(TopicableGuildChannel)
 export class ThreadOnlyMethods extends DiscordBase {
 	setTags(tags: APIGuildForumTag[], reason?: string) {
 		return this.edit({ available_tags: tags }, reason);
@@ -24,9 +24,5 @@ export class ThreadOnlyMethods extends DiscordBase {
 
 	setThreadRateLimit(rate: number, reason?: string) {
 		return this.edit({ default_thread_rate_limit_per_user: rate }, reason);
-	}
-
-	setTopic(topic: string | null, reason?: string) {
-		return this.edit({ topic }, reason);
 	}
 }
