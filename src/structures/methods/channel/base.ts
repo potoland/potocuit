@@ -6,6 +6,7 @@ import { DiscordBase } from '../../extra/DiscordBase';
 import { MethodContext } from '../../../types';
 import { BiscuitREST } from '@biscuitland/rest';
 import { Cache } from '../../../cache';
+import { PotocuitChannels } from '../../channels';
 
 // export interface BaseChannel extends ObjectToLower<APIChannelBase<ChannelType>> { }
 
@@ -45,15 +46,15 @@ export class BaseChannel extends DiscordBase<APIChannelBase<ChannelType>> {
 		return this.__methods__.delete(this.id, reason);
 	}
 
-	async edit(body: RESTPatchAPIChannelJSONBody) {
-		return this.__methods__.edit(this.id, body).then(this._patchThis);
+	edit(body: RESTPatchAPIChannelJSONBody, reason?: string) {
+		return this.__methods__.edit(this.id, body, reason).then(this._patchThis);
 	}
 
 	toString() {
 		return `<#${this.id}>`;
 	}
 
-	static from(data: APIChannelBase<ChannelType>, rest: BiscuitREST, cache: Cache) {
+	static from(data: APIChannelBase<ChannelType>, rest: BiscuitREST, cache: Cache): PotocuitChannels {
 		switch (data.type) {
 			default:
 				return new BaseChannel(rest, cache, data)
@@ -91,9 +92,9 @@ export class BaseChannel extends DiscordBase<APIChannelBase<ChannelType>> {
 				return ctx.api.channels(channelId).delete({ reason })
 					.then(res => ctx.cache.channels?.removeIfNI(BaseChannel.__intent__(ctx.id), res.id, ctx.id))
 			},
-			edit: (channelId = ctx.channelId, body: RESTPatchAPIChannelJSONBody) => {
+			edit: (channelId = ctx.channelId, body: RESTPatchAPIChannelJSONBody, reason?: string) => {
 				if (!channelId) throw new Error('No channelId')
-				return ctx.api.channels(channelId).patch({ body })
+				return ctx.api.channels(channelId).patch({ body, reason })
 					.then(res => ctx.cache.channels?.setIfNI(BaseChannel.__intent__(ctx.id), res.id, ctx.id, res).then(x => x ?? res))
 			},
 			//204
