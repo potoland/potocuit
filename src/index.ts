@@ -55,10 +55,16 @@ export class PotoClient {
 		await this.gateway.spawnShards();
 	}
 
-	protected async onPacket(shardId: number, packet: GatewayDispatchPayload) {
-		if (packet.t === 'READY') console.log(`${shardId}`, packet.d.user.username);
-		else console.log(`${shardId}`, packet.d, packet.t);
+	protected async onPacket(_shardId: number, packet: GatewayDispatchPayload) {
 		await this.cache.onPacket(packet);
+		switch (packet.t) {
+			case 'INTERACTION_CREATE': {
+				const interaction = BaseInteraction.from(this.rest, this.cache, packet.d);
+				console.log(interaction);
+			} break;
+		}
+		if (packet.t === 'READY') console.log(`${_shardId}`, packet.d.user.username);
+		// else console.log(`${shardId}`, packet.d, packet.t);
 	}
 }
 

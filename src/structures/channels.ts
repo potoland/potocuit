@@ -1,9 +1,9 @@
 import { mix } from 'ts-mixer';
 import { BaseChannel } from './methods/channel/base';
 import { MessagesMethods } from './methods/channel/messages';
-import { APIDMChannel, APIGuildCategoryChannel, APIGuildForumChannel, APIGuildMediaChannel, APIGuildStageVoiceChannel, APIGuildVoiceChannel, APITextChannel, APIThreadChannel, ChannelFlags, ObjectToLower, ThreadAutoArchiveDuration, VideoQualityMode } from '@biscuitland/common';
+import { APIDMChannel, APIGuildCategoryChannel, APIGuildForumChannel, APIGuildForumDefaultReactionEmoji, APIGuildForumTag, APIGuildMediaChannel, APIGuildStageVoiceChannel, APIGuildVoiceChannel, APITextChannel, APIThreadChannel, ChannelFlags, ObjectToLower, SortOrderType, ThreadAutoArchiveDuration, VideoQualityMode } from '@biscuitland/common';
 import { DiscordBase } from './extra/DiscordBase';
-import { ThreadOnlyMethods } from './methods/channel/threadonly';
+import { ToClass } from '../types/util';
 
 export class BaseGuildChannel extends BaseChannel {
 	setPosition(position: number, reason?: string) {
@@ -66,6 +66,30 @@ export class TextGuildChannel extends BaseGuildChannel {
 export class TopicableGuildChannel extends BaseGuildChannel {
 	setTopic(topic: string | null, reason?: string) {
 		return this.edit({ topic }, reason);
+	}
+}
+
+export interface ThreadOnlyMethods extends TopicableGuildChannel { }
+@mix(TopicableGuildChannel)
+export class ThreadOnlyMethods extends DiscordBase {
+	setTags(tags: APIGuildForumTag[], reason?: string) {
+		return this.edit({ available_tags: tags }, reason);
+	}
+
+	setAutoArchiveDuration(duration: ThreadAutoArchiveDuration, reason?: string) {
+		return this.edit({ default_auto_archive_duration: duration }, reason);
+	}
+
+	setReactionEmoji(emoji: APIGuildForumDefaultReactionEmoji, reason?: string) {
+		return this.edit({ default_reaction_emoji: emoji }, reason)
+	}
+
+	setSortOrder(sort: SortOrderType, reason?: string) {
+		return this.edit({ default_sort_order: sort }, reason);
+	}
+
+	setThreadRateLimit(rate: number, reason?: string) {
+		return this.edit({ default_thread_rate_limit_per_user: rate }, reason);
 	}
 }
 

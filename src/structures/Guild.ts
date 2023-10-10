@@ -9,6 +9,7 @@ import { Sticker } from "./Sticker";
 import { GuildRole } from "./GuildRole";
 import { AutoModerationRule } from "./AutoModerationRule";
 import { BaseChannel } from "./methods/channel/base";
+import { ToClass } from "../types/util";
 
 export interface Guild extends Omit<ObjectToLower<APIGuild>, 'stickers' | 'emojis' | 'roles'>, DiscordBase {
 }

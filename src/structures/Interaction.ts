@@ -1,4 +1,4 @@
-import { APIBaseInteraction, APIInteraction, APIInteractionResponsePong, ObjectToLower, RESTPostAPIInteractionCallbackJSONBody, InteractionType, GatewayInteractionCreateDispatchData, When, RESTPatchAPIWebhookWithTokenMessageJSONBody, APIApplicationCommandAutocompleteInteraction, APICommandAutocompleteInteractionResponseCallbackData, InteractionResponseType, APIInteractionResponseChannelMessageWithSource, APIInteractionResponseDeferredChannelMessageWithSource, APIInteractionResponseDeferredMessageUpdate, APIInteractionResponseUpdateMessage, APIApplicationCommandInteraction, ComponentType, ApplicationCommandType, APIChatInputApplicationCommandInteraction, APIUserApplicationCommandInteraction, APIMessageApplicationCommandInteraction, APIMessageComponentInteraction, APIMessageChannelSelectInteractionData, APIMessageComponentSelectMenuInteraction, APIMessageMentionableSelectInteractionData, APIMessageRoleSelectInteractionData, APIMessageUserSelectInteractionData, APIModalSubmitInteraction } from "@biscuitland/common";
+import { APIBaseInteraction, APIInteraction, APIInteractionResponsePong, ObjectToLower, RESTPostAPIInteractionCallbackJSONBody, InteractionType, GatewayInteractionCreateDispatchData, When, RESTPatchAPIWebhookWithTokenMessageJSONBody, APIApplicationCommandAutocompleteInteraction, APICommandAutocompleteInteractionResponseCallbackData, InteractionResponseType, APIInteractionResponseChannelMessageWithSource, APIInteractionResponseDeferredChannelMessageWithSource, APIInteractionResponseDeferredMessageUpdate, APIInteractionResponseUpdateMessage, APIApplicationCommandInteraction, ComponentType, ApplicationCommandType, APIChatInputApplicationCommandInteraction, APIUserApplicationCommandInteraction, APIMessageApplicationCommandInteraction, APIMessageComponentInteraction, APIMessageChannelSelectInteractionData, APIMessageComponentSelectMenuInteraction, APIMessageMentionableSelectInteractionData, APIMessageRoleSelectInteractionData, APIMessageUserSelectInteractionData, APIChatInputApplicationCommandInteractionData, APIMessageApplicationCommandInteractionData, APIUserApplicationCommandInteractionData, APIModalSubmission, APIModalSubmitInteraction } from "@biscuitland/common";
 import { BiscuitREST, RawFile } from "@biscuitland/rest";
 import { DiscordBase } from "./extra/DiscordBase";
 import { Cache } from "../cache";
@@ -236,19 +236,19 @@ export interface UserSelectMenuInteraction {
 }
 
 export class ChatInputCommandInteraction<FromGuild extends boolean = boolean> extends ApplicationCommandInteraction<FromGuild, APIChatInputApplicationCommandInteraction> {
-
+	declare data: ObjectToLower<APIChatInputApplicationCommandInteractionData>
 }
 
 export class UserCommandInteraction<FromGuild extends boolean = boolean> extends ApplicationCommandInteraction<FromGuild, APIUserApplicationCommandInteraction> {
-
+	declare data: ObjectToLower<APIUserApplicationCommandInteractionData>
 }
 
 export class MessageCommandInteraction<FromGuild extends boolean = boolean> extends ApplicationCommandInteraction<FromGuild, APIMessageApplicationCommandInteraction> {
-
+	declare data: ObjectToLower<APIMessageApplicationCommandInteractionData>
 }
 
-export class ModalSubmitInteraction extends Interaction {
-	declare data: APIModalSubmitInteraction['data'];
+export class ModalSubmitInteraction<FromGuild extends boolean = boolean> extends Interaction<FromGuild, APIModalSubmitInteraction> {
+	declare data: APIModalSubmission;
 	get customId() {
 		return this.data.custom_id;
 	}
