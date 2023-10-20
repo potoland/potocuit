@@ -1,5 +1,5 @@
 import type { GatewayDispatchPayload } from '@biscuitland/common';
-import { ApplicationCommandOptionType } from '@biscuitland/common';
+import { ApplicationCommandOptionType, InteractionResponseType } from '@biscuitland/common';
 import { BiscuitREST, Router } from '@biscuitland/rest';
 import { GatewayManager } from '@biscuitland/ws';
 import { readdir } from 'fs/promises';
@@ -62,6 +62,12 @@ export class PotoClient {
 			case 'INTERACTION_CREATE': {
 				const interaction = BaseInteraction.from(this.rest, this.cache, packet.d);
 				console.log(interaction);
+				await interaction.reply({
+					type: InteractionResponseType.ChannelMessageWithSource,
+					data: {
+						content: 'pong desde pootucit'
+					}
+				});
 			} break;
 		}
 		if (packet.t === 'READY') { console.log(`${shardId}`, packet.d.user.username); }
@@ -78,7 +84,7 @@ export class PotoClient {
 		return files;
 	}
 
-	async loadCommands(commandsDir: string) {
+	async loadCommands(commandsDir: string, applicationId: string) {
 		const commandsPaths = await this.getFiles(commandsDir);
 		const commands = await Promise.all(commandsPaths.map(x => import(x).then(d => d.default)));
 
@@ -103,20 +109,24 @@ export class PotoClient {
 						options: (command.options as SubCommand[]).filter(op => op.group === x[0])
 					}));
 
-				console.log('groups', groups, command.options);
+				// console.log('groups', groups, command.options);
 				command.options ??= [];
 
 				// @ts-expect-error
-				command.options = command.options!.filter(x => !x.group);
+				command.options = command.options.filter(x => !x.group);
 
 				// @ts-expect-error
-				command.options!.push(...groups);
+				command.options.push(...groups);
 			}
 
 			result[command.name] = command;
 
 			// console.log(obj, 'obj')
 		}
+
+		await this.proxy.applications(applicationId).commands.put({
+			body: Object.values(result).map(x => x.toJSON())
+		});
 
 		return result;
 	}

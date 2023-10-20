@@ -159,47 +159,47 @@ class Request extends SubCommand {}
 // xdddddddddddddddddddd god.
 
 
-@Declare({
-	name: 'set',
-	description: 'set value'
-})
-@Group('setup')
-class SetValue extends SubCommand { }
+// @Declare({
+// 	name: 'set',
+// 	description: 'set value'
+// })
+// @Group('setup')
+// class SetValue extends SubCommand { }
 
-@Declare({
-	description: 'Check bot ping',
-	name: 'ping',
-	nsfw: true
-})
-// xdd
-// justo para evitar esto es que digo lo del langs dasjdasdjdksa imaginate este objeto con 15 traducciones
-@Locales({
-	description: [
-		['es-ES', 'Mira la latencia del bot'],
-	],
-	name: [
-		['es-ES', 'latencia']
-	]
-})
-@Middlewares([(int: any) => int.isAdmin])
-// como mrd hago que no se tenga que declarar las descripciones cada vez
-// a? contexto pues no se que tan bien sean los decorators, pero tecnicamente el de la description llego primero asi que ya deberia existir en la clase
-// pero el declare nmo tiene que ver con el Group
-// entonces no se, como dices son cosas separadas asi que no le veo una forma XD
-@Groups({
-	setup: {
-		name: [['es-ES', 'xd']],
-		description: [['es-ES', 'ddxd']],
-		defaultDescription: 'xdddddd'
-	}
-})
-@Options([new SetValue])
-// aya hago un @Groups para el comando base na q genio
-class Admin extends BaseCommand {
+// @Declare({
+// 	description: 'Check bot ping',
+// 	name: 'ping',
+// 	nsfw: true
+// })
+// // xdd
+// // justo para evitar esto es que digo lo del langs dasjdasdjdksa imaginate este objeto con 15 traducciones
+// @Locales({
+// 	description: [
+// 		['es-ES', 'Mira la latencia del bot'],
+// 	],
+// 	name: [
+// 		['es-ES', 'latencia']
+// 	]
+// })
+// @Middlewares([(int: any) => int.isAdmin])
+// // como mrd hago que no se tenga que declarar las descripciones cada vez
+// // a? contexto pues no se que tan bien sean los decorators, pero tecnicamente el de la description llego primero asi que ya deberia existir en la clase
+// // pero el declare nmo tiene que ver con el Group
+// // entonces no se, como dices son cosas separadas asi que no le veo una forma XD
+// @Groups({
+// 	setup: {
+// 		name: [['es-ES', 'xd']],
+// 		description: [['es-ES', 'ddxd']],
+// 		defaultDescription: 'xdddddd'
+// 	}
+// })
+// @Options([new SetValue])
+// // aya hago un @Groups para el comando base na q genio
+// class Admin extends BaseCommand {
 
-}
+// }
 
-new Admin();
+// new Admin();
 
 // q
 // sisi al rato priemro quiero que prenda
