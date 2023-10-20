@@ -21,21 +21,21 @@ export class RedisAdapter implements Adapter {
 		}
 	}
 
-	scan(query: string, returnKeys?: false): Promise<any[]>
-	scan(query: string, returnKeys: true): Promise<string[]>
+	scan(query: string, returnKeys?: false): Promise<any[]>;
+	scan(query: string, returnKeys: true): Promise<string[]>;
 	scan(query: string, returnKeys = false) {
 		const match = this.options.namespace + ':' + query;
 		return new Promise<string[]>((r, j) => {
 			const stream = this.client.scanStream({
 				match,
-				//omit relationships
+				// omit relationships
 				type: 'hash'
 			});
 			const keys: string[] = [];
 			stream
-				.on("data", (resultKeys) => keys.push(...resultKeys))
-				.on("end", () => returnKeys ? r(keys) : r(this.get(keys)))
-				.on("error", (err) => j(err));
+				.on('data', resultKeys => keys.push(...resultKeys))
+				.on('end', () => returnKeys ? r(keys) : r(this.get(keys)))
+				.on('error', err => j(err));
 		});
 	}
 
@@ -54,7 +54,7 @@ export class RedisAdapter implements Adapter {
 			pipeline.hgetall(this.build(key));
 		}
 
-		return (await pipeline.exec())?.filter(x => !!x[1]).map(x => toNormal(x[1] as Record<string, any>)) ?? []
+		return (await pipeline.exec())?.filter(x => !!x[1]).map(x => toNormal(x[1] as Record<string, any>)) ?? [];
 	}
 
 
@@ -79,14 +79,14 @@ export class RedisAdapter implements Adapter {
 	async patch(updateOnly: boolean, id: string, data: any): Promise<void>;
 	async patch(updateOnly: boolean, id: string | [string, any][], data?: any): Promise<void> {
 		if (!Array.isArray(id)) {
-			if (updateOnly)
-				await this.client.eval(
+			if (updateOnly) {
+ await this.client.eval(
 					`if redis.call('exists',KEYS[1]) == 1 then redis.call('hset', KEYS[1], ${Array.from({ length: Object.keys(data).length * 2 }, (_, i) => `ARGV[${i + 1}]`)}) end`,
 					1,
 					this.build(id),
 					...Object.entries(toDb(data)).flat()
-				)
-			else await this.client.hset(this.build(id), toDb(data))
+				);
+} else { await this.client.hset(this.build(id), toDb(data)); }
 			return;
 		}
 
@@ -100,8 +100,8 @@ export class RedisAdapter implements Adapter {
 						1,
 						this.build(k),
 						...Object.entries(toDb(v)).flat()
-					)
-			} else pipeline.hset(this.build(k), toDb(v));
+					);
+			} else { pipeline.hset(this.build(k), toDb(v)); }
 		}
 
 		await pipeline.exec();
@@ -180,7 +180,7 @@ export class RedisAdapter implements Adapter {
 
 
 const isObject = (o: unknown) => {
-	return !!o && typeof o === "object" && !Array.isArray(o);
+	return !!o && typeof o === 'object' && !Array.isArray(o);
 };
 
 function toNormal(target: Record<string, any>) {
@@ -188,7 +188,7 @@ function toNormal(target: Record<string, any>) {
 	for (const [key, value] of Object.entries(target)) {
 		if (isObject(value)) {
 			if (Array.isArray(value)) {
-				result[key] = value.map((prop) => (typeof prop === "object" && prop ? toNormal(prop) : prop));
+				result[key] = value.map(prop => (typeof prop === 'object' && prop ? toNormal(prop) : prop));
 				break;
 			}
 			if (isObject(value)) {
@@ -200,11 +200,9 @@ function toNormal(target: Record<string, any>) {
 				break;
 			}
 			result[key] = toNormal({ ...value });
-		} else if (key.startsWith('N_')) result[key.slice(2)] = Number(value);
-		else if (key.startsWith('B_')) result[key.slice(2)] = value === 'true';
-		else result[key] = value;
+		} else if (key.startsWith('N_')) { result[key.slice(2)] = Number(value); } else if (key.startsWith('B_')) { result[key.slice(2)] = value === 'true'; } else { result[key] = value; }
 	}
-	return result
+	return result;
 }
 
 function toDb(target: Record<string, any>) {
@@ -213,13 +211,13 @@ function toDb(target: Record<string, any>) {
 		switch (typeof value) {
 			case 'boolean':
 				result[`B_${key}`] = '' + value;
-				break
-			case "number":
+				break;
+			case 'number':
 				result[`N_${key}`] = '' + value;
 				break;
-			case "object":
+			case 'object':
 				if (Array.isArray(value)) {
-					result[key] = value.map((prop) => (typeof prop === "object" && prop ? toDb(prop) : prop));
+					result[key] = value.map(prop => (typeof prop === 'object' && prop ? toDb(prop) : prop));
 					break;
 				}
 				if (isObject(value)) {
@@ -237,5 +235,5 @@ function toDb(target: Record<string, any>) {
 				break;
 		}
 	}
-	return result
+	return result;
 }

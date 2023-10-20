@@ -1,6 +1,6 @@
 import type { BiscuitREST } from '@biscuitland/rest';
 import type { Cache } from '../../index';
-import { GatewayIntentBits } from '@biscuitland/common';
+import type { GatewayIntentBits } from '@biscuitland/common';
 
 export class BaseResource<T = any> {
 	namespace = 'base';
@@ -34,7 +34,7 @@ export class BaseResource<T = any> {
 		await this.adapter.set(this.hashId(id), data);
 	}
 
-	async patch<R extends any = any, T extends Record<any, any> = Record<any, any>>(id: string, data: T): Promise<R> {
+	async patch<T extends Record<any, any> = Record<any, any>>(id: string, data: T) {
 		const old = await this.get(id) ?? {};
 		const patch = { ...old, ...data };
 		await this.set(id, patch);

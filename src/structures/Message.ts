@@ -15,7 +15,7 @@ import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 import type { Cache } from '../cache';
 import { MessagesMethods } from './methods/channel/messages';
-import { EmojiResolvable } from '../types/resolvables';
+import type { EmojiResolvable } from '../types/resolvables';
 
 export type MessageData = APIMessage | GatewayMessageCreateDispatchData;
 

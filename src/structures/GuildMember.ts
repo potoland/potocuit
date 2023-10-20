@@ -1,3 +1,9 @@
+import type {
+	RESTGetAPIGuildMembersQuery,
+	RESTGetAPIGuildMembersResult,
+	RESTGetAPIGuildMembersSearchQuery,
+	RESTPutAPIGuildMemberJSONBody
+} from '@biscuitland/common';
 import {
 	type APIGuildMember,
 	type APIInteractionDataResolvedGuildMember,
@@ -7,11 +13,7 @@ import {
 	type RESTPatchAPIGuildMemberJSONBody,
 	type RESTPutAPIGuildBanJSONBody,
 	type ObjectToLower,
-	FormattingPatterns,
-	RESTGetAPIGuildMembersQuery,
-	RESTGetAPIGuildMembersResult,
-	RESTGetAPIGuildMembersSearchQuery,
-	RESTPutAPIGuildMemberJSONBody
+	FormattingPatterns
 } from '@biscuitland/common';
 import type { BiscuitREST } from '@biscuitland/rest';
 import { DiscordBase } from './extra/DiscordBase';
@@ -20,8 +22,8 @@ export type GuildMemberData = APIGuildMember | GatewayGuildMemberUpdateDispatchD
 
 import { User } from './User';
 import type { Cache } from '../cache';
-import { ImageOptions, MethodContext } from '../types/options';
-import { GuildMemberResolvable } from '../types/resolvables';
+import type { ImageOptions, MethodContext } from '../types/options';
+import type { GuildMemberResolvable } from '../types/resolvables';
 
 export interface GuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user'> { }
 /**
@@ -32,7 +34,7 @@ export class GuildMember extends DiscordBase {
 	user: User;
 	joinedTimestamp?: number;
 	communicationDisabledUntilTimestamp?: number | null;
-	private readonly __methods__!: ReturnType<typeof GuildMember.methods>
+	private readonly __methods__!: ReturnType<typeof GuildMember.methods>;
 
 	constructor(
 		rest: BiscuitREST,
@@ -47,7 +49,7 @@ export class GuildMember extends DiscordBase {
 		Object.defineProperty(this, '__methods__', {
 			value: GuildMember.methods({ id: this.guildId, rest: this.rest, api: this.api, cache: this.cache }),
 			writable: false,
-		})
+		});
 		this.patch(data);
 	}
 
@@ -80,7 +82,7 @@ export class GuildMember extends DiscordBase {
 	}
 
 	edit(body: RESTPatchAPIGuildMemberJSONBody, reason?: string) {
-		return this.__methods__.edit(this.id, body, reason).then(this._patchThis)
+		return this.__methods__.edit(this.id, body, reason).then(this._patchThis);
 	}
 
 	dynamicAvatarURL(options?: ImageOptions): string | null {
@@ -109,8 +111,8 @@ export class GuildMember extends DiscordBase {
 	static methods(ctx: MethodContext) {
 		return {
 			resolve: async (resolve: GuildMemberResolvable) => {
-				if (typeof resolve === "string") {
-					const match: { id?: string } | undefined = resolve.match(FormattingPatterns.User)?.groups
+				if (typeof resolve === 'string') {
+					const match: { id?: string } | undefined = resolve.match(FormattingPatterns.User)?.groups;
 					if (match?.id) {
 						return await this.methods(ctx).fetch(match.id);
 					}
@@ -118,7 +120,7 @@ export class GuildMember extends DiscordBase {
 						return await this.methods(ctx).fetch(resolve);
 					}
 
-					return await this.methods(ctx).search({ query: resolve, limit: 1 }).then(x => x[0])
+					return await this.methods(ctx).search({ query: resolve, limit: 1 }).then(x => x[0]);
 				}
 
 				const { id, displayName } = resolve;
@@ -149,7 +151,7 @@ export class GuildMember extends DiscordBase {
 			},
 			edit: async (id: string, body: RESTPatchAPIGuildMemberJSONBody, reason?: string) => {
 				const member = await ctx.api.guilds(ctx.id).members(id).patch({ body, reason });
-				await ctx.cache.members?.setIfNI("GuildMembers", id, ctx.id, member);
+				await ctx.cache.members?.setIfNI('GuildMembers', id, ctx.id, member);
 				return new GuildMember(ctx.rest, ctx.cache, member, member.user!, ctx.id);
 			},
 			add: async (id: string, body: RESTPutAPIGuildMemberJSONBody) => {
@@ -157,7 +159,7 @@ export class GuildMember extends DiscordBase {
 					body
 				});
 
-				// Thanks dapi-types
+				// Thanks dapi-types, fixed
 				if (!member) { return; }
 
 				await ctx.cache.members?.setIfNI('GuildMembers', member.user!.id, ctx.id, member);
@@ -168,7 +170,7 @@ export class GuildMember extends DiscordBase {
 				let member: APIGuildMember;
 				if (!force) {
 					member = await ctx.cache.members?.get(ctx.id, id);
-					if (member) return new GuildMember(ctx.rest, ctx.cache, member, member.user!, ctx.id);
+					if (member) { return new GuildMember(ctx.rest, ctx.cache, member, member.user!, ctx.id); }
 				}
 
 				member = await ctx.api.guilds(ctx.id).members(id).get();
@@ -180,7 +182,7 @@ export class GuildMember extends DiscordBase {
 				let members: RESTGetAPIGuildMembersResult;
 				if (!force) {
 					members = await ctx.cache.members?.values(ctx.id) ?? [];
-					if (members.length) return members.map(m => new GuildMember(ctx.rest, ctx.cache, m, m.user!, ctx.id));
+					if (members.length) { return members.map(m => new GuildMember(ctx.rest, ctx.cache, m, m.user!, ctx.id)); }
 				}
 				members = await ctx.api.guilds(ctx.id).members.get({
 					query
@@ -188,7 +190,7 @@ export class GuildMember extends DiscordBase {
 				await ctx.cache.members?.set(members.map(x => [x.user!.id, x]), ctx.id);
 				return members.map(m => new GuildMember(ctx.rest, ctx.cache, m, m.user!, ctx.id));
 			},
-		}
+		};
 	}
 }
 

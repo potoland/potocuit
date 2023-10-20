@@ -28,7 +28,7 @@ import { GatewayIntentBits } from '@biscuitland/common';
 
 // GuildBased
 export type GuildBased =
-	'members'
+	'members';
 
 // ClientGuildBased
 export type GuildRelated =
@@ -95,10 +95,12 @@ export class Cache {
 	guilds?: Guilds;
 
 	// guild based
+	members?: Members;
+
+	// guild related
 	roles?: Roles;
 	emojis?: Emojis;
 	threads?: Threads;
-	members?: Members;
 	channels?: Channels;
 	stickers?: Stickers;
 	presences?: Presences;
@@ -110,8 +112,10 @@ export class Cache {
 		if (!this.disabledCache.includes('users')) { this.users = new Users(rest, this); }
 		if (!this.disabledCache.includes('guilds')) { this.guilds = new Guilds(rest, this); }
 
-		// guild based
+		// guild related
 		if (!this.disabledCache.includes('members')) { this.members = new Members(rest, this); }
+
+		// guild based
 		if (!this.disabledCache.includes('roles')) { this.roles = new Roles(rest, this); }
 		if (!this.disabledCache.includes('channels')) { this.channels = new Channels(rest, this); }
 		if (!this.disabledCache.includes('emojis')) { this.emojis = new Emojis(rest, this); }

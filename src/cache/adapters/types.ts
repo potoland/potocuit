@@ -1,7 +1,7 @@
 export interface Adapter {
-	scan(query: string, keys?: false): RPV<any[]>
-	scan(query: string, keys: true): RPV<string[]>
-	scan(query: string, keys?: boolean): RPV<(any | string)[]>
+	scan(query: string, keys?: false): RPV<any[]>;
+	scan(query: string, keys: true): RPV<string[]>;
+	scan(query: string, keys?: boolean): RPV<(any | string)[]>;
 
 	get(keys: string[]): RPV<any[]>;
 	get(keys: string): RPV<any | null>;

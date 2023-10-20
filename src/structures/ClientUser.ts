@@ -1,11 +1,11 @@
-import { APIGuild, GatewayReadyDispatchData, RESTGetAPICurrentUserGuildsQuery, RESTPatchAPICurrentUserJSONBody } from "@biscuitland/common";
-import { BiscuitREST } from "@biscuitland/rest";
-import { User } from "./User";
-import type { Cache } from '../cache'
-import { AnonymousGuild } from "./AnonymousGuild";
+import type { APIGuild, GatewayReadyDispatchData, RESTGetAPICurrentUserGuildsQuery, RESTPatchAPICurrentUserJSONBody } from '@biscuitland/common';
+import type { BiscuitREST } from '@biscuitland/rest';
+import { User } from './User';
+import type { Cache } from '../cache';
+import { AnonymousGuild } from './AnonymousGuild';
 import { Guild } from './Guild';
-import { GuildMember } from "./GuildMember";
-import { MethodContext } from "../types";
+import { GuildMember } from './GuildMember';
+import type { MethodContext } from '../types';
 
 
 export class ClientUser extends User {
@@ -40,12 +40,12 @@ export class ClientUser extends User {
 			},
 			fetchSelf: async (id: string) => {
 				const self = await ctx.api.users('@me').guilds(id).member.get();
-				await ctx.cache.members?.patch(ctx.id, id, self)
+				await ctx.cache.members?.patch(ctx.id, id, self);
 				return new GuildMember(ctx.rest, ctx.cache, self, self.user!, id);
 			},
 			leave: async (id: string) => {
 				return ctx.api.users('@me').guilds(id).delete().then(() => ctx.cache.guilds?.removeIfNI('Guilds', id));
 			}
-		}
+		};
 	}
 }

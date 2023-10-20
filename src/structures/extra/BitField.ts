@@ -50,19 +50,19 @@ export class BitField {
 	static resolve(bits?: BitFieldResolvable): number {
 		switch (typeof bits) {
 
-			case "number":
+			case 'number':
 				return bits;
-			case "bigint":
+			case 'bigint':
 				return Number(bits);
-			case "object":
-				if (!Array.isArray(bits)) throw new TypeError(`Cannot resolve permission: ${bits}`);
+			case 'object':
+				if (!Array.isArray(bits)) { throw new TypeError(`Cannot resolve permission: ${bits}`); }
 				return bits.map(BitField.resolve).reduce((acc, cur) => acc | cur, BitField.None);
 			default:
 				throw new TypeError(`Cannot resolve permission: ${bits}`);
 		}
 	}
 	// xd
-	//xd
+	// xd
 }
-//bloated
+// bloated
 // hdp bloadted mis nalgas

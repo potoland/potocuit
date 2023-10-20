@@ -1,13 +1,14 @@
-import { APIBaseInteraction, APIInteraction, APIInteractionResponsePong, ObjectToLower, RESTPostAPIInteractionCallbackJSONBody, InteractionType, GatewayInteractionCreateDispatchData, When, RESTPatchAPIWebhookWithTokenMessageJSONBody, APIApplicationCommandAutocompleteInteraction, APICommandAutocompleteInteractionResponseCallbackData, InteractionResponseType, APIInteractionResponseChannelMessageWithSource, APIInteractionResponseDeferredChannelMessageWithSource, APIInteractionResponseDeferredMessageUpdate, APIInteractionResponseUpdateMessage, APIApplicationCommandInteraction, ComponentType, ApplicationCommandType, APIChatInputApplicationCommandInteraction, APIUserApplicationCommandInteraction, APIMessageApplicationCommandInteraction, APIMessageComponentInteraction, APIMessageChannelSelectInteractionData, APIMessageComponentSelectMenuInteraction, APIMessageMentionableSelectInteractionData, APIMessageRoleSelectInteractionData, APIMessageUserSelectInteractionData, APIChatInputApplicationCommandInteractionData, APIMessageApplicationCommandInteractionData, APIUserApplicationCommandInteractionData, APIModalSubmission, APIModalSubmitInteraction } from "@biscuitland/common";
-import { BiscuitREST, RawFile } from "@biscuitland/rest";
-import { DiscordBase } from "./extra/DiscordBase";
-import { Cache } from "../cache";
-import { User } from "./User";
-import { GuildMember, InteractionGuildMember } from "./GuildMember";
-import { Message } from "./Message";
-import { BaseChannel } from "./methods/channel/base";
-import { GuildRole } from "./GuildRole";
-import { PotocuitChannels } from "./channels";
+import type { APIBaseInteraction, APIInteraction, APIInteractionResponsePong, ObjectToLower, RESTPostAPIInteractionCallbackJSONBody, GatewayInteractionCreateDispatchData, When, RESTPatchAPIWebhookWithTokenMessageJSONBody, APIApplicationCommandAutocompleteInteraction, APICommandAutocompleteInteractionResponseCallbackData, APIInteractionResponseChannelMessageWithSource, APIInteractionResponseDeferredChannelMessageWithSource, APIInteractionResponseDeferredMessageUpdate, APIInteractionResponseUpdateMessage, APIApplicationCommandInteraction, APIChatInputApplicationCommandInteraction, APIUserApplicationCommandInteraction, APIMessageApplicationCommandInteraction, APIMessageComponentInteraction, APIMessageChannelSelectInteractionData, APIMessageComponentSelectMenuInteraction, APIMessageMentionableSelectInteractionData, APIMessageRoleSelectInteractionData, APIMessageUserSelectInteractionData, APIChatInputApplicationCommandInteractionData, APIMessageApplicationCommandInteractionData, APIUserApplicationCommandInteractionData, APIModalSubmission, APIModalSubmitInteraction } from '@biscuitland/common';
+import { InteractionType, InteractionResponseType, ComponentType, ApplicationCommandType } from '@biscuitland/common';
+import type { BiscuitREST, RawFile } from '@biscuitland/rest';
+import { DiscordBase } from './extra/DiscordBase';
+import type { Cache } from '../cache';
+import { User } from './User';
+import { GuildMember, InteractionGuildMember } from './GuildMember';
+import { Message } from './Message';
+import { BaseChannel } from './methods/channel/base';
+import { GuildRole } from './GuildRole';
+import type { PotocuitChannels } from './channels';
 
 export interface BaseInteraction extends ObjectToLower<Omit<APIBaseInteraction<InteractionType, any>, 'user' | 'member' | 'message' | 'channel'>> { }
 
@@ -18,9 +19,9 @@ export class BaseInteraction<FromGuild extends boolean = boolean, Type extends A
 	message?: Message;
 	constructor(rest: BiscuitREST, cache: Cache, interaction: Type) {
 		super(rest, cache, interaction);
-		if (interaction.member) this.member = new GuildMember(rest, cache, interaction.member, interaction.member!.user, interaction.guild_id!) as never;
-		if (interaction.message) this.message = new Message(rest, cache, interaction.message);
-		if (interaction.channel) this.channel = BaseChannel.from(interaction.channel, rest, cache);
+		if (interaction.member) { this.member = new GuildMember(rest, cache, interaction.member, interaction.member!.user, interaction.guild_id!) as never; }
+		if (interaction.message) { this.message = new Message(rest, cache, interaction.message); }
+		if (interaction.channel) { this.channel = BaseChannel.from(interaction.channel, rest, cache); }
 		this.user = this.member?.user ?? new User(rest, cache, interaction.user!);
 	}
 
@@ -43,7 +44,7 @@ export class BaseInteraction<FromGuild extends boolean = boolean, Type extends A
 						return new UserCommandInteraction(rest, cache, gateway as APIUserApplicationCommandInteraction);
 					case ApplicationCommandType.Message:
 						return new MessageCommandInteraction(rest, cache, gateway as APIMessageApplicationCommandInteraction);
-				};
+				}
 			case InteractionType.MessageComponent:
 				switch (gateway.data.component_type) {
 					case ComponentType.Button:
@@ -53,10 +54,10 @@ export class BaseInteraction<FromGuild extends boolean = boolean, Type extends A
 					case ComponentType.MentionableSelect:
 					case ComponentType.UserSelect:
 					case ComponentType.StringSelect:
-						return new SelectMenuInteraction(rest, cache, gateway as APIMessageComponentSelectMenuInteraction)
+						return new SelectMenuInteraction(rest, cache, gateway as APIMessageComponentSelectMenuInteraction);
 				}
 			case InteractionType.ModalSubmit:
-			case InteractionType.Ping: //soontm, usar low-http-server (u otro) o implemetacion propia.
+			case InteractionType.Ping: // soontm, usar low-http-server (u otro) o implemetacion propia.
 			default:
 				return new BaseInteraction(rest, cache, gateway);
 		}
@@ -68,9 +69,9 @@ export interface AutocompleteInteraction extends ObjectToLower<Omit<APIApplicati
 
 export class AutocompleteInteraction<FromGuild extends boolean = boolean> extends BaseInteraction<FromGuild, APIApplicationCommandAutocompleteInteraction> {
 	declare type: InteractionType.ApplicationCommandAutocomplete;
-	declare data: ObjectToLower<APIApplicationCommandAutocompleteInteraction['data']>
+	declare data: ObjectToLower<APIApplicationCommandAutocompleteInteraction['data']>;
 	respond(choices: APICommandAutocompleteInteractionResponseCallbackData) {
-		return this.reply({ data: choices, type: InteractionResponseType.ApplicationCommandAutocompleteResult })
+		return this.reply({ data: choices, type: InteractionResponseType.ApplicationCommandAutocompleteResult });
 	}
 }
 
@@ -80,31 +81,31 @@ export class Interaction<FromGuild extends boolean = boolean, Type extends APIIn
 	}
 
 	getResponse() {
-		return this.getMessage('@original')
+		return this.getMessage('@original');
 	}
 
 	editMessage(messageId: string, body: RESTPatchAPIWebhookWithTokenMessageJSONBody, files?: RawFile[]) {
 		return this.api.webhooks(this.applicationId)(this.token).messages(messageId).patch({
 			body, files
-		}).then(data => new Message(this.rest, this.cache, data))
+		}).then(data => new Message(this.rest, this.cache, data));
 	}
 
 	editResponse(body: RESTPatchAPIWebhookWithTokenMessageJSONBody, files: RawFile[] = []) {
-		return this.editMessage('@original', body, files)
+		return this.editMessage('@original', body, files);
 	}
 
 	deleteMessage(messageId: string) {
-		return this.api.webhooks(this.applicationId)(this.token).messages(messageId).delete()
+		return this.api.webhooks(this.applicationId)(this.token).messages(messageId).delete();
 	}
 
 	deleteResponse() {
-		return this.deleteMessage('@original')
+		return this.deleteMessage('@original');
 	}
 }
 
 export class ApplicationCommandInteraction<FromGuild extends boolean = boolean, Type extends APIApplicationCommandInteraction = APIApplicationCommandInteraction>
 	extends Interaction<FromGuild, Type> {
-	declare type: InteractionType.ApplicationCommand
+	declare type: InteractionType.ApplicationCommand;
 	respond(
 		data: APIInteractionResponseChannelMessageWithSource | APIInteractionResponseDeferredChannelMessageWithSource | APIInteractionResponseDeferredMessageUpdate | APIInteractionResponseUpdateMessage,
 		files: RawFile[] = []
@@ -118,9 +119,9 @@ export interface ComponentInteraction extends ObjectToLower<Omit<APIMessageCompo
 export class ComponentInteraction<FromGuild extends boolean = boolean, Type extends APIMessageComponentInteraction = APIMessageComponentInteraction> extends Interaction<FromGuild, Type> {
 	declare data: APIMessageComponentInteraction['data'];
 	declare channelId: string;
-	declare appPermissions: string
-	declare channel: PotocuitChannels
-	declare type: InteractionType.MessageComponent
+	declare appPermissions: string;
+	declare channel: PotocuitChannels;
+	declare type: InteractionType.MessageComponent;
 
 	get customId() {
 		return this.data.custom_id;
@@ -236,15 +237,15 @@ export interface UserSelectMenuInteraction {
 }
 
 export class ChatInputCommandInteraction<FromGuild extends boolean = boolean> extends ApplicationCommandInteraction<FromGuild, APIChatInputApplicationCommandInteraction> {
-	declare data: ObjectToLower<APIChatInputApplicationCommandInteractionData>
+	declare data: ObjectToLower<APIChatInputApplicationCommandInteractionData>;
 }
 
 export class UserCommandInteraction<FromGuild extends boolean = boolean> extends ApplicationCommandInteraction<FromGuild, APIUserApplicationCommandInteraction> {
-	declare data: ObjectToLower<APIUserApplicationCommandInteractionData>
+	declare data: ObjectToLower<APIUserApplicationCommandInteractionData>;
 }
 
 export class MessageCommandInteraction<FromGuild extends boolean = boolean> extends ApplicationCommandInteraction<FromGuild, APIMessageApplicationCommandInteraction> {
-	declare data: ObjectToLower<APIMessageApplicationCommandInteractionData>
+	declare data: ObjectToLower<APIMessageApplicationCommandInteractionData>;
 }
 
 export class ModalSubmitInteraction<FromGuild extends boolean = boolean> extends Interaction<FromGuild, APIModalSubmitInteraction> {

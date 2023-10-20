@@ -1,21 +1,20 @@
-import { APIGuild, APIPartialGuild, ObjectToLower } from "@biscuitland/common";
-import { BiscuitREST } from "@biscuitland/rest";
-import { Cache } from "../cache";
-import { BaseGuild } from "./extra/BaseGuild";
-import { DiscordBase } from "./extra/DiscordBase";
-import { GuildMember } from "./GuildMember";
-import { GuildTemplate } from "./GuildTemplate";
-import { Sticker } from "./Sticker";
-import { GuildRole } from "./GuildRole";
-import { AutoModerationRule } from "./AutoModerationRule";
-import { BaseChannel } from "./methods/channel/base";
-import { ToClass } from "../types/util";
+import type { APIGuild, APIPartialGuild, ObjectToLower } from '@biscuitland/common';
+import type { BiscuitREST } from '@biscuitland/rest';
+import type { Cache } from '../cache';
+import { BaseGuild } from './extra/BaseGuild';
+import type { DiscordBase } from './extra/DiscordBase';
+import { GuildMember } from './GuildMember';
+import { GuildTemplate } from './GuildTemplate';
+import { Sticker } from './Sticker';
+import { GuildRole } from './GuildRole';
+import { AutoModerationRule } from './AutoModerationRule';
+import { BaseChannel } from './methods/channel/base';
+import type { ToClass } from '../types/util';
 
 export interface Guild extends Omit<ObjectToLower<APIGuild>, 'stickers' | 'emojis' | 'roles'>, DiscordBase {
 }
 
 export class Guild extends (BaseGuild as unknown as ToClass<Omit<BaseGuild, keyof ObjectToLower<APIPartialGuild>>, Guild>) {
-
 	constructor(rest: BiscuitREST, cache: Cache, data: APIGuild) {
 		super(rest, cache, data);
 	}
@@ -47,7 +46,8 @@ export class Guild extends (BaseGuild as unknown as ToClass<Omit<BaseGuild, keyo
 	}
 
 	async fetchOwner(force = false) {
-		if (!this.ownerId) throw new Error('No owner in guild');
+		// For no reason, discord has some guilds without owner... 🤓
+		if (!this.ownerId) { return null; }
 		return this.members.fetch(this.ownerId, force);
 	}
 

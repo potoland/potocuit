@@ -22,7 +22,7 @@ ignorePatterns:
 parser: '@typescript-eslint/parser'
 
 parserOptions:
-    project: './packages/**/tsconfig.json'
+    project: './tsconfig.json'
     sourceType: 'module'
 
 plugins:
@@ -35,26 +35,15 @@ overrides:
           no-undef: 'off'
 
 rules:
-    '@typescript-eslint/consistent-type-imports': 'error'
-    '@typescript-eslint/no-duplicate-imports': 'error'
+    '@typescript-eslint/consistent-type-imports': 'off'
     '@typescript-eslint/prefer-optional-chain': 'error'
     '@typescript-eslint/no-explicit-any': 'off'
     '@typescript-eslint/explicit-function-return-type': 'off'
     '@typescript-eslint/no-non-null-assertion': 'off'
     '@typescript-eslint/ban-ts-comment': 'off'
+    '@typescript-eslint/ban-types': 'off'
+    '@typescript-eslint/no-unsafe-declaration-merging': 'off'
     '@typescript-eslint/no-unused-vars': 'off'
-    '@typescript-eslint/naming-convention':
-        - 'error'
-        - selector: 'default'
-          format: null
-        - selector: 'variable'
-          format:
-            - 'camelCase'
-            - 'PascalCase'
-            - 'UPPER_CASE'
-        - selector: 'typeLike'
-          format: ['PascalCase']
-
     '@typescript-eslint/explicit-module-boundary-types': 'off'
     '@typescript-eslint/no-empty-interface': 'off'
     '@typescript-eslint/adjacent-overload-signatures': 'error'
@@ -82,7 +71,6 @@ rules:
         - 'error'
         - 'always'
 
-    '@typescript-eslint/no-useless-constructor': 'error'
     '@typescript-eslint/no-redeclare':
       - 'error'
 
@@ -109,7 +97,7 @@ rules:
     'prefer-const': 'error'
     'prefer-rest-params': 'error'
     'prefer-spread': 'error'
-    'constructor-super': 'error'
+    'constructor-super': 'off'
     'for-direction': 'error'
     'getter-return': 'error'
     'no-async-promise-executor': 'error'
@@ -131,7 +119,7 @@ rules:
     'no-ex-assign': 'error'
     'no-extra-boolean-cast': 'error'
     'no-extra-semi': 'error'
-    'no-fallthrough': 'error'
+    'no-fallthrough': 'off'
     'no-func-assign': 'error'
     'no-global-assign': 'error'
     'no-inner-declarations': 'error'

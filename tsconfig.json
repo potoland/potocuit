@@ -23,10 +23,14 @@
 		"noUnusedParameters": true,
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"noErrorTruncation": true,
+		"rootDir": "./src",
+		"outDir": "./dist"
 	},
 	"exclude": [
 		"**/node_modules",
-		"**/dist"
+		"**/dist",
+		"**/__test__"
 	],
 }

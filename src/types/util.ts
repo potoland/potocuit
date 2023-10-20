@@ -1,3 +1,6 @@
+// este sera el archivo mas funable
+// war crimes
+
 export type ToClass<T, This> = new (...args: any[]) => {
 	[K in keyof T]: T[K] extends (...args: any[]) => any
 	? ReturnType<T[K]> extends Promise<T>
@@ -7,3 +10,12 @@ export type ToClass<T, This> = new (...args: any[]) => {
 	: T[K]
 	: T[K]
 };
+
+
+export type StringToNumber<T extends string> = T extends `${infer N extends number}` ? N : never;
+
+export type MakePartial<T, K extends keyof T> = {
+	[P in keyof T]: T[P];
+} & {
+		[P in K]?: T[P] | undefined;
+	};

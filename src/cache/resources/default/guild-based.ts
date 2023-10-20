@@ -1,6 +1,6 @@
 import type { BiscuitREST } from '@biscuitland/rest';
 import type { Cache } from '../../index';
-import { GatewayIntentBits } from '@biscuitland/common';
+import type { GatewayIntentBits } from '@biscuitland/common';
 
 export class GuildBasedResource<T = any> {
 	namespace = 'base';
@@ -19,7 +19,7 @@ export class GuildBasedResource<T = any> {
 
 	async removeIfNI(intent: keyof typeof GatewayIntentBits, id: string | string[], guildId: string) {
 		if (!this.cache.hasIntent(intent)) {
-			await this.remove(id, guildId)
+			await this.remove(id, guildId);
 		}
 	}
 
@@ -51,7 +51,7 @@ export class GuildBasedResource<T = any> {
 		const keys: [string, any][] = Array.isArray(__keys) ? __keys : [[__keys, data]];
 		const oldDatas = await this.adapter.get(keys.map(([key]) =>
 			this.hashGuildId(key, guild)
-		))
+		));
 
 		await this.addToRelationship(keys.map(x => x[0]), guild);
 		await this.adapter.set(keys.map(([key, value]) => {

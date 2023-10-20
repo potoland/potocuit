@@ -5,14 +5,13 @@ export class DefaultMemoryAdapter implements Adapter {
 	readonly relationships = new Map<string, string[]>;
 
 
-	scan(query: string, keys?: false): any[]
-	scan(query: string, keys: true): string[]
+	scan(query: string, keys?: false): any[];
+	scan(query: string, keys: true): string[];
 	scan(query: string, keys = false) {
 		const values = [];
 		const sq = query.split('.');
-		for (let [key, value] of this.storage.entries()) {
-			if (key.split('.').every((value, i) => sq[i] === '*' ? !!value : sq[i] === value))
-				values.push(keys ? key : JSON.parse(value))
+		for (const [key, value] of this.storage.entries()) {
+			if (key.split('.').every((value, i) => sq[i] === '*' ? !!value : sq[i] === value)) { values.push(keys ? key : JSON.parse(value)); }
 		}
 
 		return values;
@@ -49,12 +48,12 @@ export class DefaultMemoryAdapter implements Adapter {
 		if (Array.isArray(keys)) {
 			for (const [key, value] of keys) {
 				const oldData = this.get(key);
-				if (updateOnly && !oldData) continue;
+				if (updateOnly && !oldData) { continue; }
 				this.storage.set(key, JSON.stringify({ ...(oldData ?? {}), ...value }));
 			}
 		} else {
 			const oldData = this.get(keys);
-			if (updateOnly && !oldData) return undefined;
+			if (updateOnly && !oldData) { return undefined; }
 			this.storage.set(keys, JSON.stringify({ ...(oldData ?? {}), ...data }));
 		}
 	}

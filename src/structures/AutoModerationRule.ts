@@ -1,13 +1,13 @@
 import type { APIAutoModerationRule, ObjectToLower, RESTPatchAPIAutoModerationRuleJSONBody, RESTPostAPIAutoModerationRuleJSONBody } from '@biscuitland/common';
 import { DiscordBase } from './extra/DiscordBase';
-import { MethodContext } from '../types';
-import { BiscuitREST } from '@biscuitland/rest';
-import { Cache } from '../cache';
+import type { MethodContext } from '../types';
+import type { BiscuitREST } from '@biscuitland/rest';
+import type { Cache } from '../cache';
 
 export interface AutoModerationRule extends ObjectToLower<APIAutoModerationRule> { }
 
 export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
-	private readonly __methods__!: ReturnType<typeof AutoModerationRule.methods>
+	private readonly __methods__!: ReturnType<typeof AutoModerationRule.methods>;
 
 	constructor(
 		rest: BiscuitREST,
@@ -18,7 +18,7 @@ export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 		Object.defineProperty(this, '__methods__', {
 			value: AutoModerationRule.methods({ id: this.guildId, rest: this.rest, api: this.api, cache: this.cache, ruleId: this.id }),
 			writable: false,
-		})
+		});
 	}
 
 	fetch() {
@@ -35,20 +35,20 @@ export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 
 	static methods(ctx: MethodContext<{ ruleId?: string }>) {
 		return {
-			list: () => ctx.api.guilds(ctx.id)["auto-moderation"].rules.get(),
-			create: (body: RESTPostAPIAutoModerationRuleJSONBody) => ctx.api.guilds(ctx.id)["auto-moderation"].rules.post({ body }),
+			list: () => ctx.api.guilds(ctx.id)['auto-moderation'].rules.get(),
+			create: (body: RESTPostAPIAutoModerationRuleJSONBody) => ctx.api.guilds(ctx.id)['auto-moderation'].rules.post({ body }),
 			delete: (ruleId = ctx.ruleId, reason?: string) => {
-				if (!ruleId) throw new Error('No ruleId');
+				if (!ruleId) { throw new Error('No ruleId'); }
 				return ctx.api.guilds(ctx.id)['auto-moderation'].rules(ruleId).delete({ reason });
 			},
 			fetch: (ruleId = ctx.ruleId) => {
-				if (!ruleId) throw new Error('No ruleId');
+				if (!ruleId) { throw new Error('No ruleId'); }
 				return ctx.api.guilds(ctx.id)['auto-moderation'].rules(ruleId).get();
 			},
 			edit: (ruleId = ctx.ruleId, body: ObjectToLower<RESTPatchAPIAutoModerationRuleJSONBody>, reason?: string) => {
-				if (!ruleId) throw new Error('No ruleId');
+				if (!ruleId) { throw new Error('No ruleId'); }
 				return ctx.api.guilds(ctx.id)['auto-moderation'].rules(ruleId).patch({ body, reason });
 			},
-		}
+		};
 	}
 }

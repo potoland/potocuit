@@ -1,6 +1,7 @@
-import { ObjectToLower, APIPartialGuild, GuildFeature } from "@biscuitland/common";
-import { ImageOptions } from "../../types/options";
-import { DiscordBase } from "./DiscordBase";
+import type { ObjectToLower, APIPartialGuild } from '@biscuitland/common';
+import { GuildFeature } from '@biscuitland/common';
+import type { ImageOptions } from '../../types/options';
+import { DiscordBase } from './DiscordBase';
 
 export interface BaseGuild extends ObjectToLower<APIPartialGuild> { }
 /**

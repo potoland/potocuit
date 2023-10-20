@@ -1,20 +1,17 @@
-import type {
-	APIUser, ObjectToLower
-} from '@biscuitland/common';
+import type { APIUser, ObjectToLower } from '@biscuitland/common';
 import { DiscordBase } from './extra/DiscordBase';
 import { DMChannel } from './channels';
-import { ImageOptions } from '../types/options';
+import type { ImageOptions } from '../types/options';
 
 export interface User extends ObjectToLower<APIUser> { }
 
 export class User extends DiscordBase<APIUser> {
-
 	get tag(): string {
-		return this.globalName ?? `${this.username}#${this.discriminator}`
+		return this.globalName ?? `${this.username}#${this.discriminator}`;
 	}
 
 	get name(): string {
-		return this.globalName ?? this.username
+		return this.globalName ?? this.username;
 	}
 
 	/**
