@@ -183,6 +183,12 @@ class BaseCommand {
 	// mira arriba
 	options?: PotoCommandOption[] | SubCommand[];
 
+	onStop(context: CommandContext<[], []>, error: Error) {
+		return context.write({
+			content: `Oops, it seems like something didn't go as expected:\n\`\`\`${error.message}\`\`\``
+		});
+	}
+
 	// dont fucking touch.
 	runMiddlewares(context: CommandContext<[], []>): Result<Record<string, any>, true> {
 		if (!this.middlewares.length) { return Promise.resolve([{}, undefined]); }// nose nunca he hecho middlewares xdxd
@@ -227,6 +233,7 @@ class BaseCommand {
 			const stop: StopFunction = err => {
 				if (timeoutCleared) { return; }
 				lastFail = err;
+				return res([undefined, err]);
 			};
 			this.middlewares[0](lastFail, context, next, fail, stop);
 		});

@@ -77,7 +77,7 @@ export class PotoClient {
 								if (command?.run) {
 									const context = new CommandContext(interaction, optionsResolver, {});
 									const [_, error] = await command.runMiddlewares(context);
-									if (error) { return; }
+									if (error) { return command.onStop(context, error); }
 									await command.run(context);
 								}
 								// await interaction.reply({
