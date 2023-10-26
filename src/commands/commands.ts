@@ -200,7 +200,8 @@ class BaseCommand {
 			const timeout = setTimeout(() => {
 				timeoutCleared = true;
 				res([undefined, new Error('Timeout middlewares')]);
-			}, 15e3);
+				// 2.8 seconds
+			}, 2.8e3);
 			const next: NextFunction<any> = obj => {
 				if (timeoutCleared) { return; }
 				Object.assign(metadata, obj);
