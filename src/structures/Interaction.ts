@@ -57,6 +57,7 @@ export class BaseInteraction<FromGuild extends boolean = boolean, Type extends A
 						return new SelectMenuInteraction(rest, cache, gateway as APIMessageComponentSelectMenuInteraction);
 				}
 			case InteractionType.ModalSubmit:
+				return new ModalSubmitInteraction(rest, cache, gateway);
 			case InteractionType.Ping: // soontm, usar low-http-server (u otro) o implemetacion propia.
 			default:
 				return new BaseInteraction(rest, cache, gateway);
@@ -64,24 +65,25 @@ export class BaseInteraction<FromGuild extends boolean = boolean, Type extends A
 	}
 }
 
+export type PotoInteraction = AutocompleteInteraction | ChatInputCommandInteraction | UserCommandInteraction | MessageCommandInteraction | ComponentInteraction | SelectMenuInteraction | ModalSubmitInteraction | BaseInteraction;
 
 export interface AutocompleteInteraction extends ObjectToLower<Omit<APIApplicationCommandAutocompleteInteraction, 'user' | 'member' | 'type' | 'data' | 'message' | 'channel'>> { }
 
 export class AutocompleteInteraction<FromGuild extends boolean = boolean> extends BaseInteraction<FromGuild, APIApplicationCommandAutocompleteInteraction> {
 	declare type: InteractionType.ApplicationCommandAutocomplete;
 	declare data: ObjectToLower<APIApplicationCommandAutocompleteInteraction['data']>;
-	respond(choices: APICommandAutocompleteInteractionResponseCallbackData) {
-		return this.reply({ data: choices, type: InteractionResponseType.ApplicationCommandAutocompleteResult });
+	respond(choices: APICommandAutocompleteInteractionResponseCallbackData['choices']) {
+		return this.reply({ data: { choices }, type: InteractionResponseType.ApplicationCommandAutocompleteResult });
 	}
 }
 
 export class Interaction<FromGuild extends boolean = boolean, Type extends APIInteraction = APIInteraction> extends BaseInteraction<FromGuild, Type> {
-	getMessage(messageId: string) {
+	fetchMessage(messageId: string) {
 		return this.api.webhooks(this.applicationId)(this.token).messages(messageId).get().then(data => new Message(this.rest, this.cache, data));
 	}
 
-	getResponse() {
-		return this.getMessage('@original');
+	fetchResponse() {
+		return this.fetchMessage('@original');
 	}
 
 	editMessage(messageId: string, body: RESTPatchAPIWebhookWithTokenMessageJSONBody, files?: RawFile[]) {

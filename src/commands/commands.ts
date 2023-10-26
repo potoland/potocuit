@@ -1,5 +1,51 @@
-import type { APIApplicationCommandOption, LocaleString } from '@biscuitland/common';
-import { ApplicationCommandOptionType, ApplicationCommandType } from '@biscuitland/common';
+import type { APIApplicationCommandBasicOption, APIAttachment, APIInteractionResponseChannelMessageWithSource, LocaleString, RESTPatchAPIWebhookWithTokenMessageJSONBody } from '@biscuitland/common';
+import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType } from '@biscuitland/common';
+import { AutocompleteInteraction, ChatInputCommandInteraction } from '../structures/Interaction';
+import { RawFile, Router } from '@biscuitland/rest';
+import { User } from '../structures/User';
+import { PotocuitChannels } from '../structures/channels';
+import { GuildRole } from '../structures/GuildRole';
+import { Result } from '../types/util';
+
+export class CommandContext<T extends PotoCommandOption[], M extends Readonly<MiddlewareCallback[]>> {
+	constructor(private interaction: ChatInputCommandInteraction, public options: ContextOptions<{ options: T }>, public metadata: CommandMetadata<M>) { }
+
+	private __router__ = new Router(this.interaction.rest);
+
+	get proxy() {
+		return this.__router__.createProxy();
+	}
+
+	write(body: APIInteractionResponseChannelMessageWithSource['data'], files: RawFile[] = []) {
+		return this.interaction.reply(
+			{
+				data: body,
+				type: InteractionResponseType.ChannelMessageWithSource
+			},
+			files,
+		);
+	}
+
+	deleteResponse() {
+		return this.interaction.deleteResponse();
+	}
+
+	editResponse(body: RESTPatchAPIWebhookWithTokenMessageJSONBody, files?: RawFile[]) {
+		return this.interaction.editResponse(body, files);
+	}
+
+	fetchResponse() {
+		return this.interaction.fetchResponse();
+	}
+
+	get author() {
+		return this.interaction.user;
+	}
+
+	get member() {
+		return this.interaction.member;
+	}
+}
 
 type DeclareOptions = {
 	name: string;
@@ -9,7 +55,47 @@ type DeclareOptions = {
 	nsfw?: boolean;
 };
 
-type MiddlewareCallback = (context: any) => boolean;
+interface ReturnOptionsTypes {
+	1: never;// subcommand
+	2: never;// subcommandgroup
+	3: string;
+	4: number;// integer
+	5: boolean;
+	6: User;
+	7: PotocuitChannels;
+	8: GuildRole;
+	9: GuildRole | PotocuitChannels | User;
+	10: number;// number
+	11: APIAttachment;
+}
+
+type Wrap<N extends ApplicationCommandOptionType> = N extends ApplicationCommandOptionType.Subcommand | ApplicationCommandOptionType.SubcommandGroup ? never : {
+	type: N;
+	filter(value: ReturnOptionsTypes[N], ok: OKFunction<any>, fail: FailFunction): void;
+} & Omit<APIApplicationCommandBasicOption, 'type'>;
+type __TypesWrapper = {
+	[P in keyof typeof ApplicationCommandOptionType]: `${typeof ApplicationCommandOptionType[P]}` extends `${infer D extends number}` ? Wrap<D> : never;
+};
+
+export type OKFunction<T> = (value: T) => void;
+export type FailFunction = (value: Error) => void;
+export type StopFunction = (error: Error) => void;
+export type NextFunction<T> = (data: T) => void;
+export type AutocompleteCallback = (interaction: AutocompleteInteraction) => void;
+export type PotoCommandBaseOption = __TypesWrapper[keyof __TypesWrapper];
+export type PotoCommandAutocompleteOption = Extract<__TypesWrapper[keyof __TypesWrapper] & { autocomplete: AutocompleteCallback }, { type: ApplicationCommandOptionType.String | ApplicationCommandOptionType.Integer | ApplicationCommandOptionType.Number }>;
+export type PotoCommandOption = PotoCommandBaseOption | PotoCommandAutocompleteOption;
+// thanks yuzu & socram
+export type ContextOptions<T extends { options: PotoCommandOption[] }> = {
+	[K in T['options'][number]['name']]: Parameters<Parameters<Extract<T['options'][number], { name: K }>['filter']>[1]>[0];// ApplicationCommandOptionType[];
+};
+export type MiddlewareCallback = (lastFail: Error | undefined, context: CommandContext<[], []>, next: NextFunction<any>, fail: FailFunction, stop: StopFunction) => any;
+export type MetadataMiddleware<T extends MiddlewareCallback> = Parameters<Parameters<T>[2]>[0];
+export type CommandMetadata<T extends Readonly<MiddlewareCallback[]>> = T extends readonly [infer first, ...infer rest]
+	? first extends MiddlewareCallback
+	? Parameters<Parameters<first>[2]>[0] & (rest extends MiddlewareCallback[] ? CommandMetadata<rest> : {})
+	: {}
+	: {};
 
 export function Locales({ name: names, description: descriptions }: {
 	name?: [language: LocaleString, value: string][];
@@ -23,7 +109,7 @@ export function Locales({ name: names, description: descriptions }: {
 	};
 }
 
-export function Groups(groups: Record<string, {
+export function Groups(groups: Record<string/* name for group*/, {
 	name?: [language: LocaleString, value: string][];
 	description?: [language: LocaleString, value: string][];
 	defaultDescription: string;
@@ -43,7 +129,7 @@ export function Group(groupName: string) {
 	};
 }
 
-export function Options(options: SubCommand[] | APIApplicationCommandOption[]) {
+export function Options(options: SubCommand[] | PotoCommandOption[]) {
 	return function <T extends { new(...args: any[]): {} }>(target: T) {
 		return class extends target {
 			options = options;
@@ -51,7 +137,7 @@ export function Options(options: SubCommand[] | APIApplicationCommandOption[]) {
 	};
 }
 
-export function Middlewares(cbs: MiddlewareCallback[]) {
+export function Middlewares(cbs: Readonly<MiddlewareCallback[]>) {
 	return function <T extends { new(...args: any[]): {} }>(target: T) {
 		return class extends target {
 			middlewares = cbs;
@@ -95,8 +181,55 @@ class BaseCommand {
 	description_localizations?: Record<LocaleString, string>;
 	// esto es el raw bro
 	// mira arriba
-	options?: APIApplicationCommandOption[] | SubCommand[];
+	options?: PotoCommandOption[] | SubCommand[];
 
+	// dont fucking touch.
+	runMiddlewares(context: CommandContext<[], []>): Result<Record<string, any>, true> {
+		if (!this.middlewares.length) { return Promise.resolve([{}, undefined]); }// nose nunca he hecho middlewares xdxd
+		// hay que pensarse mejor el next, capaz usando promesas para el callback
+		// se supone que el next tiene que devolver algo o nada, lo mas cercano a eso es un resolve() o directamente otro callback
+		// principalmente por tema de index y el lastFail tambien esta jodido yo me voy a cenar, seguimos mañana
+		// voy a bañarme B)
+		const metadata: Record<string, any> = {};
+		let index = 0,
+			lastFail: Error | undefined;
+
+		return new Promise(res => {
+			// I dont think this is needed, but just in case
+			let timeoutCleared = false;
+			const timeout = setTimeout(() => {
+				timeoutCleared = true;
+				res([undefined, new Error('Timeout middlewares')]);
+			}, 15e3);
+			const next: NextFunction<any> = obj => {
+				if (timeoutCleared) { return; }
+				Object.assign(metadata, obj);
+				if (++index >= this.middlewares.length) {
+					context.metadata = metadata;
+					timeoutCleared = true;
+					clearTimeout(timeout);
+					return res([metadata, undefined]);
+				}
+				this.middlewares[index](lastFail, context, next, fail, stop);
+			};
+			const fail: FailFunction = err => {
+				if (timeoutCleared) { return; }
+				lastFail = err;
+				if (++index >= this.middlewares.length) {
+					context.metadata = metadata;
+					timeoutCleared = true;
+					clearTimeout(timeout);
+					return res([metadata, undefined]);
+				}
+				this.middlewares[index](lastFail, context, next, fail, stop);
+			};
+			const stop: StopFunction = err => {
+				if (timeoutCleared) { return; }
+				lastFail = err;
+			};
+			this.middlewares[0](lastFail, context, next, fail, stop);
+		});
+	}
 
 	toJSON() {
 		return {
@@ -108,6 +241,8 @@ class BaseCommand {
 			description_localizations: this.description_localizations,
 		};
 	}
+
+	run?(context: CommandContext<any, any>): any;
 }
 
 export class Command extends BaseCommand {
@@ -117,22 +252,25 @@ export class Command extends BaseCommand {
 	toJSON() {
 		return {
 			...super.toJSON(),
-			options: this.options ? this.options.map(x => 'toJSON' in x ? x.toJSON() : x) : []
+			options: this.options ? this.options.map(x => 'toJSON' in x ? x.toJSON() : { ...x, autocomplete: 'autocomplete' in x }) : []
 		};
 	}
 }
 
-export class SubCommand extends BaseCommand {
+export abstract class SubCommand extends BaseCommand {
 	type = ApplicationCommandOptionType.Subcommand;
 	group?: string;
-	options?: APIApplicationCommandOption[];
+	options?: PotoCommandOption[];
 
 	toJSON() {
 		return {
 			...super.toJSON(),
-			options: this.options,
+			options: (this.options ?? []).map(x => ({ ...x, autocomplete: 'autocomplete' in x })),
 		};
 	}
+
+
+	abstract run(context: CommandContext<any, any>): any;
 }
 
 // idea:

@@ -1,19 +1,16 @@
-import type { GatewayDispatchPayload } from '@biscuitland/common';
-import { ApplicationCommandOptionType, InteractionResponseType } from '@biscuitland/common';
+import { InteractionType, type APIChatInputApplicationCommandInteractionData, type GatewayDispatchPayload, ApplicationCommandType } from '@biscuitland/common';
 import { BiscuitREST, Router } from '@biscuitland/rest';
 import { GatewayManager } from '@biscuitland/ws';
-import { readdir } from 'fs/promises';
-import { join } from 'path';
 import { Cache, DefaultMemoryAdapter } from '../cache';
-import type { SubCommand } from '../commands';
-import { Command } from '../commands';
-import { BaseInteraction } from '../structures/Interaction';
-import { throwError } from '..';
+import { BaseInteraction, ChatInputCommandInteraction } from '../structures/Interaction';
+import { CommandContext, throwError } from '..';
+import { OptionResolver, PotoCommandHandler } from '../commands/handler';
 
 export class PotoClient {
 	gateway!: GatewayManager;
 	rest!: BiscuitREST;
 	cache!: Cache;
+	handler = new PotoCommandHandler;
 
 	get proxy() {
 		return new Router(this.rest).createProxy();
@@ -56,78 +53,46 @@ export class PotoClient {
 		await this.gateway.spawnShards();
 	}
 
+	async loadCommands(path: string, applicationId: string) {
+		await this.proxy.applications(applicationId).commands.put({
+			body: Object.values(await this.handler.loadCommands(path))
+		});
+	}
+
 	protected async onPacket(shardId: number, packet: GatewayDispatchPayload) {
 		await this.cache.onPacket(packet);
 		switch (packet.t) {
+			// deberiamos modular esto
 			case 'INTERACTION_CREATE': {
-				const interaction = BaseInteraction.from(this.rest, this.cache, packet.d);
-				console.log(interaction);
-				await interaction.reply({
-					type: InteractionResponseType.ChannelMessageWithSource,
-					data: {
-						content: 'pong desde pootucit'
+				switch (packet.d.type) {
+					case InteractionType.ApplicationCommand: {
+						const packetData = packet.d.data as APIChatInputApplicationCommandInteractionData;
+						const parentCommand = this.handler.commands.find(x => x.name === (packetData as APIChatInputApplicationCommandInteractionData).name)!;
+						const optionsResolver = new OptionResolver(packetData.options ?? [], parentCommand);
+
+						switch (packet.d.data.type) {
+							case ApplicationCommandType.ChatInput: {
+								const interaction = BaseInteraction.from(this.rest, this.cache, packet.d) as ChatInputCommandInteraction;
+								const command = optionsResolver.getCommand();
+								if (command?.run) {
+									const context = new CommandContext(interaction, optionsResolver, {});
+									const [_, error] = await command.runMiddlewares(context);
+									if (error) { return; }
+									await command.run(context);
+								}
+								// await interaction.reply({
+								// 	type: InteractionResponseType.ChannelMessageWithSource,
+								// 	data: {
+								// 		content: 'pong desde pootucit'
+								// 	}
+								// });
+							} break;
+						} break;
 					}
-				});
-			} break;
+				} break;
+			}
 		}
 		if (packet.t === 'READY') { console.log(`${shardId}`, packet.d.user.username); }
 		// else console.log(`${shardId}`, packet.d, packet.t);
-	}
-
-	protected async getFiles(dir: string) {
-		const files: string[] = [];
-
-		for (const i of await readdir(dir, { withFileTypes: true })) {
-			if (i.isDirectory()) { files.push(...await this.getFiles(join(dir, i.name))); } else { files.push(join(dir, i.name)); }
-		}
-
-		return files;
-	}
-
-	async loadCommands(commandsDir: string, applicationId: string) {
-		const commandsPaths = await this.getFiles(commandsDir);
-		const commands = await Promise.all(commandsPaths.map(x => import(x).then(d => d.default)));
-
-		const result: Record<string, any> = {};
-
-		for (const command of commands) {
-			if (!(command instanceof Command)) { continue; }
-			// const groups = command.groups
-			// 	? Object.entries(command.groups).map(x => x[0]).join(', ')
-			// 	: undefined
-			// console.log(`Command ${command.name} ${groups ? 'groups: ' + groups : ''}`);
-
-			// console.log('command', command)
-			if (command.groups) {
-				const groups = Object.entries(command.groups)
-					.map(x => ({
-						name: x[0],
-						name_localizations: x[1].name ? Object.fromEntries(x[1].name) : {},
-						description: x[1].defaultDescription,
-						description_localizations: x[1].description ? Object.fromEntries(x[1].description) : {},
-						type: ApplicationCommandOptionType.SubcommandGroup,
-						options: (command.options as SubCommand[]).filter(op => op.group === x[0])
-					}));
-
-				// console.log('groups', groups, command.options);
-				command.options ??= [];
-
-				// @ts-expect-error
-				command.options = command.options.filter(x => !x.group);
-
-				// @ts-expect-error
-				command.options.push(...groups);
-			}
-
-			result[command.name] = command;
-
-			// console.log(obj, 'obj')
-		}
-
-		await this.proxy.applications(applicationId).commands.put({
-			body: Object.values(result).map(x => x.toJSON())
-		});
-
-		return result;
 	}
 }

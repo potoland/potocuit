@@ -19,3 +19,9 @@ export type MakePartial<T, K extends keyof T> = {
 } & {
 		[P in K]?: T[P] | undefined;
 	};
+
+type ResultType<T> = [T, undefined] | [undefined, Error];
+
+export type Result<T, P extends boolean> = P extends true
+	? Promise<ResultType<T>>
+	: ResultType<T>;

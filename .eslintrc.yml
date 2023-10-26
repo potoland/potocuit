@@ -157,7 +157,7 @@ rules:
         - 'always'
         - 'null': 'ignore'
 
-    'no-console': 'warn'
+    'no-console': 'off'
     'no-duplicate-imports': 'off'
     'no-multiple-empty-lines': 'error'
     'no-throw-literal': 'error'

@@ -1,10 +1,12 @@
-import type { GatewayInteractionCreateDispatchData } from '@biscuitland/common';
+import type { APIChatInputApplicationCommandInteraction, APIChatInputApplicationCommandInteractionData, GatewayInteractionCreateDispatchData } from '@biscuitland/common';
 import { InteractionType, InteractionResponseType } from '@biscuitland/common';
 import type { BiscuitREST } from '@biscuitland/rest';
 import { Router } from '@biscuitland/rest';
 import type { HttpResponse } from 'uWebSockets.js';
-import { BaseInteraction } from '../structures/Interaction';
+import { BaseInteraction, ChatInputCommandInteraction } from '../structures/Interaction';
 import type { Cache } from '../cache';
+import { OptionResolver, PotoCommandHandler } from '../commands/handler';
+import { CommandContext } from '../commands';
 
 let UWS: typeof import('uWebSockets.js');
 let nacl: typeof import('tweetnacl');
@@ -23,6 +25,8 @@ try {
 
 export class PotoHttpClient {
 	app!: ReturnType<typeof UWS.App>;
+	handler = new PotoCommandHandler;
+
 	constructor(readonly rest: BiscuitREST, readonly cache: Cache) {
 		if (!UWS) { throw new Error('No uws installed.'); }
 		if (!nacl) { throw new Error('No tweetnacl installed.'); }
@@ -55,6 +59,12 @@ export class PotoHttpClient {
 		});
 	}
 
+	async loadCommands(path: string, applicationId: string) {
+		await this.proxy.applications(applicationId).commands.put({
+			body: Object.values(await this.handler.loadCommands(path)).map(x => x.toJSON())
+		});
+	}
+
 	listen(publicKey: string, port: number) {
 		this.app = UWS.App();
 		this.app
@@ -78,6 +88,19 @@ export class PotoHttpClient {
 								.writeHeader('Content-Type', 'application/json')
 								.end(JSON.stringify({ type: InteractionResponseType.Pong }));
 							break;
+						default: {
+							const packetData = body.data as APIChatInputApplicationCommandInteractionData;
+							const parentCommand = this.handler.commands.find(x => x.name === (packetData as APIChatInputApplicationCommandInteractionData).name)!;
+							const optionsResolver = new OptionResolver(packetData.options ?? [], parentCommand);
+							const interaction = BaseInteraction.from(this.rest, this.cache, body as APIChatInputApplicationCommandInteraction) as ChatInputCommandInteraction;
+							const command = optionsResolver.getCommand();
+							if (command?.run) {
+								const context = new CommandContext(interaction, optionsResolver, {});
+								const [_, error] = await command.runMiddlewares(context);
+								if (error) { return; }
+								await command.run(context);
+							}
+						} break;
 					}
 					console.log(body);
 				}
