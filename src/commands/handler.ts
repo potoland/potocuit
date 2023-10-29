@@ -20,7 +20,9 @@ export class PotoHandler {
 		const files: string[] = [];
 
 		for (const i of await readdir(dir, { withFileTypes: true })) {
-			if (i.isDirectory()) { files.push(...await this.getFiles(join(dir, i.name))); } else { files.push(join(dir, i.name)); }
+			if (i.isDirectory()) {
+				files.push(...await this.getFiles(join(dir, i.name)));
+			} else { files.push(join(dir, i.name)); }
 		}
 
 		return files;
@@ -39,57 +41,6 @@ export class PotoLangsHandler extends PotoHandler {
 
 export class PotoCommandHandler extends PotoHandler {
 	commands: Command[] = [];
-
-	// constructor() {
-	// 	return;
-	// }
-
-	// findCommand(
-	// 	interaction: Interaction['data'],
-	// 	parent: Command
-	// ): { command: Command | SubCommand; options: APIApplicationCommandInteractionDataBasicOption[] } {
-	// 	if (!interaction.options
-	// 		?.some(x =>
-	// 			[ApplicationCommandOptionType.Subcommand, ApplicationCommandOptionType.SubcommandGroup]
-	// 				.includes(x.type)
-	// 		)
-	// 	) {
-	// 		return {
-	// 			// pero, tas haciendo estas cosas aqui y yo en el optionresolver djaskdskd
-	// 			// y sigo diciendo que hacer todo en la clase en vez de escribir todo este codigo espaguetti es mejor cof cof cof
-	// 			command: parent,
-	// 			options: (interaction.options ?? []) as APIApplicationCommandInteractionDataBasicOption[]
-	// 		};
-	// 	}
-	// 	const { command, options } = this.findSubCommand(interaction.options as APIApplicationCommandInteractionDataSubcommandOption[] | APIApplicationCommandInteractionDataSubcommandGroupOption[], parent.options!.find(x => x.name === interaction.options![0].name) as SubCommand);
-	// 	return {
-	// 		command,
-	// 		options
-	// 	} as unknown as { command: Command; options: APIApplicationCommandInteractionDataBasicOption[] };
-	// }
-
-	// // ni idea de q hablas xdxd
-	// // https://old.discordjs.dev/#/docs/discord.js/main/class/CommandInteractionOptionResolver
-	// // a no, se supone que aqui obtendre todo eso, en el findCommand
-	// // deja hago el resolver
-	// private findSubCommand(
-	// 	options: APIApplicationCommandInteractionDataSubcommandOption[] | APIApplicationCommandInteractionDataSubcommandGroupOption[],
-	// 	subcommand: SubCommand
-	// ): { command: SubCommand; options: APIApplicationCommandInteractionDataOption[] } {
-	// 	console.log({ subcommand, options });
-	// 	if (subcommand.type === ApplicationCommandOptionType.SubcommandGroup) {
-	// 		// estos finds te los ahorraras si me dejas terminar xd
-	// 		return {
-	// 			command: subcommand.options!.find(x => x.name === options[0].options![0].name) as unknown as SubCommand,
-	// 			options: (options[0] as APIApplicationCommandInteractionDataSubcommandGroupOption).options![0].options ?? []
-	// 		};
-	// 	}
-	// 	return {
-	// 		command: subcommand,
-	// 		options: options[0].options ?? []
-	// 	};
-
-	// }
 
 	// no tocar.
 	async loadCommands(commandsDir: string) {
@@ -308,3 +259,54 @@ export interface OptionResolved {
 export type OptionResolvedWithValue = MakeRequired<Pick<OptionResolved, 'name' | 'value' | 'focused'>, 'value'> & { type: ApplicationCommandOptionType.Boolean | ApplicationCommandOptionType.Integer | ApplicationCommandOptionType.Number | ApplicationCommandOptionType.String };
 
 export type OptionResolvedWithProp = Exclude<OptionResolved, { type: ApplicationCommandOptionType.Boolean | ApplicationCommandOptionType.Integer | ApplicationCommandOptionType.Number | ApplicationCommandOptionType.String }>;
+
+// constructor() {
+// 	return;
+// }
+
+// findCommand(
+// 	interaction: Interaction['data'],
+// 	parent: Command
+// ): { command: Command | SubCommand; options: APIApplicationCommandInteractionDataBasicOption[] } {
+// 	if (!interaction.options
+// 		?.some(x =>
+// 			[ApplicationCommandOptionType.Subcommand, ApplicationCommandOptionType.SubcommandGroup]
+// 				.includes(x.type)
+// 		)
+// 	) {
+// 		return {
+// 			// pero, tas haciendo estas cosas aqui y yo en el optionresolver djaskdskd
+// 			// y sigo diciendo que hacer todo en la clase en vez de escribir todo este codigo espaguetti es mejor cof cof cof
+// 			command: parent,
+// 			options: (interaction.options ?? []) as APIApplicationCommandInteractionDataBasicOption[]
+// 		};
+// 	}
+// 	const { command, options } = this.findSubCommand(interaction.options as APIApplicationCommandInteractionDataSubcommandOption[] | APIApplicationCommandInteractionDataSubcommandGroupOption[], parent.options!.find(x => x.name === interaction.options![0].name) as SubCommand);
+// 	return {
+// 		command,
+// 		options
+// 	} as unknown as { command: Command; options: APIApplicationCommandInteractionDataBasicOption[] };
+// }
+
+// // ni idea de q hablas xdxd
+// // https://old.discordjs.dev/#/docs/discord.js/main/class/CommandInteractionOptionResolver
+// // a no, se supone que aqui obtendre todo eso, en el findCommand
+// // deja hago el resolver
+// private findSubCommand(
+// 	options: APIApplicationCommandInteractionDataSubcommandOption[] | APIApplicationCommandInteractionDataSubcommandGroupOption[],
+// 	subcommand: SubCommand
+// ): { command: SubCommand; options: APIApplicationCommandInteractionDataOption[] } {
+// 	console.log({ subcommand, options });
+// 	if (subcommand.type === ApplicationCommandOptionType.SubcommandGroup) {
+// 		// estos finds te los ahorraras si me dejas terminar xd
+// 		return {
+// 			command: subcommand.options!.find(x => x.name === options[0].options![0].name) as unknown as SubCommand,
+// 			options: (options[0] as APIApplicationCommandInteractionDataSubcommandGroupOption).options![0].options ?? []
+// 		};
+// 	}
+// 	return {
+// 		command: subcommand,
+// 		options: options[0].options ?? []
+// 	};
+
+// }

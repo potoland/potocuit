@@ -38,7 +38,7 @@ export const GUILD_AUDIT_LOG_ENTRY_CREATE = (
 	_cache: Cache,
 	data: GatewayGuildAuditLogEntryCreateDispatchData
 ) => {
-	return data;
+	return toCamelCase(data);
 };
 
 export const GUILD_BAN_ADD = (
@@ -46,7 +46,7 @@ export const GUILD_BAN_ADD = (
 	cache: Cache,
 	data: GatewayGuildBanAddDispatchData
 ) => {
-	return { ...data, user: new User(rest, cache, data.user) };
+	return { ...toCamelCase(data), user: new User(rest, cache, data.user) };
 };
 
 export const GUILD_BAN_REMOVE = (

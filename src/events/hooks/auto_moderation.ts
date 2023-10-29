@@ -1,8 +1,9 @@
-import type {
-	GatewayAutoModerationActionExecutionDispatchData,
-	GatewayAutoModerationRuleCreateDispatchData,
-	GatewayAutoModerationRuleDeleteDispatchData,
-	GatewayAutoModerationRuleUpdateDispatchData,
+import {
+	toCamelCase,
+	type GatewayAutoModerationActionExecutionDispatchData,
+	type GatewayAutoModerationRuleCreateDispatchData,
+	type GatewayAutoModerationRuleDeleteDispatchData,
+	type GatewayAutoModerationRuleUpdateDispatchData,
 } from '@biscuitland/common';
 import type { BiscuitREST } from '@biscuitland/rest';
 import type { Cache } from '../../cache';
@@ -13,7 +14,7 @@ export const AUTO_MODERATION_ACTION_EXECUTION = (
 	_cache: Cache,
 	data: GatewayAutoModerationActionExecutionDispatchData
 ) => {
-	return data;
+	return toCamelCase(data);
 };
 
 export const AUTO_MODERATION_RULE_CREATE = (

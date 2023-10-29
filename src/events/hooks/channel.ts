@@ -1,8 +1,9 @@
-import type {
-	GatewayChannelCreateDispatchData,
-	GatewayChannelDeleteDispatchData,
-	GatewayChannelPinsUpdateDispatchData,
-	GatewayChannelUpdateDispatchData,
+import {
+	toCamelCase,
+	type GatewayChannelCreateDispatchData,
+	type GatewayChannelDeleteDispatchData,
+	type GatewayChannelPinsUpdateDispatchData,
+	type GatewayChannelUpdateDispatchData,
 } from '@biscuitland/common';
 
 import type { BiscuitREST } from '@biscuitland/rest';
@@ -30,7 +31,7 @@ export const CHANNEL_PINS_UPDATE = (
 	_cache: Cache,
 	data: GatewayChannelPinsUpdateDispatchData
 ) => {
-	return data;
+	return toCamelCase(data);
 };
 
 export const CHANNEL_UPDATE = (

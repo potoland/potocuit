@@ -26,7 +26,13 @@
 		"skipLibCheck": true,
 		"noErrorTruncation": true,
 		"rootDir": "./src",
-		"outDir": "./dist"
+		"outDir": "./dist",
+		"plugins": [
+			{
+				"transform": "ts-macros/dist/type-resolve",
+				"transformProgram": true
+			}
+		]
 	},
 	"exclude": [
 		"**/node_modules",

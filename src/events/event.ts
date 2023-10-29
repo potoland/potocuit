@@ -4,37 +4,45 @@ export interface DeclareEventsOptions {
 	name: `${keyof PotocuitEvents}`;
 	once?: boolean;
 }
-
-export function DeclareEvent(options: DeclareEventsOptions) {
-	return function <T extends { new(...args: any[]): {} }>(target: T) {
-		return class extends target {
-			name = options.name;
-			once = options.once ?? false;
-			constructor(...args: any[]) {
-				super(...args);
-				// check if all properties are valid
-			}
-		};
-	};
-}
+export type PotoNameEvents = Extract<keyof PotocuitEvents, string>;
 
 export interface PotoEvent {
-	name: `${keyof PotocuitEvents}`;
+	name: PotoNameEvents;
 	once: boolean;
-	run(context: EventContext<this>): Promise<any>;
+}
+export type Handler = {
+	[K in keyof PotocuitEvents]: (...data: [PotocuitEvents[K], number]) => unknown;
+};
+export type EventContext<T extends PotocuitEvent> = Parameters<Handler[T['data']['name']]>;
+export interface PotocuitEvent {
+	data: PotoEvent;
+	run(...args: EventContext<any>): any;
 }
 
-export type Handler = {
-	[K in keyof PotocuitEvents]: (...args: [PotocuitEvents[K], number]) => unknown;
-};
 
-export type EventContext<T extends PotoEvent> = Parameters<Handler[T['name']]>;
+// xdxdxdxdxdx
+// xd
+const xddd: PotoNameEvents = 'ready'; // CUAL ES LA MALDITA DIFERENCIA
+xddd;
+// ^?
 
-// class ReadyEvent implements PotoEvent {
-// 	name = 'ready' as const;
-// 	once = false;
-// 	async run([client, shardId]: EventContext<this>) {
-// 		client.username;
-// 		return true;
-// 	}
-// }
+class ReadyEvent implements PotocuitEvent {
+	data = {
+		name: 'guildBanAdd',
+		once: true
+	} satisfies PotoEvent;
+
+	// data = declareEvent();
+	async run([ctx, shardId]: EventContext<this>): Promise<any> {
+		this
+			.data;
+		// ^?
+		shardId;
+		ctx
+			.guildId;
+		// ^?
+	}
+}
+// xd?
+// callate
+// wtf usas as const y se arregla, quien lo diriaxd
