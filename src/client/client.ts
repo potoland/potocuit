@@ -1,8 +1,9 @@
-import { InteractionType, type APIChatInputApplicationCommandInteractionData, type GatewayDispatchPayload, ApplicationCommandType } from '@biscuitland/common';
+import { type APIChatInputApplicationCommandInteractionData, ApplicationCommandType, type GatewayDispatchPayload, InteractionType } from '@biscuitland/common';
 import { BiscuitREST, Router } from '@biscuitland/rest';
 import { GatewayManager } from '@biscuitland/ws';
 import { Cache, DefaultMemoryAdapter } from '../cache';
-import { BaseInteraction, ChatInputCommandInteraction } from '../structures/Interaction';
+import type { ChatInputCommandInteraction } from '../structures/Interaction';
+import { AutocompleteInteraction, BaseInteraction } from '../structures/Interaction';
 import { CommandContext, throwError } from '..';
 import { OptionResolver, PotoCommandHandler } from '../commands/handler';
 
@@ -65,10 +66,20 @@ export class PotoClient {
 			// deberiamos modular esto
 			case 'INTERACTION_CREATE': {
 				switch (packet.d.type) {
+					case InteractionType.ApplicationCommandAutocomplete: {
+						const packetData = packet.d.data as APIChatInputApplicationCommandInteractionData;
+						const parentCommand = this.handler.commands.find(x => x.name === (packetData as APIChatInputApplicationCommandInteractionData).name)!;
+						const optionsResolver = new OptionResolver(this.rest, this.cache, packetData.options ?? [], parentCommand, packet.d.data.guild_id);
+						const interaction = new AutocompleteInteraction(this.rest, this.cache, packet.d);
+						const command = optionsResolver.getAutocomplete();
+						if (command?.autocomplete) {
+							await command.autocomplete(interaction);
+						}
+					} break;
 					case InteractionType.ApplicationCommand: {
 						const packetData = packet.d.data as APIChatInputApplicationCommandInteractionData;
 						const parentCommand = this.handler.commands.find(x => x.name === (packetData as APIChatInputApplicationCommandInteractionData).name)!;
-						const optionsResolver = new OptionResolver(packetData.options ?? [], parentCommand);
+						const optionsResolver = new OptionResolver(this.rest, this.cache, packetData.options ?? [], parentCommand, packet.d.data.guild_id);
 
 						switch (packet.d.data.type) {
 							case ApplicationCommandType.ChatInput: {
@@ -76,8 +87,13 @@ export class PotoClient {
 								const command = optionsResolver.getCommand();
 								if (command?.run) {
 									const context = new CommandContext(interaction, optionsResolver, {});
-									const [_, error] = await command.runMiddlewares(context);
-									if (error) { return command.onStop(context, error); }
+
+									const [erroredOptions, result] = await command.runOptions(optionsResolver);
+									if (erroredOptions) { return await command.onRunOptionsError(context, result); }
+
+									const [_, erroredMiddlewares] = await command.runMiddlewares(context);
+									if (erroredMiddlewares) { return command.onStop(context, erroredMiddlewares); }
+
 									await command.run(context);
 								}
 								// await interaction.reply({

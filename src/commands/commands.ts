@@ -1,13 +1,16 @@
 import type { APIApplicationCommandBasicOption, APIAttachment, APIInteractionResponseChannelMessageWithSource, LocaleString, RESTPatchAPIWebhookWithTokenMessageJSONBody } from '@biscuitland/common';
 import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType } from '@biscuitland/common';
-import { AutocompleteInteraction, ChatInputCommandInteraction } from '../structures/Interaction';
-import { RawFile, Router } from '@biscuitland/rest';
-import { User } from '../structures/User';
-import { PotocuitChannels } from '../structures/channels';
-import { GuildRole } from '../structures/GuildRole';
-import { Result } from '../types/util';
+import type { AutocompleteInteraction, ChatInputCommandInteraction } from '../structures/Interaction';
+import type { RawFile } from '@biscuitland/rest';
+import { Router } from '@biscuitland/rest';
+import type { User } from '../structures/User';
+import type { PotocuitChannels } from '../structures/channels';
+import type { GuildRole } from '../structures/GuildRole';
+import type { Result } from '../types/util';
+import type { OptionResolver } from './handler';
+import type { InteractionGuildMember } from '../structures/GuildMember';
 
-export class CommandContext<T extends PotoCommandOption[], M extends Readonly<MiddlewareCallback[]>> {
+export class CommandContext<T extends PotoCommandOption[], M extends Readonly<MiddlewareContext[]>> {
 	constructor(private interaction: ChatInputCommandInteraction, public options: ContextOptions<{ options: T }>, public metadata: CommandMetadata<M>) { }
 
 	private __router__ = new Router(this.interaction.rest);
@@ -61,7 +64,7 @@ interface ReturnOptionsTypes {
 	3: string;
 	4: number;// integer
 	5: boolean;
-	6: User;
+	6: InteractionGuildMember | User;
 	7: PotocuitChannels;
 	8: GuildRole;
 	9: GuildRole | PotocuitChannels | User;
@@ -69,10 +72,15 @@ interface ReturnOptionsTypes {
 	11: APIAttachment;
 }
 
-type Wrap<N extends ApplicationCommandOptionType> = N extends ApplicationCommandOptionType.Subcommand | ApplicationCommandOptionType.SubcommandGroup ? never : {
+type Wrap<N extends ApplicationCommandOptionType> = N extends ApplicationCommandOptionType.Subcommand | ApplicationCommandOptionType.SubcommandGroup ? never : ({
 	type: N;
-	filter(value: ReturnOptionsTypes[N], ok: OKFunction<any>, fail: FailFunction): void;
-} & Omit<APIApplicationCommandBasicOption, 'type'>;
+	required: false;
+	value(value: ReturnOptionsTypes[N] | undefined, ok: OKFunction<any>, fail: FailFunction): void;
+} | {
+	type: N;
+	required: true;
+	value(value: ReturnOptionsTypes[N], ok: OKFunction<any>, fail: FailFunction): void;
+}) & Omit<APIApplicationCommandBasicOption, 'type' | 'required'>;
 type __TypesWrapper = {
 	[P in keyof typeof ApplicationCommandOptionType]: `${typeof ApplicationCommandOptionType[P]}` extends `${infer D extends number}` ? Wrap<D> : never;
 };
@@ -81,19 +89,19 @@ export type OKFunction<T> = (value: T) => void;
 export type FailFunction = (value: Error) => void;
 export type StopFunction = (error: Error) => void;
 export type NextFunction<T> = (data: T) => void;
-export type AutocompleteCallback = (interaction: AutocompleteInteraction) => void;
+export type AutocompleteCallback = (interaction: AutocompleteInteraction) => any;
 export type PotoCommandBaseOption = __TypesWrapper[keyof __TypesWrapper];
 export type PotoCommandAutocompleteOption = Extract<__TypesWrapper[keyof __TypesWrapper] & { autocomplete: AutocompleteCallback }, { type: ApplicationCommandOptionType.String | ApplicationCommandOptionType.Integer | ApplicationCommandOptionType.Number }>;
 export type PotoCommandOption = PotoCommandBaseOption | PotoCommandAutocompleteOption;
 // thanks yuzu & socram
 export type ContextOptions<T extends { options: PotoCommandOption[] }> = {
-	[K in T['options'][number]['name']]: Parameters<Parameters<Extract<T['options'][number], { name: K }>['filter']>[1]>[0];// ApplicationCommandOptionType[];
+	[K in T['options'][number]['name']]: Parameters<Parameters<Extract<T['options'][number], { name: K }>['value']>[1]>[0];// ApplicationCommandOptionType[];
 };
-export type MiddlewareCallback = (lastFail: Error | undefined, context: CommandContext<[], []>, next: NextFunction<any>, fail: FailFunction, stop: StopFunction) => any;
-export type MetadataMiddleware<T extends MiddlewareCallback> = Parameters<Parameters<T>[2]>[0];
-export type CommandMetadata<T extends Readonly<MiddlewareCallback[]>> = T extends readonly [infer first, ...infer rest]
-	? first extends MiddlewareCallback
-	? Parameters<Parameters<first>[2]>[0] & (rest extends MiddlewareCallback[] ? CommandMetadata<rest> : {})
+export type MiddlewareContext<T = any> = (context: { lastFail: Error | undefined; cmdContext: CommandContext<[], []>; next: NextFunction<T>; fail: FailFunction; stop: StopFunction }) => any;
+export type MetadataMiddleware<T extends MiddlewareContext> = Parameters<Parameters<T>[0]['next']>[0];
+export type CommandMetadata<T extends Readonly<MiddlewareContext[]>> = T extends readonly [infer first, ...infer rest]
+	? first extends MiddlewareContext
+	? MetadataMiddleware<first> & (rest extends MiddlewareContext[] ? CommandMetadata<rest> : {})
 	: {}
 	: {};
 
@@ -137,7 +145,7 @@ export function Options(options: SubCommand[] | PotoCommandOption[]) {
 	};
 }
 
-export function Middlewares(cbs: Readonly<MiddlewareCallback[]>) {
+export function Middlewares(cbs: Readonly<MiddlewareContext[]>) {
 	return function <T extends { new(...args: any[]): {} }>(target: T) {
 		return class extends target {
 			middlewares = cbs;
@@ -163,9 +171,17 @@ export function Declare(declare: DeclareOptions) {
 	};
 }
 
+type OnOptionsReturnObject = Record<string, {
+	failed: false;
+	value: any;
+} | {
+	failed: true;
+	value: Error;
+}>;
+
 class BaseCommand {
 	// y cambiarle el nombre a esta wea
-	protected middlewares: MiddlewareCallback[] = [];
+	protected middlewares: MiddlewareContext[] = [];
 
 	__filePath?: string;
 
@@ -187,6 +203,53 @@ class BaseCommand {
 		return context.write({
 			content: `Oops, it seems like something didn't go as expected:\n\`\`\`${error.message}\`\`\``
 		});
+	}
+
+	onRunOptionsError(context: CommandContext<[], []>, metadata: OnOptionsReturnObject) {
+		let content = '';
+		for (const i in metadata) {
+			const err = metadata[i];
+			if (err.failed) { content += `[${i}]: ${err.value.message}\n`; }
+		}
+
+		return context.write({
+			content
+		});
+	}
+
+	async runOptions(resolver: OptionResolver): Promise<[boolean, OnOptionsReturnObject]> {
+		const command = resolver.getCommand();
+		if (!resolver.hoistedOptions.length || !command) { return [false, {}]; }
+		const data: OnOptionsReturnObject = {};
+		let errored = false;
+		for (const i of resolver.hoistedOptions) {
+			const option = command.options!.find(x => x.name === i.name) as PotoCommandOption;
+			const value = await new Promise(resolve => option.value(resolver.getValue(i.name) as never, resolve, resolve)) as any | Error;
+			if (value instanceof Error) {
+				errored = true;
+				data[i.name] = {
+					failed: true,
+					value
+				};
+				continue;
+			}
+			if (!value) {
+				if (option.required) {
+					errored = true;
+					data[i.name] = {
+						failed: true,
+						value: new Error(`${i.name} is required but returned no value`),
+					};
+					continue;
+				}
+			}
+			data[i.name] = {
+				failed: false,
+				value
+			};
+		}
+
+		return [errored, data];
 	}
 
 	// dont fucking touch.
@@ -217,7 +280,7 @@ class BaseCommand {
 					clearTimeout(timeout);
 					return res([metadata, undefined]);
 				}
-				this.middlewares[index](lastFail, context, next, fail, stop);
+				this.middlewares[index]({ lastFail, cmdContext: context, next, fail, stop });
 			};
 			const fail: FailFunction = err => {
 				if (timeoutCleared) { return; }
@@ -228,14 +291,14 @@ class BaseCommand {
 					clearTimeout(timeout);
 					return res([metadata, undefined]);
 				}
-				this.middlewares[index](lastFail, context, next, fail, stop);
+				this.middlewares[index]({ lastFail, cmdContext: context, next, fail, stop });
 			};
 			const stop: StopFunction = err => {
 				if (timeoutCleared) { return; }
 				lastFail = err;
 				return res([undefined, err]);
 			};
-			this.middlewares[0](lastFail, context, next, fail, stop);
+			this.middlewares[0]({ lastFail, cmdContext: context, next, fail, stop });
 		});
 	}
 

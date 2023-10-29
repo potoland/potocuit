@@ -34,6 +34,6 @@ export abstract class Base {
 		return this;
 	}
 
-	rest!: BiscuitREST;
-	cache!: Cache;
+	readonly rest!: BiscuitREST;
+	readonly cache!: Cache;
 }

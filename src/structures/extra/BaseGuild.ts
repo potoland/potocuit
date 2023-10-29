@@ -1,4 +1,4 @@
-import type { ObjectToLower, APIPartialGuild } from '@biscuitland/common';
+import type { APIPartialGuild, ObjectToLower } from '@biscuitland/common';
 import { GuildFeature } from '@biscuitland/common';
 import type { ImageOptions } from '../../types/options';
 import { DiscordBase } from './DiscordBase';

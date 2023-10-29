@@ -1,9 +1,10 @@
 import type { APIChatInputApplicationCommandInteraction, APIChatInputApplicationCommandInteractionData, GatewayInteractionCreateDispatchData } from '@biscuitland/common';
-import { InteractionType, InteractionResponseType } from '@biscuitland/common';
+import { InteractionResponseType, InteractionType } from '@biscuitland/common';
 import type { BiscuitREST } from '@biscuitland/rest';
 import { Router } from '@biscuitland/rest';
 import type { HttpResponse } from 'uWebSockets.js';
-import { BaseInteraction, ChatInputCommandInteraction } from '../structures/Interaction';
+import type { ChatInputCommandInteraction } from '../structures/Interaction';
+import { BaseInteraction } from '../structures/Interaction';
 import type { Cache } from '../cache';
 import { OptionResolver, PotoCommandHandler } from '../commands/handler';
 import { CommandContext } from '../commands';
@@ -91,7 +92,7 @@ export class PotoHttpClient {
 						default: {
 							const packetData = body.data as APIChatInputApplicationCommandInteractionData;
 							const parentCommand = this.handler.commands.find(x => x.name === (packetData as APIChatInputApplicationCommandInteractionData).name)!;
-							const optionsResolver = new OptionResolver(packetData.options ?? [], parentCommand);
+							const optionsResolver = new OptionResolver(this.rest, this.cache, packetData.options ?? [], parentCommand, packetData.guild_id);
 							const interaction = BaseInteraction.from(this.rest, this.cache, body as APIChatInputApplicationCommandInteraction) as ChatInputCommandInteraction;
 							const command = optionsResolver.getCommand();
 							if (command?.run) {

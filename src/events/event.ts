@@ -1,4 +1,4 @@
-import { PotocuitEvents } from './hooks';
+import type { PotocuitEvents } from './hooks';
 
 export interface DeclareEventsOptions {
 	name: `${keyof PotocuitEvents}`;

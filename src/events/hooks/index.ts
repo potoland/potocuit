@@ -15,8 +15,8 @@ export * from './user';
 export * from './voice';
 export * from './webhook';
 
-import { CamelCase } from '@biscuitland/common';
-import * as RawEvents from './index';
+import type { CamelCase } from '@biscuitland/common';
+import type * as RawEvents from './index';
 
 export type PotocuitEvents = {
 	[X in keyof typeof RawEvents as CamelCase<X>]: ReturnType<typeof RawEvents[X]>;

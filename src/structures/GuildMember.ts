@@ -8,12 +8,12 @@ import {
 	type APIGuildMember,
 	type APIInteractionDataResolvedGuildMember,
 	type APIUser,
+	FormattingPatterns,
 	type GatewayGuildMemberAddDispatchData,
 	type GatewayGuildMemberUpdateDispatchData,
-	type RESTPatchAPIGuildMemberJSONBody,
-	type RESTPutAPIGuildBanJSONBody,
 	type ObjectToLower,
-	FormattingPatterns
+	type RESTPatchAPIGuildMemberJSONBody,
+	type RESTPutAPIGuildBanJSONBody
 } from '@biscuitland/common';
 import type { BiscuitREST } from '@biscuitland/rest';
 import { DiscordBase } from './extra/DiscordBase';

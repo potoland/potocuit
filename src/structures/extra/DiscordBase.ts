@@ -22,14 +22,14 @@ export class DiscordBase<Data extends Record<string, any> = { id: string }> exte
 	/**
 	 * Create a timestamp for the current object.
 	 */
-	get createdTimestamp(): number {
+	get createdTimestamp() {
 		return snowflakeToTimestamp(this.id);
 	}
 
 	/**
 	 * createdAt gets the creation Date instace of the current object.
 	 */
-	get createdAt(): Date | null {
+	get createdAt() {
 		return new Date(this.createdTimestamp);
 	}
 

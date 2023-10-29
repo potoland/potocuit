@@ -1,5 +1,5 @@
-import type { ChannelType } from '@biscuitland/common';
 import type { BaseChannel } from './base';
+import type { ChannelType } from '@biscuitland/common';
 import { DiscordBase } from '../../extra/DiscordBase';
 
 export interface TopicableGuildChannel extends BaseChannel<ChannelType> { }

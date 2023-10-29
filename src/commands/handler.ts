@@ -1,12 +1,43 @@
-import { ApplicationCommandOptionType, APIAttachment, APIInteractionDataResolved, APIRole, APIUser, APIApplicationCommandInteractionDataOption, APIInteractionDataResolvedGuildMember, APIInteractionDataResolvedChannel } from '@biscuitland/common';
+import type { APIApplicationCommandInteractionDataOption, APIAttachment, APIInteractionDataResolved, MakeRequired } from '@biscuitland/common';
+import { ApplicationCommandOptionType } from '@biscuitland/common';
 
-import { Command, PotoCommandAutocompleteOption, PotoCommandOption, SubCommand } from './commands';
+import type { PotoCommandAutocompleteOption, PotoCommandOption, SubCommand } from './commands';
+import { Command } from './commands';
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
+import type { BiscuitREST } from '@biscuitland/rest';
+import type { Cache } from '../cache';
+import { User } from '../structures/User';
+import { InteractionGuildMember } from '../structures/GuildMember';
+import { BaseChannel } from '../structures/methods/channel/base';
+import { GuildRole } from '../structures/GuildRole';
+import type { PotocuitChannels } from '../structures/channels';
 
 // type Interaction = Extract<GatewayInteractionCreateDispatchData, APIChatInputApplicationCommandInteraction>;
 
-export class PotoCommandHandler {
+export class PotoHandler {
+	protected async getFiles(dir: string) {
+		const files: string[] = [];
+
+		for (const i of await readdir(dir, { withFileTypes: true })) {
+			if (i.isDirectory()) { files.push(...await this.getFiles(join(dir, i.name))); } else { files.push(join(dir, i.name)); }
+		}
+
+		return files;
+	}
+
+	// imagina tener autocompletado putovsc web
+	protected async loadFiles<T extends NonNullable<unknown>>(paths: string[]): Promise<T[]> {
+		return await Promise.all(paths.map(path => import(path).then(file => file.default ?? file)));
+	}
+}
+// y si dejamos lo extra para el final
+// te escribir por discord para hablar de eso y ni caso
+export class PotoLangsHandler extends PotoHandler {
+
+}
+
+export class PotoCommandHandler extends PotoHandler {
 	commands: Command[] = [];
 
 	// constructor() {
@@ -60,24 +91,15 @@ export class PotoCommandHandler {
 
 	// }
 
-	private async getFiles(dir: string) {
-		const files: string[] = [];
-
-		for (const i of await readdir(dir, { withFileTypes: true })) {
-			if (i.isDirectory()) { files.push(...await this.getFiles(join(dir, i.name))); } else { files.push(join(dir, i.name)); }
-		}
-
-		return files;
-	}
-
+	// no tocar.
 	async loadCommands(commandsDir: string) {
-		const commandsPaths = await this.getFiles(commandsDir);
-		const commands = await Promise.all(commandsPaths.map(x => import(x).then(d => d.default)));
-		console.log(commands);
-		this.commands = [...commands];
+		this.commands = [...await this.loadFiles<Command>(await this.getFiles(commandsDir))];
+		// nose, esto ya funciona dejalo asi yafuncionayfnacyfifnayfaofnayocafnyaoafynafaiocfuynafyanonifaayfoancoa \\ok
+		// console.log(commands);
+		// mucho tryhardeo
 		const result: Record<string, any> = {};
 
-		for (const cmd of commands) {
+		for (const cmd of this.commands) {
 			if (!(cmd instanceof Command)) { continue; }
 			const command = cmd.toJSON();
 			// const groups = command.groups
@@ -101,11 +123,12 @@ export class PotoCommandHandler {
 				command.options ??= [];
 
 				command.options = command.options.filter(x => !('group' in x));
-
+				// (no tocar)
 				// @ts-expect-error
 				command.options.push(...groups);
-			}
-
+			}// pero que? xdxd, maps es para debiles aka djs, nmo uso delete, no los elimino (?) xd
+			// dejalo asi // y para no usar delete dsajdskaj y como eliminas comandos? = undefined? :trolleador:
+			// esto no deberia de ser un map? pto tryhard
 			result[command.name] = command;
 
 			// console.log(obj, 'obj')
@@ -115,16 +138,23 @@ export class PotoCommandHandler {
 	}
 }
 
-export type OptionFilter = { filter: (option: OptionResolved['value']) => void; fail: () => NonNullable<unknown> };
+// export type OptionFilter = { filter: (option: OptionResolved['value']) => void; fail: () => NonNullable<unknown> };
 
 export class OptionResolver {
 	readonly options: OptionResolved[];
 	public hoistedOptions: OptionResolved[];
 	private subCommand: string | null = null;
 	private group: string | null = null;
-	constructor(options: APIApplicationCommandInteractionDataOption[], public parent: Command, public resolved?: APIInteractionDataResolved) {
+	constructor(
+		private rest: BiscuitREST,
+		private cache: Cache,
+		options: APIApplicationCommandInteractionDataOption[],
+		public parent: Command,
+		public guildId?: string,
+		public resolved?: APIInteractionDataResolved
+	) {
 		// esto funciona con subcomandos? si
-		this.hoistedOptions = this.options = options.map(option => OptionResolver.transformOption(option, resolved));
+		this.hoistedOptions = this.options = options.map(option => this.transformOption(option, resolved));
 
 		if (this.hoistedOptions[0]?.type === ApplicationCommandOptionType.Subcommand) {
 			this.subCommand = this.hoistedOptions[0].name;
@@ -179,6 +209,33 @@ export class OptionResolver {
 		return this.options.find(opt => opt.name === name);
 	}
 
+	getValue(name: string) {
+		const option = this.get(name);
+		if (!option) { return; }
+
+		switch (option.type) {
+			case ApplicationCommandOptionType.Attachment:
+				return option.attachment!;
+			case ApplicationCommandOptionType.Boolean:
+				return option.value as boolean;
+			case ApplicationCommandOptionType.Channel:
+				return option.channel!;
+			case ApplicationCommandOptionType.Integer:
+			case ApplicationCommandOptionType.Number:
+				return option.value as number;
+			case ApplicationCommandOptionType.Role:
+				return option.role;
+			case ApplicationCommandOptionType.String:
+				return option.value as string;
+			case ApplicationCommandOptionType.User:
+				return option.member ?? option.user;
+			case ApplicationCommandOptionType.Mentionable:
+				return option.member ?? option.user ?? option.channel ?? option.role;
+			default:
+				return;
+		}
+	}
+
 	private getTypedOption(name: string, allow: ApplicationCommandOptionType[]) {
 		const option = this.get(name);
 		if (!option) { throw new Error('Bad Option'); }
@@ -186,8 +243,8 @@ export class OptionResolver {
 		return option;
 	}
 
-	getChannel(name: string, required?: true): APIInteractionDataResolvedChannel;
-	getChannel(name: string): APIInteractionDataResolvedChannel | undefined {
+	getChannel(name: string, required?: true): PotocuitChannels;
+	getChannel(name: string): PotocuitChannels | undefined {
 		const option = this.getTypedOption(name, [ApplicationCommandOptionType.Channel]);
 		return option.channel;
 	}
@@ -199,13 +256,13 @@ export class OptionResolver {
 	}
 
 	// xdd ? // nao, ahi va asi porque si le pasan un sub lo hace recursivo, la cosa es que junta todas las options en 1 solo array
-	static transformOption(option: APIApplicationCommandInteractionDataOption, resolved?: APIInteractionDataResolved) {
+	transformOption(option: APIApplicationCommandInteractionDataOption, resolved?: APIInteractionDataResolved) {
 		const resolve: OptionResolved = {
 			...option
 		};
 
 		if ('value' in option) { resolve.value = option.value; }
-		if ('options' in option) { resolve.options = option.options?.map(OptionResolver.transformOption); }
+		if ('options' in option) { resolve.options = option.options?.map(this.transformOption); }
 		// usamos las estrucutas?
 		// como cuales
 		// pues solo poneoms los full, el user ,role y member
@@ -214,18 +271,18 @@ export class OptionResolver {
 			// wtf esto estaba completo, que le paso dasjkdjdk
 			const value = resolve.value as string;
 			const user = resolved.users?.[value];
-			if (user) { resolve.user = user; }
+			if (user) { resolve.user = new User(this.rest, this.cache, user); }
 
 			const member = resolved.members?.[value];
 			// ta bn igual es el raw
 			// ya recuerdo que no los agregue por el tema de rest y demas dasjdkdajk
-			if (member) { resolve.member = member; }
+			if (member) { resolve.member = new InteractionGuildMember(this.rest, this.cache, member, user!, this.guildId!); }
 			// xddddddddd
 			const channel = resolved.channels?.[value];
-			if (channel) { resolve.channel = channel; }
+			if (channel) { resolve.channel = BaseChannel.from(channel, this.rest, this.cache); }
 
 			const role = resolved.roles?.[value];
-			if (role) { resolve.role = role; }
+			if (role) { resolve.role = new GuildRole(this.rest, this.cache, role, this.guildId!); }
 
 			const attachment = resolved.attachments?.[value];
 			if (attachment) { resolve.attachment = attachment; }
@@ -240,10 +297,14 @@ export interface OptionResolved {
 	type: ApplicationCommandOptionType;
 	value?: string | number | boolean;
 	options?: OptionResolved[];
-	user?: APIUser;
-	member?: APIInteractionDataResolvedGuildMember;
+	user?: User;
+	member?: InteractionGuildMember;
 	attachment?: APIAttachment;
-	channel?: APIInteractionDataResolvedChannel;
-	role?: APIRole;
+	channel?: PotocuitChannels;
+	role?: GuildRole;
 	focused?: boolean;
 }
+
+export type OptionResolvedWithValue = MakeRequired<Pick<OptionResolved, 'name' | 'value' | 'focused'>, 'value'> & { type: ApplicationCommandOptionType.Boolean | ApplicationCommandOptionType.Integer | ApplicationCommandOptionType.Number | ApplicationCommandOptionType.String };
+
+export type OptionResolvedWithProp = Exclude<OptionResolved, { type: ApplicationCommandOptionType.Boolean | ApplicationCommandOptionType.Integer | ApplicationCommandOptionType.Number | ApplicationCommandOptionType.String }>;

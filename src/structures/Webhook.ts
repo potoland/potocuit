@@ -1,4 +1,4 @@
-import type { ObjectToLower, APIWebhook, RESTPostAPIWebhookWithTokenJSONBody, RESTPostAPIWebhookWithTokenQuery, RESTPatchAPIWebhookWithTokenMessageJSONBody, RESTGetAPIWebhookWithTokenMessageQuery, RESTPatchAPIWebhookWithTokenJSONBody, RESTPatchAPIWebhookJSONBody } from '@biscuitland/common';
+import type { APIWebhook, ObjectToLower, RESTGetAPIWebhookWithTokenMessageQuery, RESTPatchAPIWebhookJSONBody, RESTPatchAPIWebhookWithTokenJSONBody, RESTPatchAPIWebhookWithTokenMessageJSONBody, RESTPostAPIWebhookWithTokenJSONBody, RESTPostAPIWebhookWithTokenQuery } from '@biscuitland/common';
 import type { BiscuitREST } from '@biscuitland/rest';
 import { AnonymousGuild } from './AnonymousGuild';
 import { User } from './User';

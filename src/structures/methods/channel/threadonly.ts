@@ -1,8 +1,8 @@
-import type { APIGuildForumTag, ThreadAutoArchiveDuration, APIGuildForumDefaultReactionEmoji, SortOrderType, ChannelType } from '@biscuitland/common';
-import { mix } from 'ts-mixer';
+import type { APIGuildForumDefaultReactionEmoji, APIGuildForumTag, ChannelType, SortOrderType, ThreadAutoArchiveDuration } from '@biscuitland/common';
+import type { BaseChannel } from './base';
 import { DiscordBase } from '../../extra/DiscordBase';
 import { TopicableGuildChannel } from './topicable';
-import type { BaseChannel } from './base';
+import { mix } from 'ts-mixer';
 
 export interface ThreadOnlyMethods extends BaseChannel<ChannelType.PublicThread | ChannelType.PrivateThread> { }
 @mix(TopicableGuildChannel)
