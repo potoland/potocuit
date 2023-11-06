@@ -1,4 +1,4 @@
-import type { APIApplicationCommandBasicOption, APIAttachment, APIInteractionResponseChannelMessageWithSource, LocaleString, RESTPatchAPIWebhookWithTokenMessageJSONBody } from '@biscuitland/common';
+import type { APIApplicationCommandBasicOption, APIApplicationCommandOption, APIApplicationCommandSubcommandGroupOption, APIAttachment, APIInteractionResponseChannelMessageWithSource, LocaleString, RESTPatchAPIWebhookWithTokenMessageJSONBody } from '@biscuitland/common';
 import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType } from '@biscuitland/common';
 import type { AutocompleteInteraction, ChatInputCommandInteraction } from '../structures/Interaction';
 import type { RawFile } from '@biscuitland/rest';
@@ -9,14 +9,20 @@ import type { GuildRole } from '../structures/GuildRole';
 import type { Result } from '../types/util';
 import type { OptionResolver } from './handler';
 import type { InteractionGuildMember } from '../structures/GuildMember';
+import type { __LangType } from '../__generated';
+import type { BaseClient } from '../client/base';
 
 export class CommandContext<T extends PotoCommandOption[], M extends Readonly<MiddlewareContext[]>> {
-	constructor(private interaction: ChatInputCommandInteraction, public options: ContextOptions<{ options: T }>, public metadata: CommandMetadata<M>) { }
+	constructor(private client: BaseClient, private interaction: ChatInputCommandInteraction, public options: ContextOptions<{ options: T }>, public metadata: CommandMetadata<M>, public resolver: OptionResolver) { }
 
 	private __router__ = new Router(this.interaction.rest);
 
 	get proxy() {
 		return this.__router__.createProxy();
+	}
+
+	t<K extends keyof __LangType>(message: K, metadata: __LangType[K]) {
+		return this.client.langs.get(this.interaction.locale, message, metadata);
 	}
 
 	write(body: APIInteractionResponseChannelMessageWithSource['data'], files: RawFile[] = []) {
@@ -117,6 +123,14 @@ export function Locales({ name: names, description: descriptions }: {
 	};
 }
 
+export function LocalesT(name: string, description: string) {
+	return function <T extends { new(...args: any[]): {} }>(target: T) {
+		return class extends target {
+			__t = { name, description };
+		};
+	};
+}
+
 export function Groups(groups: Record<string/* name for group*/, {
 	name?: [language: LocaleString, value: string][];
 	description?: [language: LocaleString, value: string][];
@@ -184,6 +198,7 @@ class BaseCommand {
 	protected middlewares: MiddlewareContext[] = [];
 
 	__filePath?: string;
+	__t?: { name: string; description: string };
 
 	name!: string;
 	type!: number;// ApplicationCommandType.ChatInput | ApplicationCommandOptionType.Subcommand
@@ -193,8 +208,8 @@ class BaseCommand {
 	// los localizations terminan siendo objetos molestos de escribir y bastante largos
 	// asi que hay que ir pensando una forma de mejorarlo
 	//
-	name_localizations?: Record<LocaleString, string>;
-	description_localizations?: Record<LocaleString, string>;
+	name_localizations?: Partial<Record<LocaleString, string>>;
+	description_localizations?: Partial<Record<LocaleString, string>>;
 	// esto es el raw bro
 	// mira arriba
 	options?: PotoCommandOption[] | SubCommand[];
@@ -217,7 +232,7 @@ class BaseCommand {
 		});
 	}
 
-	async runOptions(resolver: OptionResolver): Promise<[boolean, OnOptionsReturnObject]> {
+	async runOptions(ctx: CommandContext<[], []>, resolver: OptionResolver): Promise<[boolean, OnOptionsReturnObject]> {
 		const command = resolver.getCommand();
 		if (!resolver.hoistedOptions.length || !command) { return [false, {}]; }
 		const data: OnOptionsReturnObject = {};
@@ -243,6 +258,8 @@ class BaseCommand {
 					continue;
 				}
 			}
+			// @ts-expect-error
+			ctx.options[i.name] = value;
 			data[i.name] = {
 				failed: false,
 				value
@@ -313,6 +330,12 @@ class BaseCommand {
 		};
 	}
 
+	async reload() {
+		delete require.cache[this.__filePath!];
+		const newCommand = await import(this.__filePath!).then(x => x.default ?? x);
+		Object.setPrototypeOf(this, newCommand.prototype);
+	}
+
 	run?(context: CommandContext<any, any>): any;
 }
 
@@ -321,9 +344,34 @@ export class Command extends BaseCommand {
 
 	groups?: Parameters<typeof Groups>[0];
 	toJSON() {
+		const options: APIApplicationCommandOption[] = [];
+
+		for (const i of this.options ?? []) {
+			if (!(i instanceof SubCommand)) {
+				options.push(({ ...i, autocomplete: 'autocomplete' in i }) as APIApplicationCommandBasicOption);
+				continue;
+			}
+			if (i.group) {
+				if (!options.find(x => x.name === i.group)) {
+					options.push({
+						type: ApplicationCommandOptionType.SubcommandGroup,
+						name: i.group,
+						description: this.groups![i.group].defaultDescription,
+						description_localizations: Object.fromEntries(this.groups?.[i.group].description ?? []),
+						name_localizations: Object.fromEntries(this.groups?.[i.group].name ?? []),
+						options: []
+					});
+				}
+				const group = options.find(x => x.name === i.group) as APIApplicationCommandSubcommandGroupOption;
+				group.options?.push(i.toJSON());
+				continue;
+			}
+			options.push(i.toJSON());
+		}
+
 		return {
 			...super.toJSON(),
-			options: this.options ? this.options.map(x => 'toJSON' in x ? x.toJSON() : { ...x, autocomplete: 'autocomplete' in x }) : []
+			options
 		};
 	}
 }
@@ -336,13 +384,44 @@ export abstract class SubCommand extends BaseCommand {
 	toJSON() {
 		return {
 			...super.toJSON(),
-			options: (this.options ?? []).map(x => ({ ...x, autocomplete: 'autocomplete' in x })),
+			options: (this.options ?? []).map(x => ({ ...x, autocomplete: 'autocomplete' in x }) as APIApplicationCommandBasicOption),
 		};
 	}
 
 
 	abstract run(context: CommandContext<any, any>): any;
 }
+
+
+export function applyToClass<
+	T extends new (
+		..._args: ConstructorParameters<T>
+	) => InstanceType<T>,
+	U extends new (
+		..._args: ConstructorParameters<U>
+	) => InstanceType<U>
+// @ts-expect-error
+>(structToApply: T, struct: U, ignore?: (keyof T['prototype'])[]) {
+	const props = Object.getOwnPropertyNames(structToApply.prototype);
+	console.log(props);
+	for (const prop of props) {
+		if (ignore?.includes(prop as keyof T) || prop === 'constructor') { continue; }
+		Object.defineProperty(struct.prototype, prop, Object.getOwnPropertyDescriptor(structToApply.prototype, prop)!);
+	}
+	return struct as unknown as Struct<T, U>;
+}
+
+export type Struct<ToMix = {}, Final = {}> = Final extends new (
+	..._args: never[]
+) => infer F
+	? ToMix extends new (
+		..._args: never[]
+	) => infer TM
+	? new (
+		..._args: ConstructorParameters<Final>
+	) => F & TM
+	: never
+	: never;
 
 // idea:
 /*

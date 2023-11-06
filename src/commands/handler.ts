@@ -1,10 +1,10 @@
-import type { APIApplicationCommandInteractionDataOption, APIAttachment, APIInteractionDataResolved, MakeRequired } from '@biscuitland/common';
+import type { APIApplicationCommandInteractionDataOption, APIAttachment, APIInteractionDataResolved, LocaleString, MakeRequired } from '@biscuitland/common';
 import { ApplicationCommandOptionType } from '@biscuitland/common';
 
 import type { PotoCommandAutocompleteOption, PotoCommandOption, SubCommand } from './commands';
-import { Command } from './commands';
+import type { Command } from './commands';
 import { readdir } from 'node:fs/promises';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import type { BiscuitREST } from '@biscuitland/rest';
 import type { Cache } from '../cache';
 import { User } from '../structures/User';
@@ -12,6 +12,7 @@ import { InteractionGuildMember } from '../structures/GuildMember';
 import { BaseChannel } from '../structures/methods/channel/base';
 import { GuildRole } from '../structures/GuildRole';
 import type { PotocuitChannels } from '../structures/channels';
+import type { BaseClient } from '../client/base';
 
 // type Interaction = Extract<GatewayInteractionCreateDispatchData, APIChatInputApplicationCommandInteraction>;
 
@@ -28,68 +29,121 @@ export class PotoHandler {
 		return files;
 	}
 
-	// imagina tener autocompletado putovsc web
 	protected async loadFiles<T extends NonNullable<unknown>>(paths: string[]): Promise<T[]> {
 		return await Promise.all(paths.map(path => import(path).then(file => file.default ?? file)));
 	}
-}
-// y si dejamos lo extra para el final
-// te escribir por discord para hablar de eso y ni caso
-export class PotoLangsHandler extends PotoHandler {
 
+	protected async loadFilesK<T>(paths: string[]): Promise<{ name: string; file: T; path: string }[]> {
+		return await Promise.all(paths.map(path => import(path).then(file => {
+			return {
+				name: basename(path).split('.')[0],
+				file: file.default ?? file,
+				path
+			};
+		})));
+	}
 }
 
 export class PotoCommandHandler extends PotoHandler {
 	commands: Command[] = [];
 
-	// no tocar.
-	async loadCommands(commandsDir: string) {
-		this.commands = [...await this.loadFiles<Command>(await this.getFiles(commandsDir))];
+	async reload(resolve: string | Command) {
+		if (typeof resolve === 'string') {
+			this.commands.find(x => x.name === resolve)?.reload();
+		} else { resolve.reload(); }
+		// const index = this.commands.findIndex(x => x.name === (typeof resolve === 'string' ? resolve : resolve.name));
+		// console.log({ index });
+		// if (index < 0) { return false; }
+
+		// const path = typeof resolve === 'string' ? this.commands[index].__filePath : resolve.__filePath;
+		// console.log({ path });
+		// if (!path?.length) { return false; }
+		// delete require.cache[path];
+		// // deberiamos hacer <Command>.reload hmmm mejor // dale
+		// // xd
+		// // cosas que no pasarian si usaramos un map :trolleador:
+		// this.commands[index] = await this.loadFiles<Command>([path]).then(x => x[0]).then(x => void (x.__filePath = path) || x);
+		// return true;
+	}
+
+	async reloadAll(stopIfFail = true) {
+		for (const command of this.commands) {
+			try {
+				await this.reload(command.name);
+			} catch (e) {
+				if (stopIfFail) { throw e; }
+			}
+		}
+	}
+
+	async load(commandsDir: string, client: BaseClient) {
+		const result = (await this.loadFilesK<typeof Command>(await this.getFiles(commandsDir))).filter(x => x.file);
+		this.commands = [];
+
+		for (const command of result) {
+			const commandInstancie = new command.file();
+			commandInstancie.__filePath = command.path;
+			this.commands.push(commandInstancie);
+			if (!commandInstancie.__t) { continue; }
+			commandInstancie.name_localizations = {};
+			commandInstancie.description_localizations = {};
+			for (const locale of Object.keys(client.langs.record)) {
+				const valueName = client.langs.getKey(locale, commandInstancie.__t.name);
+				if (valueName) {
+					commandInstancie.name_localizations[locale as LocaleString] = valueName;
+				}
+				const valueKey = client.langs.getKey(locale, commandInstancie.__t.description);
+				if (valueKey) {
+					commandInstancie.description_localizations[locale as LocaleString] = valueKey;
+				}
+			}
+		}
+
+		return this.commands;
+		// return this.commands;
 		// nose, esto ya funciona dejalo asi yafuncionayfnacyfifnayfaofnayocafnyaoafynafaiocfuynafyanonifaayfoancoa \\ok
 		// console.log(commands);
 		// mucho tryhardeo
-		const result: Record<string, any> = {};
+		// const result: Record<string, any> = {};
 
-		for (const cmd of this.commands) {
-			if (!(cmd instanceof Command)) { continue; }
-			const command = cmd.toJSON();
-			// const groups = command.groups
-			// 	? Object.entries(command.groups).map(x => x[0]).join(', ')
-			// 	: undefined
-			// console.log(`Command ${command.name} ${groups ? 'groups: ' + groups : ''}`);
+		// for (const cmd of this.commands) {
+		// 	if (!(cmd instanceof Command)) { continue; }
+		// 	const command = cmd.toJSON();
+		// 	// const groups = command.groups
+		// 	// 	? Object.entries(command.groups).map(x => x[0]).join(', ')
+		// 	// 	: undefined
+		// 	// console.log(`Command ${command.name} ${groups ? 'groups: ' + groups : ''}`);
 
-			// console.log('command', command)
-			if (cmd.groups) {
-				const groups = Object.entries(cmd.groups)
-					.map(x => ({
-						name: x[0],
-						name_localizations: x[1].name ? Object.fromEntries(x[1].name) : {},
-						description: x[1].defaultDescription,
-						description_localizations: x[1].description ? Object.fromEntries(x[1].description) : {},
-						type: ApplicationCommandOptionType.SubcommandGroup,
-						options: command.options// .filter(op => op.group === x[0])
-					}));
+		// 	// console.log('command', command)
+		// 	if (cmd.groups) {
+		// 		const groups = Object.entries(cmd.groups)
+		// 			.map(x => ({
+		// 				name: x[0],
+		// 				name_localizations: x[1].name ? Object.fromEntries(x[1].name) : {},
+		// 				description: x[1].defaultDescription,
+		// 				description_localizations: x[1].description ? Object.fromEntries(x[1].description) : {},
+		// 				type: ApplicationCommandOptionType.SubcommandGroup,
+		// 				options: command.options// .filter(op => op.group === x[0])
+		// 			}));
 
-				// console.log('groups', groups, command.options);
-				command.options ??= [];
+		// 		// console.log('groups', groups, command.options);
+		// 		command.options ??= [];
 
-				command.options = command.options.filter(x => !('group' in x));
-				// (no tocar)
-				// @ts-expect-error
-				command.options.push(...groups);
-			}// pero que? xdxd, maps es para debiles aka djs, nmo uso delete, no los elimino (?) xd
-			// dejalo asi // y para no usar delete dsajdskaj y como eliminas comandos? = undefined? :trolleador:
-			// esto no deberia de ser un map? pto tryhard
-			result[command.name] = command;
+		// 		command.options = command.options.filter(x => !('group' in x));
+		// 		// (no tocar)
+		// 		// @ts-expect-error
+		// 		command.options.push(...groups);
+		// 	}// pero que? xdxd, maps es para debiles aka djs, nmo uso delete, no los elimino (?) xd
+		// 	// dejalo asi // y para no usar delete dsajdskaj y como eliminas comandos? = undefined? :trolleador:
+		// 	// esto no deberia de ser un map? pto tryhard
+		// 	result[command.name] = command;
 
-			// console.log(obj, 'obj')
-		}
+		// 	// console.log(obj, 'obj')
+		// }
 
-		return result;
+		// return result;
 	}
 }
-
-// export type OptionFilter = { filter: (option: OptionResolved['value']) => void; fail: () => NonNullable<unknown> };
 
 export class OptionResolver {
 	readonly options: OptionResolved[];
@@ -213,7 +267,7 @@ export class OptionResolver {
 		};
 
 		if ('value' in option) { resolve.value = option.value; }
-		if ('options' in option) { resolve.options = option.options?.map(this.transformOption); }
+		if ('options' in option) { resolve.options = option.options?.map(x => this.transformOption(x, resolved)); }
 		// usamos las estrucutas?
 		// como cuales
 		// pues solo poneoms los full, el user ,role y member

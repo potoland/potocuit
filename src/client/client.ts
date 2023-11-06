@@ -1,26 +1,19 @@
 import type { CamelCase, GatewayDispatchEvents } from '@biscuitland/common';
-import { type APIChatInputApplicationCommandInteractionData, ApplicationCommandType, type GatewayDispatchPayload, InteractionType, ReplaceRegex } from '@biscuitland/common';
-import { BiscuitREST, Router } from '@biscuitland/rest';
+import { type GatewayDispatchPayload, ReplaceRegex } from '@biscuitland/common';
+import { BiscuitREST } from '@biscuitland/rest';
 import { GatewayManager } from '@biscuitland/ws';
 import { Cache, DefaultMemoryAdapter } from '../cache';
-import type { ChatInputCommandInteraction } from '../structures/Interaction';
-import { AutocompleteInteraction, BaseInteraction } from '../structures/Interaction';
-import { CommandContext, throwError } from '..';
-import { OptionResolver, PotoCommandHandler } from '../commands/handler';
 import { PotoEventHandler } from '../events/handler';
+import * as RawEvents from '../events/hooks/index';
+import { BaseClient } from './base';
+import { onInteraction } from './oninteraction';
 
-export class PotoClient {
+export class PotoClient extends BaseClient {
 	gateway!: GatewayManager;
-	rest!: BiscuitREST;
-	cache!: Cache;
-	cmdHander = new PotoCommandHandler;
-	eventHandler = new PotoEventHandler;
-
-	get proxy() {
-		return new Router(this.rest).createProxy();
-	}
+	events = new PotoEventHandler;
 
 	setServices({ gateway, rest, cache }: { rest?: BiscuitREST; gateway?: GatewayManager; cache?: Cache }) {
+		super.setServices({ rest, cache });
 		if (gateway) {
 			const onPacket = this.onPacket.bind(this);
 			const oldFn = gateway.options.handlePayload;
@@ -30,92 +23,93 @@ export class PotoClient {
 			};
 			this.gateway = gateway;
 		}
-		if (rest) {
-			this.rest = rest;
-		}
-		if (cache) {
-			this.cache = cache;
-		}
 	}
 
-	async execute(token?: string, intents = 0) {
-		this.rest ??= (!token && throwError('Token expected')) || new BiscuitREST({
-			token: token!
-		});
+	async execute(options?: { token?: string; intents?: number }) {
+		super.execute();
+		const { token: tokenRC, intents: intentsRC } = await this.getRC();
 
-		this.gateway ??= (!token && throwError('Token expected')) || new GatewayManager({
-			token: token!,
-			info: await this.proxy.gateway.bot.get(),
-			intents,
-			handlePayload: (shardId, packet) => {
-				return this.onPacket(shardId, packet);
-			},
-		});
+		const token = options?.token ?? tokenRC;
+		const intents = options?.intents ?? intentsRC;
+
+		if (!this.rest) {
+			BaseClient.assertString(token);
+			this.rest = new BiscuitREST({
+				token
+			});
+		}
+
+		if (!this.gateway) {
+			BaseClient.assertString(token);
+			this.gateway = new GatewayManager({
+				token,
+				info: await this.proxy.gateway.bot.get(),
+				intents,
+				handlePayload: (shardId, packet) => {
+					return this.onPacket(shardId, packet);
+				},
+			});
+		}
 
 		this.cache ??= new Cache(this.gateway.options.intents, this.rest, new DefaultMemoryAdapter());
 
 		await this.gateway.spawnShards();
 	}
 
-	async loadCommands(path: string, applicationId: string) {
-		await this.proxy.applications(applicationId).commands.put({
-			body: Object.values(await this.cmdHander.loadCommands(path))
-		});
+	async loadEvents(dir?: string) {
+		dir ??= await this.getRC().then(x => x.events);
+		BaseClient.assertString(dir);
+		await this.events.load(dir);
+		this.logger.info('PotoEventHandler loaded');
 	}
 
 	protected async onPacket(shardId: number, packet: GatewayDispatchPayload) {
 		await this.cache.onPacket(packet);
-		const eventName = ReplaceRegex.camel(packet.t) as CamelCase<typeof GatewayDispatchEvents[keyof typeof GatewayDispatchEvents]>;
-		if (eventName in this.eventHandler.events) {
-			await this.eventHandler.events[eventName]?.run(packet.d, shardId);
-		}
+		const eventName = ReplaceRegex.camel(packet.t?.toLowerCase() ?? '') as CamelCase<typeof GatewayDispatchEvents[keyof typeof GatewayDispatchEvents]>;
+
+		await this.events.execute(eventName, RawEvents[packet.t]?.(this.rest, this.cache, packet.d as never), shardId, this);
 		switch (packet.t) {
-			// deberiamos modular esto
+			case 'READY':
+				this.debugger.debug(`${packet.d.user.username} is online...`);
+				break;
 			case 'INTERACTION_CREATE': {
-				switch (packet.d.type) {
-					case InteractionType.ApplicationCommandAutocomplete: {
-						const packetData = packet.d.data as APIChatInputApplicationCommandInteractionData;
-						const parentCommand = this.cmdHander.commands.find(x => x.name === (packetData as APIChatInputApplicationCommandInteractionData).name)!;
-						const optionsResolver = new OptionResolver(this.rest, this.cache, packetData.options ?? [], parentCommand, packet.d.data.guild_id);
-						const interaction = new AutocompleteInteraction(this.rest, this.cache, packet.d);
-						const command = optionsResolver.getAutocomplete();
-						if (command?.autocomplete) {
-							await command.autocomplete(interaction);
-						}
-					} break;
-					case InteractionType.ApplicationCommand: {
-						const packetData = packet.d.data as APIChatInputApplicationCommandInteractionData;
-						const parentCommand = this.cmdHander.commands.find(x => x.name === (packetData as APIChatInputApplicationCommandInteractionData).name)!;
-						const optionsResolver = new OptionResolver(this.rest, this.cache, packetData.options ?? [], parentCommand, packet.d.data.guild_id);
-
-						switch (packet.d.data.type) {
-							case ApplicationCommandType.ChatInput: {
-								const interaction = BaseInteraction.from(this.rest, this.cache, packet.d) as ChatInputCommandInteraction;
-								const command = optionsResolver.getCommand();
-								if (command?.run) {
-									const context = new CommandContext(interaction, optionsResolver, {});
-
-									const [erroredOptions, result] = await command.runOptions(optionsResolver);
-									if (erroredOptions) { return await command.onRunOptionsError(context, result); }
-
-									const [_, erroredMiddlewares] = await command.runMiddlewares(context);
-									if (erroredMiddlewares) { return command.onStop(context, erroredMiddlewares); }
-
-									await command.run(context);
-								}
-								// await interaction.reply({
-								// 	type: InteractionResponseType.ChannelMessageWithSource,
-								// 	data: {
-								// 		content: 'pong desde pootucit'
-								// 	}
-								// });
-							} break;
-						} break;
-					}
-				} break;
+				await onInteraction(packet.d, this);
+				break;
 			}
 		}
-		if (packet.t === 'READY') { console.log(`${shardId}`, packet.d.user.username); }
-		// else console.log(`${shardId}`, packet.d, packet.t);
 	}
 }
+
+// switch (packet.d.type) {
+// 	case InteractionType.ApplicationCommandAutocomplete: {
+// 		const packetData = packet.d.data;
+// 		const parentCommand = this.commandHandler.commands.find(x => x.name === packetData.name)!;
+// 		const optionsResolver = new OptionResolver(this.rest, this.cache, packetData.options ?? [], parentCommand, packet.d.data.guild_id, packet.d.data.resolved);
+// 		const interaction = new AutocompleteInteraction(this.rest, this.cache, packet.d);
+// 		const command = optionsResolver.getAutocomplete();
+// 		if (command?.autocomplete) {
+// 			await command.autocomplete(interaction);
+// 		}
+// 	} break;
+// 	case InteractionType.ApplicationCommand: {
+// 		switch (packet.d.data.type) {
+// 			case ApplicationCommandType.ChatInput: {
+// 				const packetData = packet.d.data;
+// 				const parentCommand = this.commandHandler.commands.find(x => x.name === (packetData).name)!;
+// 				const optionsResolver = new OptionResolver(this.rest, this.cache, packetData.options ?? [], parentCommand, packet.d.data.guild_id, packet.d.data.resolved);
+// 				const interaction = BaseInteraction.from(this.rest, this.cache, packet.d) as ChatInputCommandInteraction;
+// 				const command = optionsResolver.getCommand();
+// 				if (command?.run) {
+// 					const context = new CommandContext(this, interaction, {}, {}, optionsResolver);
+// 					const [erroredOptions, result] = await command.runOptions(context, optionsResolver);
+// 					if (erroredOptions) { return await command.onRunOptionsError(context, result); }
+
+// 					const [_, erroredMiddlewares] = await command.runMiddlewares(context);
+// 					if (erroredMiddlewares) { return command.onStop(context, erroredMiddlewares); }
+
+// 					await command.run(context);
+// 				}
+// 			} break;
+// 		} break;
+// 	}
+// } break;

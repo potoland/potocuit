@@ -1,0 +1,74 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Potocuit Configuration",
+	"description": "The configuration that is contained inside the file `.potorc.json`",
+	"type": "object",
+	"additionalProperties": false,
+	"properties": {
+		"$schema": {
+			"description": "A field for the [JSON schema](https://json-schema.org/) specification",
+			"type": [
+				"string",
+				"null"
+			]
+		},
+		"locations": {
+			"description": "Modules and their paths",
+			"type": "object",
+			"properties": {
+				"base": {
+					"type": "string"
+				},
+				"output": {
+					"type": "string"
+				},
+				"commands": {
+					"type": "string"
+				},
+				"langs": {
+					"type": "string"
+				},
+				"events": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"base",
+				"commands",
+				"output"
+			],
+			"additionalProperties": false
+		},
+		"application": {
+			"description": "Envrioment variables of application",
+			"type": "object",
+			"properties": {
+				"token": {
+					"type": "string"
+				},
+				"intents": {
+					"type": "number"
+				},
+				"applicationId": {
+					"type": "string"
+				},
+				"port": {
+					"type": "number",
+					"default": 8080,
+					"minimum": 0
+				},
+				"publicKey": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"token"
+			],
+			"additionalProperties": false
+		},
+		"debug": {
+			"type": "boolean",
+			"default": false
+		}
+	}
+}

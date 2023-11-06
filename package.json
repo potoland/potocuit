@@ -1,5 +1,5 @@
 {
-	"name": "potocuit",
+	"name": "@potoland/core",
 	"version": "0.0.1",
 	"main": "./dist/index.js",
 	"module": "./dist/index.mjs",
@@ -14,6 +14,8 @@
 		"clean": "rm -rf dist && rm -rf .turbo",
 		"dev": "swc src -d dist/cjs -w",
 		"prepublishOnly": "npm run build",
+		"test:run": "cd __test__ && node ./dist/index.js",
+		"test:build": "cd __test__ && nodemon --ext ts --watch ./src --exec \"swc ./src --config-file ../.swcrc -d ./dist\"",
 		"test": "cd __test__ && nodemon --ext ts --watch ./src --exec \"swc ./src --config-file ../.swcrc -d ./dist && node ./dist/index.js\""
 	},
 	"author": "MARCROCK22",
