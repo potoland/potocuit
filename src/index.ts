@@ -1,4 +1,4 @@
-import type { MiddlewareContext, PotoCommandOption } from './commands';
+import type { MiddlewareContext, __PotoCommandOption } from './commands';
 
 export * from './types';
 export * from './cache';
@@ -15,7 +15,7 @@ export function throwError(msg: string): never {
 	throw new Error(msg);
 }
 
-export function createOption<T = PotoCommandOption>(data: T) {
+export function createOption<T = __PotoCommandOption>(data: T) {
 	return data;
 }
 

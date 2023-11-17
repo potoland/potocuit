@@ -6,6 +6,7 @@ import { PotoLangsHandler } from '../langs/handler';
 import { PotoCommandHandler } from '../commands/handler';
 import { join } from 'node:path';
 import { LogLevels, Logger } from '@biscuitland/common';
+import type { DeepPartial } from '../structures/extra/types';
 
 export class BaseClient {
 	gateway!: GatewayManager;
@@ -21,13 +22,36 @@ export class BaseClient {
 		name: '@potoland/core',
 		active: true,
 		logLevel: LogLevels.Info,
-	});// arreglen biscuit // urgente
+	});
 
-	commands = new PotoCommandHandler();
+	commands = new PotoCommandHandler(this);
 	langs = new PotoLangsHandler();
 
+	private _applicationId?: string;
+	private _botId?: string;
+
 	protected static assertString(value: unknown): asserts value is string {
-		if (typeof value !== 'string' && value) { throw new Error('Value is not a string'); }
+		if (typeof value !== 'string' || !value) { throw new Error('Value is not a string'); }
+	}
+
+	protected static getBotIdFromToken(token: string): string {
+		return Buffer.from(token.split('.')[0], 'base64').toString('ascii');
+	}
+
+	set botId(id: string) {
+		this._botId = id;
+	}
+
+	get botId() {
+		return this._botId ?? BaseClient.getBotIdFromToken(this.gateway.options.token);
+	}
+
+	set applicationId(id: string) {
+		this._applicationId = id;
+	}
+
+	get applicationId() {
+		return this._applicationId ?? this.botId;
 	}
 
 	get proxy() {
@@ -48,12 +72,17 @@ export class BaseClient {
 		// throw new Error('Function not implemented');
 	}
 
+	async start(options: Pick<DeepPartial<StartOptions>, 'langsDir' | 'commandsDir'> = {}) {
+		await this.loadLangs(options.langsDir);
+		await this.loadCommands(options.commandsDir);
+	}
+
 	protected async onPacket(..._packet: unknown[]) {
 		throw new Error('Function not implemented');
 	}
 
 	async uploadCommands(applicationId?: string) {
-		applicationId ??= await this.getRC().then(x => x.applicationId);
+		applicationId ??= await this.getRC().then(x => x.applicationId ?? this.applicationId);
 		BaseClient.assertString(applicationId);
 		return await this.proxy.applications(applicationId).commands.put({
 			body: Object.values(this.commands.commands.map(x => x.toJSON()))
@@ -75,25 +104,51 @@ export class BaseClient {
 	}
 
 	protected getRC() {
-		return import(join(process.cwd(), '.potorc.json')).catch(() => null).then((x: Record<'application' | 'locations' | 'debug', Record<string, any>>) => {
-			const { debug, application, locations } = x;
+		return import(join(process.cwd(), '.potorc.json')).then((x: RC) => {
+			const { application, locations } = x;
 			return {
-				debug: !!debug,
+				debug: !!x.debug,
 
-				token: typeof application.token === 'string' ? application.token : undefined,
+				token: application.token,
 				intents: !Number.isNaN(application.intents) ? Number(application.intents) : 0,
 
-				applicationId: typeof application.applicationId === 'string' ? application.applicationId : undefined,
+				applicationId: application.applicationId,
 
-				port: !Number.isNaN(application.port) ? Number(application.port) : 4000,
-				publicKey: typeof application.publicKey === 'string' ? application.publicKey : undefined,
+				port: !Number.isNaN(application.port) ? Number(application.port) : 8080,
+				publicKey: application.publicKey,
 
 				base: join(process.cwd(), locations.base),
 				output: join(process.cwd(), locations.output),
-				langs: typeof locations.langs === 'string' ? join(process.cwd(), locations.langs) : undefined,
-				events: typeof locations.events === 'string' ? join(process.cwd(), locations.output, locations.events) : undefined,
-				commands: typeof locations.commands === 'string' ? join(process.cwd(), locations.output, locations.commands) : undefined,
+				langs: locations.langs ? join(process.cwd(), locations.langs) : undefined,
+				events: locations.events ? join(process.cwd(), locations.output, locations.events) : undefined,
+				commands: join(process.cwd(), locations.output, locations.commands),
 			};
 		});
 	}
+}
+
+interface RC {
+	debug?: boolean;
+	application: {
+		token: string;
+		intents?: number;
+		applicationId?: string;
+		port?: number;
+		publicKey?: string;
+	};
+	locations: {
+		base: string;
+		output: string;
+		commands: string;
+		langs?: string;
+		events?: string;
+	};
+}
+
+export interface StartOptions {
+	eventsDir: string;
+	langsDir: string;
+	commandsDir: string;
+	connection: { token: string; intents: number };
+	httpConnection: { publicKey: string; port: number };
 }

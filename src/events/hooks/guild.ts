@@ -128,7 +128,7 @@ export const GUILD_MEMBER_UPDATE = (
 	cache: Cache,
 	data: GatewayGuildMemberUpdateDispatchData
 ) => {
-	if (!data.user) { return; }
+	if (!data.user) { return console.log(data); }
 	return new GuildMember(rest, cache, data, data.user, data.guild_id);
 };
 

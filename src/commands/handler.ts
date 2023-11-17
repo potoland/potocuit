@@ -1,8 +1,8 @@
 import type { APIApplicationCommandInteractionDataOption, APIAttachment, APIInteractionDataResolved, LocaleString, MakeRequired } from '@biscuitland/common';
 import { ApplicationCommandOptionType } from '@biscuitland/common';
 
-import type { PotoCommandAutocompleteOption, PotoCommandOption, SubCommand } from './commands';
-import type { Command } from './commands';
+import { SubCommand } from './commands';
+import type { Command, PotoCommandAutocompleteOption, PotoCommandOption } from './commands';
 import { readdir } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import type { BiscuitREST } from '@biscuitland/rest';
@@ -47,6 +47,10 @@ export class PotoHandler {
 export class PotoCommandHandler extends PotoHandler {
 	commands: Command[] = [];
 
+	constructor(private client: BaseClient) {
+		super();
+	}
+
 	async reload(resolve: string | Command) {
 		if (typeof resolve === 'string') {
 			this.commands.find(x => x.name === resolve)?.reload();
@@ -81,7 +85,13 @@ export class PotoCommandHandler extends PotoHandler {
 		this.commands = [];
 
 		for (const command of result) {
-			const commandInstancie = new command.file();
+			const commandInstancie = new command.file(this.client);
+			commandInstancie.client = this.client;
+			for (const option of commandInstancie.options ?? []) {
+				if (option instanceof SubCommand) {
+					option.client = this.client;
+				}
+			}
 			commandInstancie.__filePath = command.path;
 			this.commands.push(commandInstancie);
 			if (!commandInstancie.__t) { continue; }
@@ -154,7 +164,7 @@ export class OptionResolver {
 		private rest: BiscuitREST,
 		private cache: Cache,
 		options: APIApplicationCommandInteractionDataOption[],
-		public parent: Command,
+		public parent?: Command,
 		public guildId?: string,
 		public resolved?: APIInteractionDataResolved
 	) {
@@ -184,22 +194,22 @@ export class OptionResolver {
 		// }
 		if (this.subCommand) {
 			// ahora que veo, esto te devolvera el primer sub command sin discriminar XD
-			return (this.parent.options as SubCommand[]).find(x => (this.group ? x.group === this.group : true) && x.name === this.subCommand);
+			return (this.parent?.options as SubCommand[]).find(x => (this.group ? x.group === this.group : true) && x.name === this.subCommand);
 		}// trmendo oneline
 		// no xd, ya pero discord solo envia el comando que usas, no el objeto entero XD
 		return this.parent;
 	}
 
-	getAutocompleteValue<T = string | number | boolean>(): T | null {
-		return this.hoistedOptions.find(option => option.focused)?.value as T;
+	getAutocompleteValue(): string | undefined {
+		return this.hoistedOptions.find(option => option.focused)?.value as string;
 	}
 
 	getAutocomplete() {
-		return (this.getCommand()?.options as PotoCommandOption[]).find(option => option.name === this.hoistedOptions[0].name) as PotoCommandAutocompleteOption;
+		return (this.getCommand()?.options as PotoCommandOption[]).find(option => option.name === this.hoistedOptions.find(x => x.focused)?.name) as PotoCommandAutocompleteOption;
 	}
 
 	getParent() {
-		return this.parent.name;
+		return this.parent?.name;
 	}
 
 	getSubCommand() {
@@ -214,8 +224,12 @@ export class OptionResolver {
 		return this.options.find(opt => opt.name === name);
 	}
 
+	getHoisted(name: string) {
+		return this.hoistedOptions.find(x => x.name === name);
+	}
+
 	getValue(name: string) {
-		const option = this.get(name);
+		const option = this.getHoisted(name);
 		if (!option) { return; }
 
 		switch (option.type) {

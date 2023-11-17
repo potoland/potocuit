@@ -1,11 +1,12 @@
 import { ApplicationCommandType, InteractionType, type APIInteraction } from '@biscuitland/common';
-import { CommandContext } from '../commands';
 import { OptionResolver } from '../commands/handler';
 import type { ChatInputCommandInteraction } from '../structures/Interaction';
 import { AutocompleteInteraction, BaseInteraction } from '../structures/Interaction';
 import type { BaseClient } from './base';
+import { CommandContext } from '../commands/context';
 
 export async function onInteraction(body: APIInteraction, self: BaseClient) {
+	self.debugger.debug(`[${InteractionType[body.type] ?? body.type}] Interaction received.`);
 	switch (body.type) {
 		case InteractionType.ApplicationCommandAutocomplete: {
 			const packetData = body.data;
@@ -28,10 +29,10 @@ export async function onInteraction(body: APIInteraction, self: BaseClient) {
 					if (command?.run) {
 						const context = new CommandContext(self, interaction, {}, {}, optionsResolver);
 						const [erroredOptions, result] = await command.runOptions(context, optionsResolver);
-						if (erroredOptions) { return await command.onRunOptionsError(context, result); }
+						if (erroredOptions) { return await command.onOptionsError(context, result); }
 
 						const [_, erroredMiddlewares] = await command.runMiddlewares(context);
-						if (erroredMiddlewares) { return command.onStop(context, erroredMiddlewares); }
+						if (erroredMiddlewares) { return command.onMiddlewaresError(context, erroredMiddlewares); }
 
 						await command.run(context);
 					}

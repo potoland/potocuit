@@ -9,6 +9,7 @@ import { Message } from './Message';
 import { BaseChannel } from './methods/channel/base';
 import { GuildRole } from './GuildRole';
 import type { PotocuitChannels } from './channels';
+import { OptionResolver } from '../commands/handler';
 
 export interface BaseInteraction extends ObjectToLower<Omit<APIBaseInteraction<InteractionType, any>, 'user' | 'member' | 'message' | 'channel'>> { }
 
@@ -72,6 +73,16 @@ export interface AutocompleteInteraction extends ObjectToLower<Omit<APIApplicati
 export class AutocompleteInteraction<FromGuild extends boolean = boolean> extends BaseInteraction<FromGuild, APIApplicationCommandAutocompleteInteraction> {
 	declare type: InteractionType.ApplicationCommandAutocomplete;
 	declare data: ObjectToLower<APIApplicationCommandAutocompleteInteraction['data']>;
+	options: OptionResolver;
+	constructor(rest: BiscuitREST, cache: Cache, interaction: APIApplicationCommandAutocompleteInteraction) {
+		super(rest, cache, interaction);
+		this.options = new OptionResolver(rest, cache, interaction.data.options, undefined, interaction.guild_id, interaction.data.resolved);
+	}
+
+	getInput() {
+		return this.options.getAutocompleteValue() ?? '';
+	}
+
 	respond(choices: APICommandAutocompleteInteractionResponseCallbackData['choices']) {
 		return this.reply({ data: { choices }, type: InteractionResponseType.ApplicationCommandAutocompleteResult });
 	}

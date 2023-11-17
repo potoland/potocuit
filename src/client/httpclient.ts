@@ -1,8 +1,10 @@
 import type { APIInteraction } from '@biscuitland/common';
 import { InteractionResponseType, InteractionType } from '@biscuitland/common';
 import type { HttpRequest, HttpResponse } from 'uWebSockets.js';
+import type { StartOptions } from './base';
 import { BaseClient } from './base';
 import { onInteraction } from './oninteraction';
+import type { DeepPartial } from '../structures/extra/types';
 
 let UWS: typeof import('uWebSockets.js');
 let nacl: typeof import('tweetnacl');
@@ -55,13 +57,14 @@ export class PotoHttpClient extends BaseClient {
 
 	async execute(options?: { publicKey?: string; port?: number }) {
 		super.execute();
-		const { publicKey: publicKeyRC, port: portRC } = await this.getRC();
+		const { publicKey: publicKeyRC, port: portRC, applicationId: applicationIdRC } = await this.getRC();
 
 		const publicKey = options?.publicKey ?? publicKeyRC;
 		const port = options?.port ?? portRC;
 
 		if (!publicKey) { throw new Error('Expected a publicKey, check your .potorc.json'); }
 		if (!port) { throw new Error('Expected a port, check your .potorc.json'); }
+		if (applicationIdRC) { this.applicationId = applicationIdRC; }
 
 		this.publicKey = publicKey;
 		this.publicKeyHex = Buffer.from(this.publicKey, 'hex');
@@ -71,8 +74,13 @@ export class PotoHttpClient extends BaseClient {
 				return this.onPacket(res, req);
 			});
 		this.app.listen(port, () => {
-			console.log(`Listening to port ${port}`);
+			this.logger.info(`Listening to port ${port}`);
 		});
+	}
+
+	async start(options: Omit<DeepPartial<StartOptions>, 'connection'> = {}) {
+		await super.start(options);
+		await this.execute(options.httpConnection);
 	}
 
 	// https://discord.com/developers/docs/interactions/receiving-and-responding#security-and-authorization
@@ -83,7 +91,7 @@ export class PotoHttpClient extends BaseClient {
 		if (nacl.sign.detached.verify(
 			Buffer.from(timestamp + JSON.stringify(body)),
 			Buffer.from(ed25519, 'hex'),
-			Buffer.from(this.publicKey, 'hex')
+			this.publicKeyHex
 		)) { return body; }
 		return;
 	}
@@ -91,11 +99,13 @@ export class PotoHttpClient extends BaseClient {
 	async onPacket(res: HttpResponse, req: HttpRequest) {
 		const body = await this.verifySignature(res, req);
 		if (!body) {
+			this.debugger.debug(`Invalid request/No info, returning 418 status.`);
 			// I'm a teapot
 			res.writeStatus('418').end();
 		} else {
 			switch (body.type) {
 				case InteractionType.Ping:
+					this.debugger.debug(`Ping interaction received, responding.`);
 					res
 						// .writeStatus('200')
 						.writeHeader('Content-Type', 'application/json')
@@ -105,7 +115,6 @@ export class PotoHttpClient extends BaseClient {
 					await onInteraction(body, this);
 					break;
 			}
-			console.log(body);
 		}
 	}
 }

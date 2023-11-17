@@ -12,7 +12,7 @@ export interface PotocuitDataEvent {
 	once: boolean;
 }
 export type Handler = {
-	[K in keyof PotocuitEvents]: (...data: [PotocuitEvents[K], number, PotoClient]) => unknown;
+	[K in keyof PotocuitEvents]: (...data: [PotocuitEvents[K], PotoClient, number]) => unknown;
 };
 export type EventContext<T extends PotocuitEvent> = Parameters<Handler[T['data']['name']]>;
 export interface PotocuitEvent {

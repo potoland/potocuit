@@ -80,13 +80,15 @@ export class RedisAdapter implements Adapter {
 	async patch(updateOnly: boolean, id: string | [string, any][], data?: any): Promise<void> {
 		if (!Array.isArray(id)) {
 			if (updateOnly) {
- await this.client.eval(
+				await this.client.eval(
 					`if redis.call('exists',KEYS[1]) == 1 then redis.call('hset', KEYS[1], ${Array.from({ length: Object.keys(data).length * 2 }, (_, i) => `ARGV[${i + 1}]`)}) end`,
 					1,
 					this.build(id),
 					...Object.entries(toDb(data)).flat()
 				);
-} else { await this.client.hset(this.build(id), toDb(data)); }
+			} else {
+				await this.client.hset(this.build(id), toDb(data));
+			}
 			return;
 		}
 
@@ -96,12 +98,14 @@ export class RedisAdapter implements Adapter {
 			if (updateOnly) {
 				pipeline
 					.eval(
-						`if redis.call('exists',KEYS[1]) == 1 then redis.call('hset', KEYS[1], ${Array.from({ length: Object.keys(toDb(v)).length * 2 }, (_, i) => `ARGV[${i + 1}]`)}) end`,
+						`if redis.call('exists',KEYS[1]) == 1 then redis.call('hset', KEYS[1], ${Array.from({ length: Object.keys(v).length * 2 }, (_, i) => `ARGV[${i + 1}]`)}) end`,
 						1,
 						this.build(k),
 						...Object.entries(toDb(v)).flat()
 					);
-			} else { pipeline.hset(this.build(k), toDb(v)); }
+			} else {
+				pipeline.hset(this.build(k), toDb(v));
+			}
 		}
 
 		await pipeline.exec();
@@ -200,7 +204,13 @@ function toNormal(target: Record<string, any>) {
 				break;
 			}
 			result[key] = toNormal({ ...value });
-		} else if (key.startsWith('N_')) { result[key.slice(2)] = Number(value); } else if (key.startsWith('B_')) { result[key.slice(2)] = value === 'true'; } else { result[key] = value; }
+		} else if (key.startsWith('N_')) {
+			result[key.slice(2)] = Number(value);
+		} else if (key.startsWith('B_')) {
+			result[key.slice(2)] = value === 'true';
+		} else {
+			result[key] = value;
+		}
 	}
 	return result;
 }

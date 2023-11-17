@@ -5,8 +5,10 @@ import { GatewayManager } from '@biscuitland/ws';
 import { Cache, DefaultMemoryAdapter } from '../cache';
 import { PotoEventHandler } from '../events/handler';
 import * as RawEvents from '../events/hooks/index';
+import type { StartOptions } from './base';
 import { BaseClient } from './base';
 import { onInteraction } from './oninteraction';
+import type { DeepPartial } from '../structures/extra/types';
 
 export class PotoClient extends BaseClient {
 	gateway!: GatewayManager;
@@ -63,14 +65,22 @@ export class PotoClient extends BaseClient {
 		this.logger.info('PotoEventHandler loaded');
 	}
 
+	async start(options: Omit<DeepPartial<StartOptions>, 'httpConnection'> = {}) {
+		await super.start(options);
+		await this.loadEvents(options.eventsDir);
+		await this.execute(options.connection);
+	}
+
 	protected async onPacket(shardId: number, packet: GatewayDispatchPayload) {
 		await this.cache.onPacket(packet);
 		const eventName = ReplaceRegex.camel(packet.t?.toLowerCase() ?? '') as CamelCase<typeof GatewayDispatchEvents[keyof typeof GatewayDispatchEvents]>;
 
-		await this.events.execute(eventName, RawEvents[packet.t]?.(this.rest, this.cache, packet.d as never), shardId, this);
+		await this.events.execute(eventName, RawEvents[packet.t]?.(this.rest, this.cache, packet.d as never), this, shardId);
 		switch (packet.t) {
 			case 'READY':
-				this.debugger.debug(`${packet.d.user.username} is online...`);
+				this.botId = packet.d.user.id;
+				this.applicationId = packet.d.application.id;
+				this.debugger.debug(`[${packet.d.user.username}](${this.botId}) is online...`);
 				break;
 			case 'INTERACTION_CREATE': {
 				await onInteraction(packet.d, this);
