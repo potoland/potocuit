@@ -6,37 +6,46 @@
 
   **A brand new bleeding edge non bloated Discord framework**
 
-  [![License](https://img.shields.io/npm/l/potocuit?style=flat-square&logo=apache&color=white)](https://github.com/potoland/potocuit/blob/main/LICENSE)
-  [![Version](https://img.shields.io/npm/v/potocuit?color=%23ff0000&logo=npm&style=flat-square)](https://www.npmjs.com/package/potocuit)
+  [![License](https://img.shields.io/npm/l/@potoland/framework?style=flat-square&logo=apache&color=white)](https://github.com/potoland/potocuit/blob/main/LICENSE)
+  [![Version](https://img.shields.io/npm/v/@potoland/framework?color=%23ff0000&logo=npm&style=flat-square)](https://www.npmjs.com/package/potocuit)
   [![Discord](https://img.shields.io/discord/973427352560365658?color=%23406da2&label=support&logo=discord&style=flat-square)](https://discord.com/invite/XNw2RZFzaP)
 
 </div>
 
-# F.A.Q
+> [!WARNING]  
+> This readme is work in progress!
 
-### What is `potocuit`?
-- **A wrapper for interfacing with the Discord API.**
+# FAQ
+## So, what is `Potocuit`?
+Potocuit is a Biscuit framework, Biscuit is a library to interact with the Discord API in a memory-efficient way.
 
-### Why you should use it?
-- **Because of its scalability.**
+## Why I should use it?
+Potocuit has a good scalability, strict types, smooth developing experience...
 
-# How to use
+> more questions soon...
 
+# User guide
 ## Installation
-
-**You need `Node.js 18` or newer to use this package.**
-
-If you don't want to use NPM, replace **`npm install`** with your package manager of choice. If that is not the case, you can proceed with this command.
-
+> [!NOTE]
+> You **NEED** Node.js 18>= for this to work.
 ```sh
-npm install potocuit
+pnpm add @potoland/framework
 ```
+
+> You may use your preferred package manager, for this example I am using PNPM since is more efficient.
 
 ## Basic bot example
 
-```js
+```ts
 const client = new PotoClient();
-client.execute('TOKEN')
+
+(async () => {
+    await client.start();
+    await client.uploadCommands().catch(e => {
+        console.error(JSON.stringify(e, null, 2))
+        process.exit(1)
+    })
+})();
 ```
 
 # Useful links
