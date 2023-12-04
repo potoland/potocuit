@@ -2,21 +2,18 @@ import type {
 	GatewayReadyDispatchData,
 	GatewayResumedDispatch,
 } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
-import type { Cache } from '../../cache';
-import { ClientUser } from '../../structures/ClientUser';
+import { ClientUser } from '../../structures';
+import type { BaseClient } from '../../client/base';
 
 export const READY = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayReadyDispatchData
 ) => {
-	return new ClientUser(rest, cache, data.user, data.application);
+	return new ClientUser(self.rest, self.cache, data.user, data.application);
 };
 
 export const RESUMED = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
 	_data: GatewayResumedDispatch['d']
 ) => {
 	return;

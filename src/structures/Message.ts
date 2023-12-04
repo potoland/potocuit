@@ -9,13 +9,14 @@ import type {
 } from '@biscuitland/common';
 import type { BiscuitREST, RawFile } from '@biscuitland/rest';
 import { MessageActionRowComponent } from '../Components/ActionRow';
-import type { BiscuitActionRowMessageComponents } from '../Components/mod';
+import type { BiscuitActionRowMessageComponents } from '../Components';
 import { GuildMember } from './GuildMember';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 import type { Cache } from '../cache';
 import { MessagesMethods } from './methods/channel/messages';
 import type { EmojiResolvable } from '../types/resolvables';
+import type { MessageCreateBodyRequest } from '../types/write';
 
 export type MessageData = APIMessage | GatewayMessageCreateDispatchData;
 
@@ -60,13 +61,13 @@ export class Message extends DiscordBase {
 			.edit(this.id, body, files);
 	}
 
-	write(body: RESTPostAPIChannelMessageJSONBody, files?: RawFile[]) {
+	write(body: MessageCreateBodyRequest, files?: RawFile[]) {
 		return MessagesMethods.messages({ id: this.channelId, api: this.api, rest: this.rest, cache: this.cache })
 			.write(body, files);
 	}
 
 	reply(
-		body: Omit<RESTPostAPIChannelMessageJSONBody, 'message_reference'>,
+		body: Omit<MessageCreateBodyRequest, 'message_reference'>,
 		files?: RawFile[],
 	) {
 		return this.write({

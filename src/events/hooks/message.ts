@@ -9,73 +9,63 @@ import type {
 	GatewayMessageReactionRemoveEmojiDispatchData,
 	GatewayMessageUpdateDispatchData,
 } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
 import type { PartialClass } from '.';
-import type { Cache } from '../../cache';
-
+import type { BaseClient } from '../../client/base';
 import { toCamelCase } from '@biscuitland/common';
-import { Message } from '../../structures/Message';
+import { Message } from '../../structures';
 
 export const MESSAGE_CREATE = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayMessageCreateDispatchData
 ) => {
-	return new Message(rest, cache, data);
+	return new Message(self.rest, self.cache, data);
 };
 
 export const MESSAGE_DELETE = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
 	data: GatewayMessageDeleteDispatchData
 ) => {
 	return toCamelCase(data);
 };
 
 export const MESSAGE_DELETE_BULK = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
 	data: GatewayMessageDeleteBulkDispatchData
 ) => {
 	return toCamelCase(data);
 };
 
 export const MESSAGE_REACTION_ADD = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
 	data: GatewayMessageReactionAddDispatchData
 ) => {
 	return toCamelCase(data);
 };
 
 export const MESSAGE_REACTION_REMOVE = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
 	data: GatewayMessageReactionRemoveDispatchData
 ) => {
 	return toCamelCase(data);
 };
 
 export const MESSAGE_REACTION_REMOVE_ALL = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
 	data: GatewayMessageReactionRemoveAllDispatchData
 ) => {
 	return toCamelCase(data);
 };
 
 export const MESSAGE_REACTION_REMOVE_EMOJI = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
 	data: GatewayMessageReactionRemoveEmojiDispatchData
 ) => {
 	return toCamelCase(data);
 };
 
 export const MESSAGE_UPDATE = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayMessageUpdateDispatchData
 ): PartialClass<Message> => {
-	return new Message(rest, cache, data as unknown as APIMessage);
+	return new Message(self.rest, self.cache, data as unknown as APIMessage);
 };

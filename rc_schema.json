@@ -30,6 +30,9 @@
 				},
 				"events": {
 					"type": "string"
+				},
+				"templates": {
+					"type": "string"
 				}
 			},
 			"required": [

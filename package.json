@@ -9,7 +9,7 @@
 	],
 	"scripts": {
 		"build": "npm run build:cjs && npm run build:es6",
-		"build:cjs": "tsc --emitDeclarationOnly --outDir ./dist/cjs",
+		"build:cjs": "tsc --outDir ./dist/cjs",
 		"build:es6": "tsc --outDir ./dist/esm --module es2022",
 		"clean": "rm -rf dist && rm -rf .turbo",
 		"dev": "swc src -d dist/cjs -w",
@@ -22,8 +22,10 @@
 	"license": "ISC",
 	"dependencies": {
 		"@biscuitland/common": "^0.0.9",
+		"@biscuitland/helpers": "^3.0.12",
 		"@biscuitland/rest": "^3.0.7",
 		"@biscuitland/ws": "^3.0.10",
+		"form-data": "^4.0.0",
 		"ioredis": "^5.3.2",
 		"ts-mixer": "^6.0.3"
 	},
@@ -38,6 +40,7 @@
 		"nodemon": "^3.0.1",
 		"ts-macros": "^2.6.0",
 		"ts-patch": "^3.0.2",
+		"ttsc": "^0.3.1",
 		"typescript": "^5.2.2"
 	},
 	"optionalDependencies": {

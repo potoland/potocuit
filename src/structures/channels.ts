@@ -1,9 +1,9 @@
 import { mix } from 'ts-mixer';
 import { BaseChannel, BaseGuildChannel, TextBaseChannel } from './methods/channel/base';
 import type { APIDMChannel, APIGuildCategoryChannel, APIGuildForumChannel, APIGuildMediaChannel, APIGuildStageVoiceChannel, APIGuildVoiceChannel, APINewsChannel, APITextChannel, APIThreadChannel, ChannelType, ObjectToLower, ThreadAutoArchiveDuration } from '@biscuitland/common';
+import type { StringToNumber, ToClass } from '../types/util';
 import { ChannelFlags, VideoQualityMode } from '@biscuitland/common';
 import { DiscordBase } from './extra/DiscordBase';
-import type { StringToNumber, ToClass } from '../types/util';
 import { ThreadOnlyMethods } from './methods/channel/threadonly';
 import { TopicableGuildChannel } from './methods/channel/topicable';
 
@@ -170,7 +170,8 @@ export type PotocuitChannels = BaseChannel<ChannelType> |
 	ThreadChannel |
 	CategoryChannel |
 	NewsChannel |
-	DirectoryChannel;
+	DirectoryChannel |
+	StageChannel;
 
 // djs solo le agrega el addFollower, literal es el unico metodo que esta añadido/removido xd
 

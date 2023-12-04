@@ -3,14 +3,11 @@ import type {
 	GatewayInviteDeleteDispatchData,
 } from '@biscuitland/common';
 
-import type { BiscuitREST } from '@biscuitland/rest';
-import type { Cache } from '../../cache';
-
 import { toCamelCase } from '@biscuitland/common';
+import type { BaseClient } from '../../client/base';
 
 export const INVITE_CREATE = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
 	data: GatewayInviteCreateDispatchData
 ) => {
 	return toCamelCase(data);
@@ -18,8 +15,7 @@ export const INVITE_CREATE = (
 };
 
 export const INVITE_DELETE = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
 	data: GatewayInviteDeleteDispatchData
 ) => {
 	return toCamelCase(data);

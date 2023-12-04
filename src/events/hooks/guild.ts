@@ -20,197 +20,167 @@ import type {
 	GatewayGuildStickersUpdateDispatchData,
 	GatewayGuildUpdateDispatchData,
 } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
-import type { Cache } from '../../cache';
-
+import type { BaseClient } from '../../client/base';
 import { toCamelCase } from '@biscuitland/common';
-import { AnonymousGuild } from '../../structures/AnonymousGuild';
-import { Guild } from '../../structures/Guild';
-import { GuildEmoji } from '../../structures/GuildEmoji';
-import { GuildMember } from '../../structures/GuildMember';
-import { Sticker } from '../../structures/Sticker';
-import { User } from '../../structures/User';
-import { GuildRole } from '../../structures/GuildRole';
-
+import { GuildRole, User, Sticker, GuildMember, GuildEmoji, Guild, AnonymousGuild } from '../../structures';
 
 export const GUILD_AUDIT_LOG_ENTRY_CREATE = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
 	data: GatewayGuildAuditLogEntryCreateDispatchData
 ) => {
 	return toCamelCase(data);
 };
 
 export const GUILD_BAN_ADD = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayGuildBanAddDispatchData
 ) => {
-	return { ...toCamelCase(data), user: new User(rest, cache, data.user) };
+	return { ...toCamelCase(data), user: new User(self.rest, self.cache, data.user) };
 };
 
 export const GUILD_BAN_REMOVE = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayGuildBanRemoveDispatchData
 ) => {
-	return { ...toCamelCase(data), user: new User(rest, cache, data.user) };
+	return { ...toCamelCase(data), user: new User(self.rest, self.cache, data.user) };
 };
 
 export const GUILD_CREATE = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayGuildCreateDispatchData
 ) => {
-	return new Guild(rest, cache, data);
+	return new Guild(self.rest, self.cache, data);
 };
 
 export const GUILD_DELETE = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayGuildCreateDispatchData
 ): AnonymousGuild => {
-	return new AnonymousGuild(rest, cache, data);
+	return new AnonymousGuild(self.rest, self.cache, data);
 };
 
 export const GUILD_EMOJIS_UPDATE = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayGuildEmojisUpdateDispatchData
 ) => {
 	return {
 		...toCamelCase(data),
 		emojis: data.emojis.map(
-			x => new GuildEmoji(rest, cache, x as any, data.guild_id)
+			x => new GuildEmoji(self.rest, self.cache, x as any, data.guild_id)
 		),
 	};
 };
 
 export const GUILD_INTEGRATIONS_UPDATE = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
 	data: GatewayGuildIntegrationsUpdateDispatchData
 ) => {
 	return data;
 };
 
 export const GUILD_MEMBER_ADD = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayGuildMemberAddDispatchData
 ) => {
-	return new GuildMember(rest, cache, data, data.user!, data.guild_id);
+	return new GuildMember(self.rest, self.cache, data, data.user!, data.guild_id);
 };
 
 export const GUILD_MEMBER_REMOVE = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayGuildMemberRemoveDispatchData
 ) => {
-	return { ...toCamelCase(data), user: new User(rest, cache, data.user) };
+	return { ...toCamelCase(data), user: new User(self.rest, self.cache, data.user) };
 };
 
 export const GUILD_MEMBERS_CHUNK = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayGuildMembersChunkDispatchData
 ) => {
 	return {
 		...toCamelCase(data),
 		members: data.members.map(
-			x => new GuildMember(rest, cache, x, x.user!, data.guild_id)
+			x => new GuildMember(self.rest, self.cache, x, x.user!, data.guild_id)
 		),
 	};
 };
 
 export const GUILD_MEMBER_UPDATE = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayGuildMemberUpdateDispatchData
 ) => {
 	if (!data.user) { return console.log(data); }
-	return new GuildMember(rest, cache, data, data.user, data.guild_id);
+	return new GuildMember(self.rest, self.cache, data, data.user, data.guild_id);
 };
 
 export const GUILD_SCHEDULED_EVENT_CREATE = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
 	data: GatewayGuildScheduledEventCreateDispatchData
 ) => {
 	return toCamelCase(data);
 };
 
 export const GUILD_SCHEDULED_EVENT_UPDATE = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
 	data: GatewayGuildScheduledEventUpdateDispatchData
 ) => {
 	return toCamelCase(data);
 };
 
 export const GUILD_SCHEDULED_EVENT_DELETE = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
 	data: GatewayGuildScheduledEventDeleteDispatchData
 ) => {
 	return toCamelCase(data);
 };
 
 export const GUILD_SCHEDULED_EVENT_USER_ADD = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
 	data: GatewayGuildScheduledEventUserAddDispatchData
 ) => {
 	return toCamelCase(data);
 };
 
 export const GUILD_SCHEDULED_EVENT_USER_REMOVE = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
 	data: GatewayGuildScheduledEventUserRemoveDispatchData
 ) => {
 	return toCamelCase(data);
 };
 
 export const GUILD_ROLE_CREATE = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayGuildRoleCreateDispatchData
 ) => {
-	return new GuildRole(rest, cache, data.role, data.guild_id);
+	return new GuildRole(self.rest, self.cache, data.role, data.guild_id);
 };
 
 export const GUILD_ROLE_DELETE = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
 	data: GatewayGuildRoleDeleteDispatchData
 ) => {
 	return toCamelCase(data);
 };
 
 export const GUILD_ROLE_UPDATE = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayGuildRoleUpdateDispatchData
 ) => {
-	return new GuildRole(rest, cache, data.role, data.guild_id);
+	return new GuildRole(self.rest, self.cache, data.role, data.guild_id);
 };
 
 export const GUILD_STICKERS_UPDATE = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayGuildStickersUpdateDispatchData
 ) => {
 	return {
 		...toCamelCase(data),
-		stickers: data.stickers.map(x => new Sticker(rest, cache, x)),
+		stickers: data.stickers.map(x => new Sticker(self.rest, self.cache, x)),
 	};
 };
 
 export const GUILD_UPDATE = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayGuildUpdateDispatchData
 ) => {
-	return new Guild(rest, cache, data);
+	return new Guild(self.rest, self.cache, data);
 };

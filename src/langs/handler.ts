@@ -28,16 +28,20 @@ export class PotoLangsHandler extends PotoHandler {
 	}
 
 	get<K extends keyof __LangType>(lang: LocaleString, message: K, metadata: __LangType[K]) {
-		const value = this.getKey(lang, message);
-		if (!value) { throw new Error('Invalid key'); }
-		return this.parse(value, metadata);
+		try {
+			const value = this.getKey(lang, message);
+			if (!value) { throw new Error('Invalid key'); }
+			return this.parse(value, metadata);
+		} catch {
+			throw new Error('Invalid key');
+		}
 	}
 
 	async load(dir: string) {
 		const files = await this.loadFilesK<Record<string, any>>(await this.getFiles(dir));
 		for (const i of files) {
 			if (!values.includes(i.name as any)) {
-				console.log(`Invalid lang [${i.name}]`);
+				this.logger.fatal(`Invalid lang [${i.name}]`);
 				continue;
 			}
 			this.record[i.name as LocaleString] = i.file;

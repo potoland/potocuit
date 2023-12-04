@@ -27,12 +27,8 @@
 		"noErrorTruncation": true,
 		"rootDir": "./src",
 		"outDir": "./dist",
-		"plugins": [
-			{
-				"transform": "ts-macros/dist/type-resolve",
-				"transformProgram": true
-			}
-		]
+		"plugins": [],
+		"stripInternal": true
 	},
 	"exclude": [
 		"**/node_modules",

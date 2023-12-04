@@ -1,12 +1,13 @@
 // import type { BiscuitChannels } from '../index';
 
-import type { APIChannel, APIChannelBase, APITextChannel, ChannelType, ObjectToLower, RESTGetAPIGuildChannelsResult, RESTPatchAPIChannelJSONBody, RESTPatchAPIGuildChannelPositionsJSONBody, RESTPostAPIGuildChannelJSONBody } from '@biscuitland/common';
+import type { APIChannel, APIChannelBase, APITextChannel, ObjectToLower, RESTGetAPIGuildChannelsResult, RESTPatchAPIChannelJSONBody, RESTPatchAPIGuildChannelPositionsJSONBody, RESTPostAPIGuildChannelJSONBody } from '@biscuitland/common';
+import { ChannelType } from '@biscuitland/common';
 import { channelLink } from '../../../structures/extra/functions';
 import { DiscordBase } from '../../extra/DiscordBase';
 import type { MethodContext } from '../../../types';
 import type { BiscuitREST } from '@biscuitland/rest';
 import type { Cache } from '../../../cache';
-import type { PotocuitChannels } from '../../channels';
+import { CategoryChannel, NewsChannel, TextGuildChannel, type PotocuitChannels, VoiceChannel, DirectoryChannel, ThreadChannel, ForumChannel, DMChannel, StageChannel, MediaChannel } from '../../channels';
 import { mix } from 'ts-mixer';
 import { MessagesMethods } from './messages';
 
@@ -58,6 +59,29 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 
 	static from(data: APIChannelBase<ChannelType>, rest: BiscuitREST, cache: Cache): PotocuitChannels {
 		switch (data.type) {
+			// case ChannelType.GroupDM:
+			case ChannelType.GuildStageVoice:
+				return new StageChannel(rest, cache, data);
+			case ChannelType.GuildMedia:
+				return new MediaChannel(rest, cache, data);
+			case ChannelType.DM:
+				return new DMChannel(rest, cache, data);
+			case ChannelType.GuildForum:
+				return new ForumChannel(rest, cache, data);
+			case ChannelType.AnnouncementThread:
+			case ChannelType.PrivateThread:
+			case ChannelType.PublicThread:
+				return new ThreadChannel(rest, cache, data);
+			case ChannelType.GuildDirectory:
+				return new DirectoryChannel(rest, cache, data);
+			case ChannelType.GuildVoice:
+				return new VoiceChannel(rest, cache, data);
+			case ChannelType.GuildText:
+				return new TextGuildChannel(rest, cache, data);
+			case ChannelType.GuildCategory:
+				return new CategoryChannel(rest, cache, data);
+			case ChannelType.GuildAnnouncement:
+				return new NewsChannel(rest, cache, data);
 			default:
 				if ('guild_id' in data) { return new BaseGuildChannel(rest, cache, data); }
 				return new BaseChannel(rest, cache, data);

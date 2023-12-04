@@ -25,3 +25,6 @@ type ResultType<T> = [T, undefined] | [undefined, Error];
 export type Result<T, P extends boolean> = P extends true
 	? Promise<ResultType<T>>
 	: ResultType<T>;
+
+
+export type OmitInsert<T, K extends keyof T, I> = K extends keyof T ? Omit<T, K> & I : never;

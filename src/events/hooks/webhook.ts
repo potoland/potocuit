@@ -1,12 +1,9 @@
 import type { GatewayWebhooksUpdateDispatchData } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
-import type { Cache } from '../../cache';
-
 import { toCamelCase } from '@biscuitland/common';
+import type { BaseClient } from '../../client/base';
 
 export const WEBHOOKS_UPDATE = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
 	data: GatewayWebhooksUpdateDispatchData
 ) => {
 	return toCamelCase(data);

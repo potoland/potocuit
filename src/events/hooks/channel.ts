@@ -6,38 +6,33 @@ import {
 	type GatewayChannelUpdateDispatchData,
 } from '@biscuitland/common';
 
-import type { BiscuitREST } from '@biscuitland/rest';
-import type { Cache } from '../../cache';
 import { BaseChannel } from '../../structures/methods/channel/base';
+import type { BaseClient } from '../../client/base';
 
 export const CHANNEL_CREATE = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayChannelCreateDispatchData
 ) => {
-	return BaseChannel.from(data, rest, cache);
+	return BaseChannel.from(data, self.rest, self.cache);
 };
 
 export const CHANNEL_DELETE = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayChannelDeleteDispatchData
 ) => {
-	return BaseChannel.from(data, rest, cache);
+	return BaseChannel.from(data, self.rest, self.cache);
 };
 
 export const CHANNEL_PINS_UPDATE = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
 	data: GatewayChannelPinsUpdateDispatchData
 ) => {
 	return toCamelCase(data);
 };
 
 export const CHANNEL_UPDATE = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayChannelUpdateDispatchData
 ) => {
-	return BaseChannel.from(data, rest, cache);
+	return BaseChannel.from(data, self.rest, self.cache);
 };

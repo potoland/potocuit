@@ -1,13 +1,10 @@
 import type { GatewayUserUpdateDispatchData } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
-import type { Cache } from '../../cache';
-
-import { User } from '../../structures/User';
+import type { BaseClient } from '../../client/base';
+import { User } from '../../structures';
 
 export const USER_UPDATE = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayUserUpdateDispatchData
 ) => {
-	return new User(rest, cache, data);
+	return new User(self.rest, self.cache, data);
 };

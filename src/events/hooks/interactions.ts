@@ -1,12 +1,10 @@
 import type { GatewayInteractionCreateDispatchData } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
-import type { Cache } from '../../cache';
-import { BaseInteraction } from '../../structures/Interaction';
+import { BaseInteraction } from '../../structures';
+import type { BaseClient } from '../../client/base';
 
 export const INTERACTION_CREATE = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayInteractionCreateDispatchData
 ) => {
-	return BaseInteraction.from(rest, cache, data);
+	return BaseInteraction.from(self, data);
 };

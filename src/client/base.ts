@@ -1,5 +1,4 @@
-import type { BiscuitREST } from '@biscuitland/rest';
-import { Router } from '@biscuitland/rest';
+import { Router, type BiscuitREST } from '@biscuitland/rest';
 import type { GatewayManager } from '@biscuitland/ws';
 import type { Cache } from '../cache';
 import { PotoLangsHandler } from '../langs/handler';
@@ -7,11 +6,13 @@ import { PotoCommandHandler } from '../commands/handler';
 import { join } from 'node:path';
 import { LogLevels, Logger } from '@biscuitland/common';
 import type { DeepPartial } from '../structures/extra/types';
+import { ComponentHandler } from '../Components/handler';
 
 export class BaseClient {
 	gateway!: GatewayManager;
 	rest!: BiscuitREST;
 	cache!: Cache;
+
 	debugger = new Logger({
 		name: '[Debug]',
 		active: false,
@@ -24,8 +25,10 @@ export class BaseClient {
 		logLevel: LogLevels.Info,
 	});
 
-	commands = new PotoCommandHandler(this);
-	langs = new PotoLangsHandler();
+	commands = new PotoCommandHandler(this.logger, this);
+	langs = new PotoLangsHandler(this.logger);
+	/** @internal */
+	readonly __components__ = new ComponentHandler(this);
 
 	private _applicationId?: string;
 	private _botId?: string;
@@ -84,7 +87,7 @@ export class BaseClient {
 	async uploadCommands(applicationId?: string) {
 		applicationId ??= await this.getRC().then(x => x.applicationId ?? this.applicationId);
 		BaseClient.assertString(applicationId);
-		return await this.proxy.applications(applicationId).commands.put({
+		return this.proxy.applications(applicationId).commands.put({
 			body: Object.values(this.commands.commands.map(x => x.toJSON()))
 		});
 	}
@@ -117,10 +120,11 @@ export class BaseClient {
 				port: !Number.isNaN(application.port) ? Number(application.port) : 8080,
 				publicKey: application.publicKey,
 
-				base: join(process.cwd(), locations.base),
-				output: join(process.cwd(), locations.output),
 				langs: locations.langs ? join(process.cwd(), locations.langs) : undefined,
 				events: locations.events ? join(process.cwd(), locations.output, locations.events) : undefined,
+				templates: locations.templates ? join(process.cwd(), locations.templates) : undefined,
+				base: join(process.cwd(), locations.base),
+				output: join(process.cwd(), locations.output),
 				commands: join(process.cwd(), locations.output, locations.commands),
 			};
 		});
@@ -141,6 +145,7 @@ interface RC {
 		output: string;
 		commands: string;
 		langs?: string;
+		templates?: string;
 		events?: string;
 	};
 }

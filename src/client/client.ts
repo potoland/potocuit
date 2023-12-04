@@ -12,7 +12,7 @@ import type { DeepPartial } from '../structures/extra/types';
 
 export class PotoClient extends BaseClient {
 	gateway!: GatewayManager;
-	events = new PotoEventHandler;
+	events = new PotoEventHandler(this.logger);
 
 	setServices({ gateway, rest, cache }: { rest?: BiscuitREST; gateway?: GatewayManager; cache?: Cache }) {
 		super.setServices({ rest, cache });
@@ -74,8 +74,7 @@ export class PotoClient extends BaseClient {
 	protected async onPacket(shardId: number, packet: GatewayDispatchPayload) {
 		await this.cache.onPacket(packet);
 		const eventName = ReplaceRegex.camel(packet.t?.toLowerCase() ?? '') as CamelCase<typeof GatewayDispatchEvents[keyof typeof GatewayDispatchEvents]>;
-
-		await this.events.execute(eventName, RawEvents[packet.t]?.(this.rest, this.cache, packet.d as never), this, shardId);
+		await this.events.execute(eventName, RawEvents[packet.t]?.(this, packet.d as never), this, shardId);
 		switch (packet.t) {
 			case 'READY':
 				this.botId = packet.d.user.id;

@@ -1,21 +1,19 @@
 import type { GatewayTypingStartDispatchData } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
-import type { Cache } from '../../cache';
 
 import { toCamelCase } from '@biscuitland/common';
-import { GuildMember } from '../../structures/GuildMember';
+import { GuildMember } from '../../structures';
+import type { BaseClient } from '../../client/base';
 
 export const TYPING_START = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayTypingStartDispatchData
 ) => {
 	return data.member
 		? {
 			...toCamelCase(data),
 			member: new GuildMember(
-				rest,
-				cache,
+				self.rest,
+				self.cache,
 				data.member,
 				data.member.user!,
 				data.guild_id!

@@ -1,10 +1,8 @@
 import { toCamelCase, type GatewayApplicationCommandPermissionsUpdateDispatchData } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
-import type { Cache } from '../../cache';
+import type { BaseClient } from '../../client/base';
 
 export const APPLICATION_COMMAND_PERMISSIONS_UPDATE = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
 	data: GatewayApplicationCommandPermissionsUpdateDispatchData
 ) => {
 	return toCamelCase(data);

@@ -1,8 +1,8 @@
 import type { APIMessageActionRowComponent, ComponentType } from '@biscuitland/common';
 import type { BiscuitREST } from '@biscuitland/rest';
 import { BaseComponent } from '../structures/extra/BaseComponent';
-import type { BiscuitActionRowMessageComponents } from './mod';
-import { componentFactory } from './mod';
+import type { BiscuitActionRowMessageComponents } from './';
+import { componentFactory } from './';
 
 export class MessageActionRowComponent<
 	T extends BiscuitActionRowMessageComponents,
@@ -15,7 +15,7 @@ export class MessageActionRowComponent<
 		}
 	) {
 		super(data);
-		this.components = data.components.map(component => componentFactory(component)) as T[];
+		this.components = data.components.map(componentFactory) as T[];
 	}
 
 	components: T[];

@@ -5,6 +5,7 @@ import type { StartOptions } from './base';
 import { BaseClient } from './base';
 import { onInteraction } from './oninteraction';
 import type { DeepPartial } from '../structures/extra/types';
+import FormData from 'form-data';
 
 let UWS: typeof import('uWebSockets.js');
 let nacl: typeof import('tweetnacl');
@@ -97,13 +98,13 @@ export class PotoHttpClient extends BaseClient {
 	}
 
 	async onPacket(res: HttpResponse, req: HttpRequest) {
-		const body = await this.verifySignature(res, req);
-		if (!body) {
+		const rawBody = await this.verifySignature(res, req);
+		if (!rawBody) {
 			this.debugger.debug(`Invalid request/No info, returning 418 status.`);
 			// I'm a teapot
 			res.writeStatus('418').end();
 		} else {
-			switch (body.type) {
+			switch (rawBody.type) {
 				case InteractionType.Ping:
 					this.debugger.debug(`Ping interaction received, responding.`);
 					res
@@ -112,87 +113,32 @@ export class PotoHttpClient extends BaseClient {
 						.end(JSON.stringify({ type: InteractionResponseType.Pong }));
 					break;
 				default:
-					await onInteraction(body, this);
+					await onInteraction(rawBody, this, ({ body, files }) => {
+						let response, headers: { ['Content-Type']?: string } = {};
+
+						if (files?.length) {
+							response = new FormData();
+							for (const key in files) {
+								const file = files[key];
+								response.append(key, file.data, file);
+							}
+							if (body) {
+								response.append('payload_json', JSON.stringify(body));
+							}
+							headers = Object.assign(headers, response.getHeaders());
+						} else {
+							response = body ?? {};
+							headers['Content-Type'] = 'application/json';
+						}
+
+						for (const i in headers) {
+							res.writeHeader(i, headers[i as keyof typeof headers]!);
+						}
+
+						return res.end(JSON.stringify(response));
+					});
 					break;
 			}
 		}
 	}
 }
-
-// async findUWS(): Promise<typeof import('./_tempuwstypes.d.ts')> {
-// 	const uwsNodeFile = `uws_${process.platform}_${process.arch}_${process.versions.modules}.node`;
-// 	const uwsbuilddir = 'uws_build';
-// 	try {
-// 		const uwsDir = (await readdir(join(__dirname, uwsbuilddir)))[0]!
-// 		let UWS: typeof import('./_tempuwstypes.d.ts') = require(join(__dirname, uwsbuilddir, uwsDir, uwsNodeFile))
-// 		console.log(UWS)
-// 		return UWS;
-// 	}
-// 	catch {
-// 		console.log(`No ${uwsNodeFile} file detected, fetching...`);
-// 		await this.downloadUWS();
-// 		return this.findUWS();
-// 	}
-// }
-
-// async downloadUWS() {
-// 	const { zipball_url } = await fetch('https://api.github.com/repos/uNetworking/uWebSockets.js/releases')
-// 		.then(response => response.json())
-// 		.then(releases => releases[0] as { zipball_url: string; });
-// 	const zip = await fetch(zipball_url).then(x => x.arrayBuffer());
-
-// 	const tempzipfiledir = '__tempuws.zip';
-// 	const uwsbuilddir = 'uws_build';
-
-// 	await writeFile(join(__dirname, tempzipfiledir), new Buffer(zip));
-// 	await extractZip(join(__dirname, tempzipfiledir), { dir: join(__dirname, uwsbuilddir) })
-
-// 	const uwsDir = (await readdir(join(__dirname, uwsbuilddir)))[0]!
-// 	const filesFromUWS = (await readdir(join(__dirname, uwsbuilddir, uwsDir))).filter(x => x.endsWith('.node'));
-
-// 	let UWS: typeof import('../src/_tempuwstypes') | undefined;
-
-// 	for (let i of filesFromUWS) {
-// 		try {
-// 			UWS = require(join(__dirname, uwsbuilddir, uwsDir, i));
-// 		} catch {
-// 			await unlink(join(__dirname, uwsbuilddir, uwsDir, i));
-// 		}
-// 	}
-
-// 	await unlink(join(__dirname, tempzipfiledir))
-
-// 	if (!UWS) throw new Error('Invalid os??')
-// }
-
-// case InteractionType.ApplicationCommandAutocomplete: {
-// 	const packetData = body.data;
-// 	const parentCommand = this.commandHandler.commands.find(x => x.name === packetData.name)!;
-// 	const optionsResolver = new OptionResolver(this.rest, this.cache, packetData.options ?? [], parentCommand, body.data.guild_id, body.data.resolved);
-// 	const interaction = new AutocompleteInteraction(this.rest, this.cache, body);
-// 	const command = optionsResolver.getAutocomplete();
-// 	if (command?.autocomplete) {
-// 		await command.autocomplete(interaction);
-// 	}
-// } break;
-// case InteractionType.ApplicationCommand: {
-// 	switch (body.data.type) {
-// 		case ApplicationCommandType.ChatInput: {
-// 			const packetData = body.data;
-// 			const parentCommand = this.commandHandler.commands.find(x => x.name === (packetData).name)!;
-// 			const optionsResolver = new OptionResolver(this.rest, this.cache, packetData.options ?? [], parentCommand, packetData.guild_id, packetData.resolved);
-// 			const interaction = BaseInteraction.from(this.rest, this.cache, body) as ChatInputCommandInteraction;
-// 			const command = optionsResolver.getCommand();
-// 			if (command?.run) {
-// 				const context = new CommandContext(this, interaction, {}, {}, optionsResolver);
-// 				const [erroredOptions, result] = await command.runOptions(context, optionsResolver);
-// 				if (erroredOptions) { return await command.onRunOptionsError(context, result); }
-
-// 				const [_, erroredMiddlewares] = await command.runMiddlewares(context);
-// 				if (erroredMiddlewares) { return command.onStop(context, erroredMiddlewares); }
-
-// 				await command.run(context);
-// 			}
-// 		} break;
-// 	}
-// } break;

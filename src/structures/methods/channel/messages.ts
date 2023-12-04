@@ -7,6 +7,7 @@ import type { MethodContext } from '../../..';
 import type { EmojiResolvable } from '../../../types/resolvables';
 import { DiscordBase } from '../../extra/DiscordBase';
 import type { BaseChannel } from './base';
+import type { MessageCreateBodyRequest } from '../../../types/write';
 
 export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> { }
 export class MessagesMethods extends DiscordBase {
@@ -107,14 +108,21 @@ export class MessagesMethods extends DiscordBase {
 		};
 	}
 
+	static transformMessageBody(body: MessageCreateBodyRequest): RESTPostAPIChannelMessageJSONBody {
+		return {
+			...body,
+			components: body.components ? body.components.map(x => x.toJSON()) : []
+		};
+	}
 
 	static messages(ctx: MethodContext) {
 		return {
-			write: (body: RESTPostAPIChannelMessageJSONBody, files?: RawFile[]) => {
+			write: (body: MessageCreateBodyRequest, files?: RawFile[]) => {
+				const transformedBody = MessagesMethods.transformMessageBody(body);
 				return ctx.api
 					.channels(ctx.id)
 					.messages.post({
-						body,
+						body: transformedBody,
 						files,
 					})
 					.then(message => new Message(ctx.rest, ctx.cache, message));

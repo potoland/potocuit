@@ -3,41 +3,37 @@ import type {
 	GatewayIntegrationDeleteDispatchData,
 	GatewayIntegrationUpdateDispatchData,
 } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
-import type { Cache } from '../../cache';
-
 import { toCamelCase } from '@biscuitland/common';
-import { User } from '../../structures/User';
+import { User } from '../../structures';
+import type { BaseClient } from '../../client/base';
 
 export const INTEGRATION_CREATE = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayIntegrationCreateDispatchData
 ) => {
 	return data.user
 		? {
 			...toCamelCase(data),
-			user: new User(rest, cache, data.user!),
+			user: new User(self.rest, self.cache, data.user!),
 		}
 		: toCamelCase(data);
 };
 
 export const INTEGRATION_UPDATE = (
-	rest: BiscuitREST,
-	cache: Cache,
+	self: BaseClient,
 	data: GatewayIntegrationUpdateDispatchData
 ) => {
 	return data.user
 		? {
 			...toCamelCase(data),
-			user: new User(rest, cache, data.user!),
+			user: new User(self.rest, self.cache, data.user!),
 		}
 		: toCamelCase(data);
 };
 
 export const INTEGRATION_DELETE = (
-	_rest: BiscuitREST,
-	_cache: Cache,
+	_self: BaseClient,
+
 	data: GatewayIntegrationDeleteDispatchData
 ) => {
 	return toCamelCase(data);

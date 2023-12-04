@@ -14,36 +14,8 @@ export interface PotocuitDataEvent {
 export type Handler = {
 	[K in keyof PotocuitEvents]: (...data: [PotocuitEvents[K], PotoClient, number]) => unknown;
 };
-export type EventContext<T extends PotocuitEvent> = Parameters<Handler[T['data']['name']]>;
+export type EventContext<T extends { data: { name: PotoNameEvents } }> = Parameters<Handler[T['data']['name']]>;
 export interface PotocuitEvent {
 	data: PotocuitDataEvent;
 	run(...args: EventContext<any>): any;
 }
-
-
-// // xdxdxdxdxdx
-// // xd
-// const xddd: PotoNameEvents = 'ready'; // CUAL ES LA MALDITA DIFERENCIA
-// xddd;
-// // ^?
-
-// class ReadyEvent implements PotocuitEvent {
-// 	data = {
-// 		name: 'guildBanAdd',
-// 		once: true
-// 	} satisfies PotocuitDataEvent;
-
-// 	// data = declareEvent();
-// 	async run([ctx, shardId]: EventContext<this>): Promise<any> {
-// 		this
-// 			.data;
-// 		// ^?
-// 		shardId;
-// 		ctx
-// 			.guildId;
-// 		// ^?
-// 	}
-// }
-// // xd?
-// // callate
-// // wtf usas as const y se arregla, quien lo diriaxd

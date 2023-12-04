@@ -1,16 +1,12 @@
 import type { APIApplicationCommandBasicOption, APIApplicationCommandOption, APIApplicationCommandSubcommandGroupOption, APIAttachment, LocaleString } from '@biscuitland/common';
 import { ApplicationCommandOptionType, ApplicationCommandType } from '@biscuitland/common';
-import type { AutocompleteInteraction } from '../structures/Interaction';
-import type { User } from '../structures/User';
-import type { PotocuitChannels } from '../structures/channels';
-import type { GuildRole } from '../structures/GuildRole';
 import type { Result } from '../types/util';
-import type { OptionResolver } from './handler';
-import type { InteractionGuildMember } from '../structures/GuildMember';
+import type { InteractionGuildMember, GuildRole, PotocuitChannels, User, AutocompleteInteraction } from '../structures';
 import type { __LangType } from '../__generated';
 import type { CommandContext } from './context';
 import type { BaseClient } from '../client/base';
 import type { Groups } from './decorators';
+import type { OptionResolver } from './optionresolver';
 
 interface ReturnOptionsTypes {
 	1: never;// subcommand
@@ -44,15 +40,18 @@ export type FailFunction = (value: Error) => void;
 export type StopFunction = (error: Error) => void;
 export type NextFunction<T> = (data: T) => void;
 export type AutocompleteCallback = (interaction: AutocompleteInteraction) => any;
+export type OnAutocompleteErrorCallback = (interaction: AutocompleteInteraction, error: unknown) => any;
 export type PotoCommandBaseOption = __TypesWrapper[keyof __TypesWrapper];
-export type PotoCommandAutocompleteOption = Extract<__TypesWrapper[keyof __TypesWrapper] & { autocomplete: AutocompleteCallback }, { type: ApplicationCommandOptionType.String | ApplicationCommandOptionType.Integer | ApplicationCommandOptionType.Number }>;
-export type __PotoCommandOption = PotoCommandBaseOption | PotoCommandAutocompleteOption;
+export type PotoCommandBaseAutocompleteOption = Extract<__TypesWrapper[keyof __TypesWrapper] & { autocomplete: AutocompleteCallback; onError?: OnAutocompleteErrorCallback }, { type: ApplicationCommandOptionType.String | ApplicationCommandOptionType.Integer | ApplicationCommandOptionType.Number }>;
+export type PotoCommandAutocompleteOption = PotoCommandBaseAutocompleteOption & { name: string };
+
+export type __PotoCommandOption = PotoCommandBaseOption | PotoCommandBaseAutocompleteOption;
 export type OptionsRecord = Record<string, Omit<__PotoCommandOption, 'type'>>;
 // thanks yuzu & socram
 export type ContextOptions<T extends OptionsRecord> = {
 	[K in keyof T]: Parameters<Parameters<T[K]['value']>[1]>[0];// ApplicationCommandOptionType[];
 };
-export type MiddlewareContext<T = any> = (context: { lastFail: Error | undefined; cmdContext: CommandContext<{}, []>; next: NextFunction<T>; fail: FailFunction; stop: StopFunction }) => any;
+export type MiddlewareContext<T = any> = (context: { lastFail: Error | undefined; context: CommandContext<{}, []>; next: NextFunction<T>; fail: FailFunction; stop: StopFunction }) => any;
 export type MetadataMiddleware<T extends MiddlewareContext> = Parameters<Parameters<T>[0]['next']>[0];
 export type CommandMetadata<T extends Readonly<MiddlewareContext[]>> = T extends readonly [infer first, ...infer rest]
 	? first extends MiddlewareContext
@@ -62,7 +61,7 @@ export type CommandMetadata<T extends Readonly<MiddlewareContext[]>> = T extends
 
 export type PotoCommandOption = __PotoCommandOption & { name: string };
 
-type OnOptionsReturnObject = Record<string, {
+export type OnOptionsReturnObject = Record<string, {
 	failed: false;
 	value: any;
 } | {
@@ -95,12 +94,12 @@ class BaseCommand {
 
 	onMiddlewaresError(context: CommandContext<{}, []>, error: Error) {
 		return context.write({
-			content: `Oops, it seems like something didn't go as expected:\n\`\`\`${error.message}\`\`\``
+			content: `<This>.onMiddlewaresError\nOops, it seems like something didn't go as expected:\n\`\`\`${error.message}\`\`\``
 		});
 	}
 
 	onOptionsError(context: CommandContext<{}, []>, metadata: OnOptionsReturnObject) {
-		let content = '';
+		let content = '<This>.onOptionsError\n';
 		for (const i in metadata) {
 			const err = metadata[i];
 			if (err.failed) { content += `[${i}]: ${err.value.message}\n`; }
@@ -176,7 +175,7 @@ class BaseCommand {
 					clearTimeout(timeout);
 					return res([metadata, undefined]);
 				}
-				this.middlewares[index]({ lastFail, cmdContext: context, next, fail, stop });
+				this.middlewares[index]({ lastFail, context, next, fail, stop });
 			};
 			const fail: FailFunction = err => {
 				if (timeoutCleared) { return; }
@@ -187,14 +186,14 @@ class BaseCommand {
 					clearTimeout(timeout);
 					return res([metadata, undefined]);
 				}
-				this.middlewares[index]({ lastFail, cmdContext: context, next, fail, stop });
+				this.middlewares[index]({ lastFail, context, next, fail, stop });
 			};
 			const stop: StopFunction = err => {
 				if (timeoutCleared) { return; }
 				lastFail = err;
 				return res([undefined, err]);
 			};
-			this.middlewares[0]({ lastFail, cmdContext: context, next, fail, stop });
+			this.middlewares[0]({ lastFail, context, next, fail, stop });
 		});
 	}
 
@@ -209,41 +208,24 @@ class BaseCommand {
 		};
 	}
 
-	async reload(upload = false) {
+	async reload() {
 		delete require.cache[this.__filePath!];
 		const __tempCommand = await import(this.__filePath!).then(x => x.default ?? x);
-		const instancie = new __tempCommand();
-		// let upload = false;
-		for (const i of Object.getOwnPropertyNames(instancie)) {
-			// @ts-expect-error
-			this[i] = instancie[i];
-		}
+		// const instancie = new __tempCommand();
+		// for (const i of Object.getOwnPropertyNames(instancie)) {
+		// 	// @ts-expect-error
+		// 	this[i] = instancie[i];
+		// }
 		Object.setPrototypeOf(this, __tempCommand.prototype);
-		if (upload && !(this instanceof SubCommand)) {
-			await this.client.proxy.applications(this.client.applicationId).commands.post({
-				body: this.toJSON()
-			});
-		}
+		// if (upload && !(this instanceof SubCommand)) {
+		// 	await this.client.proxy.applications(this.client.applicationId).commands.post({
+		// 		body: this.toJSON()
+		// 	});
+		// }
 	}
 
-	// protected async compareOptions(options: __PotoCommandOption[]) {
-	// 	let upload = false;
-	// 	for (const option of options) {
-	// 		const actual = this.options?.find(x => x.name === option.name);
-	// 		if (!actual) { return upload = true; }
-	// 		if (actual instanceof SubCommand) {
-	// 			await actual.reload();
-	// 			continue;
-	// 		}
-	// 		if (actual.description !== option.description) {
-	// 			upload = true;
-	// 			continue;
-	// 		}
-	// 	}
-	// 	return upload;
-	// }
-
 	run?(context: CommandContext<any, any>): any;
+	onRunError?(context: CommandContext<any, any>, error: unknown): any;
 }
 
 export class Command extends BaseCommand {
@@ -295,8 +277,8 @@ export abstract class SubCommand extends BaseCommand {
 		};
 	}
 
-
 	abstract run(context: CommandContext<any, any>): any;
+	onRunError?(context: CommandContext<any, any>, error: unknown): any;
 }
 
 
