@@ -75,6 +75,11 @@ class BaseCommand {
 
 	__filePath?: string;
 	__t?: { name: string; description: string };
+	__tGroups?: Record<string/* name for group*/, {
+		name: string;
+		description: string;
+		defaultDescription: string;
+	}>;
 
 	name!: string;
 	type!: number;// ApplicationCommandType.ChatInput | ApplicationCommandOptionType.Subcommand

@@ -1,6 +1,6 @@
 import type { LocaleString, Logger } from '@biscuitland/common';
 import { SubCommand } from './commands';
-import type { Command } from './commands';
+import { Command } from './commands';
 import { readdir } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import type { BaseClient } from '../client/base';
@@ -67,6 +67,7 @@ export class PotoCommandHandler extends PotoHandler {
 
 		for (const command of result) {
 			const commandInstancie = new command.file(this.client);
+			if (!(commandInstancie instanceof Command)) { continue; }
 			commandInstancie.client = this.client;
 			for (const option of commandInstancie.options ?? []) {
 				if (option instanceof SubCommand) {
@@ -75,17 +76,41 @@ export class PotoCommandHandler extends PotoHandler {
 			}
 			commandInstancie.__filePath = command.path;
 			this.commands.push(commandInstancie);
-			if (!commandInstancie.__t) { continue; }
-			commandInstancie.name_localizations = {};
-			commandInstancie.description_localizations = {};
-			for (const locale of Object.keys(client.langs.record)) {
-				const valueName = client.langs.getKey(locale, commandInstancie.__t.name);
-				if (valueName) {
-					commandInstancie.name_localizations[locale as LocaleString] = valueName;
+			if (commandInstancie.__t) {
+				commandInstancie.name_localizations = {};
+				commandInstancie.description_localizations = {};
+				for (const locale of Object.keys(client.langs.record)) {
+					const valueName = client.langs.getKey(locale, commandInstancie.__t.name);
+					if (valueName) {
+						commandInstancie.name_localizations[locale as LocaleString] = valueName;
+					}
+					const valueKey = client.langs.getKey(locale, commandInstancie.__t.description);
+					if (valueKey) {
+						commandInstancie.description_localizations[locale as LocaleString] = valueKey;
+					}
 				}
-				const valueKey = client.langs.getKey(locale, commandInstancie.__t.description);
-				if (valueKey) {
-					commandInstancie.description_localizations[locale as LocaleString] = valueKey;
+			}
+
+			if (commandInstancie.__tGroups) {
+				commandInstancie.groups = {};
+				for (const locale of Object.keys(client.langs.record)) {
+					for (const group in commandInstancie.__tGroups) {
+						commandInstancie.groups[group] ??= {
+							defaultDescription: commandInstancie.__tGroups[group].defaultDescription,
+							description: [],
+							name: []
+						};
+
+						const valueName = client.langs.getKey(locale, commandInstancie.__tGroups[group].name);
+						if (valueName) {
+							commandInstancie.groups[group].name!.push([locale as LocaleString, valueName]);
+						}
+
+						const valueKey = client.langs.getKey(locale, commandInstancie.__tGroups[group].description);
+						if (valueKey) {
+							commandInstancie.groups[group].description!.push([locale as LocaleString, valueKey]);
+						}
+					}
 				}
 			}
 		}

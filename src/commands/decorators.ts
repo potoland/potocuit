@@ -30,6 +30,18 @@ export function LocalesT(name: string, description: string) {
 	};
 }
 
+export function GroupsT(groups: Record<string/* name for group*/, {
+	name: string;
+	description: string;
+	defaultDescription: string;
+}>) {
+	return function <T extends { new(...args: any[]): {} }>(target: T) {
+		return class extends target {
+			__tGroups = groups;
+		};
+	};
+}
+
 export function Groups(groups: Record<string/* name for group*/, {
 	name?: [language: LocaleString, value: string][];
 	description?: [language: LocaleString, value: string][];
