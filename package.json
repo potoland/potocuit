@@ -5,7 +5,8 @@
 	"module": "./dist/index.mjs",
 	"types": "./dist/index.d.ts",
 	"files": [
-		"dist/**"
+		"dist/**",
+		"src/**"
 	],
 	"scripts": {
 		"build": "npm run build:cjs && npm run build:es6",
