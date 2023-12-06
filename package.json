@@ -54,7 +54,7 @@
 		".": {
 			"import": {
 				"types": "./dist/index.d.ts",
-				"default": "./dist/index.js"
+				"default": "./dist/index.mjs"
 			},
 			"require": "./dist/index.js"
 		}
