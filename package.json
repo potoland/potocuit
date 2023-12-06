@@ -15,7 +15,6 @@
 		"clean": "rm -rf dist && rm -rf .turbo",
 		"dev": "swc src -d dist -w",
 		"prepublishOnly": "npm run build",
-		"postinstall": "tsc --outDir ./dist/cjs && tsc --outDir ./dist/esm --module es2022",
 		"test:run": "cd __test__ && node ./dist/index.js",
 		"test:build": "cd __test__ && nodemon --ext ts --watch ./src --exec \"swc ./src --config-file ../.swcrc -d ./dist\"",
 		"test": "cd __test__ && nodemon --ext ts --watch ./src --exec \"swc ./src --config-file ../.swcrc -d ./dist && node ./dist/index.js\""
