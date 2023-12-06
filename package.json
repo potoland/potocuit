@@ -9,7 +9,7 @@
 		"src/**"
 	],
 	"scripts": {
-		"build": "npm run build:cjs && npm run build:es6",
+		"build": "tsc --outDir ./dist/cjs && tsc --outDir ./dist/esm --module es202",
 		"build:cjs": "tsc --outDir ./dist/cjs",
 		"build:es6": "tsc --outDir ./dist/esm --module es2022",
 		"clean": "rm -rf dist && rm -rf .turbo",
