@@ -25,7 +25,6 @@
 		"noFallthroughCasesInSwitch": true,
 		"skipLibCheck": true,
 		"noErrorTruncation": true,
-		"rootDir": "./src",
 		"outDir": "./dist",
 		"plugins": [],
 		"stripInternal": true
@@ -34,4 +33,7 @@
 		"**/dist",
 		"**/__test__"
 	],
+	"include": [
+		"src"
+	]
 }
