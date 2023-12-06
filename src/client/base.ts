@@ -34,7 +34,7 @@ export class BaseClient {
 	private _botId?: string;
 
 	protected static assertString(value: unknown): asserts value is string {
-		if (typeof value !== 'string' || !value) { throw new Error('Value is not a string'); }
+		if (!(typeof value === 'string' && value !== '')) { throw new Error('Value is not a string'); }
 	}
 
 	protected static getBotIdFromToken(token: string): string {
