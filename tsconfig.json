@@ -31,7 +31,6 @@
 		"stripInternal": true
 	},
 	"exclude": [
-		"**/node_modules",
 		"**/dist",
 		"**/__test__"
 	],
