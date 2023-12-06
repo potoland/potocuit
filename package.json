@@ -1,17 +1,17 @@
 {
 	"name": "@potoland/core",
 	"version": "0.0.1",
-	"main": "./dist/index.js",
-	"module": "./dist/index.mjs",
-	"types": "./dist/index.d.ts",
+	"main": "./dist/cjs/index.js",
+	"module": "./dist/esm/index.js",
+	"types": "./dist/cjs/index.d.ts",
 	"files": [
 		"dist/**",
 		"src/**"
 	],
 	"scripts": {
 		"build": "npm run build:cjs && npm run build:es6",
-		"build:cjs": "tsc --outDir ./dist",
-		"build:es6": "tsc --outDir ./dist --module es2022",
+		"build:cjs": "tsc --outDir ./dist/cjs",
+		"build:es6": "tsc --outDir ./dist/esm --module es2022",
 		"clean": "rm -rf dist && rm -rf .turbo",
 		"dev": "swc src -d dist -w",
 		"prepublishOnly": "npm run build",
@@ -53,10 +53,10 @@
 		"./package.json": "./package.json",
 		".": {
 			"import": {
-				"types": "./dist/index.d.ts",
-				"default": "./dist/index.mjs"
+				"types": "./dist/esm/index.d.ts",
+				"default": "./dist/esm/index.js"
 			},
-			"require": "./dist/index.js"
+			"require": "./dist/cjs/index.js"
 		}
 	},
 	"homepage": "https://biscuitjs.com",
