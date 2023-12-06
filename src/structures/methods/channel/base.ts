@@ -22,9 +22,8 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 		data: APIChannelBase<ChannelType>,
 	) {
 		super(rest, cache, data);
-		Object.defineProperty(this, '__methods__', {
-			value: BaseChannel.methods({ id: this.__guildId__, rest: this.rest, api: this.api, cache: this.cache, channelId: this.id }),
-			writable: false,
+		Object.assign(this, {
+			__methods__: BaseChannel.methods({ id: this.__guildId__, rest: this.rest, api: this.api, cache: this.cache, channelId: this.id }),
 		});
 	}
 

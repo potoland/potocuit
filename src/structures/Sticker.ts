@@ -17,8 +17,8 @@ export class Sticker extends DiscordBase {
 			this.user = new User(this.rest, cache, data.user);
 		}
 		if (this.guildId) {
-			Object.defineProperty(this, '__methods__', {
-				value: Sticker.methods({ rest, cache, id: this.guildId, api: this.api, stickerId: this.id }),
+			Object.assign(this, {
+				__methods__: Sticker.methods({ rest, cache, id: this.guildId, api: this.api, stickerId: this.id }),
 			});
 		}
 	}

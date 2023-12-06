@@ -46,9 +46,8 @@ export class GuildMember extends DiscordBase {
 	) {
 		super(rest, cache, { ...data, id: user.id });
 		this.user = user instanceof User ? user : new User(rest, cache, user);
-		Object.defineProperty(this, '__methods__', {
-			value: GuildMember.methods({ id: this.guildId, rest: this.rest, api: this.api, cache: this.cache }),
-			writable: false,
+		Object.assign(this, {
+			__methods__: GuildMember.methods({ id: this.guildId, rest: this.rest, api: this.api, cache: this.cache }),
 		});
 		this.patch(data);
 	}

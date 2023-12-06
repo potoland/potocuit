@@ -11,9 +11,8 @@ export class GuildRole extends DiscordBase {
 	constructor(rest: BiscuitREST, cache: Cache, data: APIRole, readonly guildId: string) {
 		super(rest, cache, data);
 
-		Object.defineProperty(this, '__methods__', {
-			value: GuildRole.methods({ id: this.guildId, rest: this.rest, api: this.api, cache: this.cache, roleId: this.id }),
-			writable: false,
+		Object.assign(this, {
+			__methods__: GuildRole.methods({ id: this.guildId, rest: this.rest, api: this.api, cache: this.cache, roleId: this.id }),
 		});
 	}
 

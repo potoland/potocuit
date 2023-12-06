@@ -13,9 +13,8 @@ export class GuildTemplate extends Base {
 	constructor(rest: BiscuitREST, cache: Cache, data: APITemplate) {
 		super(rest, cache);
 		this._patchThis(data);
-		Object.defineProperty(this, '__methods__', {
-			value: GuildTemplate.methods({ rest: this.rest, cache: this.cache, id: this.sourceGuildId, api: this.api, code: this.code }),
-			writable: false,
+		Object.assign(this, {
+			__methods__: GuildTemplate.methods({ rest: this.rest, cache: this.cache, id: this.sourceGuildId, api: this.api, code: this.code }),
 		});
 	}
 

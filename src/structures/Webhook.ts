@@ -26,13 +26,11 @@ export class Webhook extends DiscordBase {
 			this.sourceGuild = new AnonymousGuild(this.rest, this.cache, data.source_guild);
 		}
 
-		Object.defineProperty(this, '__methods__', {
-			value: Webhook.methods({ rest: this.rest, cache: this.cache, id: this.id, api: this.api, token: this.token }),
-			writable: false,
+		Object.assign(this, {
+			__methods__: Webhook.methods({ rest: this.rest, cache: this.cache, id: this.id, api: this.api, token: this.token }),
 		});
-		Object.defineProperty(this, 'messages', {
-			value: Webhook.messages({ rest: this.rest, cache: this.cache, id: this.id, api: this.api, token: this.token! }),
-			writable: false
+		Object.assign(this, {
+			messages: Webhook.messages({ rest: this.rest, cache: this.cache, id: this.id, api: this.api, token: this.token! }),
 		});
 	}
 

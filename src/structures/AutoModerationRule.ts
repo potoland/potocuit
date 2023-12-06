@@ -15,9 +15,9 @@ export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 		data: APIAutoModerationRule,
 	) {
 		super(rest, cache, data);
-		Object.defineProperty(this, '__methods__', {
-			value: AutoModerationRule.methods({ id: this.guildId, rest: this.rest, api: this.api, cache: this.cache, ruleId: this.id }),
-			writable: false,
+		Object.assign(this, {
+			__methods__:
+				AutoModerationRule.methods({ id: this.guildId, rest: this.rest, api: this.api, cache: this.cache, ruleId: this.id }),
 		});
 	}
 

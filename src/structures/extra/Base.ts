@@ -6,14 +6,7 @@ import { toCamelCase } from '@biscuitland/common';
 /** */
 export abstract class Base {
 	constructor(rest: BiscuitREST, cache: Cache) {
-		Object.defineProperty(this, 'rest', {
-			value: rest,
-			writable: false
-		});
-		Object.defineProperty(this, 'cache', {
-			value: cache,
-			writable: false
-		});
+		Object.assign(this, { rest, cache });
 	}
 
 	get api() {
