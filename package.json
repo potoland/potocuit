@@ -9,13 +9,11 @@
 		"src/**"
 	],
 	"scripts": {
-		"build": "npm run build:cjs && npm run build:es6",
-		"build:cjs": "tsc --outDir ./dist/cjs",
-		"build:es6": "tsc --outDir ./dist/esm --module es2022",
-		"clean": "rm -rf dist && rm -rf .turbo",
-		"dev": "swc src -d dist -w",
+		"build": "tsc --outDir ./dist/cjs && tsc --outDir ./dist/esm --module es2022",
+		"dev": "swc src -d dist/cjs -w",
 		"prepublishOnly": "npm run build",
-		"postinstall": "tsc --outDir ./dist/cjs && tsc --outDir ./dist/esm --module es2022",
+		"postinstall": "npm run build",
+		"prepare": "npm run build",
 		"test:run": "cd __test__ && node ./dist/index.js",
 		"test:build": "cd __test__ && nodemon --ext ts --watch ./src --exec \"swc ./src --config-file ../.swcrc -d ./dist\"",
 		"test": "cd __test__ && nodemon --ext ts --watch ./src --exec \"swc ./src --config-file ../.swcrc -d ./dist && node ./dist/index.js\""
