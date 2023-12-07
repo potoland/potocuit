@@ -4,7 +4,6 @@ import { BiscuitREST } from '@biscuitland/rest';
 import { GatewayManager } from '@biscuitland/ws';
 import { Cache, DefaultMemoryAdapter } from '../cache';
 import { PotoEventHandler } from '../events/handler';
-import * as RawEvents from '../events/hooks/index';
 import type { StartOptions } from './base';
 import { BaseClient } from './base';
 import { onInteraction } from './oninteraction';
@@ -74,7 +73,7 @@ export class PotoClient extends BaseClient {
 	protected async onPacket(shardId: number, packet: GatewayDispatchPayload) {
 		await this.cache.onPacket(packet);
 		const eventName = ReplaceRegex.camel(packet.t?.toLowerCase() ?? '') as CamelCase<typeof GatewayDispatchEvents[keyof typeof GatewayDispatchEvents]>;
-		await this.events.execute(eventName, RawEvents[packet.t]?.(this, packet.d as never), this, shardId);
+		await this.events.execute(eventName, packet, this, shardId);
 		switch (packet.t) {
 			case 'READY':
 				this.botId = packet.d.user.id;

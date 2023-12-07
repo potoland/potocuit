@@ -72,7 +72,6 @@ export class BaseClient {
 
 	async execute(..._options: unknown[]) {
 		this.debugger.active = (await this.getRC()).debug;
-		// throw new Error('Function not implemented');
 	}
 
 	async start(options: Pick<DeepPartial<StartOptions>, 'langsDir' | 'commandsDir'> = {}) {
@@ -106,7 +105,7 @@ export class BaseClient {
 		this.logger.info('PotoLangsHandler loaded');
 	}
 
-	protected getRC() {
+	getRC() {
 		return import(join(process.cwd(), '.potorc.json')).then((x: RC) => {
 			const { application, locations } = x;
 			return {
