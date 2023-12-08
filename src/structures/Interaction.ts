@@ -1,4 +1,4 @@
-import type { APIActionRowComponent, APIApplicationCommandAutocompleteInteraction, APIApplicationCommandInteraction, APIBaseInteraction, APIChatInputApplicationCommandInteraction, APIChatInputApplicationCommandInteractionData, APICommandAutocompleteInteractionResponseCallbackData, APIInteraction, APIInteractionResponse, APIInteractionResponseChannelMessageWithSource, APIInteractionResponseDeferredChannelMessageWithSource, APIInteractionResponseDeferredMessageUpdate, APIInteractionResponsePong, APIInteractionResponseUpdateMessage, APIMessageApplicationCommandInteraction, APIMessageApplicationCommandInteractionData, APIMessageButtonInteractionData, APIMessageChannelSelectInteractionData, APIMessageComponentInteraction, APIMessageComponentSelectMenuInteraction, APIMessageMentionableSelectInteractionData, APIMessageRoleSelectInteractionData, APIMessageStringSelectInteractionData, APIMessageUserSelectInteractionData, APIModalSubmission, APIModalSubmitInteraction, APITextInputComponent, APIUserApplicationCommandInteraction, APIUserApplicationCommandInteractionData, GatewayInteractionCreateDispatchData, ObjectToLower, RESTPatchAPIWebhookWithTokenMessageJSONBody, RESTPostAPIInteractionCallbackJSONBody, When } from '@biscuitland/common';
+import type { APIActionRowComponent, APIApplicationCommandAutocompleteInteraction, APIApplicationCommandInteraction, APIBaseInteraction, APIChatInputApplicationCommandInteraction, APIChatInputApplicationCommandInteractionData, APICommandAutocompleteInteractionResponseCallbackData, APIInteraction, APIInteractionResponse, APIInteractionResponseChannelMessageWithSource, APIInteractionResponseDeferredChannelMessageWithSource, APIInteractionResponseDeferredMessageUpdate, APIInteractionResponsePong, APIInteractionResponseUpdateMessage, APIMessageApplicationCommandInteraction, APIMessageApplicationCommandInteractionData, APIMessageButtonInteractionData, APIMessageChannelSelectInteractionData, APIMessageComponentInteraction, APIMessageComponentSelectMenuInteraction, APIMessageMentionableSelectInteractionData, APIMessageRoleSelectInteractionData, APIMessageStringSelectInteractionData, APIMessageUserSelectInteractionData, APIModalSubmission, APIModalSubmitInteraction, APITextInputComponent, APIUserApplicationCommandInteraction, APIUserApplicationCommandInteractionData, GatewayInteractionCreateDispatchData, MessageFlags, ObjectToLower, RESTPatchAPIWebhookWithTokenMessageJSONBody, RESTPostAPIInteractionCallbackJSONBody, When } from '@biscuitland/common';
 import { ApplicationCommandType, ComponentType, InteractionResponseType, InteractionType } from '@biscuitland/common';
 import type { RawFile } from '@biscuitland/rest';
 import { DiscordBase } from './extra/DiscordBase';
@@ -72,11 +72,13 @@ export class BaseInteraction<FromGuild extends boolean = boolean, Type extends A
 		this.client.__components__.onRequestInteraction(body.type === InteractionResponseType.Modal ? this.user.id : this.id, body);
 	}
 
-	 deferReply(body: ReplyInteractionBody, files?: RawFile[]) {
+	deferReply(flags?: MessageFlags) {
 		return this.reply({
 			type: InteractionResponseType.DeferredChannelMessageWithSource,
-			f
-		})
+			data: {
+				flags
+			}
+		});
 	}
 
 	static from(client: BaseClient, gateway: GatewayInteractionCreateDispatchData, __reply?: __InternalReplyFunction) {
