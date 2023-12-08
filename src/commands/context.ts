@@ -20,7 +20,6 @@ export class CommandContext<T extends OptionsRecord, M extends Readonly<Middlewa
 	}
 
 	write(body: InteractionCreateBodyRequest, files: RawFile[] = []) {
-		console.log(body);
 		return this.interaction.reply(
 			{
 				data: body,

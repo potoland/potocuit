@@ -41,7 +41,6 @@ export class ComponentHandler {
 	}
 
 	protected __setModal(id: string, record: APIModalInteractionResponseCallbackData | ModalCreateBodyRequest) {
-		console.log(id, 'modal', record);
 		if ('__exec' in record) {
 			this.modals.set(id, record.__exec);
 		}

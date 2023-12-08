@@ -63,8 +63,6 @@ export async function onInteraction(body: APIInteraction, self: BaseClient, __re
 		}
 		case InteractionType.MessageComponent: {
 			const interaction = BaseInteraction.from(self, body, __reply) as ComponentInteraction;
-			console.log(body.message.interaction?.id, body.message.id);
-			console.log(self.__components__.components, interaction, interaction.customId);
 			return self.__components__.onComponent(body.message.interaction?.id ?? body.message.id, interaction);
 		}
 	}
