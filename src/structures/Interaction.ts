@@ -72,6 +72,13 @@ export class BaseInteraction<FromGuild extends boolean = boolean, Type extends A
 		this.client.__components__.onRequestInteraction(body.type === InteractionResponseType.Modal ? this.user.id : this.id, body);
 	}
 
+	 deferReply(body: ReplyInteractionBody, files?: RawFile[]) {
+		return this.reply({
+			type: InteractionResponseType.DeferredChannelMessageWithSource,
+			f
+		})
+	}
+
 	static from(client: BaseClient, gateway: GatewayInteractionCreateDispatchData, __reply?: __InternalReplyFunction) {
 		switch (gateway.type) {
 			case InteractionType.ApplicationCommandAutocomplete:
