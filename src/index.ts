@@ -26,7 +26,7 @@ export function createMiddleware<M, T = MiddlewareContext<M>>(data: T) {
 }
 
 export function createEvent<E extends PotoNameEvents>(data: {
-	name: E;
+	data: { name: E; once: boolean };
 	run: (...args: EventContext<{ data: { name: E } }>) => any;
 }) {
 	return data;

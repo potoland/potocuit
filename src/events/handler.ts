@@ -24,10 +24,14 @@ export class PotoEventHandler extends PotoHandler {
 	async execute<T extends PotoNameEvents>(name: `${T}`, ...args: [GatewayDispatchPayload, PotoClient, number]) {
 		try {
 			if (this.events[name]) {
-				await this.events[name]!.run([RawEvents[args[0].t]?.(args[1], args[0].d as never), args[1], args[2]]);
+				await this.events[name]!.run(...[RawEvents[args[0].t]?.(args[1], args[0].d as never), args[1], args[2]]);
 			}
 		} catch (e) {
 			await this.onFail?.(e);
+		} finally {
+			if (this.events[name]?.data.once) {
+				delete this.events[name];
+			}
 		}
 	}
 }
