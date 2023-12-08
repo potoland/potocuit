@@ -6,13 +6,13 @@
 
   **A brand new bleeding edge non bloated Discord framework**
 
-  [![License](https://img.shields.io/npm/l/@potoland/framework?style=flat-square&logo=apache&color=white)](https://github.com/potoland/potocuit/blob/main/LICENSE)
-  [![Version](https://img.shields.io/npm/v/@potoland/framework?color=%23ff0000&logo=npm&style=flat-square)](https://www.npmjs.com/package/potocuit)
+  [![License](https://img.shields.io/npm/l/@potoland/core?style=flat-square&logo=apache&color=white)](https://github.com/potoland/potocuit/blob/main/LICENSE)
+  [![Version](https://img.shields.io/npm/v/@potoland/core?color=%23ff0000&logo=npm&style=flat-square)](https://www.npmjs.com/package/@potoland/core)
   [![Discord](https://img.shields.io/discord/973427352560365658?color=%23406da2&label=support&logo=discord&style=flat-square)](https://discord.com/invite/XNw2RZFzaP)
 
 </div>
 
-> [!WARNING]  
+> [!WARNING]
 > This readme is work in progress!
 
 # FAQ
@@ -29,7 +29,7 @@ Potocuit has a good scalability, strict types, smooth developing experience...
 > [!NOTE]
 > You **NEED** Node.js 18>= for this to work.
 ```sh
-pnpm add @potoland/framework
+pnpm add @potoland/core
 ```
 
 > You may use your preferred package manager, for this example I am using PNPM since is more efficient.
@@ -52,4 +52,4 @@ const client = new PotoClient();
 
 - [GitHub Repository](https://github.com/potoland/potocuit)
 - [Discord server](https://discord.com/invite/XNw2RZFzaP)
-- [npm - core](https://www.npmjs.com/package/potocuit)
+- [npm - core](https://www.npmjs.com/package/@potoland/core)
