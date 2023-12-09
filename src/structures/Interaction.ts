@@ -25,7 +25,7 @@ export class BaseInteraction<FromGuild extends boolean = boolean, Type extends A
 	member!: When<FromGuild, GuildMember, undefined>;
 	channel?: PotocuitChannels;
 	message?: Message;
-	constructor(protected client: BaseClient, interaction: Type, protected __reply?: __InternalReplyFunction) {
+	constructor(readonly client: BaseClient, interaction: Type, protected __reply?: __InternalReplyFunction) {
 		super(client.rest, client.cache, interaction);
 		if (interaction.member) { this.member = new GuildMember(client.rest, client.cache, interaction.member, interaction.member!.user, interaction.guild_id!) as never; }
 		if (interaction.message) { this.message = new Message(client.rest, client.cache, interaction.message); }

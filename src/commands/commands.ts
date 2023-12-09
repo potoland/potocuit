@@ -71,7 +71,7 @@ export type OnOptionsReturnObject = Record<string, {
 
 class BaseCommand {
 	// y cambiarle el nombre a esta wea
-	protected middlewares: MiddlewareContext[] = [];
+	readonly middlewares: MiddlewareContext[] = [];
 
 	__filePath?: string;
 	__t?: { name: string; description: string };
