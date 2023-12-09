@@ -8,23 +8,17 @@ interface Options {
 
 export class RedisAdapter implements Adapter {
 	client: Redis;
-	options: Options = {
-		namespace: 'potoland'
-	};
 
-	constructor(data: { options?: Options; client: Redis } | { options?: Options; redisOptions: RedisOptions }) {
+	constructor(data: { client: Redis } | { options?: Options; redisOptions: RedisOptions }) {
 		this.client = 'client' in data
 			? data.client
 			: new Redis(data.redisOptions);
-		if (data.options) {
-			this.options = data.options;
-		}
 	}
 
 	scan(query: string, returnKeys?: false): Promise<any[]>;
 	scan(query: string, returnKeys: true): Promise<string[]>;
 	scan(query: string, returnKeys = false) {
-		const match = this.options.namespace + ':' + query;
+		const match = query;
 		return new Promise<string[]>((r, j) => {
 			const stream = this.client.scanStream({
 				match,
@@ -43,7 +37,7 @@ export class RedisAdapter implements Adapter {
 	async get(keys: string): Promise<any>;
 	async get(keys: string | string[]) {
 		if (!Array.isArray(keys)) {
-			const value = await this.client.hgetall(this.build(keys));
+			const value = await this.client.hgetall(keys);
 			if (value) { return toNormal(value); }
 			return;
 		}
@@ -51,7 +45,7 @@ export class RedisAdapter implements Adapter {
 		const pipeline = this.client.pipeline();
 
 		for (const key of keys) {
-			pipeline.hgetall(this.build(key));
+			pipeline.hgetall(key);
 		}
 
 		return (await pipeline.exec())?.filter(x => !!x[1]).map(x => toNormal(x[1] as Record<string, any>)) ?? [];
@@ -62,14 +56,14 @@ export class RedisAdapter implements Adapter {
 	async set(id: string, data: any): Promise<void>;
 	async set(id: string | [string, any][], data?: any): Promise<void> {
 		if (!Array.isArray(id)) {
-			await this.client.hset(this.build(id), toDb(data));
+			await this.client.hset(id, toDb(data));
 			return;
 		}
 
 		const pipeline = this.client.pipeline();
 
 		for (const [k, v] of id) {
-			pipeline.hset(this.build(k), toDb(v));
+			pipeline.hset(k, toDb(v));
 		}
 
 		await pipeline.exec();
@@ -83,11 +77,11 @@ export class RedisAdapter implements Adapter {
 				await this.client.eval(
 					`if redis.call('exists',KEYS[1]) == 1 then redis.call('hset', KEYS[1], ${Array.from({ length: Object.keys(data).length * 2 }, (_, i) => `ARGV[${i + 1}]`)}) end`,
 					1,
-					this.build(id),
+					id,
 					...Object.entries(toDb(data)).flat()
 				);
 			} else {
-				await this.client.hset(this.build(id), toDb(data));
+				await this.client.hset(id, toDb(data));
 			}
 			return;
 		}
@@ -100,11 +94,11 @@ export class RedisAdapter implements Adapter {
 					.eval(
 						`if redis.call('exists',KEYS[1]) == 1 then redis.call('hset', KEYS[1], ${Array.from({ length: Object.keys(v).length * 2 }, (_, i) => `ARGV[${i + 1}]`)}) end`,
 						1,
-						this.build(k),
+						k,
 						...Object.entries(toDb(v)).flat()
 					);
 			} else {
-				pipeline.hset(this.build(k), toDb(v));
+				pipeline.hset(k, toDb(v));
 			}
 		}
 
@@ -113,10 +107,9 @@ export class RedisAdapter implements Adapter {
 
 	async values(to: string): Promise<any[]> {
 		const array: unknown[] = [];
-		const data = await this.getToRelationship(to);
+		const data = await this.keys(to);
 		if (data.length) {
 			const items = await this.get(data);
-
 			for (const item of items) {
 				if (item) {
 					array.push(item);
@@ -129,28 +122,28 @@ export class RedisAdapter implements Adapter {
 
 	async keys(to: string): Promise<string[]> {
 		const data = await this.getToRelationship(to);
-		return data.map(id => this.build(`${to}.${id}`));
+		return data.map(id => `${to}.${id}`);
 	}
 
 	async count(to: string): Promise<number> {
-		return await this.client.scard(this.build(to));
+		return await this.client.scard(to + ':set');
 	}
 
 	async remove(keys: string | string[]): Promise<void> {
 		if (!Array.isArray(keys)) {
-			await this.client.del(this.build(keys));
+			await this.client.del(keys);
 			return;
 		}
 
-		await this.client.del(...keys.map(x => this.build(x)));
+		await this.client.del(...keys.map(x => x));
 	}
 
 	async contains(to: string, keys: string): Promise<boolean> {
-		return await this.client.sismember(this.build(to), keys) === 1;
+		return await this.client.sismember(to + ':set', keys) === 1;
 	}
 
 	async getToRelationship(to: string): Promise<string[]> {
-		return await this.client.smembers(this.build(to));
+		return await this.client.smembers(to + ':set');
 	}
 
 	async bulkAddToRelationShip(data: Record<string, string[]>): Promise<void> {
@@ -158,7 +151,7 @@ export class RedisAdapter implements Adapter {
 		const pipeline = this.client.pipeline();
 
 		for (const [key, value] of Object.entries(data)) {
-			pipeline.sadd(key, ...value);
+			pipeline.sadd(key + ':set', ...value);
 			// await this.addToRelationship(key, value);
 		}
 
@@ -166,19 +159,15 @@ export class RedisAdapter implements Adapter {
 	}
 
 	async addToRelationship(to: string, keys: string | string[]): Promise<void> {
-		await this.client.sadd(this.build(to), ...(Array.isArray(keys) ? keys : [keys]));
+		await this.client.sadd(to + ':set', ...(Array.isArray(keys) ? keys : [keys]));
 	}
 
 	async removeToRelationship(to: string, keys: string | string[]): Promise<void> {
-		await this.client.srem(this.build(to), ...(Array.isArray(keys) ? keys : [keys]));
+		await this.client.srem(to + ':set', ...(Array.isArray(keys) ? keys : [keys]));
 	}
 
 	async removeRelationship(to: string | string[]): Promise<void> {
-		await this.client.del(...(Array.isArray(to) ? to.map(x => this.build(x)) : [this.build(to)]));
-	}
-
-	protected build(id: string) {
-		return id.startsWith(this.options.namespace ?? '') ? id : `${this.options.namespace}:${id}`;
+		await this.client.del(...(Array.isArray(to) ? to.map(x => x + ':set') : [to + ':set']));
 	}
 }
 

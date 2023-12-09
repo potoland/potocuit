@@ -81,7 +81,7 @@ export class PotoHttpClient extends BaseClient {
 
 	async start(options: Omit<DeepPartial<StartOptions>, 'connection'> = {}) {
 		await super.start(options);
-		await this.execute(options.httpConnection);
+		this.execute(options.httpConnection);
 	}
 
 	// https://discord.com/developers/docs/interactions/receiving-and-responding#security-and-authorization

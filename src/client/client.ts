@@ -26,12 +26,25 @@ export class PotoClient extends BaseClient {
 		}
 	}
 
-	async execute(options?: { token?: string; intents?: number }) {
+	async execute() {
 		super.execute();
+		await this.gateway.spawnShards();
+	}
+
+	async loadEvents(dir?: string) {
+		dir ??= await this.getRC().then(x => x.events);
+		BaseClient.assertString(dir);
+		await this.events.load(dir);
+		this.logger.info('PotoEventHandler loaded');
+	}
+
+	async start(options: Omit<DeepPartial<StartOptions>, 'httpConnection'> = {}, execute = false) {
+		await super.start(options);
+		await this.loadEvents(options.eventsDir);
 		const { token: tokenRC, intents: intentsRC } = await this.getRC();
 
-		const token = options?.token ?? tokenRC;
-		const intents = options?.intents ?? intentsRC;
+		const token = options?.connection?.token ?? tokenRC;
+		const intents = options?.connection?.intents ?? intentsRC;
 
 		if (!this.rest) {
 			BaseClient.assertString(token);
@@ -53,21 +66,9 @@ export class PotoClient extends BaseClient {
 		}
 
 		this.cache ??= new Cache(this.gateway.options.intents, this.rest, new DefaultMemoryAdapter());
-
-		await this.gateway.spawnShards();
-	}
-
-	async loadEvents(dir?: string) {
-		dir ??= await this.getRC().then(x => x.events);
-		BaseClient.assertString(dir);
-		await this.events.load(dir);
-		this.logger.info('PotoEventHandler loaded');
-	}
-
-	async start(options: Omit<DeepPartial<StartOptions>, 'httpConnection'> = {}) {
-		await super.start(options);
-		await this.loadEvents(options.eventsDir);
-		await this.execute(options.connection);
+		if (execute) {
+			await this.execute();
+		}
 	}
 
 	protected async onPacket(shardId: number, packet: GatewayDispatchPayload) {

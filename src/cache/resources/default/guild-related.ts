@@ -74,11 +74,16 @@ export class GuildRelatedResource<T = any> {
 	}
 
 	async keys(guild: string): Promise<string[]> {
-		return guild === '*' ? await this.adapter.scan(this.hashId(guild), true) : await this.adapter.keys(this.hashId(guild));
+		return guild === '*' ? await this.adapter.scan(this.hashId(guild), true) : (async () => {
+			return (await this.adapter.getToRelationship(this.hashId(guild))).map(x => this.namespace + '.' + x);
+		})();
 	}
 
 	async values(guild: string): Promise<(T & { guild_id: string })[]> {
-		return guild === '*' ? await this.adapter.scan(this.hashId(guild)) : await this.adapter.values(this.hashId(guild));
+		return guild === '*' ? await this.adapter.scan(this.hashId(guild)) : (async () => {
+			const keys = (await this.adapter.getToRelationship(this.hashId(guild))).map(x => this.namespace + '.' + x);
+			return await this.adapter.get(keys);
+		})();
 	}
 
 	async count(to: string) {
