@@ -6,5 +6,5 @@ export const USER_UPDATE = (
 	self: BaseClient,
 	data: GatewayUserUpdateDispatchData
 ) => {
-	return new User(self.rest, self.cache, data);
+	return new User(self, data);
 };

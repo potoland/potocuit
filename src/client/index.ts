@@ -6,11 +6,9 @@ export * from './httpclient';
 
 export async function initHttp() {
 	const client = new PotoHttpClient();
-	await client.execute();
-	return Promise.allSettled([client.loadLangs(), client.loadCommands()]);
+	await client.start();
 }
 export async function initBot() {
 	const client = new PotoClient();
-	await client.execute();
-	return Promise.allSettled([client.loadLangs(), client.loadCommands(), client.loadEvents()]);
+	await client.start();
 }

@@ -21,8 +21,7 @@ export const VOICE_STATE_UPDATE = (
 		? {
 			...toCamelCase(data),
 			member: new GuildMember(
-				self.rest,
-				self.cache,
+				self,
 				data.member,
 				data.member?.user,
 				data.guild_id!

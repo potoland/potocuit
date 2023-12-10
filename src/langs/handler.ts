@@ -10,7 +10,7 @@ export class PotoLangsHandler extends PotoHandler {
 	getKey(lang: string, message: string) {
 		let value: any = this.record[lang as LocaleString];
 
-		for (const i of message.split('_')) {
+		for (const i of message.split('.')) {
 			value = value[i];
 		}
 

@@ -14,14 +14,14 @@ export const THREAD_CREATE = (
 	self: BaseClient,
 	data: GatewayThreadCreateDispatchData
 ) => {
-	return new ThreadChannel(self.rest, self.cache, data);
+	return new ThreadChannel(self, data);
 };
 
 export const THREAD_DELETE = (
 	self: BaseClient,
 	data: GatewayThreadDeleteDispatchData
 ) => {
-	return new ThreadChannel(self.rest, self.cache, data);
+	return new ThreadChannel(self, data);
 };
 
 export const THREAD_LIST_SYNC = (
@@ -49,5 +49,5 @@ export const THREAD_UPDATE = (
 	self: BaseClient,
 	data: GatewayThreadUpdateDispatchData
 ) => {
-	return new ThreadChannel(self.rest, self.cache, data);
+	return new ThreadChannel(self, data);
 };

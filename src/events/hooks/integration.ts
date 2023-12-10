@@ -14,7 +14,7 @@ export const INTEGRATION_CREATE = (
 	return data.user
 		? {
 			...toCamelCase(data),
-			user: new User(self.rest, self.cache, data.user!),
+			user: new User(self, data.user!),
 		}
 		: toCamelCase(data);
 };
@@ -26,7 +26,7 @@ export const INTEGRATION_UPDATE = (
 	return data.user
 		? {
 			...toCamelCase(data),
-			user: new User(self.rest, self.cache, data.user!),
+			user: new User(self, data.user!),
 		}
 		: toCamelCase(data);
 };

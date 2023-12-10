@@ -18,7 +18,7 @@ export const MESSAGE_CREATE = (
 	self: BaseClient,
 	data: GatewayMessageCreateDispatchData
 ) => {
-	return new Message(self.rest, self.cache, data);
+	return new Message(self, data);
 };
 
 export const MESSAGE_DELETE = (
@@ -67,5 +67,5 @@ export const MESSAGE_UPDATE = (
 	self: BaseClient,
 	data: GatewayMessageUpdateDispatchData
 ): PartialClass<Message> => {
-	return new Message(self.rest, self.cache, data as unknown as APIMessage);
+	return new Message(self, data as unknown as APIMessage);
 };

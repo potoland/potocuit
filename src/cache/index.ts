@@ -107,23 +107,40 @@ export class Cache {
 	voiceStates?: VoiceStates;
 	stageInstances?: StageInstances;
 
-	constructor(public intents: number, rest: BiscuitREST, public adapter: Adapter, readonly disabledCache: (NonGuildBased | GuildBased | GuildRelated)[] = []) {
+	constructor(public intents: number, public adapter: Adapter, readonly disabledCache: (NonGuildBased | GuildBased | GuildRelated)[] = [], rest?: BiscuitREST) {
 		// non-guild based
-		if (!this.disabledCache.includes('users')) { this.users = new Users(rest, this); }
-		if (!this.disabledCache.includes('guilds')) { this.guilds = new Guilds(rest, this); }
+		if (!this.disabledCache.includes('users')) { this.users = new Users(this, rest); }
+		if (!this.disabledCache.includes('guilds')) { this.guilds = new Guilds(this, rest); }
 
 		// guild related
-		if (!this.disabledCache.includes('members')) { this.members = new Members(rest, this); }
+		if (!this.disabledCache.includes('members')) { this.members = new Members(this, rest); }
 
 		// guild based
-		if (!this.disabledCache.includes('roles')) { this.roles = new Roles(rest, this); }
-		if (!this.disabledCache.includes('channels')) { this.channels = new Channels(rest, this); }
-		if (!this.disabledCache.includes('emojis')) { this.emojis = new Emojis(rest, this); }
-		if (!this.disabledCache.includes('stickers')) { this.stickers = new Stickers(rest, this); }
-		if (!this.disabledCache.includes('presences')) { this.presences = new Presences(rest, this); }
-		if (!this.disabledCache.includes('voiceStates')) { this.voiceStates = new VoiceStates(rest, this); }
-		if (!this.disabledCache.includes('threads')) { this.threads = new Threads(rest, this); }
-		if (!this.disabledCache.includes('stageInstances')) { this.stageInstances = new StageInstances(rest, this); }
+		if (!this.disabledCache.includes('roles')) { this.roles = new Roles(this, rest); }
+		if (!this.disabledCache.includes('channels')) { this.channels = new Channels(this, rest); }
+		if (!this.disabledCache.includes('emojis')) { this.emojis = new Emojis(this, rest); }
+		if (!this.disabledCache.includes('stickers')) { this.stickers = new Stickers(this, rest); }
+		if (!this.disabledCache.includes('presences')) { this.presences = new Presences(this, rest); }
+		if (!this.disabledCache.includes('voiceStates')) { this.voiceStates = new VoiceStates(this, rest); }
+		if (!this.disabledCache.includes('threads')) { this.threads = new Threads(this, rest); }
+		if (!this.disabledCache.includes('stageInstances')) { this.stageInstances = new StageInstances(this, rest); }
+	}
+
+	/** @internal */
+	__setRest(rest: BiscuitREST) {
+		this.users?.__setRest(rest);
+		this.guilds?.__setRest(rest);
+
+		this.members?.__setRest(rest);
+
+		this.roles?.__setRest(rest);
+		this.channels?.__setRest(rest);
+		this.emojis?.__setRest(rest);
+		this.stickers?.__setRest(rest);
+		this.presences?.__setRest(rest);
+		this.voiceStates?.__setRest(rest);
+		this.threads?.__setRest(rest);
+		this.stageInstances?.__setRest(rest);
 	}
 
 	// internal use ./structures

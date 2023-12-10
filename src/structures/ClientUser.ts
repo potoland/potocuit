@@ -1,17 +1,16 @@
 import type { APIGuild, GatewayReadyDispatchData, RESTGetAPICurrentUserGuildsQuery, RESTPatchAPICurrentUserJSONBody } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
 import { User } from './User';
-import type { Cache } from '../cache';
 import { AnonymousGuild } from './AnonymousGuild';
 import { Guild } from './Guild';
 import { GuildMember } from './GuildMember';
 import type { MethodContext } from '../types';
+import type { BaseClient } from '../client/base';
 
 
 export class ClientUser extends User {
 	bot = true;
-	constructor(rest: BiscuitREST, cache: Cache, data: GatewayReadyDispatchData['user'], public application: GatewayReadyDispatchData['application']) {
-		super(rest, cache, data);
+	constructor(client: BaseClient, data: GatewayReadyDispatchData['user'], public application: GatewayReadyDispatchData['application']) {
+		super(client, data);
 	}
 
 	async fetch() {
@@ -32,19 +31,19 @@ export class ClientUser extends User {
 				return ctx.api.users('@me').guilds.get({ query })
 					.then(guilds =>
 						guilds
-							.map(guild => new AnonymousGuild(ctx.rest, ctx.cache, { ...guild, splash: null })));
+							.map(guild => new AnonymousGuild(ctx.client, { ...guild, splash: null })));
 			},
 			fetch: async (id: string) => {
-				const guild = await ctx.api.guilds(id).get().then(g => ctx.cache.guilds?.patch<APIGuild>(id, g) ?? g);
-				return new Guild(ctx.rest, ctx.cache, guild);
+				const guild = await ctx.api.guilds(id).get().then(g => ctx.client.cache.guilds?.patch<APIGuild>(id, g) ?? g);
+				return new Guild(ctx.client, guild);
 			},
 			fetchSelf: async (id: string) => {
 				const self = await ctx.api.users('@me').guilds(id).member.get();
-				await ctx.cache.members?.patch(ctx.id, id, self);
-				return new GuildMember(ctx.rest, ctx.cache, self, self.user!, id);
+				await ctx.client.cache.members?.patch(ctx.id, id, self);
+				return new GuildMember(ctx.client, self, self.user!, id);
 			},
 			leave: async (id: string) => {
-				return ctx.api.users('@me').guilds(id).delete().then(() => ctx.cache.guilds?.removeIfNI('Guilds', id));
+				return ctx.api.users('@me').guilds(id).delete().then(() => ctx.client.cache.guilds?.removeIfNI('Guilds', id));
 			}
 		};
 	}

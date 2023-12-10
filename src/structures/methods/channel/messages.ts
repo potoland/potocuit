@@ -7,7 +7,7 @@ import type { MethodContext } from '../../..';
 import type { EmojiResolvable } from '../../../types/resolvables';
 import { DiscordBase } from '../../extra/DiscordBase';
 import type { BaseChannel } from './base';
-import type { MessageCreateBodyRequest } from '../../../types/write';
+import type { MessageCreateBodyRequest, MessageUpdateBodyRequest } from '../../../types/write';
 
 export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> { }
 export class MessagesMethods extends DiscordBase {
@@ -24,7 +24,7 @@ export class MessagesMethods extends DiscordBase {
 	static reactions(ctx: MethodContext) {
 		return {
 			add: async (messageId: string, emoji: EmojiResolvable) => {
-				const rawEmoji = await resolveEmoji(emoji, ctx.cache);
+				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
 
 				// en una de esas creamos una clase de error
 				if (!rawEmoji) {
@@ -42,7 +42,7 @@ export class MessagesMethods extends DiscordBase {
 				emoji: EmojiResolvable,
 				userId = '@me',
 			) => {
-				const rawEmoji = await resolveEmoji(emoji, ctx.cache);
+				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
 
 				// en una de esas creamos una clase de error
 				if (!rawEmoji) {
@@ -60,7 +60,7 @@ export class MessagesMethods extends DiscordBase {
 				emoji: EmojiResolvable,
 				query?: RESTGetAPIChannelMessageReactionUsersQuery,
 			) => {
-				const rawEmoji = await resolveEmoji(emoji, ctx.cache);
+				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
 
 				// en una de esas creamos una clase de error
 				if (!rawEmoji) {
@@ -73,7 +73,7 @@ export class MessagesMethods extends DiscordBase {
 					.messages(messageId)
 					.reactions(encodeEmoji(rawEmoji))
 					.get({ query })
-					.then(u => u.map(user => new User(ctx.rest, ctx.cache, user)));
+					.then(u => u.map(user => new User(ctx.client, user)));
 			},
 			purge: async (messageId: string, emoji?: string | Partial<APIPartialEmoji>) => {
 				if (!emoji) {
@@ -83,7 +83,7 @@ export class MessagesMethods extends DiscordBase {
 						.reactions.delete();
 				}
 
-				const rawEmoji = await resolveEmoji(emoji, ctx.cache);
+				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
 				// en una de esas creamos una clase de error
 				if (!rawEmoji) {
 					throw new Error('Emoji no resolvable');
@@ -101,44 +101,48 @@ export class MessagesMethods extends DiscordBase {
 	static pins(ctx: MethodContext) {
 		return {
 			fetch: () => ctx.api.channels(ctx.id).pins.get().then(messages =>
-				messages.map(message => new Message(ctx.rest, ctx.cache, message)),
+				messages.map(message => new Message(ctx.client, message)),
 			),
 			set: (messageId: string, reason?: string) => ctx.api.channels(ctx.id).pins(messageId).put({ reason }),
 			delete: (messageId: string, reason?: string) => ctx.api.channels(ctx.id).pins(messageId).delete({ reason }),
 		};
 	}
 
-	static transformMessageBody(body: MessageCreateBodyRequest): RESTPostAPIChannelMessageJSONBody {
+	static transformMessageBody<T>(body: MessageCreateBodyRequest | MessageUpdateBodyRequest) {
 		return {
 			...body,
 			components: body.components ? body.components.map(x => x.toJSON()) : []
-		};
+		} as T;
 	}
 
 	static messages(ctx: MethodContext) {
 		return {
 			write: (body: MessageCreateBodyRequest, files?: RawFile[]) => {
-				const transformedBody = MessagesMethods.transformMessageBody(body);
+				const transformedBody = MessagesMethods.transformMessageBody<RESTPostAPIChannelMessageJSONBody>(body);
 				return ctx.api
 					.channels(ctx.id)
-					.messages.post({
+					.messages
+					.post({
 						body: transformedBody,
 						files,
 					})
-					.then(message => new Message(ctx.rest, ctx.cache, message));
+					.then(message => {
+						ctx;
+						return new Message(ctx.client, message);
+					});
 			},
-			edit: (messageId: string, body: RESTPatchAPIChannelMessageJSONBody, files?: RawFile[]) => {
-				return ctx.api.channels(ctx.id).messages(messageId).patch({ body, files }).then(m => new Message(ctx.rest, ctx.cache, m));
+			edit: (messageId: string, body: MessageUpdateBodyRequest, files?: RawFile[]) => {
+				return ctx.api.channels(ctx.id).messages(messageId).patch({ body: MessagesMethods.transformMessageBody<RESTPatchAPIChannelMessageJSONBody>(body), files }).then(m => new Message(ctx.client, m));
 			},
 			crosspost: (messageId: string, reason?: string) => {
-				return ctx.api.channels(ctx.id).messages(messageId).crosspost.post({ reason }).then(m => new Message(ctx.rest, ctx.cache, m));
+				return ctx.api.channels(ctx.id).messages(messageId).crosspost.post({ reason }).then(m => new Message(ctx.client, m));
 			},
 			delete: (messageId: string, reason?: string) => {
 				return ctx.api.channels(ctx.id).messages(messageId).delete({ reason });
 			},
 			fetch: async (messageId: string) => {
 				return ctx.api.channels(ctx.id).messages(messageId).get()
-					.then(x => new Message(ctx.rest, ctx.cache, x));
+					.then(x => new Message(ctx.client, x));
 			},
 			purge: (
 				body: RESTPostAPIChannelMessagesBulkDeleteJSONBody,

@@ -56,8 +56,8 @@ export class PotoHttpClient extends BaseClient {
 		});
 	}
 
-	async execute(options?: { publicKey?: string; port?: number }) {
-		super.execute();
+	protected async execute(options?: { publicKey?: string; port?: number }) {
+		await super.execute();
 		const { publicKey: publicKeyRC, port: portRC, applicationId: applicationIdRC } = await this.getRC();
 
 		const publicKey = options?.publicKey ?? publicKeyRC;
@@ -79,9 +79,9 @@ export class PotoHttpClient extends BaseClient {
 		});
 	}
 
-	async start(options: Omit<DeepPartial<StartOptions>, 'connection'> = {}) {
+	async start(options: DeepPartial<Omit<StartOptions, 'connection'>> = {}) {
 		await super.start(options);
-		this.execute(options.httpConnection);
+		return this.execute(options.httpConnection);
 	}
 
 	// https://discord.com/developers/docs/interactions/receiving-and-responding#security-and-authorization
@@ -113,7 +113,7 @@ export class PotoHttpClient extends BaseClient {
 						.end(JSON.stringify({ type: InteractionResponseType.Pong }));
 					break;
 				default:
-					await onInteraction(rawBody, this, ({ body, files }) => {
+					await onInteraction(rawBody, this, async ({ body, files }) => {
 						let response, headers: { ['Content-Type']?: string } = {};
 
 						if (files?.length) {

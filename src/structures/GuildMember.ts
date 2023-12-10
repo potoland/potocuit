@@ -15,15 +15,14 @@ import {
 	type RESTPatchAPIGuildMemberJSONBody,
 	type RESTPutAPIGuildBanJSONBody
 } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
 import { DiscordBase } from './extra/DiscordBase';
 
 export type GuildMemberData = APIGuildMember | GatewayGuildMemberUpdateDispatchData | GatewayGuildMemberAddDispatchData | APIInteractionDataResolvedGuildMember;
 
 import { User } from './User';
-import type { Cache } from '../cache';
 import type { ImageOptions, MethodContext } from '../types/options';
 import type { GuildMemberResolvable } from '../types/resolvables';
+import type { BaseClient } from '../client/base';
 
 export interface GuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user'> { }
 /**
@@ -37,17 +36,16 @@ export class GuildMember extends DiscordBase {
 	private readonly __methods__!: ReturnType<typeof GuildMember.methods>;
 
 	constructor(
-		rest: BiscuitREST,
-		cache: Cache,
+		client: BaseClient,
 		data: GuildMemberData,
 		user: APIUser | User,
 		/** the choosen guild id */
 		readonly guildId: string
 	) {
-		super(rest, cache, { ...data, id: user.id });
-		this.user = user instanceof User ? user : new User(rest, cache, user);
+		super(client, { ...data, id: user.id });
+		this.user = user instanceof User ? user : new User(client, user);
 		Object.assign(this, {
-			__methods__: GuildMember.methods({ id: this.guildId, rest: this.rest, api: this.api, cache: this.cache }),
+			__methods__: GuildMember.methods({ id: this.guildId, client, api: this.api }),
 		});
 		this.patch(data);
 	}
@@ -134,24 +132,24 @@ export class GuildMember extends DiscordBase {
 				const members = await ctx.api.guilds(ctx.id).members.search.get({
 					query
 				});
-				await ctx.cache.members?.set(members.map(x => [x.user!.id, x]), ctx.id);
-				return members.map(m => new GuildMember(ctx.rest, ctx.cache, m, m.user!, ctx.id));
+				await ctx.client.cache.members?.set(members.map(x => [x.user!.id, x]), ctx.id);
+				return members.map(m => new GuildMember(ctx.client, m, m.user!, ctx.id));
 			},
 			unban: async (id: string, body?: RESTPutAPIGuildBanJSONBody, reason?: string) => {
 				await ctx.api.guilds(ctx.id).bans(id).delete({ reason, body });
 			},
 			ban: async (id: string, body?: RESTPutAPIGuildBanJSONBody, reason?: string) => {
 				await ctx.api.guilds(ctx.id).bans(id).put({ reason, body });
-				await ctx.cache.members?.removeIfNI('GuildBans', id, ctx.id);
+				await ctx.client.cache.members?.removeIfNI('GuildBans', id, ctx.id);
 			},
 			kick: async (id: string, reason?: string) => {
 				await ctx.api.guilds(ctx.id).members(id).delete({ reason });
-				await ctx.cache.members?.removeIfNI('GuildMembers', id, ctx.id);
+				await ctx.client.cache.members?.removeIfNI('GuildMembers', id, ctx.id);
 			},
 			edit: async (id: string, body: RESTPatchAPIGuildMemberJSONBody, reason?: string) => {
 				const member = await ctx.api.guilds(ctx.id).members(id).patch({ body, reason });
-				await ctx.cache.members?.setIfNI('GuildMembers', id, ctx.id, member);
-				return new GuildMember(ctx.rest, ctx.cache, member, member.user!, ctx.id);
+				await ctx.client.cache.members?.setIfNI('GuildMembers', id, ctx.id, member);
+				return new GuildMember(ctx.client, member, member.user!, ctx.id);
 			},
 			add: async (id: string, body: RESTPutAPIGuildMemberJSONBody) => {
 				const member = await ctx.api.guilds(ctx.id).members(id).put({
@@ -161,33 +159,33 @@ export class GuildMember extends DiscordBase {
 				// Thanks dapi-types, fixed
 				if (!member) { return; }
 
-				await ctx.cache.members?.setIfNI('GuildMembers', member.user!.id, ctx.id, member);
+				await ctx.client.cache.members?.setIfNI('GuildMembers', member.user!.id, ctx.id, member);
 
-				return new GuildMember(ctx.rest, ctx.cache, member, member.user!, ctx.id);
+				return new GuildMember(ctx.client, member, member.user!, ctx.id);
 			},
 			fetch: async (id: string, force = false) => {
 				let member: APIGuildMember;
 				if (!force) {
-					member = await ctx.cache.members?.get(ctx.id, id);
-					if (member) { return new GuildMember(ctx.rest, ctx.cache, member, member.user!, ctx.id); }
+					member = await ctx.client.cache.members?.get(ctx.id, id);
+					if (member) { return new GuildMember(ctx.client, member, member.user!, ctx.id); }
 				}
 
 				member = await ctx.api.guilds(ctx.id).members(id).get();
-				await ctx.cache.members?.set(member.user!.id, ctx.id, member);
-				return new GuildMember(ctx.rest, ctx.cache, member, member.user!, ctx.id);
+				await ctx.client.cache.members?.set(member.user!.id, ctx.id, member);
+				return new GuildMember(ctx.client, member, member.user!, ctx.id);
 			},
 
 			list: async (query?: RESTGetAPIGuildMembersQuery, force = false) => {
 				let members: RESTGetAPIGuildMembersResult;
 				if (!force) {
-					members = await ctx.cache.members?.values(ctx.id) ?? [];
-					if (members.length) { return members.map(m => new GuildMember(ctx.rest, ctx.cache, m, m.user!, ctx.id)); }
+					members = await ctx.client.cache.members?.values(ctx.id) ?? [];
+					if (members.length) { return members.map(m => new GuildMember(ctx.client, m, m.user!, ctx.id)); }
 				}
 				members = await ctx.api.guilds(ctx.id).members.get({
 					query
 				});
-				await ctx.cache.members?.set(members.map(x => [x.user!.id, x]), ctx.id);
-				return members.map(m => new GuildMember(ctx.rest, ctx.cache, m, m.user!, ctx.id));
+				await ctx.client.cache.members?.set(members.map(x => [x.user!.id, x]), ctx.id);
+				return members.map(m => new GuildMember(ctx.client, m, m.user!, ctx.id));
 			},
 		};
 	}
@@ -202,13 +200,12 @@ export class InteractionGuildMember extends GuildMember {
 	declare mute: never;
 	declare deaf: never;
 	constructor(
-		rest: BiscuitREST,
-		cache: Cache,
+		client: BaseClient,
 		data: APIInteractionDataResolvedGuildMember,
 		user: APIUser | User,
 		/** the choosen guild id */
 		guildId: string
 	) {
-		super(rest, cache, data, user, guildId);
+		super(client, data, user, guildId);
 	}
 }

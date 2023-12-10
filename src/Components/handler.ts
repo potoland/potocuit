@@ -1,10 +1,9 @@
 import type { BaseClient } from '../client/base';
-import type { APIActionRowComponent, APIMessageActionRowComponent, APIModalInteractionResponseCallbackData } from '@biscuitland/common';
-import { InteractionResponseType, type RESTPostAPIChannelMessageResult } from '@biscuitland/common';
-import type { ModalSubmitCallback } from './builders';
-import { type ActionRow, type ComponentCallback, type PotoComponents } from './builders';
+import type { APIActionRowComponent, APIMessage, APIMessageActionRowComponent, APIModalInteractionResponseCallbackData } from '@biscuitland/common';
+import { InteractionResponseType } from '@biscuitland/common';
+import type { ModalSubmitCallback, ActionRow, ComponentCallback, PotoComponents } from './builders';
 import type { ComponentInteraction, ModalSubmitInteraction, ReplyInteractionBody } from '../structures';
-import type { MessageCreateBodyRequest, ModalCreateBodyRequest } from '../types/write';
+import type { InteractionMessageUpdateBodyRequest, MessageCreateBodyRequest, MessageUpdateBodyRequest, ModalCreateBodyRequest } from '../types/write';
 
 export class ComponentHandler {
 	readonly components = new Map<string, Partial<Record<string, ComponentCallback>>>;
@@ -61,8 +60,22 @@ export class ComponentHandler {
 		}
 	}
 
-	onRequestMessage(body: MessageCreateBodyRequest, message: RESTPostAPIChannelMessageResult) {
+	onRequestInteractionUpdate(body: InteractionMessageUpdateBodyRequest, message: APIMessage) {
 		if (!body.components?.length) { return; }
+		if (message.interaction?.id) {
+			this.components.delete(message.interaction.id);
+		}
+		this.__setComponents(message.id, body.components);
+	}
+
+	onRequestMessage(body: MessageCreateBodyRequest, message: APIMessage) {
+		if (!body.components?.length) { return; }
+		this.__setComponents(message.id, body.components);
+	}
+
+	onRequestUpdateMessage(body: MessageUpdateBodyRequest, message: APIMessage) {
+		if (!body.components?.length) { return; }
+		this.components.delete(message.id);
 		this.__setComponents(message.id, body.components);
 	}
 }

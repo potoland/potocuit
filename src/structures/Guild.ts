@@ -1,6 +1,4 @@
 import type { APIGuild, APIPartialGuild, ObjectToLower } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
-import type { Cache } from '../cache';
 import { BaseGuild } from './extra/BaseGuild';
 import type { DiscordBase } from './extra/DiscordBase';
 import { GuildMember } from './GuildMember';
@@ -10,13 +8,14 @@ import { GuildRole } from './GuildRole';
 import { AutoModerationRule } from './AutoModerationRule';
 import { BaseChannel } from './methods/channel/base';
 import type { ToClass } from '../types/util';
+import type { BaseClient } from '../client/base';
 
 export interface Guild extends Omit<ObjectToLower<APIGuild>, 'stickers' | 'emojis' | 'roles'>, DiscordBase {
 }
 
 export class Guild extends (BaseGuild as unknown as ToClass<Omit<BaseGuild, keyof ObjectToLower<APIPartialGuild>>, Guild>) {
-	constructor(rest: BiscuitREST, cache: Cache, data: APIGuild) {
-		super(rest, cache, data);
+	constructor(client: BaseClient, data: APIGuild) {
+		super(client, data);
 	}
 
 	get maxStickers(): MaxStickers {

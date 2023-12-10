@@ -1,3 +1,5 @@
+import { GatewayIntentBits, Options } from '@biscuitland/common';
+import { DefaultVars, type Variables } from './client/base';
 import type { MiddlewareContext, __PotoCommandOption } from './commands';
 import type { PotoNameEvents, EventContext } from './events';
 
@@ -30,4 +32,14 @@ export function createEvent<E extends PotoNameEvents>(data: {
 	run: (...args: EventContext<{ data: { name: E } }>) => any;
 }) {
 	return data;
+}
+
+export function env(data: Omit<Variables, 'intents'> & { intents: (keyof typeof GatewayIntentBits)[] }): Required<Variables> {
+	return Options(
+		DefaultVars,
+		{
+			...data,
+			intents: data.intents.reduce((pr, acc) => pr | GatewayIntentBits[acc], 0),
+		}
+	);
 }

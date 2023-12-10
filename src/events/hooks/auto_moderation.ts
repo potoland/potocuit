@@ -19,19 +19,19 @@ export const AUTO_MODERATION_RULE_CREATE = (
 	self: BaseClient,
 	data: GatewayAutoModerationRuleCreateDispatchData
 ) => {
-	return new AutoModerationRule(self.rest, self.cache, data);
+	return new AutoModerationRule(self, data);
 };
 
 export const AUTO_MODERATION_RULE_DELETE = (
 	self: BaseClient,
 	data: GatewayAutoModerationRuleDeleteDispatchData
 ) => {
-	return new AutoModerationRule(self.rest, self.cache, data);
+	return new AutoModerationRule(self, data);
 };
 
 export const AUTO_MODERATION_RULE_UPDATE = (
 	self: BaseClient,
 	data: GatewayAutoModerationRuleUpdateDispatchData
 ) => {
-	return new AutoModerationRule(self.rest, self.cache, data);
+	return new AutoModerationRule(self, data);
 };

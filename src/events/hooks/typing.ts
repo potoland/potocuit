@@ -12,8 +12,7 @@ export const TYPING_START = (
 		? {
 			...toCamelCase(data),
 			member: new GuildMember(
-				self.rest,
-				self.cache,
+				self,
 				data.member,
 				data.member.user!,
 				data.guild_id!

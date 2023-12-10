@@ -1,12 +1,11 @@
 import type { APIEmoji, ObjectToLower } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
 import { DiscordBase } from './extra/DiscordBase';
-import type { Cache } from '../cache';
+import type { BaseClient } from '../client/base';
 
 export interface GuildEmoji extends DiscordBase, ObjectToLower<Omit<APIEmoji, 'id'>> { }
 
 export class GuildEmoji extends DiscordBase {
-	constructor(rest: BiscuitREST, cache: Cache, data: APIEmoji, readonly guildId: string) {
-		super(rest, cache, { ...data, id: data.id! });
+	constructor(client: BaseClient, data: APIEmoji, readonly guildId: string) {
+		super(client, { ...data, id: data.id! });
 	}
 }

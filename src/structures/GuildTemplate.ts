@@ -1,20 +1,19 @@
-import type { BiscuitREST } from '@biscuitland/rest';
 import type { MethodContext } from '../types';
 import { Base } from './extra/Base';
 import type { APITemplate, ObjectToLower, RESTPatchAPIGuildTemplateJSONBody, RESTPostAPIGuildTemplatesJSONBody } from '@biscuitland/common';
-import type { Cache } from '../cache';
 import { hasProp } from './extra/functions';
+import type { BaseClient } from '../client/base';
 
 export interface GuildTemplate extends Base, ObjectToLower<APITemplate> { }
 
 export class GuildTemplate extends Base {
 	private readonly __methods__!: ReturnType<typeof GuildTemplate.methods>;
 
-	constructor(rest: BiscuitREST, cache: Cache, data: APITemplate) {
-		super(rest, cache);
+	constructor(client: BaseClient, data: APITemplate) {
+		super(client);
 		this._patchThis(data);
 		Object.assign(this, {
-			__methods__: GuildTemplate.methods({ rest: this.rest, cache: this.cache, id: this.sourceGuildId, api: this.api, code: this.code }),
+			__methods__: GuildTemplate.methods({ client, id: this.sourceGuildId, api: this.api, code: this.code }),
 		});
 	}
 

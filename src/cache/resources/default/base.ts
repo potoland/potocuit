@@ -5,7 +5,12 @@ import type { GatewayIntentBits } from '@biscuitland/common';
 export class BaseResource<T = any> {
 	namespace = 'base';
 
-	constructor(protected rest: BiscuitREST, protected cache: Cache) {
+	constructor(protected cache: Cache, protected rest?: BiscuitREST) {
+	}
+
+	/** @ioternal */
+	__setRest(rest: BiscuitREST) {
+		this.rest = rest;
 	}
 
 	get adapter() {

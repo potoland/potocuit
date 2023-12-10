@@ -9,7 +9,7 @@ export const READY = (
 	self: BaseClient,
 	data: GatewayReadyDispatchData
 ) => {
-	return new ClientUser(self.rest, self.cache, data.user, data.application);
+	return new ClientUser(self, data.user, data.application);
 };
 
 export const RESUMED = (

@@ -1,8 +1,7 @@
-import type { CamelCase, GatewayDispatchEvents } from '@biscuitland/common';
-import { type GatewayDispatchPayload, ReplaceRegex } from '@biscuitland/common';
-import { BiscuitREST } from '@biscuitland/rest';
+import { type GatewayDispatchPayload } from '@biscuitland/common';
+import type { BiscuitREST } from '@biscuitland/rest';
 import { GatewayManager } from '@biscuitland/ws';
-import { Cache, DefaultMemoryAdapter } from '../cache';
+import type { Adapter } from '../cache';
 import { PotoEventHandler } from '../events/handler';
 import type { StartOptions } from './base';
 import { BaseClient } from './base';
@@ -13,7 +12,7 @@ export class PotoClient extends BaseClient {
 	gateway!: GatewayManager;
 	events = new PotoEventHandler(this.logger);
 
-	setServices({ gateway, rest, cache }: { rest?: BiscuitREST; gateway?: GatewayManager; cache?: Cache }) {
+	setServices({ gateway, rest, cache }: { rest?: BiscuitREST; gateway?: GatewayManager; cache?: Adapter }) {
 		super.setServices({ rest, cache });
 		if (gateway) {
 			const onPacket = this.onPacket.bind(this);
@@ -26,10 +25,6 @@ export class PotoClient extends BaseClient {
 		}
 	}
 
-	async execute() {
-		super.execute();
-		await this.gateway.spawnShards();
-	}
 
 	async loadEvents(dir?: string) {
 		dir ??= await this.getRC().then(x => x.events);
@@ -38,23 +33,21 @@ export class PotoClient extends BaseClient {
 		this.logger.info('PotoEventHandler loaded');
 	}
 
-	async start(options: Omit<DeepPartial<StartOptions>, 'httpConnection'> = {}, execute = false) {
+	protected async execute(options: { token?: string; intents?: number } = {}) {
+		await super.execute(options);
+		await this.gateway.spawnShards();
+	}
+
+	async start(options: Omit<DeepPartial<StartOptions>, 'httpConnection'> = {}) {
 		await super.start(options);
 		await this.loadEvents(options.eventsDir);
-		const { token: tokenRC, intents: intentsRC } = await this.getRC();
 
-		const token = options?.connection?.token ?? tokenRC;
+		const { token: tokenRC, intents: intentsRC } = await this.getRC();
+		const token = options?.token ?? tokenRC;
 		const intents = options?.connection?.intents ?? intentsRC;
 
-		if (!this.rest) {
-			BaseClient.assertString(token);
-			this.rest = new BiscuitREST({
-				token
-			});
-		}
-
 		if (!this.gateway) {
-			BaseClient.assertString(token);
+			BaseClient.assertString(token, 'token is not a string');
 			this.gateway = new GatewayManager({
 				token,
 				info: await this.proxy.gateway.bot.get(),
@@ -65,16 +58,14 @@ export class PotoClient extends BaseClient {
 			});
 		}
 
-		this.cache ??= new Cache(this.gateway.options.intents, this.rest, new DefaultMemoryAdapter());
-		if (execute) {
-			await this.execute();
-		}
+		this.cache.intents = this.gateway.options.intents;
+
+		await this.execute(options.connection);
 	}
 
 	protected async onPacket(shardId: number, packet: GatewayDispatchPayload) {
 		await this.cache.onPacket(packet);
-		const eventName = ReplaceRegex.camel(packet.t?.toLowerCase() ?? '') as CamelCase<typeof GatewayDispatchEvents[keyof typeof GatewayDispatchEvents]>;
-		await this.events.execute(eventName, packet, this, shardId);
+		await this.events.execute(packet.t, packet, this, shardId);
 		switch (packet.t) {
 			case 'READY':
 				this.botId = packet.d.user.id;

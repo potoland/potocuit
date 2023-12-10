@@ -32,7 +32,7 @@ export class User extends DiscordBase<APIUser> {
 			body: { recipient_id: this.id },
 		});
 		await this.cache.channels?.set(data.id, '@me', data);
-		return new DMChannel(this.rest, this.cache, data);
+		return new DMChannel(this.client, data);
 	}
 
 	avatarURL(options?: ImageOptions): string {

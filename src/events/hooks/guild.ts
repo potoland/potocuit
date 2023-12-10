@@ -35,28 +35,28 @@ export const GUILD_BAN_ADD = (
 	self: BaseClient,
 	data: GatewayGuildBanAddDispatchData
 ) => {
-	return { ...toCamelCase(data), user: new User(self.rest, self.cache, data.user) };
+	return { ...toCamelCase(data), user: new User(self, data.user) };
 };
 
 export const GUILD_BAN_REMOVE = (
 	self: BaseClient,
 	data: GatewayGuildBanRemoveDispatchData
 ) => {
-	return { ...toCamelCase(data), user: new User(self.rest, self.cache, data.user) };
+	return { ...toCamelCase(data), user: new User(self, data.user) };
 };
 
 export const GUILD_CREATE = (
 	self: BaseClient,
 	data: GatewayGuildCreateDispatchData
 ) => {
-	return new Guild(self.rest, self.cache, data);
+	return new Guild(self, data);
 };
 
 export const GUILD_DELETE = (
 	self: BaseClient,
 	data: GatewayGuildCreateDispatchData
 ): AnonymousGuild => {
-	return new AnonymousGuild(self.rest, self.cache, data);
+	return new AnonymousGuild(self, data);
 };
 
 export const GUILD_EMOJIS_UPDATE = (
@@ -66,7 +66,7 @@ export const GUILD_EMOJIS_UPDATE = (
 	return {
 		...toCamelCase(data),
 		emojis: data.emojis.map(
-			x => new GuildEmoji(self.rest, self.cache, x as any, data.guild_id)
+			x => new GuildEmoji(self, x as any, data.guild_id)
 		),
 	};
 };
@@ -82,14 +82,14 @@ export const GUILD_MEMBER_ADD = (
 	self: BaseClient,
 	data: GatewayGuildMemberAddDispatchData
 ) => {
-	return new GuildMember(self.rest, self.cache, data, data.user!, data.guild_id);
+	return new GuildMember(self, data, data.user!, data.guild_id);
 };
 
 export const GUILD_MEMBER_REMOVE = (
 	self: BaseClient,
 	data: GatewayGuildMemberRemoveDispatchData
 ) => {
-	return { ...toCamelCase(data), user: new User(self.rest, self.cache, data.user) };
+	return { ...toCamelCase(data), user: new User(self, data.user) };
 };
 
 export const GUILD_MEMBERS_CHUNK = (
@@ -99,7 +99,7 @@ export const GUILD_MEMBERS_CHUNK = (
 	return {
 		...toCamelCase(data),
 		members: data.members.map(
-			x => new GuildMember(self.rest, self.cache, x, x.user!, data.guild_id)
+			x => new GuildMember(self, x, x.user!, data.guild_id)
 		),
 	};
 };
@@ -109,7 +109,7 @@ export const GUILD_MEMBER_UPDATE = (
 	data: GatewayGuildMemberUpdateDispatchData
 ) => {
 	if (!data.user) { return console.log(data); }
-	return new GuildMember(self.rest, self.cache, data, data.user, data.guild_id);
+	return new GuildMember(self, data, data.user, data.guild_id);
 };
 
 export const GUILD_SCHEDULED_EVENT_CREATE = (
@@ -151,7 +151,7 @@ export const GUILD_ROLE_CREATE = (
 	self: BaseClient,
 	data: GatewayGuildRoleCreateDispatchData
 ) => {
-	return new GuildRole(self.rest, self.cache, data.role, data.guild_id);
+	return new GuildRole(self, data.role, data.guild_id);
 };
 
 export const GUILD_ROLE_DELETE = (
@@ -165,7 +165,7 @@ export const GUILD_ROLE_UPDATE = (
 	self: BaseClient,
 	data: GatewayGuildRoleUpdateDispatchData
 ) => {
-	return new GuildRole(self.rest, self.cache, data.role, data.guild_id);
+	return new GuildRole(self, data.role, data.guild_id);
 };
 
 export const GUILD_STICKERS_UPDATE = (
@@ -174,7 +174,7 @@ export const GUILD_STICKERS_UPDATE = (
 ) => {
 	return {
 		...toCamelCase(data),
-		stickers: data.stickers.map(x => new Sticker(self.rest, self.cache, x)),
+		stickers: data.stickers.map(x => new Sticker(self, x)),
 	};
 };
 
@@ -182,5 +182,5 @@ export const GUILD_UPDATE = (
 	self: BaseClient,
 	data: GatewayGuildUpdateDispatchData
 ) => {
-	return new Guild(self.rest, self.cache, data);
+	return new Guild(self, data);
 };

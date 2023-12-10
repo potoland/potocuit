@@ -1,8 +1,7 @@
 import type { APIAutoModerationRule, ObjectToLower, RESTPatchAPIAutoModerationRuleJSONBody, RESTPostAPIAutoModerationRuleJSONBody } from '@biscuitland/common';
 import { DiscordBase } from './extra/DiscordBase';
 import type { MethodContext } from '../types';
-import type { BiscuitREST } from '@biscuitland/rest';
-import type { Cache } from '../cache';
+import type { BaseClient } from '../client/base';
 
 export interface AutoModerationRule extends ObjectToLower<APIAutoModerationRule> { }
 
@@ -10,14 +9,13 @@ export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 	private readonly __methods__!: ReturnType<typeof AutoModerationRule.methods>;
 
 	constructor(
-		rest: BiscuitREST,
-		cache: Cache,
+		client: BaseClient,
 		data: APIAutoModerationRule,
 	) {
-		super(rest, cache, data);
+		super(client, data);
 		Object.assign(this, {
 			__methods__:
-				AutoModerationRule.methods({ id: this.guildId, rest: this.rest, api: this.api, cache: this.cache, ruleId: this.id }),
+				AutoModerationRule.methods({ client, id: this.guildId, api: this.api, ruleId: this.id }),
 		});
 	}
 

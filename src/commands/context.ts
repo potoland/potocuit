@@ -1,4 +1,3 @@
-import type { RESTPatchAPIWebhookWithTokenMessageJSONBody } from '@biscuitland/common';
 import { InteractionResponseType } from '@biscuitland/common';
 import type { RawFile } from '@biscuitland/rest';
 import type { __LangType } from '../__generated';
@@ -6,7 +5,7 @@ import type { BaseClient } from '../client/base';
 import { type ChatInputCommandInteraction } from '../structures';
 import type { MiddlewareContext, ContextOptions, CommandMetadata, OptionsRecord } from './commands';
 import type { OptionResolver } from './optionresolver';
-import type { InteractionCreateBodyRequest } from '../types/write';
+import type { InteractionCreateBodyRequest, InteractionMessageUpdateBodyRequest } from '../types/write';
 
 export class CommandContext<T extends OptionsRecord, M extends Readonly<MiddlewareContext[]>> {
 	constructor(private client: BaseClient, readonly interaction: ChatInputCommandInteraction, public options: ContextOptions<T>, public metadata: CommandMetadata<M>, public resolver: OptionResolver) { }
@@ -29,12 +28,16 @@ export class CommandContext<T extends OptionsRecord, M extends Readonly<Middlewa
 		);
 	}
 
+	editResponse(body: InteractionMessageUpdateBodyRequest, files?: RawFile[]) {
+		return this.interaction.editResponse(body, files);
+	}
+
 	deleteResponse() {
 		return this.interaction.deleteResponse();
 	}
 
-	editResponse(body: RESTPatchAPIWebhookWithTokenMessageJSONBody, files?: RawFile[]) {
-		return this.interaction.editResponse(body, files);
+	editOrReply(body: InteractionMessageUpdateBodyRequest, files?: RawFile[]) {
+		return this.interaction.editOrReply(body, files);
 	}
 
 	fetchResponse() {

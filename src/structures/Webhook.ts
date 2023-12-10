@@ -1,12 +1,11 @@
 import type { APIWebhook, ObjectToLower, RESTGetAPIWebhookWithTokenMessageQuery, RESTPatchAPIWebhookJSONBody, RESTPatchAPIWebhookWithTokenJSONBody, RESTPatchAPIWebhookWithTokenMessageJSONBody, RESTPostAPIWebhookWithTokenJSONBody, RESTPostAPIWebhookWithTokenQuery } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
 import { AnonymousGuild } from './AnonymousGuild';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
-import type { Cache } from '../cache';
 import type { ImageOptions, MessagePayload, MethodContext } from '..';
 import { hasProp } from '..';
 import { Message } from './Message';
+import type { BaseClient } from '../client/base';
 
 export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> { }
 
@@ -15,22 +14,22 @@ export class Webhook extends DiscordBase {
 	user?: User;
 	sourceGuild?: Partial<AnonymousGuild>;
 	messages!: ReturnType<typeof Webhook.messages>;
-	constructor(rest: BiscuitREST, cache: Cache, data: APIWebhook) {
-		super(rest, cache, data);
+	constructor(client: BaseClient, data: APIWebhook) {
+		super(client, data);
 
 		if (data.user) {
-			this.user = new User(this.rest, this.cache, data.user);
+			this.user = new User(this.client, data.user);
 		}
 
 		if (data.source_guild) {
-			this.sourceGuild = new AnonymousGuild(this.rest, this.cache, data.source_guild);
+			this.sourceGuild = new AnonymousGuild(this.client, data.source_guild);
 		}
 
 		Object.assign(this, {
-			__methods__: Webhook.methods({ rest: this.rest, cache: this.cache, id: this.id, api: this.api, token: this.token }),
+			__methods__: Webhook.methods({ client, id: this.id, api: this.api, token: this.token }),
 		});
 		Object.assign(this, {
-			messages: Webhook.messages({ rest: this.rest, cache: this.cache, id: this.id, api: this.api, token: this.token! }),
+			messages: Webhook.messages({ client, id: this.id, api: this.api, token: this.token! }),
 		});
 	}
 
@@ -64,11 +63,11 @@ export class Webhook extends DiscordBase {
 		return {
 			write: async (payload: MessagePayload<RESTPostAPIWebhookWithTokenJSONBody, { query?: RESTPostAPIWebhookWithTokenQuery }>,) => {
 				Webhook._hasToken(ctx);
-				return ctx.api.webhooks(ctx.id)(ctx.token).post(payload).then(m => m ? new Message(ctx.rest, ctx.cache, m) : null);
+				return ctx.api.webhooks(ctx.id)(ctx.token).post(payload).then(m => m ? new Message(ctx.client, m) : null);
 			},
 			edit: async ({ messageId, ...json }: MessagePayload<RESTPatchAPIWebhookWithTokenMessageJSONBody, { messageId: string; query?: RESTGetAPIWebhookWithTokenMessageQuery }>) => {
 				Webhook._hasToken(ctx);
-				return ctx.api.webhooks(ctx.id)(ctx.token).messages(messageId).patch(json).then(m => new Message(ctx.rest, ctx.cache, m));
+				return ctx.api.webhooks(ctx.id)(ctx.token).messages(messageId).patch(json).then(m => new Message(ctx.client, m));
 			},
 			delete: async (messageId: string) => {
 				Webhook._hasToken(ctx);
@@ -93,7 +92,7 @@ export class Webhook extends DiscordBase {
 					// xd
 				}
 				if (ctx.token) { webhook = await ctx.api.webhooks(ctx.id)(ctx.token).get({ auth: false }); } else { webhook = await ctx.api.webhooks(ctx.id).get(); }
-				return new Webhook(ctx.rest, ctx.cache, webhook);
+				return new Webhook(ctx.client, webhook);
 			}
 		};
 	}

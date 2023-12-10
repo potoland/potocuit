@@ -42,32 +42,10 @@
 			],
 			"additionalProperties": false
 		},
-		"application": {
+		"variables": {
 			"description": "Envrioment variables of application",
-			"type": "object",
-			"properties": {
-				"token": {
-					"type": "string"
-				},
-				"intents": {
-					"type": "number"
-				},
-				"applicationId": {
-					"type": "string"
-				},
-				"port": {
-					"type": "number",
-					"default": 8080,
-					"minimum": 0
-				},
-				"publicKey": {
-					"type": "string"
-				}
-			},
-			"required": [
-				"token"
-			],
-			"additionalProperties": false
+			"type": "string",
+			"default": "env.js"
 		},
 		"debug": {
 			"type": "boolean",

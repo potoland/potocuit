@@ -1,6 +1,6 @@
-import { Router, type BiscuitREST } from '@biscuitland/rest';
-import type { GatewayManager } from '@biscuitland/ws';
-import type { Cache } from '../cache';
+import { Router, BiscuitREST } from '@biscuitland/rest';
+import type { Adapter } from '../cache';
+import { Cache, DefaultMemoryAdapter } from '../cache';
 import { PotoLangsHandler } from '../langs/handler';
 import { PotoCommandHandler } from '../commands/handler';
 import { join } from 'node:path';
@@ -9,7 +9,7 @@ import type { DeepPartial } from '../structures/extra/types';
 import { ComponentHandler } from '../Components/handler';
 
 export class BaseClient {
-	gateway!: GatewayManager;
+	// gateway!: GatewayManager;
 	rest!: BiscuitREST;
 	cache!: Cache;
 
@@ -33,8 +33,8 @@ export class BaseClient {
 	private _applicationId?: string;
 	private _botId?: string;
 
-	protected static assertString(value: unknown): asserts value is string {
-		if (!(typeof value === 'string' && value !== '')) { throw new Error('Value is not a string'); }
+	protected static assertString(value: unknown, message?: string): asserts value is string {
+		if (!(typeof value === 'string' && value !== '')) { throw new Error(message ?? 'Value is not a string'); }
 	}
 
 	protected static getBotIdFromToken(token: string): string {
@@ -46,7 +46,7 @@ export class BaseClient {
 	}
 
 	get botId() {
-		return this._botId ?? BaseClient.getBotIdFromToken(this.gateway.options.token);
+		return this._botId ?? BaseClient.getBotIdFromToken(this.rest.options.token);
 	}
 
 	set applicationId(id: string) {
@@ -61,22 +61,38 @@ export class BaseClient {
 		return new Router(this.rest).createProxy();
 	}
 
-	setServices({ rest, cache }: { rest?: BiscuitREST; cache?: Cache }) {
+	setServices({ rest, cache }: { rest?: BiscuitREST; cache?: Adapter }) {
 		if (rest) {
 			this.rest = rest;
 		}
 		if (cache) {
-			this.cache = cache;
+			this.cache = new Cache(this.cache.intents ?? 0, cache, this.cache.disabledCache, this.rest);
 		}
 	}
 
-	async execute(..._options: unknown[]) {
+	protected async execute(..._options: unknown[]) {
 		this.debugger.active = (await this.getRC()).debug;
 	}
 
-	async start(options: Pick<DeepPartial<StartOptions>, 'langsDir' | 'commandsDir'> = {}) {
+	async start(options: Pick<DeepPartial<StartOptions>, 'langsDir' | 'commandsDir' | 'connection' | 'token'> = {}) {
 		await this.loadLangs(options.langsDir);
 		await this.loadCommands(options.commandsDir);
+
+		const { token: tokenRC, } = await this.getRC();
+		const token = options?.token ?? tokenRC;
+
+		if (!this.rest) {
+			BaseClient.assertString(token, 'token is not a string');
+			this.rest = new BiscuitREST({
+				token
+			});
+		}
+
+		if (!this.cache) {
+			this.cache = new Cache(0, new DefaultMemoryAdapter(), [], this.rest);
+		} else {
+			this.cache.__setRest(this.rest);
+		}
 	}
 
 	protected async onPacket(..._packet: unknown[]) {
@@ -85,7 +101,7 @@ export class BaseClient {
 
 	async uploadCommands(applicationId?: string) {
 		applicationId ??= await this.getRC().then(x => x.applicationId ?? this.applicationId);
-		BaseClient.assertString(applicationId);
+		BaseClient.assertString(applicationId, 'applicationId is not a string');
 		return this.proxy.applications(applicationId).commands.put({
 			body: Object.values(this.commands.commands.map(x => x.toJSON()))
 		});
@@ -105,40 +121,30 @@ export class BaseClient {
 		this.logger.info('PotoLangsHandler loaded');
 	}
 
-	getRC() {
-		return import(join(process.cwd(), '.potorc.json')).then((x: RC) => {
-			const { application, locations } = x;
-			return {
-				debug: !!x.debug,
+	async getRC() {
 
-				token: application.token,
-				intents: !Number.isNaN(application.intents) ? Number(application.intents) : 0,
+		const { variables, locations, debug } = await import(join(process.cwd(), '.potorc.json')) as RC;
+		const env = await import(join(process.cwd(), variables)).then(x => x.default) as Required<Variables>;
 
-				applicationId: application.applicationId,
+		return {
+			debug: !!debug,
 
-				port: !Number.isNaN(application.port) ? Number(application.port) : 8080,
-				publicKey: application.publicKey,
+			...env,
 
-				langs: locations.langs ? join(process.cwd(), locations.langs) : undefined,
-				events: locations.events ? join(process.cwd(), locations.output, locations.events) : undefined,
-				templates: locations.templates ? join(process.cwd(), locations.templates) : undefined,
-				base: join(process.cwd(), locations.base),
-				output: join(process.cwd(), locations.output),
-				commands: join(process.cwd(), locations.output, locations.commands),
-			};
-		});
+			langs: locations.langs ? join(process.cwd(), locations.langs) : undefined,
+			events: locations.events ? join(process.cwd(), locations.output, locations.events) : undefined,
+			templates: locations.templates ? join(process.cwd(), locations.templates) : undefined,
+			base: join(process.cwd(), locations.base),
+			output: join(process.cwd(), locations.output),
+			commands: join(process.cwd(), locations.output, locations.commands),
+		};
+
 	}
 }
 
 interface RC {
 	debug?: boolean;
-	application: {
-		token: string;
-		intents?: number;
-		applicationId?: string;
-		port?: number;
-		publicKey?: string;
-	};
+	variables: string;
 	locations: {
 		base: string;
 		output: string;
@@ -149,10 +155,24 @@ interface RC {
 	};
 }
 
+export interface Variables {
+	token: string;
+	intents?: number;
+	applicationId: string;
+	port?: number;
+	publicKey: string;
+}
+
 export interface StartOptions {
 	eventsDir: string;
 	langsDir: string;
 	commandsDir: string;
-	connection: { token: string; intents: number };
+	connection: { intents: number };
 	httpConnection: { publicKey: string; port: number };
+	token: string;
 }
+
+export const DefaultVars = {
+	port: 8080,
+	intents: 0,
+};

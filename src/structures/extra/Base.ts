@@ -1,12 +1,19 @@
-import type { BiscuitREST } from '@biscuitland/rest';
 import { Router } from '@biscuitland/rest';
-import type { Cache } from '../../cache';
 import { toCamelCase } from '@biscuitland/common';
+import type { BaseClient } from '../../client/base';
 
 /** */
 export abstract class Base {
-	constructor(rest: BiscuitREST, cache: Cache) {
-		Object.assign(this, { rest, cache });
+	constructor(client: BaseClient) {
+		Object.assign(this, { client });
+	}
+
+	get rest() {
+		return this.client.rest;
+	}
+
+	get cache() {
+		return this.client.cache;
 	}
 
 	get api() {
@@ -27,6 +34,5 @@ export abstract class Base {
 		return this;
 	}
 
-	readonly rest!: BiscuitREST;
-	readonly cache!: Cache;
+	readonly client!: BaseClient;
 }

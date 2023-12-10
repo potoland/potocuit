@@ -5,18 +5,17 @@ import type {
 	APIUser,
 	GatewayMessageCreateDispatchData,
 	ObjectToLower,
-	RESTPostAPIChannelMessageJSONBody,
 } from '@biscuitland/common';
-import type { BiscuitREST, RawFile } from '@biscuitland/rest';
+import type { RawFile } from '@biscuitland/rest';
 import { MessageActionRowComponent } from '../Components/ActionRow';
 import type { BiscuitActionRowMessageComponents } from '../Components';
 import { GuildMember } from './GuildMember';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
-import type { Cache } from '../cache';
 import { MessagesMethods } from './methods/channel/messages';
 import type { EmojiResolvable } from '../types/resolvables';
-import type { MessageCreateBodyRequest } from '../types/write';
+import type { MessageCreateBodyRequest, MessageUpdateBodyRequest } from '../types/write';
+import type { BaseClient } from '../client/base';
 
 export type MessageData = APIMessage | GatewayMessageCreateDispatchData;
 
@@ -37,8 +36,11 @@ export class Message extends DiscordBase {
 		users: (GuildMember | User)[];
 	};
 
-	constructor(rest: BiscuitREST, cache: Cache, data: MessageData) {
-		super(rest, cache, data);
+	private readonly __messageMethods__!: ReturnType<typeof MessagesMethods.messages>;
+	private readonly __reactionMethods__!: ReturnType<typeof MessagesMethods.reactions>;
+
+	constructor(client: BaseClient, data: MessageData) {
+		super(client, data);
 		this.mentions = {
 			roles: data.mention_roles ?? [],
 			channels: data.mention_channels ?? [],
@@ -49,20 +51,24 @@ export class Message extends DiscordBase {
 				new MessageActionRowComponent(this.rest, x)
 			) ?? [];
 		this.patch(data);
+		Object.assign(this, {
+			__messageMethods__: MessagesMethods.messages({ id: this.channelId, api: this.api, client }),
+			__reactionMethods__: MessagesMethods.reactions({ id: this.channelId, api: this.api, client }),
+		});
 	}
 
 	fetch() {
-		return MessagesMethods.messages({ id: this.channelId, api: this.api, rest: this.rest, cache: this.cache })
+		return this.__messageMethods__
 			.fetch(this.id).then(this._patchThis);
 	}
 
-	edit(body: RESTPostAPIChannelMessageJSONBody, files?: RawFile[]) {
-		return MessagesMethods.messages({ id: this.channelId, api: this.api, rest: this.rest, cache: this.cache })
+	edit(body: MessageUpdateBodyRequest, files?: RawFile[]) {
+		return this.__messageMethods__
 			.edit(this.id, body, files);
 	}
 
 	write(body: MessageCreateBodyRequest, files?: RawFile[]) {
-		return MessagesMethods.messages({ id: this.channelId, api: this.api, rest: this.rest, cache: this.cache })
+		return this.__messageMethods__
 			.write(body, files);
 	}
 
@@ -82,15 +88,18 @@ export class Message extends DiscordBase {
 	}
 
 	react(emoji: EmojiResolvable) {
-		return MessagesMethods.reactions({ id: this.channelId, api: this.api, rest: this.rest, cache: this.cache }).add(this.id, emoji);
+		return this.__reactionMethods__
+			.add(this.id, emoji);
 	}
 
 	delete(reason?: string) {
-		return MessagesMethods.messages({ id: this.channelId, api: this.api, rest: this.rest, cache: this.cache }).delete(this.id, reason);
+		return this.__messageMethods__
+			.delete(this.id, reason);
 	}
 
 	crosspost(reason?: string) {
-		return MessagesMethods.messages({ id: this.channelId, api: this.api, rest: this.rest, cache: this.cache }).crosspost(this.id, reason);
+		return this.__messageMethods__
+			.crosspost(this.id, reason);
 	}
 
 	private patch(data: MessageData) {
@@ -110,7 +119,7 @@ export class Message extends DiscordBase {
 			this.applicationId = data.application_id;
 		}
 		if ('author' in data && data.author) {
-			this.author = new User(this.rest, this.cache, data.author);
+			this.author = new User(this.client, data.author);
 		}
 
 		if (data.mentions?.length) {
@@ -118,8 +127,7 @@ export class Message extends DiscordBase {
 				? data.mentions.map(
 					m =>
 						new GuildMember(
-							this.rest,
-							this.cache,
+							this.client,
 							{
 								...(m as APIUser & { member?: Omit<APIGuildMember, 'user'> })
 									.member!,
@@ -129,7 +137,7 @@ export class Message extends DiscordBase {
 							this.guildId!,
 						),
 				)
-				: data.mentions.map(u => new User(this.rest, this.cache, u));
+				: data.mentions.map(u => new User(this.client, u));
 		}
 	}
 }

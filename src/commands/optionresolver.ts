@@ -1,11 +1,10 @@
 import type { APIApplicationCommandInteractionDataOption, APIInteractionDataResolved, APIAttachment, MakeRequired } from '@biscuitland/common';
 import { ApplicationCommandOptionType } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
 import { User, GuildRole, InteractionGuildMember } from '../structures';
 import type { PotocuitChannels } from '../structures';
 import { BaseChannel } from '../structures/methods/channel/base';
 import type { SubCommand, PotoCommandOption, PotoCommandAutocompleteOption, Command } from './commands';
-import type { Cache } from '../cache';
+import type { BaseClient } from '../client/base';
 
 export class OptionResolver {
 	readonly options: OptionResolved[];
@@ -13,8 +12,7 @@ export class OptionResolver {
 	private subCommand: string | null = null;
 	private group: string | null = null;
 	constructor(
-		private rest: BiscuitREST,
-		private cache: Cache,
+		private client: BaseClient,
 		options: APIApplicationCommandInteractionDataOption[],
 		public parent?: Command,
 		public guildId?: string,
@@ -142,18 +140,18 @@ export class OptionResolver {
 			// wtf esto estaba completo, que le paso dasjkdjdk
 			const value = resolve.value as string;
 			const user = resolved.users?.[value];
-			if (user) { resolve.user = new User(this.rest, this.cache, user); }
+			if (user) { resolve.user = new User(this.client, user); }
 
 			const member = resolved.members?.[value];
 			// ta bn igual es el raw
 			// ya recuerdo que no los agregue por el tema de rest y demas dasjdkdajk
-			if (member) { resolve.member = new InteractionGuildMember(this.rest, this.cache, member, user!, this.guildId!); }
+			if (member) { resolve.member = new InteractionGuildMember(this.client, member, user!, this.guildId!); }
 			// xddddddddd
 			const channel = resolved.channels?.[value];
-			if (channel) { resolve.channel = BaseChannel.from(channel, this.rest, this.cache); }
+			if (channel) { resolve.channel = BaseChannel.from(channel, this.client); }
 
 			const role = resolved.roles?.[value];
-			if (role) { resolve.role = new GuildRole(this.rest, this.cache, role, this.guildId!); }
+			if (role) { resolve.role = new GuildRole(this.client, role, this.guildId!); }
 
 			const attachment = resolved.attachments?.[value];
 			if (attachment) { resolve.attachment = attachment; }

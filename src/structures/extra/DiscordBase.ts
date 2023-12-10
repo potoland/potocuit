@@ -1,20 +1,19 @@
 import { type Identify } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
 // import { snowflakeToTimestamp, type DeepPartial } from '../../index';
 import { snowflakeToTimestamp } from './functions';
 import type { DeepPartial } from './types';
 import { Base } from './Base';
-import type { Cache, GuildBased, GuildRelated, NonGuildBased } from '../../cache';
+import type { GuildBased, GuildRelated, NonGuildBased } from '../../cache';
+import type { BaseClient } from '../../client/base';
 
 export class DiscordBase<Data extends Record<string, any> = { id: string }> extends Base {
 	id: string;
 	constructor(
-		rest: BiscuitREST,
-		cache: Cache,
+		client: BaseClient,
 		/** Unique ID of the object */
 		data: Data
 	) {
-		super(rest, cache);
+		super(client);
 		this.id = data.id;
 		this._patchThis(data);
 	}
