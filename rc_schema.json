@@ -43,7 +43,7 @@
 			"additionalProperties": false
 		},
 		"variables": {
-			"description": "Envrioment variables of application",
+			"description": "Environment variables of application",
 			"type": "string",
 			"default": "env.js"
 		},
