@@ -127,18 +127,34 @@ export class MessagesMethods extends DiscordBase {
 						files,
 					})
 					.then(message => {
-						ctx;
+						ctx.client.__components__.onRequestMessage(body, message);
 						return new Message(ctx.client, message);
 					});
 			},
 			edit: (messageId: string, body: MessageUpdateBodyRequest, files?: RawFile[]) => {
-				return ctx.api.channels(ctx.id).messages(messageId).patch({ body: MessagesMethods.transformMessageBody<RESTPatchAPIChannelMessageJSONBody>(body), files }).then(m => new Message(ctx.client, m));
+				return ctx.api
+					.channels(ctx.id)
+					.messages(messageId)
+					.patch({
+						body: MessagesMethods.transformMessageBody<RESTPatchAPIChannelMessageJSONBody>(body),
+						files
+					})
+					.then(message => {
+						ctx.client.__components__.onRequestUpdateMessage(body, message);
+						return new Message(ctx.client, message);
+					});
 			},
 			crosspost: (messageId: string, reason?: string) => {
 				return ctx.api.channels(ctx.id).messages(messageId).crosspost.post({ reason }).then(m => new Message(ctx.client, m));
 			},
 			delete: (messageId: string, reason?: string) => {
-				return ctx.api.channels(ctx.id).messages(messageId).delete({ reason });
+				return ctx.api
+					.channels(ctx.id)
+					.messages(messageId)
+					.delete({ reason })
+					.then(() => {
+						return ctx.client.__components__.onMessageDelete(messageId);
+					});
 			},
 			fetch: async (messageId: string) => {
 				return ctx.api.channels(ctx.id).messages(messageId).get()
