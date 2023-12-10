@@ -179,20 +179,22 @@ const isObject = (o: unknown) => {
 function toNormal(target: Record<string, any>) {
 	const result: Record<string, any> = {};
 	for (const [key, value] of Object.entries(target)) {
-		if (isObject(value)) {
-			if (Array.isArray(value)) {
-				result[key] = value.map(prop => (typeof prop === 'object' && prop ? toNormal(prop) : prop));
-				break;
-			}
-			if (isObject(value)) {
-				result[key] = toNormal({ ...value });
-				break;
-			}
-			if (!Number.isNaN(value)) {
-				result[key] = null;
-				break;
-			}
-			result[key] = toNormal({ ...value });
+		// if (isObject(value)) {
+		// 	if (Array.isArray(value)) {
+		// 		result[key] = value.map(prop => (typeof prop === 'object' && prop ? toNormal(prop) : prop));
+		// 		break;
+		// 	}
+		// 	if (isObject(value)) {
+		// 		result[key] = toNormal({ ...value });
+		// 		break;
+		// 	}
+		// 	if (!Number.isNaN(value)) {
+		// 		result[key] = null;
+		// 		break;
+		// 	}
+		// 	result[key] = toNormal({ ...value });
+		if (key.startsWith('O_')) {
+			result[key.slice(2)] = JSON.parse(value);
 		} else if (key.startsWith('N_')) {
 			result[key.slice(2)] = Number(value);
 		} else if (key.startsWith('B_')) {
@@ -209,25 +211,25 @@ function toDb(target: Record<string, any>) {
 	for (const [key, value] of Object.entries(target)) {
 		switch (typeof value) {
 			case 'boolean':
-				result[`B_${key}`] = '' + value;
+				result[`B_${key}`] = value;
 				break;
 			case 'number':
 				result[`N_${key}`] = '' + value;
 				break;
 			case 'object':
 				if (Array.isArray(value)) {
-					result[key] = value.map(prop => (typeof prop === 'object' && prop ? toDb(prop) : prop));
+					result[`O_${key}`] = JSON.stringify(value);
 					break;
 				}
 				if (isObject(value)) {
-					result[key] = toDb({ ...value });
+					result[`O_${key}`] = JSON.stringify(value);
 					break;
 				}
 				if (!Number.isNaN(value)) {
-					result[key] = null;
+					result[`O_${key}`] = 'null';
 					break;
 				}
-				result[key] = toDb({ ...value });
+				result[`O_${key}`] = JSON.stringify(value);
 				break;
 			default:
 				result[key] = value;

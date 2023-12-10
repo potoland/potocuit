@@ -66,7 +66,7 @@ export class BaseClient {
 			this.rest = rest;
 		}
 		if (cache) {
-			this.cache = new Cache(this.cache.intents ?? 0, cache, this.cache.disabledCache, this.rest);
+			this.cache = new Cache(this.cache?.intents ?? 0, cache, this.cache?.disabledCache, this.rest);
 		}
 	}
 
