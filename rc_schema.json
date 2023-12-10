@@ -4,6 +4,10 @@
 	"description": "The configuration that is contained inside the file `.potorc.json`",
 	"type": "object",
 	"additionalProperties": false,
+	"required": [
+		"locations",
+		"variables"
+	],
 	"properties": {
 		"$schema": {
 			"description": "A field for the [JSON schema](https://json-schema.org/) specification",
@@ -17,22 +21,28 @@
 			"type": "object",
 			"properties": {
 				"base": {
-					"type": "string"
+					"type": "string",
+					"default": "src"
 				},
 				"output": {
-					"type": "string"
+					"type": "string",
+					"default": "dist"
 				},
 				"commands": {
-					"type": "string"
+					"type": "string",
+					"default": "commands"
 				},
 				"langs": {
-					"type": "string"
+					"type": "string",
+					"default": "langs"
 				},
 				"events": {
-					"type": "string"
+					"type": "string",
+					"default": "events"
 				},
 				"templates": {
-					"type": "string"
+					"type": "string",
+					"default": "templates"
 				}
 			},
 			"required": [
