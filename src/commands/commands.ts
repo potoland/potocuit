@@ -71,7 +71,7 @@ export type OnOptionsReturnObject = Record<string, {
 
 class BaseCommand {
 	// y cambiarle el nombre a esta wea
-	readonly middlewares: MiddlewareContext[] = [];
+	middlewares: MiddlewareContext[] = [];
 
 	__filePath?: string;
 	__t?: { name: string; description: string };
@@ -97,23 +97,23 @@ class BaseCommand {
 
 	constructor(public client: BaseClient) { }
 
-	onMiddlewaresError(context: CommandContext<{}, []>, error: Error) {
-		return context.write({
-			content: `<This>.onMiddlewaresError\nOops, it seems like something didn't go as expected:\n\`\`\`${error.message}\`\`\``
-		});
-	}
+	// onMiddlewaresError(context: CommandContext<{}, []>, error: Error) {
+	// 	return context.write({
+	// 		content: `<This>.onMiddlewaresError\nOops, it seems like something didn't go as expected:\n\`\`\`${error.message}\`\`\``
+	// 	});
+	// }
 
-	onOptionsError(context: CommandContext<{}, []>, metadata: OnOptionsReturnObject) {
-		let content = '<This>.onOptionsError\n';
-		for (const i in metadata) {
-			const err = metadata[i];
-			if (err.failed) { content += `[${i}]: ${err.value.message}\n`; }
-		}
+	// onOptionsError(context: CommandContext<{}, []>, metadata: OnOptionsReturnObject) {
+	// 	let content = '<This>.onOptionsError\n';
+	// 	for (const i in metadata) {
+	// 		const err = metadata[i];
+	// 		if (err.failed) { content += `[${i}]: ${err.value.message}\n`; }
+	// 	}
 
-		return context.write({
-			content
-		});
-	}
+	// 	return context.write({
+	// 		content
+	// 	});
+	// }
 
 	async runOptions(ctx: CommandContext<{}, []>, resolver: OptionResolver): Promise<[boolean, OnOptionsReturnObject]> {
 		const command = resolver.getCommand();
@@ -231,6 +231,8 @@ class BaseCommand {
 
 	run?(context: CommandContext<any, any>): any;
 	onRunError?(context: CommandContext<any, any>, error: unknown): any;
+	onOptionsError?(context: CommandContext<{}, []>, metadata: OnOptionsReturnObject): any;
+	onMiddlewaresError?(context: CommandContext<{}, []>, error: Error): any;
 }
 
 export class Command extends BaseCommand {

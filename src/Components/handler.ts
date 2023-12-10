@@ -1,15 +1,24 @@
 import type { BaseClient } from '../client/base';
-import type { APIActionRowComponent, APIMessage, APIMessageActionRowComponent, APIModalInteractionResponseCallbackData } from '@biscuitland/common';
+import type { APIActionRowComponent, APIMessage, APIMessageActionRowComponent, APIModalInteractionResponseCallbackData, Logger } from '@biscuitland/common';
 import { InteractionResponseType } from '@biscuitland/common';
 import type { ModalSubmitCallback, ActionRow, ComponentCallback, PotoComponents } from './builders';
 import type { ComponentInteraction, ModalSubmitInteraction, ReplyInteractionBody } from '../structures';
 import type { InteractionMessageUpdateBodyRequest, MessageCreateBodyRequest, MessageUpdateBodyRequest, ModalCreateBodyRequest } from '../types/write';
+import { PotoHandler } from '../commands/handler';
+import { ComponentCommand } from './command';
 
-export class ComponentHandler {
+export class ComponentHandler extends PotoHandler {
 	readonly components = new Map<string, Partial<Record<string, ComponentCallback>>>;
 	readonly modals = new Map<string, ModalSubmitCallback>;
+	readonly commands: ComponentCommand[] = [];
 
-	constructor(protected client: BaseClient) { }
+	constructor(logger: Logger, protected client: BaseClient) {
+		super(logger);
+	}
+
+	hasComponent(id: string, customId: string) {
+		return !!this.components.get(id)?.[customId];
+	}
 
 	onComponent(id: string, interaction: ComponentInteraction) {
 		return this.components.get(id)?.[interaction.customId]?.(interaction);
@@ -41,7 +50,7 @@ export class ComponentHandler {
 
 	protected __setModal(id: string, record: APIModalInteractionResponseCallbackData | ModalCreateBodyRequest) {
 		if ('__exec' in record) {
-			this.modals.set(id, record.__exec);
+			this.modals.set(id, record.__exec!);
 		}
 	}
 
@@ -77,5 +86,20 @@ export class ComponentHandler {
 		if (!body.components?.length) { return; }
 		this.components.delete(message.id);
 		this.__setComponents(message.id, body.components);
+	}
+
+	async load(commandsDir: string) {
+		for (const i of (await this.loadFiles<ComponentCommand>(await this.getFiles(commandsDir))).filter(x => x instanceof ComponentCommand)) {
+			this.commands.push(i);
+		}
+	}
+
+	async execute(interaction: ComponentInteraction) {
+		for (const i of this.commands) {
+			if (await i.filter(interaction)) {
+				await i.run(interaction);
+				break;
+			}
+		}
 	}
 }

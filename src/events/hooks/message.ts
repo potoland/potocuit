@@ -22,16 +22,18 @@ export const MESSAGE_CREATE = (
 };
 
 export const MESSAGE_DELETE = (
-	_self: BaseClient,
+	self: BaseClient,
 	data: GatewayMessageDeleteDispatchData
 ) => {
+	self.components.onMessageDelete(data.id);
 	return toCamelCase(data);
 };
 
 export const MESSAGE_DELETE_BULK = (
-	_self: BaseClient,
+	self: BaseClient,
 	data: GatewayMessageDeleteBulkDispatchData
 ) => {
+	data.ids.forEach(id => self.components.onMessageDelete(id));
 	return toCamelCase(data);
 };
 

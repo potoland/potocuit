@@ -10,10 +10,15 @@ import { GuildRole } from './GuildRole';
 import type { PotocuitChannels } from './channels';
 import { OptionResolver } from '../commands';
 import type { BaseClient } from '../client/base';
-import type { InteractionCreateBodyRequest, InteractionMessageUpdateBodyRequest, MessageCreateBodyRequest, MessageUpdateBodyRequest, MessageWebhookCreateBodyRequest, ModalCreateBodyRequest } from '../types/write';
+import type { ComponentInteractionMessageUpdate, InteractionCreateBodyRequest, InteractionMessageUpdateBodyRequest, MessageCreateBodyRequest, MessageUpdateBodyRequest, MessageWebhookCreateBodyRequest, ModalCreateBodyRequest } from '../types/write';
 import { ActionRow, Modal } from '../Components';
 
-export type ReplyInteractionBody = { type: InteractionResponseType.Modal; data: ModalCreateBodyRequest } | { type: InteractionResponseType.ChannelMessageWithSource | InteractionResponseType.UpdateMessage; data: InteractionCreateBodyRequest | InteractionMessageUpdateBodyRequest } | Exclude<RESTPostAPIInteractionCallbackJSONBody, APIInteractionResponsePong>;
+export type ReplyInteractionBody = { type: InteractionResponseType.Modal; data: ModalCreateBodyRequest }
+	| {
+		type: InteractionResponseType.ChannelMessageWithSource | InteractionResponseType.UpdateMessage;
+		data: InteractionCreateBodyRequest | InteractionMessageUpdateBodyRequest | ComponentInteractionMessageUpdate;
+	}
+	| Exclude<RESTPostAPIInteractionCallbackJSONBody, APIInteractionResponsePong>;
 
 /** @internal */
 export type __InternalReplyFunction = (_: { body: APIInteractionResponse; files?: RawFile[] }) => Promise<any>;
@@ -85,7 +90,7 @@ export class BaseInteraction<FromGuild extends boolean = boolean, Type extends A
 
 		await this.replied;
 
-		this.client.__components__.onRequestInteraction(body.type === InteractionResponseType.Modal ? this.user.id : this.id, body);
+		this.client.components.onRequestInteraction(body.type === InteractionResponseType.Modal ? this.user.id : this.id, body);
 	}
 
 	deferReply(flags?: MessageFlags) {
@@ -113,7 +118,7 @@ export class BaseInteraction<FromGuild extends boolean = boolean, Type extends A
 			case InteractionType.MessageComponent:
 				switch (gateway.data.component_type) {
 					case ComponentType.Button:
-						return new ComponentInteraction(client, gateway as APIMessageComponentInteraction, __reply);
+						return new ButtonInteraction(client, gateway as APIMessageComponentInteraction, __reply);
 					case ComponentType.ChannelSelect:
 						return new ChannelSelectMenuInteraction(client, gateway as APIMessageComponentSelectMenuInteraction, __reply);
 					case ComponentType.RoleSelect:
@@ -151,7 +156,12 @@ export class AutocompleteInteraction<FromGuild extends boolean = boolean> extend
 	}
 
 	respond(choices: APICommandAutocompleteInteractionResponseCallbackData['choices']) {
-		return this.reply({ data: { choices }, type: InteractionResponseType.ApplicationCommandAutocompleteResult });
+		return super.reply({ data: { choices }, type: InteractionResponseType.ApplicationCommandAutocompleteResult });
+	}
+
+	/** @intenal */
+	async reply(..._args: unknown[]) {
+		throw new Error('Cannot use reply in this interaction');
 	}
 }
 
@@ -162,6 +172,13 @@ export class Interaction<FromGuild extends boolean = boolean, Type extends APIIn
 
 	fetchResponse() {
 		return this.fetchMessage('@original');
+	}
+
+	write(body: InteractionCreateBodyRequest) {
+		return this.reply({
+			type: InteractionResponseType.ChannelMessageWithSource,
+			data: body
+		});
 	}
 
 	async editOrReply(body: InteractionMessageUpdateBodyRequest, files?: RawFile[]) {
@@ -180,7 +197,7 @@ export class Interaction<FromGuild extends boolean = boolean, Type extends APIIn
 			files
 		});
 
-		this.client.__components__.onRequestInteractionUpdate(body, apiMessage);
+		this.client.components.onRequestInteractionUpdate(body, apiMessage);
 		return new Message(this.client, apiMessage);
 	}
 
@@ -194,7 +211,7 @@ export class Interaction<FromGuild extends boolean = boolean, Type extends APIIn
 
 	deleteMessage(messageId: string) {
 		return this.api.webhooks(this.applicationId)(this.token).messages(messageId).delete()
-			.then(() => this.client.__components__.onMessageDelete(messageId === '@original' ? this.id : messageId));
+			.then(() => this.client.components.onMessageDelete(messageId === '@original' ? this.id : messageId));
 	}
 
 	async createResponse(body: MessageWebhookCreateBodyRequest, files: RawFile[]) {
@@ -203,7 +220,7 @@ export class Interaction<FromGuild extends boolean = boolean, Type extends APIIn
 			files
 		});
 
-		this.client.__components__.onRequestMessage(body, apiMessage);
+		this.client.components.onRequestMessage(body, apiMessage);
 	}
 }
 
@@ -228,6 +245,19 @@ export class ComponentInteraction<FromGuild extends boolean = boolean, Type exte
 	declare channel: PotocuitChannels;
 	declare type: InteractionType.MessageComponent;
 
+	update(data: ComponentInteractionMessageUpdate, files: RawFile[] = []) {
+		return this.reply({
+			type: InteractionResponseType.UpdateMessage,
+			data
+		}, files);
+	}
+
+	deferUpdate() {
+		return this.reply({
+			type: InteractionResponseType.DeferredMessageUpdate
+		});
+	}
+
 	get customId() {
 		return this.data.customId;
 	}
@@ -235,29 +265,9 @@ export class ComponentInteraction<FromGuild extends boolean = boolean, Type exte
 	get componentType() {
 		return this.data.componentType;
 	}
-}
 
-export class ButtonInteraction extends ComponentInteraction {
-	declare data: ObjectToLower<APIMessageButtonInteractionData>;
-}
-
-export class StringSelectMenuInteraction extends ComponentInteraction {
-	declare data: ObjectToLower<APIMessageStringSelectInteractionData>;
-}
-
-export class SelectMenuInteraction extends ComponentInteraction {
-	declare data: ObjectToLower<APIMessageComponentSelectMenuInteraction['data']>;
-
-	constructor(
-		client: BaseClient,
-		interaction: APIMessageComponentSelectMenuInteraction,
-		protected __reply?: __InternalReplyFunction
-	) {
-		super(client, interaction);
-	}
-
-	get values() {
-		return this.data.values;
+	isButton(): this is ButtonInteraction {
+		return this.data.componentType === ComponentType.Button;
 	}
 
 	isChannelSelectMenu(): this is ChannelSelectMenuInteraction {
@@ -279,6 +289,30 @@ export class SelectMenuInteraction extends ComponentInteraction {
 	isStringSelectMenu(): this is StringSelectMenuInteraction {
 		return this.componentType === ComponentType.StringSelect;
 	}
+}
+
+export class ButtonInteraction extends ComponentInteraction {
+	declare data: ObjectToLower<APIMessageButtonInteractionData>;
+}
+
+export class SelectMenuInteraction extends ComponentInteraction {
+	declare data: ObjectToLower<APIMessageComponentSelectMenuInteraction['data']>;
+
+	constructor(
+		client: BaseClient,
+		interaction: APIMessageComponentSelectMenuInteraction,
+		protected __reply?: __InternalReplyFunction
+	) {
+		super(client, interaction);
+	}
+
+	get values() {
+		return this.data.values;
+	}
+}
+
+export class StringSelectMenuInteraction extends SelectMenuInteraction {
+	declare data: ObjectToLower<APIMessageStringSelectInteractionData>;
 }
 
 export class ChannelSelectMenuInteraction extends SelectMenuInteraction {

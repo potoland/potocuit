@@ -37,10 +37,10 @@ export async function onInteraction(body: APIInteraction, self: BaseClient, __re
 					if (command?.run) {
 						const context = new CommandContext(self, interaction, {}, {}, optionsResolver);
 						const [erroredOptions, result] = await command.runOptions(context, optionsResolver);
-						if (erroredOptions) { return command.onOptionsError(context, result); }
+						if (erroredOptions) { return command.onOptionsError?.(context, result); }
 
 						const [_, erroredMiddlewares] = await command.runMiddlewares(context);
-						if (erroredMiddlewares) { return command.onMiddlewaresError(context, erroredMiddlewares); }
+						if (erroredMiddlewares) { return command.onMiddlewaresError?.(context, erroredMiddlewares); }
 
 						try {
 							await command.run(context);
@@ -59,11 +59,15 @@ export async function onInteraction(body: APIInteraction, self: BaseClient, __re
 
 		case InteractionType.ModalSubmit: {
 			const interaction = BaseInteraction.from(self, body, __reply) as ModalSubmitInteraction;
-			return self.__components__.onModalSubmit(interaction);
-		}
+			await self.components.onModalSubmit(interaction);
+		} break;
 		case InteractionType.MessageComponent: {
 			const interaction = BaseInteraction.from(self, body, __reply) as ComponentInteraction;
-			return self.__components__.onComponent(body.message.interaction?.id ?? body.message.id, interaction);
-		}
+			if (self.components.hasComponent(body.message.interaction?.id ?? body.message.id, interaction.customId)) {
+				await self.components.onComponent(body.message.interaction?.id ?? body.message.id, interaction);
+			} else {
+				await self.components.execute(interaction);
+			}
+		} break;
 	}
 }

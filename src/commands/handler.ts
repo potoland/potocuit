@@ -72,6 +72,10 @@ export class PotoCommandHandler extends PotoHandler {
 			for (const option of commandInstancie.options ?? []) {
 				if (option instanceof SubCommand) {
 					option.client = this.client;
+					option.middlewares = (option.middlewares ?? []).concat(commandInstancie.middlewares ?? []);
+					option.onMiddlewaresError = option.onMiddlewaresError?.bind(option) ?? commandInstancie.onMiddlewaresError?.bind(commandInstancie);
+					option.onRunError = option.onRunError?.bind(option) ?? commandInstancie.onRunError?.bind(commandInstancie);
+					option.onOptionsError = option.onOptionsError?.bind(option) ?? commandInstancie.onOptionsError?.bind(commandInstancie);
 				}
 			}
 			commandInstancie.__filePath = command.path;

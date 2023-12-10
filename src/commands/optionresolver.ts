@@ -106,7 +106,7 @@ export class OptionResolver {
 	}
 
 	private getTypedOption(name: string, allow: ApplicationCommandOptionType[]) {
-		const option = this.get(name);
+		const option = this.getHoisted(name);
 		if (!option) { throw new Error('Bad Option'); }
 		if (!allow.includes(option.type)) { throw new Error('Bad Option'); }
 		return option;

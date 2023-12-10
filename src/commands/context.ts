@@ -1,4 +1,4 @@
-import { InteractionResponseType } from '@biscuitland/common';
+import { InteractionResponseType, MessageFlags } from '@biscuitland/common';
 import type { RawFile } from '@biscuitland/rest';
 import type { __LangType } from '../__generated';
 import type { BaseClient } from '../client/base';
@@ -7,7 +7,7 @@ import type { MiddlewareContext, ContextOptions, CommandMetadata, OptionsRecord 
 import type { OptionResolver } from './optionresolver';
 import type { InteractionCreateBodyRequest, InteractionMessageUpdateBodyRequest } from '../types/write';
 
-export class CommandContext<T extends OptionsRecord, M extends Readonly<MiddlewareContext[]>> {
+export class CommandContext<T extends OptionsRecord = {}, M extends Readonly<MiddlewareContext[]> = []> {
 	constructor(private client: BaseClient, readonly interaction: ChatInputCommandInteraction, public options: ContextOptions<T>, public metadata: CommandMetadata<M>, public resolver: OptionResolver) { }
 
 	get proxy() {
@@ -26,6 +26,13 @@ export class CommandContext<T extends OptionsRecord, M extends Readonly<Middlewa
 			},
 			files,
 		);
+	}
+
+	deferReply(ephemeral = false) {
+		return this.interaction.reply({
+			data: { flags: ephemeral ? MessageFlags.Ephemeral : undefined },
+			type: InteractionResponseType.DeferredChannelMessageWithSource
+		});
 	}
 
 	editResponse(body: InteractionMessageUpdateBodyRequest, files?: RawFile[]) {

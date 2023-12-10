@@ -43,6 +43,10 @@
 				"templates": {
 					"type": "string",
 					"default": "templates"
+				},
+				"components": {
+					"type": "string",
+					"default": "components"
 				}
 			},
 			"required": [

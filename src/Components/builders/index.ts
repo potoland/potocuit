@@ -9,7 +9,7 @@ export type ModalSubmitCallback<T = ModalSubmitInteraction> = (interaction: T) =
 
 export class Button<Type extends boolean = boolean> {
 	/** @internal */
-	__exec: ComponentCallback<ButtonInteraction> = async () => { return; };
+	__exec?: ComponentCallback<ButtonInteraction>;
 
 	constructor(public data: Partial<When<Type, APIButtonComponentWithCustomId, APIButtonComponentWithURL>> = {}) {
 		this.data.type = ComponentType.Button;
@@ -63,7 +63,7 @@ export class TextInput extends ModalTextInput { }
 
 export class UserSelectMenu extends USM {
 	/** @internal */
-	__exec: ComponentCallback<UserSelectMenuInteraction> = async () => { return; };
+	__exec?: ComponentCallback<UserSelectMenuInteraction>;
 
 	run(func: ComponentCallback<UserSelectMenuInteraction>): this {
 		this.__exec = func;
@@ -80,7 +80,7 @@ export class UserSelectMenu extends USM {
 
 export class RoleSelectMenu extends RSM {
 	/** @internal */
-	__exec: ComponentCallback<RoleSelectMenuInteraction> = async () => { return; };
+	__exec?: ComponentCallback<RoleSelectMenuInteraction>;
 
 	run(func: ComponentCallback<RoleSelectMenuInteraction>): this {
 		this.__exec = func;
@@ -97,7 +97,7 @@ export class RoleSelectMenu extends RSM {
 
 export class MentionableSelectMenu extends MSM {
 	/** @internal */
-	__exec: ComponentCallback<MentionableSelectMenuInteraction> = async () => { return; };
+	__exec?: ComponentCallback<MentionableSelectMenuInteraction>;
 
 	run(func: ComponentCallback<MentionableSelectMenuInteraction>): this {
 		this.__exec = func;
@@ -114,7 +114,7 @@ export class MentionableSelectMenu extends MSM {
 
 export class ChannelSelectMenu extends CSM {
 	/** @internal */
-	__exec: ComponentCallback<ChannelSelectMenuInteraction> = async () => { return; };
+	__exec?: ComponentCallback<ChannelSelectMenuInteraction>;
 
 	run(func: ComponentCallback<ChannelSelectMenuInteraction>): this {
 		this.__exec = func;
@@ -131,7 +131,7 @@ export class ChannelSelectMenu extends CSM {
 
 export class StringSelectMenu extends SSM {
 	/** @internal */
-	__exec: ComponentCallback<StringSelectMenuInteraction> = async () => { return; };
+	__exec?: ComponentCallback<StringSelectMenuInteraction>;
 
 	run(func: ComponentCallback<StringSelectMenuInteraction>): this {
 		this.__exec = func;
@@ -179,7 +179,7 @@ export class ActionRow<T extends PotoComponents> extends BaseComponent<APIAction
 
 export class Modal<T extends PotoModalComponents = TextInput> {
 	/** @internal */
-	__exec: ModalSubmitCallback = async () => { return; };
+	__exec?: ModalSubmitCallback;
 	components: ActionRow<T>[] = [];
 
 	constructor(public data: Partial<APIModalInteractionResponseCallbackData> = {}) {

@@ -84,12 +84,7 @@ export function Options(options: (new (client: BaseClient) => SubCommand)[] | Op
 export function Middlewares(cbs: Readonly<MiddlewareContext[]>) {
 	return function <T extends { new(...args: any[]): {} }>(target: T) {
 		return class extends target {
-			readonly middlewares: MiddlewareContext[];
-			constructor(...rest: any[]) {
-				super(...rest);
-				this.middlewares ??= [];
-				this.middlewares.concat(cbs);
-			}
+			middlewares = cbs;
 		};
 	};
 }

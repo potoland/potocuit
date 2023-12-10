@@ -127,7 +127,7 @@ export class MessagesMethods extends DiscordBase {
 						files,
 					})
 					.then(message => {
-						ctx.client.__components__.onRequestMessage(body, message);
+						ctx.client.components.onRequestMessage(body, message);
 						return new Message(ctx.client, message);
 					});
 			},
@@ -140,7 +140,7 @@ export class MessagesMethods extends DiscordBase {
 						files
 					})
 					.then(message => {
-						ctx.client.__components__.onRequestUpdateMessage(body, message);
+						ctx.client.components.onRequestUpdateMessage(body, message);
 						return new Message(ctx.client, message);
 					});
 			},
@@ -153,7 +153,7 @@ export class MessagesMethods extends DiscordBase {
 					.messages(messageId)
 					.delete({ reason })
 					.then(() => {
-						return ctx.client.__components__.onMessageDelete(messageId);
+						return ctx.client.components.onMessageDelete(messageId);
 					});
 			},
 			fetch: async (messageId: string) => {

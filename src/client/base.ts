@@ -27,8 +27,7 @@ export class BaseClient {
 
 	commands = new PotoCommandHandler(this.logger, this);
 	langs = new PotoLangsHandler(this.logger);
-	/** @internal */
-	readonly __components__ = new ComponentHandler(this);
+	components = new ComponentHandler(this.logger, this);
 
 	private _applicationId?: string;
 	private _botId?: string;
@@ -74,9 +73,10 @@ export class BaseClient {
 		this.debugger.active = (await this.getRC()).debug;
 	}
 
-	async start(options: Pick<DeepPartial<StartOptions>, 'langsDir' | 'commandsDir' | 'connection' | 'token'> = {}) {
+	async start(options: Pick<DeepPartial<StartOptions>, 'langsDir' | 'commandsDir' | 'connection' | 'token' | 'componentsDir'> = {}) {
 		await this.loadLangs(options.langsDir);
 		await this.loadCommands(options.commandsDir);
+		await this.loadComponents(options.componentsDir);
 
 		const { token: tokenRC, } = await this.getRC();
 		const token = options?.token ?? tokenRC;
@@ -114,6 +114,13 @@ export class BaseClient {
 		this.logger.info('PotoCommandHandler loaded');
 	}
 
+	async loadComponents(dir?: string) {
+		dir ??= await this.getRC().then(x => x.components);
+		BaseClient.assertString(dir);
+		await this.components.load(dir);
+		this.logger.info('PotoComponentHandler loaded');
+	}
+
 	async loadLangs(dir?: string) {
 		dir ??= await this.getRC().then(x => x.langs);
 		BaseClient.assertString(dir);
@@ -122,7 +129,6 @@ export class BaseClient {
 	}
 
 	async getRC() {
-
 		const { variables, locations, debug } = await import(join(process.cwd(), '.potorc.json')) as RC;
 		const env = await import(join(process.cwd(), variables)).then(x => x.default) as Required<Variables>;
 
@@ -132,8 +138,9 @@ export class BaseClient {
 			...env,
 
 			langs: locations.langs ? join(process.cwd(), locations.langs) : undefined,
+			templates: locations.templates ? join(process.cwd(), locations.base, locations.templates) : undefined,
 			events: locations.events ? join(process.cwd(), locations.output, locations.events) : undefined,
-			templates: locations.templates ? join(process.cwd(), locations.templates) : undefined,
+			components: locations.components ? join(process.cwd(), locations.output, locations.components) : undefined,
 			base: join(process.cwd(), locations.base),
 			output: join(process.cwd(), locations.output),
 			commands: join(process.cwd(), locations.output, locations.commands),
@@ -152,6 +159,7 @@ interface RC {
 		langs?: string;
 		templates?: string;
 		events?: string;
+		components?: string;
 	};
 }
 
@@ -167,6 +175,7 @@ export interface StartOptions {
 	eventsDir: string;
 	langsDir: string;
 	commandsDir: string;
+	componentsDir: string;
 	connection: { intents: number };
 	httpConnection: { publicKey: string; port: number };
 	token: string;
