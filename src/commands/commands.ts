@@ -4,7 +4,6 @@ import type { Result } from '../types/util';
 import type { InteractionGuildMember, GuildRole, PotocuitChannels, User, AutocompleteInteraction } from '../structures';
 import type { __LangType } from '../__generated';
 import type { CommandContext } from './context';
-import type { BaseClient } from '../client/base';
 import type { Groups } from './decorators';
 import type { OptionResolver } from './optionresolver';
 
@@ -94,9 +93,6 @@ class BaseCommand {
 	// esto es el raw bro
 	// mira arriba
 	options?: PotoCommandOption[] | SubCommand[];
-
-	constructor(public client: BaseClient) { }
-
 	// onMiddlewaresError(context: CommandContext<{}, []>, error: Error) {
 	// 	return context.write({
 	// 		content: `<This>.onMiddlewaresError\nOops, it seems like something didn't go as expected:\n\`\`\`${error.message}\`\`\``

@@ -40,7 +40,7 @@ export class PotoHandler {
 export class PotoCommandHandler extends PotoHandler {
 	commands: Command[] = [];
 
-	constructor(protected logger: Logger, private client: BaseClient) {
+	constructor(protected logger: Logger) {
 		super(logger);
 	}
 
@@ -66,12 +66,10 @@ export class PotoCommandHandler extends PotoHandler {
 		this.commands = [];
 
 		for (const command of result) {
-			const commandInstancie = new command.file(this.client);
+			const commandInstancie = new command.file();
 			if (!(commandInstancie instanceof Command)) { continue; }
-			commandInstancie.client = this.client;
 			for (const option of commandInstancie.options ?? []) {
 				if (option instanceof SubCommand) {
-					option.client = this.client;
 					option.middlewares = (commandInstancie.middlewares ?? []).concat(option.middlewares ?? []);
 					option.onMiddlewaresError = option.onMiddlewaresError?.bind(option) ?? commandInstancie.onMiddlewaresError?.bind(commandInstancie);
 					option.onRunError = option.onRunError?.bind(option) ?? commandInstancie.onRunError?.bind(commandInstancie);

@@ -25,7 +25,7 @@ export class BaseClient {
 		logLevel: LogLevels.Info,
 	});
 
-	commands = new PotoCommandHandler(this.logger, this);
+	commands = new PotoCommandHandler(this.logger);
 	langs = new PotoLangsHandler(this.logger);
 	components = new ComponentHandler(this.logger, this);
 
