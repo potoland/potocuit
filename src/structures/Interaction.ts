@@ -174,11 +174,11 @@ export class Interaction<FromGuild extends boolean = boolean, Type extends APIIn
 		return this.fetchMessage('@original');
 	}
 
-	write(body: InteractionCreateBodyRequest) {
+	write(body: InteractionCreateBodyRequest, files?: RawFile[]) {
 		return this.reply({
 			type: InteractionResponseType.ChannelMessageWithSource,
 			data: body
-		});
+		}, files);
 	}
 
 	async editOrReply(body: InteractionMessageUpdateBodyRequest, files?: RawFile[]) {

@@ -116,16 +116,18 @@ export class BaseClient {
 
 	async loadComponents(dir?: string) {
 		dir ??= await this.getRC().then(x => x.components);
-		BaseClient.assertString(dir);
-		await this.components.load(dir);
-		this.logger.info('PotoComponentHandler loaded');
+		if (dir) {
+			await this.components.load(dir);
+			this.logger.info('PotoComponentHandler loaded');
+		}
 	}
 
 	async loadLangs(dir?: string) {
 		dir ??= await this.getRC().then(x => x.langs);
-		BaseClient.assertString(dir);
-		await this.langs.load(dir);
-		this.logger.info('PotoLangsHandler loaded');
+		if (dir) {
+			await this.langs.load(dir);
+			this.logger.info('PotoLangsHandler loaded');
+		}
 	}
 
 	async getRC() {

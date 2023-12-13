@@ -28,9 +28,10 @@ export class PotoClient extends BaseClient {
 
 	async loadEvents(dir?: string) {
 		dir ??= await this.getRC().then(x => x.events);
-		BaseClient.assertString(dir);
-		await this.events.load(dir);
-		this.logger.info('PotoEventHandler loaded');
+		if (dir) {
+			await this.events.load(dir);
+			this.logger.info('PotoEventHandler loaded');
+		}
 	}
 
 	protected async execute(options: { token?: string; intents?: number } = {}) {
