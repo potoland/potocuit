@@ -1,6 +1,5 @@
-import type { APIGatewayBotInfo, GatewayDispatchPayload, GatewayIntentBits, GatewayPresenceUpdateData } from '@biscuitland/common';
+import type { APIGatewayBotInfo, GatewayDispatchPayload, GatewayIntentBits, GatewayPresenceUpdateData, Logger } from '@biscuitland/common';
 import type { IdentifyProperties } from '../constants';
-import type { Logger } from '../templogger';
 
 export interface ShardManagerOptions extends ShardDetails {
 	/** Important data which is used by the manager to connect shards to the gateway. */

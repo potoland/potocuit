@@ -9,13 +9,13 @@ import {
 	Collection,
 	GatewayOpcodes,
 	LogLevels,
+	Logger,
 	toSnakeCase,
 } from '@biscuitland/common';
 import { ShardManagerDefaults } from '../constants';
 import { SequentialBucket } from '../structures';
 import { Shard } from './shard.js';
 import type { ShardManagerOptions } from './shared';
-import { Logger } from '../templogger';
 import { Options } from '../../utils';
 
 export class ShardManager extends Collection<number, Shard> {

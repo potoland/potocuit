@@ -1,6 +1,7 @@
 import type {
 	GatewayReceivePayload,
-	GatewaySendPayload
+	GatewaySendPayload,
+	Logger
 } from '@biscuitland/common';
 import {
 	GatewayCloseCodes,
@@ -15,7 +16,6 @@ import { properties } from '../constants';
 import type { ShardData, ShardOptions } from './shared';
 import { ShardSocketCloseCodes } from './shared';
 import { BaseSocket } from './basesocket';
-import type { Logger } from '../templogger';
 import { ConnectTimeout } from '../structures/timeout';
 import { DynamicBucket, PriorityQueue } from '../structures';
 
@@ -54,7 +54,6 @@ export class Shard {
 			limit: safe,
 			refillAmount: safe,
 			refillInterval: 6e4,
-			// @ts-expect-error
 			logger: this.logger,
 		});
 	}
