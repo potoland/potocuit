@@ -1,18 +1,18 @@
 import { type GatewayDispatchPayload } from '@biscuitland/common';
 import type { BiscuitREST } from '@biscuitland/rest';
-import { GatewayManager } from '@biscuitland/ws';
 import type { Adapter } from '../cache';
-import { PotoEventHandler } from '../events/handler';
 import type { StartOptions } from './base';
+import type { DeepPartial } from '../structures/extra/types';
+import { ShardManager } from '../websocket';
+import { PotoEventHandler } from '../events/handler';
 import { BaseClient } from './base';
 import { onInteraction } from './oninteraction';
-import type { DeepPartial } from '../structures/extra/types';
 
 export class PotoClient extends BaseClient {
-	gateway!: GatewayManager;
+	gateway!: ShardManager;
 	events = new PotoEventHandler(this.logger);
 
-	setServices({ gateway, rest, cache }: { rest?: BiscuitREST; gateway?: GatewayManager; cache?: Adapter }) {
+	setServices({ gateway, rest, cache }: { rest?: BiscuitREST; gateway?: ShardManager; cache?: Adapter }) {
 		super.setServices({ rest, cache });
 		if (gateway) {
 			const onPacket = this.onPacket.bind(this);
@@ -48,7 +48,7 @@ export class PotoClient extends BaseClient {
 
 		if (!this.gateway) {
 			BaseClient.assertString(token, 'token is not a string');
-			this.gateway = new GatewayManager({
+			this.gateway = new ShardManager({
 				token,
 				info: await this.proxy.gateway.bot.get(),
 				intents,
