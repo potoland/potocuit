@@ -51,7 +51,7 @@ export type OptionsRecord = Record<string, Omit<__PotoCommandOption, 'type'>>;
 export type ContextOptions<T extends OptionsRecord> = {
 	[K in keyof T]: Parameters<Parameters<T[K]['value']>[1]>[0];// ApplicationCommandOptionType[];
 };
-export type MiddlewareContext<T = any> = (context: { lastFail: Error | undefined; context: CommandContext<{}, []>; next: NextFunction<T>; fail: FailFunction; stop: StopFunction }) => any;
+export type MiddlewareContext<T = any> = (context: { lastFail: Error | undefined; context: CommandContext<any, {}, []>; next: NextFunction<T>; fail: FailFunction; stop: StopFunction }) => any;
 export type MetadataMiddleware<T extends MiddlewareContext> = Parameters<Parameters<T>[0]['next']>[0];
 export type CommandMetadata<T extends Readonly<MiddlewareContext[]>> = T extends readonly [infer first, ...infer rest]
 	? first extends MiddlewareContext
@@ -115,7 +115,7 @@ class BaseCommand {
 	// 	});
 	// }
 
-	async runOptions(ctx: CommandContext<{}, []>, resolver: OptionResolver): Promise<[boolean, OnOptionsReturnObject]> {
+	async runOptions(ctx: CommandContext<any, {}, []>, resolver: OptionResolver): Promise<[boolean, OnOptionsReturnObject]> {
 		const command = resolver.getCommand();
 		if (!resolver.hoistedOptions.length || !command) { return [false, {}]; }
 		const data: OnOptionsReturnObject = {};
@@ -153,7 +153,7 @@ class BaseCommand {
 	}
 
 	// dont fucking touch.
-	runMiddlewares(context: CommandContext<{}, []>): Result<Record<string, any>, true> {
+	runMiddlewares(context: CommandContext<any, {}, []>): Result<Record<string, any>, true> {
 		if (!this.middlewares.length) { return Promise.resolve([{}, undefined]); }// nose nunca he hecho middlewares xdxd
 		// hay que pensarse mejor el next, capaz usando promesas para el callback
 		// se supone que el next tiene que devolver algo o nada, lo mas cercano a eso es un resolve() o directamente otro callback
@@ -231,8 +231,8 @@ class BaseCommand {
 
 	run?(context: CommandContext<any, any>): any;
 	onRunError?(context: CommandContext<any, any>, error: unknown): any;
-	onOptionsError?(context: CommandContext<{}, []>, metadata: OnOptionsReturnObject): any;
-	onMiddlewaresError?(context: CommandContext<{}, []>, error: Error): any;
+	onOptionsError?(context: CommandContext<any, {}, []>, metadata: OnOptionsReturnObject): any;
+	onMiddlewaresError?(context: CommandContext<any, {}, []>, error: Error): any;
 }
 
 export class Command extends BaseCommand {

@@ -1,14 +1,15 @@
+import type { When } from '@biscuitland/common';
 import { InteractionResponseType, MessageFlags } from '@biscuitland/common';
 import type { RawFile } from '@biscuitland/rest';
 import type { __LangType } from '../__generated';
-import type { BaseClient } from '../client/base';
 import { type ChatInputCommandInteraction } from '../structures';
 import type { MiddlewareContext, ContextOptions, CommandMetadata, OptionsRecord } from './commands';
 import type { OptionResolver } from './optionresolver';
 import type { InteractionCreateBodyRequest, InteractionMessageUpdateBodyRequest } from '../types/write';
+import type { PotoClient, PotoHttpClient } from '../client';
 
-export class CommandContext<T extends OptionsRecord = {}, M extends Readonly<MiddlewareContext[]> = []> {
-	constructor(private client: BaseClient, readonly interaction: ChatInputCommandInteraction, public options: ContextOptions<T>, public metadata: CommandMetadata<M>, public resolver: OptionResolver) { }
+export class CommandContext<C extends boolean, T extends OptionsRecord = {}, M extends Readonly<MiddlewareContext[]> = []> {
+	constructor(readonly client: When<C, PotoClient, PotoHttpClient>, readonly interaction: ChatInputCommandInteraction, public options: ContextOptions<T>, public metadata: CommandMetadata<M>, public resolver: OptionResolver) { }
 
 	get proxy() {
 		return this.client.proxy;
