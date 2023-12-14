@@ -1,5 +1,5 @@
 import type { LocaleString } from '@biscuitland/common';
-import type { SubCommand, PotoCommandOption, MiddlewareContext, OptionsRecord } from './commands';
+import type { SubCommand, PotoCommandOption, MiddlewareContext, __PotoCommandOption, OptionsRecord } from './commands';
 import type { BaseClient } from '../client/base';
 
 type DeclareOptions = {
@@ -66,7 +66,6 @@ export function Options(options: (new (client: BaseClient) => SubCommand)[] | Op
 	return function <T extends { new(...args: any[]): {} }>(target: T) {
 		return class extends target {
 			client!: BaseClient;
-			// options = options;
 			options: SubCommand[] | PotoCommandOption[];
 			constructor(...args: any[]) {
 				super(...args);
@@ -88,10 +87,7 @@ export function Middlewares(cbs: Readonly<MiddlewareContext[]>) {
 		};
 	};
 }
-// no hablo python
-// weno
-// Y si en localizations usamos una tupla en vez de un objeto?
-// en vez de { "es-ES": "dsadad"} haces [["es-Es", dasdda]...]
+
 export function Declare(declare: DeclareOptions) {
 	return function <T extends { new(...args: any[]): {} }>(target: T) {
 		return class extends target {

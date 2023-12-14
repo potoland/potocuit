@@ -1,16 +1,22 @@
-import type { BiscuitREST } from '@biscuitland/rest';
 import type { Cache } from '../../index';
 import type { GatewayIntentBits } from '@biscuitland/common';
+import type { BaseClient } from '../../../client/base';
 
 export class BaseResource<T = any> {
+	client!: BaseClient;
 	namespace = 'base';
 
-	constructor(protected cache: Cache, protected rest?: BiscuitREST) {
+	constructor(protected cache: Cache, client?: BaseClient) {
+		if (client) { this.client = client; }
 	}
 
 	/** @ioternal */
-	__setRest(rest: BiscuitREST) {
-		this.rest = rest;
+	__setClient(client: BaseClient) {
+		this.client = client;
+	}
+
+	get rest() {
+		return this.client!.rest;
 	}
 
 	get adapter() {

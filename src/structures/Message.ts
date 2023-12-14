@@ -7,8 +7,8 @@ import type {
 	ObjectToLower,
 } from '@biscuitland/common';
 import type { RawFile } from '@biscuitland/rest';
-import { MessageActionRowComponent } from '../Components/ActionRow';
-import type { BiscuitActionRowMessageComponents } from '../Components';
+import { MessageActionRowComponent } from '../components/ActionRow';
+import type { BiscuitActionRowMessageComponents } from '../components';
 import { GuildMember } from './GuildMember';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';

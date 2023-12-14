@@ -26,8 +26,7 @@
 		"skipLibCheck": true,
 		"noErrorTruncation": true,
 		"outDir": "./dist",
-		"plugins": [],
-		"stripInternal": true
+		"stripInternal": true,
 	},
 	"exclude": [
 		"**/dist",

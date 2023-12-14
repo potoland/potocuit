@@ -1,5 +1,5 @@
 import type { APIInteractionResponseChannelMessageWithSource, RESTPatchAPIChannelMessageJSONBody, RESTPatchAPIWebhookWithTokenMessageJSONBody, RESTPostAPIChannelMessageJSONBody, RESTPostAPIWebhookWithTokenJSONBody, APIInteractionResponseCallbackData } from '@biscuitland/common';
-import type { ActionRow, Modal, PotoComponents, TextInput } from '../Components';
+import type { ActionRow, Modal, PotoComponents, TextInput } from '../components';
 import type { OmitInsert } from './util';
 
 export type PotoComponentProper = {

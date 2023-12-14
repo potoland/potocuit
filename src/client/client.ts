@@ -1,10 +1,10 @@
-import { type GatewayDispatchPayload } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
 import type { Adapter } from '../cache';
-import type { StartOptions } from './base';
 import type { DeepPartial } from '../structures/extra/types';
 import { ShardManager } from '../websocket';
-import { PotoEventHandler } from '../events/handler';
+import { PotoEventHandler } from '../events';
+import type { BiscuitREST } from '@biscuitland/rest';
+import { type GatewayDispatchPayload } from '@biscuitland/common';
+import type { InternalRuntimeConfig, StartOptions } from './base';
 import { BaseClient } from './base';
 import { onInteraction } from './oninteraction';
 
@@ -43,7 +43,7 @@ export class PotoClient extends BaseClient {
 		await super.start(options);
 		await this.loadEvents(options.eventsDir);
 
-		const { token: tokenRC, intents: intentsRC } = await this.getRC();
+		const { token: tokenRC, intents: intentsRC } = await this.getRC<InternalRuntimeConfig>();
 		const token = options?.token ?? tokenRC;
 		const intents = options?.connection?.intents ?? intentsRC;
 
@@ -80,37 +80,3 @@ export class PotoClient extends BaseClient {
 		}
 	}
 }
-
-// switch (packet.d.type) {
-// 	case InteractionType.ApplicationCommandAutocomplete: {
-// 		const packetData = packet.d.data;
-// 		const parentCommand = this.commandHandler.commands.find(x => x.name === packetData.name)!;
-// 		const optionsResolver = new OptionResolver(this.rest, this.cache, packetData.options ?? [], parentCommand, packet.d.data.guild_id, packet.d.data.resolved);
-// 		const interaction = new AutocompleteInteraction(this.rest, this.cache, packet.d);
-// 		const command = optionsResolver.getAutocomplete();
-// 		if (command?.autocomplete) {
-// 			await command.autocomplete(interaction);
-// 		}
-// 	} break;
-// 	case InteractionType.ApplicationCommand: {
-// 		switch (packet.d.data.type) {
-// 			case ApplicationCommandType.ChatInput: {
-// 				const packetData = packet.d.data;
-// 				const parentCommand = this.commandHandler.commands.find(x => x.name === (packetData).name)!;
-// 				const optionsResolver = new OptionResolver(this.rest, this.cache, packetData.options ?? [], parentCommand, packet.d.data.guild_id, packet.d.data.resolved);
-// 				const interaction = BaseInteraction.from(this.rest, this.cache, packet.d) as ChatInputCommandInteraction;
-// 				const command = optionsResolver.getCommand();
-// 				if (command?.run) {
-// 					const context = new CommandContext(this, interaction, {}, {}, optionsResolver);
-// 					const [erroredOptions, result] = await command.runOptions(context, optionsResolver);
-// 					if (erroredOptions) { return await command.onRunOptionsError(context, result); }
-
-// 					const [_, erroredMiddlewares] = await command.runMiddlewares(context);
-// 					if (erroredMiddlewares) { return command.onStop(context, erroredMiddlewares); }
-
-// 					await command.run(context);
-// 				}
-// 			} break;
-// 		} break;
-// 	}
-// } break;

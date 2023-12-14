@@ -1,16 +1,17 @@
+import { GuildEmoji } from '../../structures';
 import { GuildRelatedResource } from './default/guild-related';
-// import { GuildEmoji } from '../../GuildEmoji';
+import type { APIEmoji } from '@biscuitland/common';
 
 export class Emojis extends GuildRelatedResource {
 	namespace = 'emoji';
 
-	// override async get(id: string, guild: string) {
-	// 	const rawEmoji = await super.get(id, guild) as (APIEmoji & { id: string });
-	// 	return rawEmoji ? new GuildEmoji(this.rest, this.cache, rawEmoji, guild) : undefined;
-	// }
+	override async get(id: string) {
+		const rawEmoji = await super.get(id) as (APIEmoji & { id: string; guild_id: string });
+		return rawEmoji ? new GuildEmoji(this.client, rawEmoji, rawEmoji.guild_id) : undefined;
+	}
 
-	// override async items(guild: string, options?: any) {
-	// 	const emojis = await super.items(guild, options) as (APIEmoji & { id: string })[];
-	// 	return emojis.map(rawEmoji => new GuildEmoji(this.rest, this.cache, rawEmoji, guild));
-	// }
+	override async values(guild: string) {
+		const emojis = await super.values(guild) as (APIEmoji & { id: string; guild_id: string })[];
+		return emojis.map(rawEmoji => new GuildEmoji(this.client, rawEmoji, rawEmoji.guild_id));
+	}
 }

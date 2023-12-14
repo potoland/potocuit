@@ -20,11 +20,8 @@ import { Stickers } from './resources/stickers';
 import { Threads } from './resources/threads';
 import { VoiceStates } from './resources/voice-states';
 
-import type { BiscuitREST } from '@biscuitland/rest';
 import { GatewayIntentBits } from '@biscuitland/common';
-
-// pues lo del cache y los intents
-// ya pero exactamente que
+import type { BaseClient } from '../client/base';
 
 // GuildBased
 export type GuildBased =
@@ -107,40 +104,40 @@ export class Cache {
 	voiceStates?: VoiceStates;
 	stageInstances?: StageInstances;
 
-	constructor(public intents: number, public adapter: Adapter, readonly disabledCache: (NonGuildBased | GuildBased | GuildRelated)[] = [], rest?: BiscuitREST) {
+	constructor(public intents: number, public adapter: Adapter, readonly disabledCache: (NonGuildBased | GuildBased | GuildRelated)[] = [], client?: BaseClient) {
 		// non-guild based
-		if (!this.disabledCache.includes('users')) { this.users = new Users(this, rest); }
-		if (!this.disabledCache.includes('guilds')) { this.guilds = new Guilds(this, rest); }
+		if (!this.disabledCache.includes('users')) { this.users = new Users(this, client); }
+		if (!this.disabledCache.includes('guilds')) { this.guilds = new Guilds(this, client); }
 
 		// guild related
-		if (!this.disabledCache.includes('members')) { this.members = new Members(this, rest); }
+		if (!this.disabledCache.includes('members')) { this.members = new Members(this, client); }
 
 		// guild based
-		if (!this.disabledCache.includes('roles')) { this.roles = new Roles(this, rest); }
-		if (!this.disabledCache.includes('channels')) { this.channels = new Channels(this, rest); }
-		if (!this.disabledCache.includes('emojis')) { this.emojis = new Emojis(this, rest); }
-		if (!this.disabledCache.includes('stickers')) { this.stickers = new Stickers(this, rest); }
-		if (!this.disabledCache.includes('presences')) { this.presences = new Presences(this, rest); }
-		if (!this.disabledCache.includes('voiceStates')) { this.voiceStates = new VoiceStates(this, rest); }
-		if (!this.disabledCache.includes('threads')) { this.threads = new Threads(this, rest); }
-		if (!this.disabledCache.includes('stageInstances')) { this.stageInstances = new StageInstances(this, rest); }
+		if (!this.disabledCache.includes('roles')) { this.roles = new Roles(this, client); }
+		if (!this.disabledCache.includes('channels')) { this.channels = new Channels(this, client); }
+		if (!this.disabledCache.includes('emojis')) { this.emojis = new Emojis(this, client); }
+		if (!this.disabledCache.includes('stickers')) { this.stickers = new Stickers(this, client); }
+		if (!this.disabledCache.includes('presences')) { this.presences = new Presences(this, client); }
+		if (!this.disabledCache.includes('voiceStates')) { this.voiceStates = new VoiceStates(this, client); }
+		if (!this.disabledCache.includes('threads')) { this.threads = new Threads(this, client); }
+		if (!this.disabledCache.includes('stageInstances')) { this.stageInstances = new StageInstances(this, client); }
 	}
 
 	/** @internal */
-	__setRest(rest: BiscuitREST) {
-		this.users?.__setRest(rest);
-		this.guilds?.__setRest(rest);
+	__setClient(client: BaseClient) {
+		this.users?.__setClient(client);
+		this.guilds?.__setClient(client);
 
-		this.members?.__setRest(rest);
+		this.members?.__setClient(client);
 
-		this.roles?.__setRest(rest);
-		this.channels?.__setRest(rest);
-		this.emojis?.__setRest(rest);
-		this.stickers?.__setRest(rest);
-		this.presences?.__setRest(rest);
-		this.voiceStates?.__setRest(rest);
-		this.threads?.__setRest(rest);
-		this.stageInstances?.__setRest(rest);
+		this.roles?.__setClient(client);
+		this.channels?.__setClient(client);
+		this.emojis?.__setClient(client);
+		this.stickers?.__setClient(client);
+		this.presences?.__setClient(client);
+		this.voiceStates?.__setClient(client);
+		this.threads?.__setClient(client);
+		this.stageInstances?.__setClient(client);
 	}
 
 	// internal use ./structures
@@ -164,25 +161,9 @@ export class Cache {
 		return this.hasIntent('GuildMembers');
 	}
 
-	// get hasGuildBansIntent() {
-	// 	return this.hasIntent('GuildBans');
-	// }
-
 	get hasEmojisAndStickersIntent() {
 		return this.hasIntent('GuildEmojisAndStickers');
 	}
-
-	// get hasGuildIntegrationIntent() {
-	// 	return this.hasIntent('GuildIntegrations');
-	// }
-
-	// get hasGuildWebhookIntents() {
-	// 	return this.hasIntent('GuildWebhooks');
-	// }
-
-	// get hasGuildInvitesIntent() {
-	// 	return this.hasIntent('GuildInvites');
-	// }
 
 	get hasVoiceStatesIntent() {
 		return this.hasIntent('GuildVoiceStates');
@@ -325,11 +306,6 @@ export class Cache {
 			}
 		}
 
-		// console.log({
-		// 	allData,
-		// 	relationshipsData
-		// });
-
 		await this.adapter.set(
 			allData
 		);
@@ -343,17 +319,6 @@ export class Cache {
 			case 'READY': {
 				const data = event.d as GatewayReadyDispatchData;
 				await this.users?.set(data.user.id, data.user);
-				// const bulkData: Parameters<Cache['bulkSet']>[0] = [];
-
-				// bulkData.push(...data.guilds.map(x =>
-				// 	['guilds', x, x.id] as const
-				// ));
-
-				// bulkData.push(['users', data.user, data.user.id]);
-
-				// await this.bulkSet(
-				// 	bulkData
-				// );
 			} break;
 			case 'GUILD_CREATE':
 			case 'GUILD_UPDATE':
@@ -396,12 +361,6 @@ export class Cache {
 				await this.members?.remove(event.d.user.id, event.d.guild_id);
 				break;
 
-			// case 'MESSAGE_CREATE':
-			// 	if (event.d.member && event.d.author && event.d.guild_id) {
-			// 		await this.members.set(event.d.author.id, event.d.guild_id, { user: event.d.author, ...event.d.member });
-			// 	}
-			// 	break;
-
 			case 'PRESENCE_UPDATE':
 				// Should update member data?
 				await this.presences?.set(event.d.user.id, event.d.guild_id, event.d);
@@ -424,10 +383,6 @@ export class Cache {
 				if (!event.d.guild_id) {
 					return;
 				}
-
-				// if (event.d.guild_id && event.d.member && event.d.user_id) {
-				// 	await this.members.set(event.d.user_id, event.d.guild_id, event.d.member);
-				// }
 
 				if (event.d.channel_id != null) {
 					await this.voiceStates?.set(event.d.user_id, event.d.guild_id, event.d);

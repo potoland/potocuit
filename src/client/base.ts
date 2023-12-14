@@ -4,12 +4,13 @@ import { Cache, DefaultMemoryAdapter } from '../cache';
 import { PotoLangsHandler } from '../langs/handler';
 import { PotoCommandHandler } from '../commands/handler';
 import { join } from 'node:path';
+import type { MakeRequired } from '@biscuitland/common';
 import { LogLevels, Logger } from '@biscuitland/common';
 import type { DeepPartial } from '../structures/extra/types';
-import { ComponentHandler } from '../Components/handler';
+import { ComponentHandler } from '../components/handler';
+import type { IntentStrings, OmitInsert } from '../types/util';
 
 export class BaseClient {
-	// gateway!: GatewayManager;
 	rest!: BiscuitREST;
 	cache!: Cache;
 
@@ -65,7 +66,7 @@ export class BaseClient {
 			this.rest = rest;
 		}
 		if (cache) {
-			this.cache = new Cache(this.cache?.intents ?? 0, cache, this.cache?.disabledCache, this.rest);
+			this.cache = new Cache(this.cache?.intents ?? 0, cache, this.cache?.disabledCache, this);
 		}
 	}
 
@@ -89,9 +90,9 @@ export class BaseClient {
 		}
 
 		if (!this.cache) {
-			this.cache = new Cache(0, new DefaultMemoryAdapter(), [], this.rest);
+			this.cache = new Cache(0, new DefaultMemoryAdapter(), [], this);
 		} else {
-			this.cache.__setRest(this.rest);
+			this.cache.__setClient(this);
 		}
 	}
 
@@ -130,15 +131,12 @@ export class BaseClient {
 		}
 	}
 
-	async getRC() {
-		const { variables, locations, debug } = await import(join(process.cwd(), '.potorc.json')) as RC;
-		const env = await import(join(process.cwd(), variables)).then(x => x.default) as Required<Variables>;
+	async getRC<T extends InternalRuntimeConfigHTTP | InternalRuntimeConfig = InternalRuntimeConfigHTTP | InternalRuntimeConfig>() {
+		const { locations, debug, ...env } = await import(join(process.cwd(), 'poto.config.js')).then(x => x.default) as T;
 
 		return {
 			debug: !!debug,
-
 			...env,
-
 			langs: locations.langs ? join(process.cwd(), locations.langs) : undefined,
 			templates: locations.templates ? join(process.cwd(), locations.base, locations.templates) : undefined,
 			events: locations.events ? join(process.cwd(), locations.output, locations.events) : undefined,
@@ -151,9 +149,18 @@ export class BaseClient {
 	}
 }
 
-interface RC {
+export interface StartOptions {
+	eventsDir: string;
+	langsDir: string;
+	commandsDir: string;
+	componentsDir: string;
+	connection: { intents: number };
+	httpConnection: { publicKey: string; port: number };
+	token: string;
+}
+
+interface RC extends Variables {
 	debug?: boolean;
-	variables: string;
 	locations: {
 		base: string;
 		output: string;
@@ -168,22 +175,12 @@ interface RC {
 export interface Variables {
 	token: string;
 	intents?: number;
-	applicationId: string;
+	applicationId?: string;
 	port?: number;
-	publicKey: string;
+	publicKey?: string;
 }
 
-export interface StartOptions {
-	eventsDir: string;
-	langsDir: string;
-	commandsDir: string;
-	componentsDir: string;
-	connection: { intents: number };
-	httpConnection: { publicKey: string; port: number };
-	token: string;
-}
-
-export const DefaultVars = {
-	port: 8080,
-	intents: 0,
-};
+export type InternalRuntimeConfigHTTP = Omit<MakeRequired<RC, 'publicKey' | 'port' | 'applicationId'>, 'intents'>;
+export type RuntimeConfigHTTP = Omit<MakeRequired<RC, 'publicKey' | 'applicationId'>, 'intents'>;
+export type InternalRuntimeConfig = Omit<MakeRequired<RC, 'intents'>, 'publicKey'>;
+export type RuntimeConfig = OmitInsert<InternalRuntimeConfig, 'intents', { intents?: IntentStrings }>;

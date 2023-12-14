@@ -33,10 +33,6 @@ export class Webhook extends DiscordBase {
 		});
 	}
 
-	// set token(token: string) {
-	// 	this.token = token;
-	// }
-
 	avatarURL(options?: ImageOptions): string | null {
 		if (!this.avatar) {
 			return null;
@@ -49,7 +45,6 @@ export class Webhook extends DiscordBase {
 		return this.__methods__.fetch(force).then(this._patchThis);
 	}
 
-	// edit(body: RESTPatchAPIWebhookWithTokenJSONBody, reason?: string): Promise<this>;
 	async edit(body: RESTPatchAPIWebhookJSONBody | RESTPatchAPIWebhookWithTokenJSONBody, reason?: string) {
 		return this.__methods__.edit(body, reason).then(this._patchThis);
 	}
@@ -58,7 +53,6 @@ export class Webhook extends DiscordBase {
 		return this.__methods__.delete(reason);
 	}
 
-	// se supone que token deberia ser siempre string porque todos los metodos que da la funcion necesitan token
 	static messages(ctx: MethodContext<{ token?: string }>) {
 		return {
 			write: async (payload: MessagePayload<RESTPostAPIWebhookWithTokenJSONBody, { query?: RESTPostAPIWebhookWithTokenQuery }>,) => {

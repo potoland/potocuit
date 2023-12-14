@@ -1,19 +1,20 @@
+import type { APIGuild } from '@biscuitland/common';
+import { Guild } from '../../structures';
 import type { Cache } from '..';
-// import { Guild } from '../../Guild';
 import { BaseResource } from './default/base';
 
 export class Guilds extends BaseResource {
 	namespace = 'guild';
 
-	// override async get(id: string) {
-	// 	const guild = await super.get(id) as APIGuild | undefined;
-	// 	return guild ? new Guild(this.rest, this.cache, guild) as Guild : undefined;
-	// }
+	override async get(id: string) {
+		const guild = await super.get(id) as APIGuild | undefined;
+		return guild ? new Guild(this.client, guild) as Guild : undefined;
+	}
 
-	// override async items() {
-	// 	const guilds = await super.items() as APIGuild[];
-	// 	return guilds.map(x => new Guild(this.rest, this.cache, x) as Guild);
-	// }
+	override async values() {
+		const guilds = await super.values() as APIGuild[];
+		return guilds.map(x => new Guild(this.client, x));
+	}
 
 	override async remove(id: string) {
 

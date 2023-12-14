@@ -15,9 +15,6 @@ export class MessagesMethods extends DiscordBase {
 		return this.api.channels(this.id).typing.post();
 	}
 
-	// creo que esto da error de runtime XDDDDDD si no mal recuerdo me paso algo parecido en biscuit
-	// era algo como que esto se iniciaba antes que el constructor y this daba error, aunque supongo que aqui no pasa nada
-	// solo afectaria a los que tengan constructor i guess
 	messages = MessagesMethods.messages(this);
 	pins = MessagesMethods.pins(this);
 	reactions = MessagesMethods.reactions(this);

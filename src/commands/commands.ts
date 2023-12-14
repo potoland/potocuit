@@ -1,4 +1,4 @@
-import type { APIApplicationCommandBasicOption, APIApplicationCommandOption, APIApplicationCommandSubcommandGroupOption, APIAttachment, LocaleString } from '@biscuitland/common';
+import type { APIApplicationCommandBasicOption, APIApplicationCommandOption, APIApplicationCommandOptionChoice, APIApplicationCommandSubcommandGroupOption, APIAttachment, LocaleString } from '@biscuitland/common';
 import { ApplicationCommandOptionType, ApplicationCommandType } from '@biscuitland/common';
 import type { Result } from '../types/util';
 import type { InteractionGuildMember, GuildRole, PotocuitChannels, User, AutocompleteInteraction } from '../structures';
@@ -21,15 +21,20 @@ interface ReturnOptionsTypes {
 	11: APIAttachment;
 }
 
+type __Choices<T extends ApplicationCommandOptionType> = {
+	choices?: APIApplicationCommandOptionChoice<ReturnOptionsTypes[T]>[];
+};
+
 type Wrap<N extends ApplicationCommandOptionType> = N extends ApplicationCommandOptionType.Subcommand | ApplicationCommandOptionType.SubcommandGroup ? never : ({
 	type: N;
-	required: false;
-	value(value: ReturnOptionsTypes[N] | undefined, ok: OKFunction<any>, fail: FailFunction): void;
+	required?: false;
+	value?(value: ReturnOptionsTypes[N] | undefined, ok: OKFunction<any>, fail: FailFunction): void;
 } | {
 	type: N;
 	required: true;
-	value(value: ReturnOptionsTypes[N], ok: OKFunction<any>, fail: FailFunction): void;
-}) & Omit<APIApplicationCommandBasicOption, 'type' | 'required' | 'name'>;
+	value?(value: ReturnOptionsTypes[N], ok: OKFunction<any>, fail: FailFunction): void;
+}) & Omit<APIApplicationCommandBasicOption, 'type' | 'required' | 'name'>
+	& (N extends ApplicationCommandOptionType.String | ApplicationCommandOptionType.Number | ApplicationCommandOptionType.Number ? __Choices<N> : {});
 type __TypesWrapper = {
 	[P in keyof typeof ApplicationCommandOptionType]: `${typeof ApplicationCommandOptionType[P]}` extends `${infer D extends number}` ? Wrap<D> : never;
 };
@@ -43,12 +48,14 @@ export type OnAutocompleteErrorCallback = (interaction: AutocompleteInteraction,
 export type PotoCommandBaseOption = __TypesWrapper[keyof __TypesWrapper];
 export type PotoCommandBaseAutocompleteOption = Extract<__TypesWrapper[keyof __TypesWrapper] & { autocomplete: AutocompleteCallback; onError?: OnAutocompleteErrorCallback }, { type: ApplicationCommandOptionType.String | ApplicationCommandOptionType.Integer | ApplicationCommandOptionType.Number }>;
 export type PotoCommandAutocompleteOption = PotoCommandBaseAutocompleteOption & { name: string };
-
 export type __PotoCommandOption = PotoCommandBaseOption | PotoCommandBaseAutocompleteOption;
-export type OptionsRecord = Record<string, Omit<__PotoCommandOption, 'type'>>;
-// thanks yuzu & socram
+export type PotoCommandOption = __PotoCommandOption & { name: string };
+export type OptionsRecord = Record<string, __PotoCommandOption>;
+
 export type ContextOptions<T extends OptionsRecord> = {
-	[K in keyof T]: Parameters<Parameters<T[K]['value']>[1]>[0];// ApplicationCommandOptionType[];
+	[K in keyof T]: T[K]['value'] extends (...args: any) => any
+	? T[K]['required'] extends true ? Parameters<Parameters<T[K]['value']>[1]>[0] : Parameters<Parameters<T[K]['value']>[1]>[0]
+	: T[K]['required'] extends true ? ReturnOptionsTypes[T[K]['type']] : ReturnOptionsTypes[T[K]['type']] | undefined;
 };
 export type MiddlewareContext<T = any> = (context: { lastFail: Error | undefined; context: CommandContext<any, {}, []>; next: NextFunction<T>; fail: FailFunction; stop: StopFunction }) => any;
 export type MetadataMiddleware<T extends MiddlewareContext> = Parameters<Parameters<T>[0]['next']>[0];
@@ -58,7 +65,6 @@ export type CommandMetadata<T extends Readonly<MiddlewareContext[]>> = T extends
 	: {}
 	: {};
 
-export type PotoCommandOption = __PotoCommandOption & { name: string };
 
 export type OnOptionsReturnObject = Record<string, {
 	failed: false;
@@ -69,7 +75,6 @@ export type OnOptionsReturnObject = Record<string, {
 }>;
 
 class BaseCommand {
-	// y cambiarle el nombre a esta wea
 	middlewares: MiddlewareContext[] = [];
 
 	__filePath?: string;
@@ -84,32 +89,10 @@ class BaseCommand {
 	type!: number;// ApplicationCommandType.ChatInput | ApplicationCommandOptionType.Subcommand
 	nsfw?: boolean;
 	description!: string;
-	// me gustaria hacer una forma de facilitar estas mierdas
-	// los localizations terminan siendo objetos molestos de escribir y bastante largos
-	// asi que hay que ir pensando una forma de mejorarlo
-	//
 	name_localizations?: Partial<Record<LocaleString, string>>;
 	description_localizations?: Partial<Record<LocaleString, string>>;
-	// esto es el raw bro
-	// mira arriba
+
 	options?: PotoCommandOption[] | SubCommand[];
-	// onMiddlewaresError(context: CommandContext<{}, []>, error: Error) {
-	// 	return context.write({
-	// 		content: `<This>.onMiddlewaresError\nOops, it seems like something didn't go as expected:\n\`\`\`${error.message}\`\`\``
-	// 	});
-	// }
-
-	// onOptionsError(context: CommandContext<{}, []>, metadata: OnOptionsReturnObject) {
-	// 	let content = '<This>.onOptionsError\n';
-	// 	for (const i in metadata) {
-	// 		const err = metadata[i];
-	// 		if (err.failed) { content += `[${i}]: ${err.value.message}\n`; }
-	// 	}
-
-	// 	return context.write({
-	// 		content
-	// 	});
-	// }
 
 	async runOptions(ctx: CommandContext<any, {}, []>, resolver: OptionResolver): Promise<[boolean, OnOptionsReturnObject]> {
 		const command = resolver.getCommand();
@@ -118,7 +101,7 @@ class BaseCommand {
 		let errored = false;
 		for (const i of resolver.hoistedOptions) {
 			const option = command.options!.find(x => x.name === i.name) as __PotoCommandOption;
-			const value = await new Promise(resolve => option.value(resolver.getValue(i.name) as never, resolve, resolve)) as any | Error;
+			const value = (await new Promise(resolve => option.value?.(resolver.getValue(i.name) as never, resolve, resolve)) || resolver.getValue(i.name)) as any | Error;
 			if (value instanceof Error) {
 				errored = true;
 				data[i.name] = {
@@ -150,11 +133,7 @@ class BaseCommand {
 
 	// dont fucking touch.
 	runMiddlewares(context: CommandContext<any, {}, []>): Result<Record<string, any>, true> {
-		if (!this.middlewares.length) { return Promise.resolve([{}, undefined]); }// nose nunca he hecho middlewares xdxd
-		// hay que pensarse mejor el next, capaz usando promesas para el callback
-		// se supone que el next tiene que devolver algo o nada, lo mas cercano a eso es un resolve() o directamente otro callback
-		// principalmente por tema de index y el lastFail tambien esta jodido yo me voy a cenar, seguimos mañana
-		// voy a bañarme B)
+		if (!this.middlewares.length) { return Promise.resolve([{}, undefined]); }
 		const metadata: Record<string, any> = {};
 		let index = 0,
 			lastFail: Error | undefined;
@@ -212,17 +191,8 @@ class BaseCommand {
 	async reload() {
 		delete require.cache[this.__filePath!];
 		const __tempCommand = await import(this.__filePath!).then(x => x.default ?? x);
-		// const instancie = new __tempCommand();
-		// for (const i of Object.getOwnPropertyNames(instancie)) {
-		// 	// @ts-expect-error
-		// 	this[i] = instancie[i];
-		// }
+
 		Object.setPrototypeOf(this, __tempCommand.prototype);
-		// if (upload && !(this instanceof SubCommand)) {
-		// 	await this.client.proxy.applications(this.client.applicationId).commands.post({
-		// 		body: this.toJSON()
-		// 	});
-		// }
 	}
 
 	run?(context: CommandContext<any, any>): any;
@@ -283,105 +253,3 @@ export abstract class SubCommand extends BaseCommand {
 	abstract run(context: CommandContext<any, any>): any;
 	onRunError?(context: CommandContext<any, any>, error: unknown): any;
 }
-
-
-// export function applyToClass<
-// 	T extends new (
-// 		..._args: ConstructorParameters<T>
-// 	) => InstanceType<T>,
-// 	U extends new (
-// 		..._args: ConstructorParameters<U>
-// 	) => InstanceType<U>
-// // @ts-expect-error
-// >(structToApply: T, struct: U, ignore?: (keyof T['prototype'])[]) {
-// 	const props = Object.getOwnPropertyNames(structToApply.prototype);
-// 	console.log(props);
-// 	for (const prop of props) {
-// 		if (ignore?.includes(prop as keyof T) || prop === 'constructor') { continue; }
-// 		Object.defineProperty(struct.prototype, prop, Object.getOwnPropertyDescriptor(structToApply.prototype, prop)!);
-// 	}
-// 	return struct as unknown as Struct<T, U>;
-// }
-
-// export type Struct<ToMix = {}, Final = {}> = Final extends new (
-// 	..._args: never[]
-// ) => infer F
-// 	? ToMix extends new (
-// 		..._args: never[]
-// 	) => infer TM
-// 	? new (
-// 		..._args: ConstructorParameters<Final>
-// 	) => F & TM
-// 	: never
-// 	: never;
-
-// idea:
-/*
-
-@Declare({ name: 'ping' ... })
-class Ping extends Command {}
-
-@Declare({ name: 'admin' ... })
-@Options([Request])
-class Admin extends Command {}
-
-@Declare({ name: 'request' ... })
-@Middlewares([CheckIfAdmin])
-@Group('setup', 'setup description')
-class Request extends SubCommand {}
-
-/ping
-
-/admin setup request
-*/
-
-// ta bueno
-// xdddddddddddddddddddd god.
-
-
-// @Declare({
-// 	name: 'set',
-// 	description: 'set value'
-// })
-// @Group('setup')
-// class SetValue extends SubCommand { }
-
-// @Declare({
-// 	description: 'Check bot ping',
-// 	name: 'ping',
-// 	nsfw: true
-// })
-// // xdd
-// // justo para evitar esto es que digo lo del langs dasjdasdjdksa imaginate este objeto con 15 traducciones
-// @Locales({
-// 	description: [
-// 		['es-ES', 'Mira la latencia del bot'],
-// 	],
-// 	name: [
-// 		['es-ES', 'latencia']
-// 	]
-// })
-// @Middlewares([(int: any) => int.isAdmin])
-// // como mrd hago que no se tenga que declarar las descripciones cada vez
-// // a? contexto pues no se que tan bien sean los decorators, pero tecnicamente el de la description llego primero asi que ya deberia existir en la clase
-// // pero el declare nmo tiene que ver con el Group
-// // entonces no se, como dices son cosas separadas asi que no le veo una forma XD
-// @Groups({
-// 	setup: {
-// 		name: [['es-ES', 'xd']],
-// 		description: [['es-ES', 'ddxd']],
-// 		defaultDescription: 'xdddddd'
-// 	}
-// })
-// @Options([new SetValue])
-// // aya hago un @Groups para el comando base na q genio
-// class Admin extends BaseCommand {
-
-// }
-
-// new Admin();
-
-// q
-// sisi al rato priemro quiero que prenda
-// ahora pensandolo, mejor intengremos una clase like in18
-// que le metamos un sistema de traducion nativamente sdasdjksdas

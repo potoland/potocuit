@@ -23,9 +23,7 @@ export interface Adapter {
 
 	remove(keys: string | string[]): RPV<void>;
 
-	// contains(to: string, keys: string[]): RPV<boolean[]>;
 	contains(to: string, keys: string): RPV<boolean>;
-	// contains(to: string, keys: string | string[]): RPV<boolean | boolean[]>;
 
 	getToRelationship(to: string): RPV<string[]>;
 

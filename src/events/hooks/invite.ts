@@ -11,7 +11,6 @@ export const INVITE_CREATE = (
 	data: GatewayInviteCreateDispatchData
 ) => {
 	return toCamelCase(data);
-	// return new ExtendedInvite(rest, cache, data as any);
 };
 
 export const INVITE_DELETE = (

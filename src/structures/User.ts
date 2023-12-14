@@ -20,8 +20,6 @@ export class User extends DiscordBase<APIUser> {
 	async fetch() {
 		const data = await this.api.users(this.id).get();
 		return this._patchCache(data, 'users');
-		// await this.cache.users?.patch(data.id, data);
-		// return this._patchThis(data);
 	}
 
 	/**

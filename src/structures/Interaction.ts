@@ -11,7 +11,7 @@ import type { PotocuitChannels } from './channels';
 import { OptionResolver } from '../commands';
 import type { BaseClient } from '../client/base';
 import type { ComponentInteractionMessageUpdate, InteractionCreateBodyRequest, InteractionMessageUpdateBodyRequest, MessageCreateBodyRequest, MessageUpdateBodyRequest, MessageWebhookCreateBodyRequest, ModalCreateBodyRequest } from '../types/write';
-import { ActionRow, Modal } from '../Components';
+import { ActionRow, Modal } from '../components';
 
 export type ReplyInteractionBody = { type: InteractionResponseType.Modal; data: ModalCreateBodyRequest }
 	| {
@@ -71,7 +71,7 @@ export class BaseInteraction<FromGuild extends boolean = boolean, Type extends A
 		}
 	}
 
-	static transformBody<T>(body: InteractionMessageUpdateBodyRequest | MessageUpdateBodyRequest | MessageCreateBodyRequest | MessageWebhookCreateBodyRequest) { // : RESTPatchAPIWebhookWithTokenMessageJSONBody | RESTPostAPIChannelMessageJSONBody {
+	static transformBody<T>(body: InteractionMessageUpdateBodyRequest | MessageUpdateBodyRequest | MessageCreateBodyRequest | MessageWebhookCreateBodyRequest) {
 		return {
 			...body,
 			components: body?.components

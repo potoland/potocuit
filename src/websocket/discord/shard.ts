@@ -175,7 +175,6 @@ export class Shard {
 
 				this.heart.interval = packet.d.heartbeat_interval;
 
-				// await delay(Math.ceil(this.heart.interval * (Math.random() || 0.5)));
 				await this.heartbeat(false);
 				this.heart.nodeInterval = setInterval(() => this.heartbeat(false), this.heart.interval);
 

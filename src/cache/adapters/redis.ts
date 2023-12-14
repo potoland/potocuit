@@ -152,7 +152,6 @@ export class RedisAdapter implements Adapter {
 
 		for (const [key, value] of Object.entries(data)) {
 			pipeline.sadd(key + ':set', ...value);
-			// await this.addToRelationship(key, value);
 		}
 
 		await pipeline.exec();
@@ -179,20 +178,6 @@ const isObject = (o: unknown) => {
 function toNormal(target: Record<string, any>) {
 	const result: Record<string, any> = {};
 	for (const [key, value] of Object.entries(target)) {
-		// if (isObject(value)) {
-		// 	if (Array.isArray(value)) {
-		// 		result[key] = value.map(prop => (typeof prop === 'object' && prop ? toNormal(prop) : prop));
-		// 		break;
-		// 	}
-		// 	if (isObject(value)) {
-		// 		result[key] = toNormal({ ...value });
-		// 		break;
-		// 	}
-		// 	if (!Number.isNaN(value)) {
-		// 		result[key] = null;
-		// 		break;
-		// 	}
-		// 	result[key] = toNormal({ ...value });
 		if (key.startsWith('O_')) {
 			result[key.slice(2)] = JSON.parse(value);
 		} else if (key.startsWith('N_')) {

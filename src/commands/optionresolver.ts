@@ -18,7 +18,6 @@ export class OptionResolver {
 		public guildId?: string,
 		public resolved?: APIInteractionDataResolved
 	) {
-		// esto funciona con subcomandos? si
 		this.hoistedOptions = this.options = options.map(option => this.transformOption(option, resolved));
 
 		if (this.hoistedOptions[0]?.type === ApplicationCommandOptionType.Subcommand) {
@@ -29,24 +28,13 @@ export class OptionResolver {
 			this.group = this.hoistedOptions[0].name;
 			this.subCommand = this.hoistedOptions[0].options![0]!.name;
 			this.hoistedOptions = this.hoistedOptions[0].options![0].options ?? [];
-		}// asi? xdd
-		// en djs no ponian lo del sub dentro del group asi que ni idea, pero en papel deberia funcionar
-	}// mira abajo xd
-
-	// /xddddddddddddddd, me debi fijar de djs (wtf djs hacinedo las cosas bien xdd)
-	// potente y tu hardcodeadndo a lo pendejo (te dije que era la unica cosa que me gustaba de ellos xd)
-	// por que nunca se me ocurrio hacerlo asi // por cabezon
+		}
+	}
 
 	getCommand() {
-		// /xdd
-		// if (this.group) {
-		// 	return ((this.parent.options as SubCommand[]).find(x => x.group === this.group)?.options as unknown as SubCommand[])?.find(x => x.name === this.subCommand) as SubCommand;
-		// }
 		if (this.subCommand) {
-			// ahora que veo, esto te devolvera el primer sub command sin discriminar XD
 			return (this.parent?.options as SubCommand[]).find(x => (this.group ? x.group === this.group : true) && x.name === this.subCommand);
-		}// trmendo oneline
-		// no xd, ya pero discord solo envia el comando que usas, no el objeto entero XD
+		}
 		return this.parent;
 	}
 
@@ -124,7 +112,6 @@ export class OptionResolver {
 		return option.value as string;
 	}
 
-	// xdd ? // nao, ahi va asi porque si le pasan un sub lo hace recursivo, la cosa es que junta todas las options en 1 solo array
 	transformOption(option: APIApplicationCommandInteractionDataOption, resolved?: APIInteractionDataResolved) {
 		const resolve: OptionResolved = {
 			...option
@@ -132,21 +119,15 @@ export class OptionResolver {
 
 		if ('value' in option) { resolve.value = option.value; }
 		if ('options' in option) { resolve.options = option.options?.map(x => this.transformOption(x, resolved)); }
-		// usamos las estrucutas?
-		// como cuales
-		// pues solo poneoms los full, el user ,role y member
-		// channel va casi full partial, las otras no les faltaria mucho
-		if (resolved) { // xdddddddnose
-			// wtf esto estaba completo, que le paso dasjkdjdk
+		if (resolved) {
 			const value = resolve.value as string;
 			const user = resolved.users?.[value];
 			if (user) { resolve.user = new User(this.client, user); }
 
 			const member = resolved.members?.[value];
-			// ta bn igual es el raw
-			// ya recuerdo que no los agregue por el tema de rest y demas dasjdkdajk
+
 			if (member) { resolve.member = new InteractionGuildMember(this.client, member, user!, this.guildId!); }
-			// xddddddddd
+
 			const channel = resolved.channels?.[value];
 			if (channel) { resolve.channel = BaseChannel.from(channel, this.client); }
 

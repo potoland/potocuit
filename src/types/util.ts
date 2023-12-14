@@ -1,5 +1,4 @@
-// este sera el archivo mas funable
-// war crimes
+import type { GatewayIntentBits } from '@biscuitland/common';
 
 export type ToClass<T, This> = new (...args: any[]) => {
 	[K in keyof T]: T[K] extends (...args: any[]) => any
@@ -28,3 +27,5 @@ export type Result<T, P extends boolean> = P extends true
 
 
 export type OmitInsert<T, K extends keyof T, I> = K extends keyof T ? Omit<T, K> & I : never;
+
+export type IntentStrings = (keyof typeof GatewayIntentBits)[];

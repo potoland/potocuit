@@ -1,16 +1,14 @@
-// import type { BiscuitChannels } from '../index';
 
 import type { APIChannel, APIChannelBase, APITextChannel, ObjectToLower, RESTGetAPIGuildChannelsResult, RESTPatchAPIChannelJSONBody, RESTPatchAPIGuildChannelPositionsJSONBody, RESTPostAPIGuildChannelJSONBody } from '@biscuitland/common';
 import { ChannelType } from '@biscuitland/common';
 import { channelLink } from '../../../structures/extra/functions';
-import { DiscordBase } from '../../extra/DiscordBase';
+import { DiscordBase } from '../../../structures/extra/DiscordBase';
 import type { MethodContext } from '../../../types';
-import { CategoryChannel, NewsChannel, TextGuildChannel, type PotocuitChannels, VoiceChannel, DirectoryChannel, ThreadChannel, ForumChannel, DMChannel, StageChannel, MediaChannel } from '../../channels';
+import { CategoryChannel, NewsChannel, TextGuildChannel, type PotocuitChannels, VoiceChannel, DirectoryChannel, ThreadChannel, ForumChannel, DMChannel, StageChannel, MediaChannel } from '../../../structures/channels';
 import { mix } from 'ts-mixer';
 import { MessagesMethods } from './messages';
 import type { BaseClient } from '../../../client/base';
 
-// export interface BaseChannel extends ObjectToLower<APIChannelBase<ChannelType>> { }
 export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBase<ChannelType>> {
 	declare type: T;
 	private readonly __methods__!: ReturnType<typeof BaseChannel.methods>;
@@ -56,7 +54,6 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 
 	static from(data: APIChannelBase<ChannelType>, client: BaseClient): PotocuitChannels {
 		switch (data.type) {
-			// case ChannelType.GroupDM:
 			case ChannelType.GuildStageVoice:
 				return new StageChannel(client, data);
 			case ChannelType.GuildMedia:
@@ -121,14 +118,12 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 				return ctx.api.channels(channelId).patch({ body, reason })
 					.then(res => ctx.client.cache.channels?.setIfNI(BaseChannel.__intent__(ctx.id), res.id, ctx.id, res).then(x => x ?? res));
 			},
-			// 204
+
 			editPositions: (body: RESTPatchAPIGuildChannelPositionsJSONBody) => ctx.api.guilds(ctx.id).channels.patch({ body })
 		};
 	}
 }
 
-// xd
-// a y el setRatelimitPeruser, njo lo tiene el news, solo el text yeah
 export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
 	setPosition(position: number, reason?: string) {
 		return this.edit({ position }, reason);
@@ -138,14 +133,11 @@ export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
 		return this.edit({ name }, reason);
 	}
 
-	// y si,tipo, magia negra :pleading:
-	// como debe de ser
 	setParent(parent_id: string | null, reason?: string) {
 		return this.edit({ parent_id }, reason);
 	}
-	// por eso te dije que necesitabamos un mixin que ignorara props ddjsdkjdkasdjkasdladjaskldjaskld
 }
-// no tienes que omitirlo api text channel tiene de type GuildText
+
 export interface TextBaseChannel extends ObjectToLower<APITextChannel>, MessagesMethods { }
 @mix(MessagesMethods)
 export class TextBaseChannel extends BaseGuildChannel { }

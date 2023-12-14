@@ -1,7 +1,7 @@
 import type { APIInteraction } from '@biscuitland/common';
 import { InteractionResponseType, InteractionType } from '@biscuitland/common';
 import type { HttpRequest, HttpResponse } from 'uWebSockets.js';
-import type { StartOptions } from './base';
+import type { InternalRuntimeConfigHTTP, StartOptions } from './base';
 import { BaseClient } from './base';
 import { onInteraction } from './oninteraction';
 import type { DeepPartial } from '../structures/extra/types';
@@ -58,7 +58,7 @@ export class PotoHttpClient extends BaseClient {
 
 	protected async execute(options?: { publicKey?: string; port?: number }) {
 		await super.execute();
-		const { publicKey: publicKeyRC, port: portRC, applicationId: applicationIdRC } = await this.getRC();
+		const { publicKey: publicKeyRC, port: portRC, applicationId: applicationIdRC } = await this.getRC<InternalRuntimeConfigHTTP>();
 
 		const publicKey = options?.publicKey ?? publicKeyRC;
 		const port = options?.port ?? portRC;
@@ -108,7 +108,6 @@ export class PotoHttpClient extends BaseClient {
 				case InteractionType.Ping:
 					this.debugger.debug(`Ping interaction received, responding.`);
 					res
-						// .writeStatus('200')
 						.writeHeader('Content-Type', 'application/json')
 						.end(JSON.stringify({ type: InteractionResponseType.Pong }));
 					break;

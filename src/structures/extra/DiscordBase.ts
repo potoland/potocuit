@@ -1,5 +1,4 @@
 import { type Identify } from '@biscuitland/common';
-// import { snowflakeToTimestamp, type DeepPartial } from '../../index';
 import { snowflakeToTimestamp } from './functions';
 import type { DeepPartial } from './types';
 import { Base } from './Base';

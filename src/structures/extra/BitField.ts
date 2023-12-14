@@ -1,4 +1,3 @@
-
 export type BitFieldResolvable = number | bigint | (number | bigint)[];
 
 export class BitField {
@@ -61,8 +60,4 @@ export class BitField {
 				throw new TypeError(`Cannot resolve permission: ${bits}`);
 		}
 	}
-	// xd
-	// xd
 }
-// bloated
-// hdp bloadted mis nalgas

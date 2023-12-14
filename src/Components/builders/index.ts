@@ -1,4 +1,3 @@
-
 import type { ButtonStylesForID } from '@biscuitland/helpers';
 import { ModalTextInput, UserSelectMenu as USM, RoleSelectMenu as RSM, MentionableSelectMenu as MSM, ChannelSelectMenu as CSM, StringSelectMenu as SSM, BaseComponent } from '@biscuitland/helpers';
 import type { ButtonInteraction, ChannelSelectMenuInteraction, ComponentInteraction, MentionableSelectMenuInteraction, ModalSubmitInteraction, RoleSelectMenuInteraction, StringSelectMenuInteraction, UserSelectMenuInteraction } from '../../structures';
@@ -69,13 +68,6 @@ export class UserSelectMenu extends USM {
 		this.__exec = func;
 		return this;
 	}
-
-	// toJSON() {
-	// 	return {
-	// 		...super.toJSON(),
-	// 		__exec: this.__exec
-	// 	};
-	// }
 }
 
 export class RoleSelectMenu extends RSM {
@@ -86,13 +78,6 @@ export class RoleSelectMenu extends RSM {
 		this.__exec = func;
 		return this;
 	}
-
-	// toJSON() {
-	// 	return {
-	// 		...super.toJSON(),
-	// 		__exec: this.__exec
-	// 	};
-	// }
 }
 
 export class MentionableSelectMenu extends MSM {
@@ -103,13 +88,6 @@ export class MentionableSelectMenu extends MSM {
 		this.__exec = func;
 		return this;
 	}
-
-	// toJSON() {
-	// 	return {
-	// 		...super.toJSON(),
-	// 		__exec: this.__exec
-	// 	};
-	// }
 }
 
 export class ChannelSelectMenu extends CSM {
@@ -120,13 +98,6 @@ export class ChannelSelectMenu extends CSM {
 		this.__exec = func;
 		return this;
 	}
-
-	// toJSON() {
-	// 	return {
-	// 		...super.toJSON(),
-	// 		__exec: this.__exec
-	// 	};
-	// }
 }
 
 export class StringSelectMenu extends SSM {
@@ -137,13 +108,6 @@ export class StringSelectMenu extends SSM {
 		this.__exec = func;
 		return this;
 	}
-
-	// toJSON() {
-	// 	return {
-	// 		...super.toJSON(),
-	// 		__exec: this.__exec
-	// 	};
-	// }
 }
 
 export type PotoSelectMenus = RoleSelectMenu | UserSelectMenu | MentionableSelectMenu | ChannelSelectMenu | StringSelectMenu;

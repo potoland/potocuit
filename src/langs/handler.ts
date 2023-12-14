@@ -16,7 +16,6 @@ export class PotoLangsHandler extends PotoHandler {
 
 		if (typeof value !== 'string') {
 			return undefined;
-			// throw new Error(`${message} is not a string`);
 		}
 
 		return value;

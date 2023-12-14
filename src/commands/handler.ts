@@ -5,8 +5,6 @@ import { readdir } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import type { BaseClient } from '../client/base';
 
-// type Interaction = Extract<GatewayInteractionCreateDispatchData, APIChatInputApplicationCommandInteraction>;
-
 export class PotoHandler {
 	constructor(protected logger: Logger) { }
 

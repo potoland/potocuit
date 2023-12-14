@@ -8,5 +8,4 @@ export type ImageOptions = NonNullable<
 
 export type MethodContext<T = {}> = Identify<{ client: BaseClient; api: Routes; id: string/* resourceId*/ } & T>;
 
-// temporal porque arto de escribir varios params
 export type MessagePayload<Body, Extra = {}> = Identify<{ body: Body; files?: RawFile[] } & Extra>;
