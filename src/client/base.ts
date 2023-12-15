@@ -184,4 +184,4 @@ export type InternalRuntimeConfigHTTP = Omit<MakeRequired<RC, 'publicKey' | 'por
 export type RuntimeConfigHTTP = Omit<MakeRequired<RC, 'publicKey' | 'applicationId'>, 'intents' | 'locations'> & { locations: Omit<RC['locations'], 'events'> };
 
 export type InternalRuntimeConfig = Omit<MakeRequired<RC, 'intents'>, 'publicKey' | 'port'>;
-export type RuntimeConfig = OmitInsert<InternalRuntimeConfig, 'intents', { intents?: IntentStrings }>;
+export type RuntimeConfig = OmitInsert<InternalRuntimeConfig, 'intents', { intents?: IntentStrings | number }>;

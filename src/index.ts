@@ -41,7 +41,7 @@ export const config = {
 	bot(data: RuntimeConfig) {
 		return {
 			...data,
-			intents: 'intents' in data ? data.intents?.reduce((pr, acc) => pr | GatewayIntentBits[acc], 0) ?? 0 : 0,
+			intents: 'intents' in data ? typeof data.intents === 'number' ? data.intents : data.intents?.reduce((pr, acc) => pr | GatewayIntentBits[acc], 0) ?? 0 : 0,
 		} as InternalRuntimeConfig;
 	},
 	http(data: RuntimeConfigHTTP) {
