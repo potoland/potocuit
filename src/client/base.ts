@@ -139,7 +139,7 @@ export class BaseClient {
 			...env,
 			langs: locations.langs ? join(process.cwd(), locations.langs) : undefined,
 			templates: locations.templates ? join(process.cwd(), locations.base, locations.templates) : undefined,
-			events: locations.events ? join(process.cwd(), locations.output, locations.events) : undefined,
+			events: 'events' in locations && locations.events ? join(process.cwd(), locations.output, locations.events) : undefined,
 			components: locations.components ? join(process.cwd(), locations.output, locations.components) : undefined,
 			base: join(process.cwd(), locations.base),
 			output: join(process.cwd(), locations.output),
@@ -180,7 +180,8 @@ export interface Variables {
 	publicKey?: string;
 }
 
-export type InternalRuntimeConfigHTTP = Omit<MakeRequired<RC, 'publicKey' | 'port' | 'applicationId'>, 'intents'>;
-export type RuntimeConfigHTTP = Omit<MakeRequired<RC, 'publicKey' | 'applicationId'>, 'intents'>;
-export type InternalRuntimeConfig = Omit<MakeRequired<RC, 'intents'>, 'publicKey'>;
+export type InternalRuntimeConfigHTTP = Omit<MakeRequired<RC, 'publicKey' | 'port' | 'applicationId'>, 'intents' | 'locations'> & { locations: Omit<RC['locations'], 'events'> };
+export type RuntimeConfigHTTP = Omit<MakeRequired<RC, 'publicKey' | 'applicationId'>, 'intents' | 'locations'> & { locations: Omit<RC['locations'], 'events'> };
+
+export type InternalRuntimeConfig = Omit<MakeRequired<RC, 'intents'>, 'publicKey' | 'port'>;
 export type RuntimeConfig = OmitInsert<InternalRuntimeConfig, 'intents', { intents?: IntentStrings }>;

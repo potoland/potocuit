@@ -101,7 +101,9 @@ class BaseCommand {
 		let errored = false;
 		for (const i of resolver.hoistedOptions) {
 			const option = command.options!.find(x => x.name === i.name) as __PotoCommandOption;
-			const value = (await new Promise(resolve => option.value?.(resolver.getValue(i.name) as never, resolve, resolve)) || resolver.getValue(i.name)) as any | Error;
+			const value = (await new Promise(resolve =>
+				option.value?.(resolver.getValue(i.name) as never, resolve, resolve) || resolve(resolver.getValue(i.name))
+			)) as any | Error;
 			if (value instanceof Error) {
 				errored = true;
 				data[i.name] = {
@@ -127,7 +129,6 @@ class BaseCommand {
 				value
 			};
 		}
-
 		return [errored, data];
 	}
 

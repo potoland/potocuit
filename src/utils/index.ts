@@ -12,7 +12,7 @@ export function Options<T>(defaults: any, ...options: any[]): T {
 			...Object.fromEntries(
 				Object.entries(defaults).map(([key, value]) => [
 					key,
-					isObject(value) ? Options(value, option?.[key] || {}) : option?.[key] || value
+					isObject(value) ? Options(value, option?.[key] || {}) : option?.[key] ?? value
 				])
 			)
 		},
