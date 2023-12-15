@@ -35,7 +35,7 @@ export async function onInteraction(body: APIInteraction, self: BaseClient, __re
 					const interaction = BaseInteraction.from(self, body, __reply) as ChatInputCommandInteraction;
 					const command = optionsResolver.getCommand();
 					if (command?.run) {
-						const context = new CommandContext(self as any, interaction, {}, {}, optionsResolver);
+						const context = new (self.options?.context || CommandContext)(self as any, interaction, {}, {}, optionsResolver);
 						const [erroredOptions, result] = await command.runOptions(context, optionsResolver);
 						if (erroredOptions) { return command.onOptionsError?.(context, result); }
 

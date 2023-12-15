@@ -1,5 +1,3 @@
-import 'module-alias/register';
-
 import { GatewayIntentBits } from '@biscuitland/common';
 import type { InternalRuntimeConfigHTTP, InternalRuntimeConfig, RuntimeConfig, RuntimeConfigHTTP } from './client/base';
 import type { MiddlewareContext, __PotoCommandOption } from './commands';

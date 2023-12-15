@@ -140,37 +140,24 @@ class BaseCommand {
 			lastFail: Error | undefined;
 
 		return new Promise(res => {
-			// I dont think this is needed, but just in case
-			let timeoutCleared = false;
-			const timeout = setTimeout(() => {
-				timeoutCleared = true;
-				res([undefined, new Error('Timeout middlewares')]);
-				// 2.8 seconds
-			}, 2.8e3);
 			const next: NextFunction<any> = obj => {
-				if (timeoutCleared) { return; }
+
 				Object.assign(metadata, obj);
 				if (++index >= this.middlewares.length) {
 					context.metadata = metadata;
-					timeoutCleared = true;
-					clearTimeout(timeout);
 					return res([metadata, undefined]);
 				}
 				this.middlewares[index]({ lastFail, context, next, fail, stop });
 			};
 			const fail: FailFunction = err => {
-				if (timeoutCleared) { return; }
 				lastFail = err;
 				if (++index >= this.middlewares.length) {
 					context.metadata = metadata;
-					timeoutCleared = true;
-					clearTimeout(timeout);
 					return res([metadata, undefined]);
 				}
 				this.middlewares[index]({ lastFail, context, next, fail, stop });
 			};
 			const stop: StopFunction = err => {
-				if (timeoutCleared) { return; }
 				lastFail = err;
 				return res([undefined, err]);
 			};

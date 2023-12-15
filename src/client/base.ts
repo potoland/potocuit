@@ -9,6 +9,7 @@ import { LogLevels, Logger } from '@biscuitland/common';
 import type { DeepPartial } from '../structures/extra/types';
 import { ComponentHandler } from '../components/handler';
 import type { IntentStrings, OmitInsert } from '../types/util';
+import type { CommandContext, MiddlewareContext, OptionsRecord } from '../commands';
 
 export class BaseClient {
 	rest!: BiscuitREST;
@@ -40,6 +41,8 @@ export class BaseClient {
 	protected static getBotIdFromToken(token: string): string {
 		return Buffer.from(token.split('.')[0], 'base64').toString('ascii');
 	}
+
+	constructor(public options?: BaseClientOptions) { }
 
 	set botId(id: string) {
 		this._botId = id;
@@ -147,6 +150,10 @@ export class BaseClient {
 		};
 
 	}
+}
+
+export interface BaseClientOptions<Ctx = CommandContext<boolean, OptionsRecord, readonly MiddlewareContext[]>> {
+	context?: { new(...args: any[]): Ctx };
 }
 
 export interface StartOptions {
