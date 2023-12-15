@@ -45,7 +45,14 @@
 		"uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.32.0"
 	},
 	"exports": {
-		"./package.json": "./package.json"
+		"./package.json": "./package.json",
+		".": {
+			"import": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"require": "./dist/index.js"
+		}
 	},
 	"homepage": "https://biscuitjs.com",
 	"repository": {
