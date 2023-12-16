@@ -65,7 +65,6 @@ export type CommandMetadata<T extends Readonly<MiddlewareContext[]>> = T extends
 	: {}
 	: {};
 
-
 export type OnOptionsReturnObject = Record<string, {
 	failed: false;
 	value: any;
@@ -79,6 +78,7 @@ class BaseCommand {
 
 	__filePath?: string;
 	__t?: { name: string; description: string };
+	__d?: true;
 	__tGroups?: Record<string/* name for group*/, {
 		name: string;
 		description: string;

@@ -2,7 +2,7 @@ import type { LocaleString, Logger } from '@biscuitland/common';
 import { SubCommand } from './commands';
 import { Command } from './commands';
 import { readdir } from 'node:fs/promises';
-import { basename, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import type { BaseClient } from '../client/base';
 
 export class PotoHandler {
@@ -27,7 +27,7 @@ export class PotoHandler {
 	protected async loadFilesK<T>(paths: string[]): Promise<{ name: string; file: T; path: string }[]> {
 		return await Promise.all(paths.map(path => import(path).then(file => {
 			return {
-				name: basename(path).split('.')[0],
+				name: basename(path),// .split('.')[0],
 				file: file.default ?? file,
 				path
 			};
@@ -66,6 +66,19 @@ export class PotoCommandHandler extends PotoHandler {
 		for (const command of result) {
 			const commandInstancie = new command.file();
 			if (!(commandInstancie instanceof Command)) { continue; }
+			commandInstancie.options ??= [] as NonNullable<Command['options']>;
+			if (commandInstancie.__d) {
+				const options = await this.getFiles(dirname(command.path));
+				for (const option of options) {
+					if (command.name !== basename(option)) {
+						const subCommand = await import(option).then(x => new x.default());
+						if (subCommand instanceof SubCommand) {
+							commandInstancie.options.push(subCommand as never);
+						}
+					}
+				}
+			}
+
 			for (const option of commandInstancie.options ?? []) {
 				if (option instanceof SubCommand) {
 					option.middlewares = (commandInstancie.middlewares ?? []).concat(option.middlewares ?? []);
@@ -74,6 +87,7 @@ export class PotoCommandHandler extends PotoHandler {
 					option.onOptionsError = option.onOptionsError?.bind(option) ?? commandInstancie.onOptionsError?.bind(commandInstancie);
 				}
 			}
+
 			commandInstancie.__filePath = command.path;
 			this.commands.push(commandInstancie);
 			if (commandInstancie.__t) {

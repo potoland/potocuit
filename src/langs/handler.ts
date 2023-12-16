@@ -39,8 +39,8 @@ export class PotoLangsHandler extends PotoHandler {
 	async load(dir: string) {
 		const files = await this.loadFilesK<Record<string, any>>(await this.getFiles(dir));
 		for (const i of files) {
-			if (!values.includes(i.name as any)) {
-				this.logger.fatal(`Invalid lang [${i.name}]`);
+			if (!values.includes(i.name.slice(0, -5) as any)) {
+				this.logger.fatal(`Invalid lang [${i.name.slice(0, -5)}]`);
 				continue;
 			}
 			this.record[i.name as LocaleString] = i.file;

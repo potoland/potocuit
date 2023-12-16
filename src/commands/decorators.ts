@@ -1,6 +1,5 @@
 import type { LocaleString } from '@biscuitland/common';
 import type { SubCommand, PotoCommandOption, MiddlewareContext, __PotoCommandOption, OptionsRecord } from './commands';
-import type { BaseClient } from '../client/base';
 
 type DeclareOptions = {
 	name: string;
@@ -62,20 +61,27 @@ export function Group(groupName: string) {
 	};
 }
 
-export function Options(options: (new (client: BaseClient) => SubCommand)[] | OptionsRecord) {
+export function Options(options: (new () => SubCommand)[] | OptionsRecord) {
 	return function <T extends { new(...args: any[]): {} }>(target: T) {
 		return class extends target {
-			client!: BaseClient;
 			options: SubCommand[] | PotoCommandOption[];
 			constructor(...args: any[]) {
 				super(...args);
-				this.options = Array.isArray(options) ? options.map(x => new x(this.client)) : Object.entries(options).map(([name, option]) => {
+				this.options = Array.isArray(options) ? options.map(x => new x()) : Object.entries(options).map(([name, option]) => {
 					return {
 						name,
 						...option
 					} as PotoCommandOption;
 				});
 			}
+		};
+	};
+}
+
+export function DynamicOptions() {
+	return function <T extends { new(...args: any[]): {} }>(target: T) {
+		return class extends target {
+			__d = true;
 		};
 	};
 }
