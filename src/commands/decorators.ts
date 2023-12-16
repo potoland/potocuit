@@ -74,7 +74,7 @@ export function Options(options: (new () => SubCommand)[] | OptionsRecord) {
 	};
 }
 
-export function DynamicOptions() {
+export function AutoLoad() {
 	return function <T extends { new(...args: any[]): {} }>(target: T) {
 		return class extends target {
 			__d = true;

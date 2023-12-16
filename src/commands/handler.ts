@@ -64,65 +64,65 @@ export class PotoCommandHandler extends PotoHandler {
 		this.commands = [];
 
 		for (const command of result) {
-			const commandInstancie = new command.file();
-			if (!(commandInstancie instanceof Command)) { continue; }
-			commandInstancie.options ??= [] as NonNullable<Command['options']>;
-			if (commandInstancie.__d) {
+			const commandInstance = new command.file();
+			if (!(commandInstance instanceof Command)) { continue; }
+			commandInstance.options ??= [] as NonNullable<Command['options']>;
+			if (commandInstance.__d) {
 				const options = await this.getFiles(dirname(command.path));
 				for (const option of options) {
-					if (command.name !== basename(option)) {
-						const subCommand = await import(option).then(x => new x.default());
-						if (subCommand instanceof SubCommand) {
-							commandInstancie.options.push(subCommand as never);
-						}
+					if (command.name === basename(option)) { continue; }
+					const subCommand = result.find(x => x.path === option);
+					if (subCommand instanceof SubCommand) {
+						commandInstance.options.push(subCommand as never);
 					}
 				}
 			}
 
-			for (const option of commandInstancie.options ?? []) {
+			for (const option of commandInstance.options ?? []) {
 				if (option instanceof SubCommand) {
-					option.middlewares = (commandInstancie.middlewares ?? []).concat(option.middlewares ?? []);
-					option.onMiddlewaresError = option.onMiddlewaresError?.bind(option) ?? commandInstancie.onMiddlewaresError?.bind(commandInstancie);
-					option.onRunError = option.onRunError?.bind(option) ?? commandInstancie.onRunError?.bind(commandInstancie);
-					option.onOptionsError = option.onOptionsError?.bind(option) ?? commandInstancie.onOptionsError?.bind(commandInstancie);
+					option.middlewares = (commandInstance.middlewares ?? []).concat(option.middlewares ?? []);
+					option.onMiddlewaresError = option.onMiddlewaresError?.bind(option) ?? commandInstance.onMiddlewaresError?.bind(commandInstance);
+					option.onRunError = option.onRunError?.bind(option) ?? commandInstance.onRunError?.bind(commandInstance);
+					option.onOptionsError = option.onOptionsError?.bind(option) ?? commandInstance.onOptionsError?.bind(commandInstance);
+					option.onInternalError = option.onInternalError?.bind(option) ?? commandInstance.onInternalError?.bind(commandInstance);
 				}
 			}
 
-			commandInstancie.__filePath = command.path;
-			this.commands.push(commandInstancie);
-			if (commandInstancie.__t) {
-				commandInstancie.name_localizations = {};
-				commandInstancie.description_localizations = {};
+			commandInstance.__filePath = command.path;
+			this.commands.push(commandInstance);
+			if (commandInstance.__t) {
+				commandInstance.name_localizations = {};
+				commandInstance.description_localizations = {};
 				for (const locale of Object.keys(client.langs.record)) {
-					const valueName = client.langs.getKey(locale, commandInstancie.__t.name);
+					const valueName = client.langs.getKey(locale, commandInstance.__t.name);
 					if (valueName) {
-						commandInstancie.name_localizations[locale as LocaleString] = valueName;
+						commandInstance.name_localizations[locale as LocaleString] = valueName;
 					}
-					const valueKey = client.langs.getKey(locale, commandInstancie.__t.description);
+					const valueKey = client.langs.getKey(locale, commandInstance.__t.description);
 					if (valueKey) {
-						commandInstancie.description_localizations[locale as LocaleString] = valueKey;
+						commandInstance.description_localizations[locale as LocaleString] = valueKey;
 					}
 				}
 			}
 
-			if (commandInstancie.__tGroups) {
-				commandInstancie.groups = {};
+			if (commandInstance.__tGroups) {
+				commandInstance.groups = {};
 				for (const locale of Object.keys(client.langs.record)) {
-					for (const group in commandInstancie.__tGroups) {
-						commandInstancie.groups[group] ??= {
-							defaultDescription: commandInstancie.__tGroups[group].defaultDescription,
+					for (const group in commandInstance.__tGroups) {
+						commandInstance.groups[group] ??= {
+							defaultDescription: commandInstance.__tGroups[group].defaultDescription,
 							description: [],
 							name: []
 						};
 
-						const valueName = client.langs.getKey(locale, commandInstancie.__tGroups[group].name);
+						const valueName = client.langs.getKey(locale, commandInstance.__tGroups[group].name);
 						if (valueName) {
-							commandInstancie.groups[group].name!.push([locale as LocaleString, valueName]);
+							commandInstance.groups[group].name!.push([locale as LocaleString, valueName]);
 						}
 
-						const valueKey = client.langs.getKey(locale, commandInstancie.__tGroups[group].description);
+						const valueKey = client.langs.getKey(locale, commandInstance.__tGroups[group].description);
 						if (valueKey) {
-							commandInstancie.groups[group].description!.push([locale as LocaleString, valueKey]);
+							commandInstance.groups[group].description!.push([locale as LocaleString, valueKey]);
 						}
 					}
 				}
