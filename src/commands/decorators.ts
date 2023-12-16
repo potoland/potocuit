@@ -64,16 +64,12 @@ export function Group(groupName: string) {
 export function Options(options: (new () => SubCommand)[] | OptionsRecord) {
 	return function <T extends { new(...args: any[]): {} }>(target: T) {
 		return class extends target {
-			options: SubCommand[] | PotoCommandOption[];
-			constructor(...args: any[]) {
-				super(...args);
-				this.options = Array.isArray(options) ? options.map(x => new x()) : Object.entries(options).map(([name, option]) => {
-					return {
-						name,
-						...option
-					} as PotoCommandOption;
-				});
-			}
+			options: SubCommand[] | PotoCommandOption[] = Array.isArray(options) ? options.map(x => new x()) : Object.entries(options).map(([name, option]) => {
+				return {
+					name,
+					...option
+				} as PotoCommandOption;
+			});
 		};
 	};
 }
