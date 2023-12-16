@@ -6,6 +6,7 @@ import type { __LangType } from '../__generated';
 import type { CommandContext } from './context';
 import type { Groups } from './decorators';
 import type { OptionResolver } from './optionresolver';
+import type { BaseClient } from '../client/base';
 
 interface ReturnOptionsTypes {
 	1: never;// subcommand
@@ -28,11 +29,11 @@ type __Choices<T extends ApplicationCommandOptionType> = {
 type Wrap<N extends ApplicationCommandOptionType> = N extends ApplicationCommandOptionType.Subcommand | ApplicationCommandOptionType.SubcommandGroup ? never : ({
 	type: N;
 	required?: false;
-	value?(value: ReturnOptionsTypes[N] | undefined, ok: OKFunction<any>, fail: FailFunction): void;
+	value?(value: ReturnOptionsTypes[N] | undefined, ok: OKFunction<any>, fail: StopFunction): void;
 } | {
 	type: N;
 	required: true;
-	value?(value: ReturnOptionsTypes[N], ok: OKFunction<any>, fail: FailFunction): void;
+	value?(value: ReturnOptionsTypes[N], ok: OKFunction<any>, fail: StopFunction): void;
 }) & Omit<APIApplicationCommandBasicOption, 'type' | 'required' | 'name'>
 	& (N extends ApplicationCommandOptionType.String | ApplicationCommandOptionType.Number | ApplicationCommandOptionType.Number ? __Choices<N> : {});
 type __TypesWrapper = {
@@ -40,13 +41,12 @@ type __TypesWrapper = {
 };
 
 export type OKFunction<T> = (value: T) => void;
-export type FailFunction = (value: Error) => void;
 export type StopFunction = (error: Error) => void;
 export type NextFunction<T> = (data: T) => void;
 export type AutocompleteCallback = (interaction: AutocompleteInteraction) => any;
 export type OnAutocompleteErrorCallback = (interaction: AutocompleteInteraction, error: unknown) => any;
 export type PotoCommandBaseOption = __TypesWrapper[keyof __TypesWrapper];
-export type PotoCommandBaseAutocompleteOption = Extract<__TypesWrapper[keyof __TypesWrapper] & { autocomplete: AutocompleteCallback; onError?: OnAutocompleteErrorCallback }, { type: ApplicationCommandOptionType.String | ApplicationCommandOptionType.Integer | ApplicationCommandOptionType.Number }>;
+export type PotoCommandBaseAutocompleteOption = Extract<__TypesWrapper[keyof __TypesWrapper] & { autocomplete: AutocompleteCallback; onAutocompleteError?: OnAutocompleteErrorCallback }, { type: ApplicationCommandOptionType.String | ApplicationCommandOptionType.Integer | ApplicationCommandOptionType.Number }>;
 export type PotoCommandAutocompleteOption = PotoCommandBaseAutocompleteOption & { name: string };
 export type __PotoCommandOption = PotoCommandBaseOption | PotoCommandBaseAutocompleteOption;
 export type PotoCommandOption = __PotoCommandOption & { name: string };
@@ -57,7 +57,7 @@ export type ContextOptions<T extends OptionsRecord> = {
 	? T[K]['required'] extends true ? Parameters<Parameters<T[K]['value']>[1]>[0] : Parameters<Parameters<T[K]['value']>[1]>[0]
 	: T[K]['required'] extends true ? ReturnOptionsTypes[T[K]['type']] : ReturnOptionsTypes[T[K]['type']] | undefined;
 };
-export type MiddlewareContext<T = any> = (context: { lastFail: Error | undefined; context: CommandContext<any, {}, []>; next: NextFunction<T>; fail: FailFunction; stop: StopFunction }) => any;
+export type MiddlewareContext<T = any> = (context: { context: CommandContext<any, {}, []>; next: NextFunction<T>; stop: StopFunction }) => any;
 export type MetadataMiddleware<T extends MiddlewareContext> = Parameters<Parameters<T>[0]['next']>[0];
 export type CommandMetadata<T extends Readonly<MiddlewareContext[]>> = T extends readonly [infer first, ...infer rest]
 	? first extends MiddlewareContext
@@ -94,7 +94,8 @@ class BaseCommand {
 
 	options?: PotoCommandOption[] | SubCommand[];
 
-	async runOptions(ctx: CommandContext<any, {}, []>, resolver: OptionResolver): Promise<[boolean, OnOptionsReturnObject]> {
+	/** @internal */
+	async __runOptions(ctx: CommandContext<any, {}, []>, resolver: OptionResolver): Promise<[boolean, OnOptionsReturnObject]> {
 		const command = resolver.getCommand();
 		if (!resolver.hoistedOptions.length || !command) { return [false, {}]; }
 		const data: OnOptionsReturnObject = {};
@@ -133,11 +134,11 @@ class BaseCommand {
 	}
 
 	// dont fucking touch.
-	runMiddlewares(context: CommandContext<any, {}, []>): Result<Record<string, any>, true> {
+	/** @internal */
+	__runMiddlewares(context: CommandContext<any, {}, []>): Result<Record<string, any>, true> {
 		if (!this.middlewares.length) { return Promise.resolve([{}, undefined]); }
 		const metadata: Record<string, any> = {};
-		let index = 0,
-			lastFail: Error | undefined;
+		let index = 0;
 
 		return new Promise(res => {
 			const next: NextFunction<any> = obj => {
@@ -147,21 +148,12 @@ class BaseCommand {
 					context.metadata = metadata;
 					return res([metadata, undefined]);
 				}
-				this.middlewares[index]({ lastFail, context, next, fail, stop });
-			};
-			const fail: FailFunction = err => {
-				lastFail = err;
-				if (++index >= this.middlewares.length) {
-					context.metadata = metadata;
-					return res([metadata, undefined]);
-				}
-				this.middlewares[index]({ lastFail, context, next, fail, stop });
+				this.middlewares[index]({ context, next, stop });
 			};
 			const stop: StopFunction = err => {
-				lastFail = err;
 				return res([undefined, err]);
 			};
-			this.middlewares[0]({ lastFail, context, next, fail, stop });
+			this.middlewares[0]({ context, next, stop });
 		});
 	}
 
@@ -187,6 +179,10 @@ class BaseCommand {
 	onRunError?(context: CommandContext<any, any>, error: unknown): any;
 	onOptionsError?(context: CommandContext<any, {}, []>, metadata: OnOptionsReturnObject): any;
 	onMiddlewaresError?(context: CommandContext<any, {}, []>, error: Error): any;
+
+	onInternalError(client: BaseClient, error?: unknown): any {
+		client.logger.fatal(error);
+	}
 }
 
 export class Command extends BaseCommand {

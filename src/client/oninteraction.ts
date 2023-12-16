@@ -15,15 +15,23 @@ export async function onInteraction(body: APIInteraction, self: BaseClient, __re
 			const command = optionsResolver.getAutocomplete();
 			if (command?.autocomplete) {
 				try {
-					await command.autocomplete(interaction);
+					try {
+						await command.autocomplete(interaction);
+					} catch (error) {
+						self.logger.error(`${command?.name ?? (parentCommand?.name ? parentCommand.name + ' option' : undefined) ?? 'Unknown'} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'}`);
+						await command.onAutocompleteError?.(interaction, error);
+					}
 				} catch (error) {
-					self.logger.error(`${command?.name ?? (parentCommand?.name ? parentCommand.name + ' option' : undefined) ?? 'Unknown'} just errored, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'}`);
-					return command.onError?.(interaction, error);
+					try {
+						await optionsResolver.getCommand()?.onInternalError(self, error);
+					} catch {
+						// supress error
+					}
 				}
 				return /* 418*/;
 			}
 			// idc, is a YOU problem
-			self.debugger.debug(`${command?.name ?? (parentCommand?.name ? parentCommand.name + ' option' : undefined) ?? 'Unknown'} command dont have 'autocomplete' callback`);
+			self.debugger.debug(`${command?.name ?? (parentCommand?.name ? parentCommand.name + ' option' : undefined) ?? 'Unknown'} command does not have 'autocomplete' callback`);
 
 		} break;
 		case InteractionType.ApplicationCommand: {
@@ -36,22 +44,30 @@ export async function onInteraction(body: APIInteraction, self: BaseClient, __re
 					const command = optionsResolver.getCommand();
 					if (command?.run) {
 						const context = new (self.options?.context || CommandContext)(self as any, interaction, {}, {}, optionsResolver);
-						const [erroredOptions, result] = await command.runOptions(context, optionsResolver);
-						if (erroredOptions) { return command.onOptionsError?.(context, result); }
-
-						const [_, erroredMiddlewares] = await command.runMiddlewares(context);
-						if (erroredMiddlewares) { return command.onMiddlewaresError?.(context, erroredMiddlewares); }
-
 						try {
-							await command.run(context);
+							const [erroredOptions, result] = await command.__runOptions(context, optionsResolver);
+							if (erroredOptions) { return await command.onOptionsError?.(context, result); }
+
+							const [_, erroredMiddlewares] = await command.__runMiddlewares(context);
+							if (erroredMiddlewares) { return await command.onMiddlewaresError?.(context, erroredMiddlewares); }
+
+							try {
+								await command.run(context);
+							} catch (error) {
+								self.logger.error(`${command.name} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'}`);
+								await command.onRunError?.(context, error);
+							}
 						} catch (error) {
-							self.logger.error(`${command.name} just errored, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'}`);
-							return command.onRunError?.(context, error);
+							try {
+								await command.onInternalError(self, error);
+							} catch {
+								// supress error
+							}
 						}
 						return /* 418*/;
 					}
 					// idc, is a YOU problem
-					self.debugger.debug(`${command?.name ?? 'Unknown'} command dont have 'run' callback`);
+					self.debugger.debug(`${command?.name ?? 'Unknown'} command does not have 'run' callback`);
 
 				} break;
 			}
