@@ -1,6 +1,5 @@
 import type { APIApplicationCommandBasicOption, APIApplicationCommandOption, APIApplicationCommandOptionChoice, APIApplicationCommandSubcommandGroupOption, APIAttachment, LocaleString } from '@biscuitland/common';
 import { ApplicationCommandOptionType, ApplicationCommandType } from '@biscuitland/common';
-import type { Result } from '../types/util';
 import type { InteractionGuildMember, GuildRole, PotocuitChannels, User, AutocompleteInteraction } from '../structures';
 import type { __LangType } from '../__generated';
 import type { CommandContext } from './context';
@@ -43,6 +42,7 @@ type __TypesWrapper = {
 export type OKFunction<T> = (value: T) => void;
 export type StopFunction = (error: Error) => void;
 export type NextFunction<T = unknown> = (data: T) => void;
+export type PassFunction = () => void;
 export type AutocompleteCallback = (interaction: AutocompleteInteraction) => any;
 export type OnAutocompleteErrorCallback = (interaction: AutocompleteInteraction, error: unknown) => any;
 export type PotoCommandBaseOption = __TypesWrapper[keyof __TypesWrapper];
@@ -57,7 +57,7 @@ export type ContextOptions<T extends OptionsRecord> = {
 	? T[K]['required'] extends true ? Parameters<Parameters<T[K]['value']>[1]>[0] : Parameters<Parameters<T[K]['value']>[1]>[0]
 	: T[K]['required'] extends true ? ReturnOptionsTypes[T[K]['type']] : ReturnOptionsTypes[T[K]['type']] | undefined;
 };
-export type MiddlewareContext<T = any> = (context: { context: CommandContext<any, {}, []>; next: NextFunction<T>; stop: StopFunction }) => any;
+export type MiddlewareContext<T = any> = (context: { context: CommandContext<any, {}, []>; next: NextFunction<T>; stop: StopFunction; pass: PassFunction }) => any;
 export type MetadataMiddleware<T extends MiddlewareContext> = Parameters<Parameters<T>[0]['next']>[0];
 export type CommandMetadata<T extends Readonly<MiddlewareContext[]>> = T extends readonly [infer first, ...infer rest]
 	? first extends MiddlewareContext
@@ -135,25 +135,35 @@ class BaseCommand {
 	}
 
 	/** @internal */
-	static __runMiddlewares(context: CommandContext<any>, middlewares: readonly MiddlewareContext[], global: boolean): Result<Record<string, any>, true> {
+	static __runMiddlewares(context: CommandContext<any>, middlewares: readonly MiddlewareContext[], global: boolean): Promise<[any, undefined] | [undefined, Error] | 'pass'> {
 		if (!middlewares.length) { return Promise.resolve([{}, undefined]); }
 		const metadata: Record<string, any> = {};
 		let index = 0;
 
 		return new Promise(res => {
+			let running = true;
+			const pass: PassFunction = () => {
+				if (!running) { return; }
+				running = false;
+				return res('pass');
+			};
 			const next: NextFunction<any> = obj => {
+				if (!running) { return; }
 				Object.assign(metadata, obj ?? {});
 				if (++index >= middlewares.length) {
+					running = false;
 					// @ts-expect-error globalMetadata doesnt exist, but is used for global middlewares
 					context[global ? 'globalMetadata' : 'metadata'] = metadata;
 					return res([metadata, undefined]);
 				}
-				middlewares[index]({ context, next, stop });
+				middlewares[index]({ context, next, stop, pass });
 			};
 			const stop: StopFunction = err => {
+				if (!running) { return; }
+				running = false;
 				return res([undefined, err]);
 			};
-			middlewares[0]({ context, next, stop });
+			middlewares[0]({ context, next, stop, pass });
 		});
 	}
 

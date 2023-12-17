@@ -31,6 +31,10 @@ export class OptionResolver {
 		}
 	}
 
+	get fullCommandName() {
+		return `${this.parent?.name} ${this.group ? `${this.group} ${this.subCommand}` : this.subCommand}`;
+	}
+
 	getCommand() {
 		if (this.subCommand) {
 			return (this.parent?.options as SubCommand[]).find(x => (this.group ? x.group === this.group : true) && x.name === this.subCommand);
