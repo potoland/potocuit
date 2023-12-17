@@ -1,42 +1,13 @@
 import type { LocaleString, Logger } from '@biscuitland/common';
 import { SubCommand } from './commands';
 import { Command } from './commands';
-import { readdir } from 'node:fs/promises';
-import { basename, dirname, join } from 'node:path';
+import { basename, dirname } from 'node:path';
 import type { BaseClient } from '../client/base';
-
-export class PotoHandler {
-	constructor(protected logger: Logger) { }
-
-	protected async getFiles(dir: string) {
-		const files: string[] = [];
-
-		for (const i of await readdir(dir, { withFileTypes: true })) {
-			if (i.isDirectory()) {
-				files.push(...await this.getFiles(join(dir, i.name)));
-			} else { files.push(join(dir, i.name)); }
-		}
-
-		return files;
-	}
-
-	protected async loadFiles<T extends NonNullable<unknown>>(paths: string[]): Promise<T[]> {
-		return await Promise.all(paths.map(path => import(path).then(file => file.default ?? file)));
-	}
-
-	protected async loadFilesK<T>(paths: string[]): Promise<{ name: string; file: T; path: string }[]> {
-		return await Promise.all(paths.map(path => import(path).then(file => {
-			return {
-				name: basename(path),// .split('.')[0],
-				file: file.default ?? file,
-				path
-			};
-		})));
-	}
-}
+import { PotoHandler } from '../utils';
 
 export class PotoCommandHandler extends PotoHandler {
-	commands: Command[] = [];
+	values: Command[] = [];
+	protected filter = (path: string) => path.endsWith('.js');
 
 	constructor(protected logger: Logger) {
 		super(logger);
@@ -44,13 +15,13 @@ export class PotoCommandHandler extends PotoHandler {
 
 	async reload(resolve: string | Command) {
 		if (typeof resolve === 'string') {
-			return this.commands.find(x => x.name === resolve)?.reload();
+			return this.values.find(x => x.name === resolve)?.reload();
 		}
 		return resolve.reload();
 	}
 
 	async reloadAll(stopIfFail = true) {
-		for (const command of this.commands) {
+		for (const command of this.values) {
 			try {
 				await this.reload(command.name);
 			} catch (e) {
@@ -61,7 +32,7 @@ export class PotoCommandHandler extends PotoHandler {
 
 	async load(commandsDir: string, client: BaseClient) {
 		const result = (await this.loadFilesK<typeof Command>(await this.getFiles(commandsDir))).filter(x => x.file);
-		this.commands = [];
+		this.values = [];
 
 		for (const command of result) {
 			const commandInstance = new command.file();
@@ -89,7 +60,7 @@ export class PotoCommandHandler extends PotoHandler {
 			}
 
 			commandInstance.__filePath = command.path;
-			this.commands.push(commandInstance);
+			this.values.push(commandInstance);
 			if (commandInstance.__t) {
 				commandInstance.name_localizations = {};
 				commandInstance.description_localizations = {};
@@ -129,6 +100,6 @@ export class PotoCommandHandler extends PotoHandler {
 			}
 		}
 
-		return this.commands;
+		return this.values;
 	}
 }

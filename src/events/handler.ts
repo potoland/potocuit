@@ -1,15 +1,16 @@
 import type { PotocuitEvent } from './event';
-import { PotoHandler } from '../commands/handler';
 import type { PotoClient } from '../client';
 import * as RawEvents from '../events/hooks/index';
 import { ReplaceRegex, type GatewayDispatchEvents, type GatewayDispatchPayload } from '@biscuitland/common';
+import { PotoHandler } from '../utils';
 
 type OnFailCallback = (error: unknown) => Promise<any>;
 
 export class PotoEventHandler extends PotoHandler {
 	protected onFail?: OnFailCallback;
+	protected filter = (path: string) => path.endsWith('.js');
 
-	events: Partial<Record<GatewayDispatchEvents, PotocuitEvent & { fired?: boolean }>> = {};
+	values: Partial<Record<GatewayDispatchEvents, PotocuitEvent & { fired?: boolean }>> = {};
 
 	set OnFail(cb: OnFailCallback) {
 		this.onFail = cb;
@@ -17,12 +18,12 @@ export class PotoEventHandler extends PotoHandler {
 
 	async load(commandsDir: string) {
 		for (const i of await this.loadFiles<PotocuitEvent>(await this.getFiles(commandsDir))) {
-			this.events[ReplaceRegex.snake(i.data.name).toUpperCase() as GatewayDispatchEvents] = i;
+			this.values[ReplaceRegex.snake(i.data.name).toUpperCase() as GatewayDispatchEvents] = i;
 		}
 	}
 
 	async execute(name: GatewayDispatchEvents, ...args: [GatewayDispatchPayload, PotoClient, number]) {
-		const Event = this.events[name];
+		const Event = this.values[name];
 		if (!Event) { return; }
 		try {
 			if (Event.data.once && Event.fired) {

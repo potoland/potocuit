@@ -107,7 +107,7 @@ export class BaseClient {
 		applicationId ??= await this.getRC().then(x => x.applicationId ?? this.applicationId);
 		BaseClient.assertString(applicationId, 'applicationId is not a string');
 
-		const commands = this.commands.commands.map(x => x.toJSON());
+		const commands = this.commands.values.map(x => x.toJSON());
 
 		await this.proxy.applications(applicationId).commands.put({
 			body: commands.filter(x => !x.guild_id)

@@ -4,24 +4,25 @@ import { InteractionResponseType } from '@biscuitland/common';
 import type { ModalSubmitCallback, ActionRow, ComponentCallback, PotoComponents } from './builders';
 import type { ComponentInteraction, ModalSubmitInteraction, ReplyInteractionBody } from '../structures';
 import type { InteractionMessageUpdateBodyRequest, MessageCreateBodyRequest, MessageUpdateBodyRequest, ModalCreateBodyRequest } from '../types/write';
-import { PotoHandler } from '../commands/handler';
 import { ComponentCommand } from './command';
+import { PotoHandler } from '../utils';
 
 export class ComponentHandler extends PotoHandler {
-	readonly components = new Map<string, Partial<Record<string, ComponentCallback>>>;
+	readonly values = new Map<string, Partial<Record<string, ComponentCallback>>>;
 	readonly modals = new Map<string, ModalSubmitCallback>;
 	readonly commands: ComponentCommand[] = [];
+	protected filter = (path: string) => path.endsWith('.js');
 
 	constructor(logger: Logger, protected client: BaseClient) {
 		super(logger);
 	}
 
 	hasComponent(id: string, customId: string) {
-		return !!this.components.get(id)?.[customId];
+		return !!this.values.get(id)?.[customId];
 	}
 
 	onComponent(id: string, interaction: ComponentInteraction) {
-		return this.components.get(id)?.[interaction.customId]?.(interaction);
+		return this.values.get(id)?.[interaction.customId]?.(interaction);
 	}
 
 	onModalSubmit(interaction: ModalSubmitInteraction) {
@@ -29,7 +30,7 @@ export class ComponentHandler extends PotoHandler {
 	}
 
 	onMessageDelete(id: string) {
-		this.components.delete(id);
+		this.values.delete(id);
 	}
 
 	protected __setComponents(id: string, record: ActionRow<PotoComponents>[] | APIActionRowComponent<APIMessageActionRowComponent>[]) {
@@ -44,7 +45,7 @@ export class ComponentHandler extends PotoHandler {
 		}
 
 		if (Object.entries(components).length) {
-			this.components.set(id, components);
+			this.values.set(id, components);
 		}
 	}
 
@@ -72,7 +73,7 @@ export class ComponentHandler extends PotoHandler {
 	onRequestInteractionUpdate(body: InteractionMessageUpdateBodyRequest, message: APIMessage) {
 		if (!body.components?.length) { return; }
 		if (message.interaction?.id) {
-			this.components.delete(message.interaction.id);
+			this.values.delete(message.interaction.id);
 		}
 		this.__setComponents(message.id, body.components);
 	}
@@ -84,7 +85,7 @@ export class ComponentHandler extends PotoHandler {
 
 	onRequestUpdateMessage(body: MessageUpdateBodyRequest, message: APIMessage) {
 		if (!body.components?.length) { return; }
-		this.components.delete(message.id);
+		this.values.delete(message.id);
 		this.__setComponents(message.id, body.components);
 	}
 

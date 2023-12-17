@@ -1,11 +1,12 @@
 import { Locale, type LocaleString } from '@biscuitland/common';
-import { PotoHandler } from '../commands/handler';
 import type { __LangType } from '../__generated';
+import { PotoHandler } from '../utils';
 
 const values = Object.values(Locale);
 
 export class PotoLangsHandler extends PotoHandler {
 	record: Partial<Record<LocaleString, any>> = {};
+	protected filter = (path: string) => path.endsWith('.json');
 
 	getKey(lang: string, message: string) {
 		let value: any = this.record[lang as LocaleString];

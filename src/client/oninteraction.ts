@@ -9,7 +9,7 @@ export async function onInteraction(body: APIInteraction, self: BaseClient, __re
 	switch (body.type) {
 		case InteractionType.ApplicationCommandAutocomplete: {
 			const packetData = body.data;
-			const parentCommand = self.commands.commands.find(x => {
+			const parentCommand = self.commands.values.find(x => {
 				if (x.guild_id && !x.guild_id.includes(packetData.guild_id ?? '')) { return false; }
 				return x.name === packetData.name;
 			});
@@ -41,7 +41,7 @@ export async function onInteraction(body: APIInteraction, self: BaseClient, __re
 			switch (body.data.type) {
 				case ApplicationCommandType.ChatInput: {
 					const packetData = body.data;
-					const parentCommand = self.commands.commands.find(x => {
+					const parentCommand = self.commands.values.find(x => {
 						if (x.guild_id && !x.guild_id.includes(packetData.guild_id ?? '')) { return false; }
 						return x.name === packetData.name;
 					});
