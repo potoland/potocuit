@@ -85,6 +85,7 @@ class BaseCommand {
 		defaultDescription: string;
 	}>;
 
+	guild_id?: string[];
 	name!: string;
 	type!: number;// ApplicationCommandType.ChatInput | ApplicationCommandOptionType.Subcommand
 	nsfw?: boolean;
@@ -165,6 +166,7 @@ class BaseCommand {
 			description: this.description,
 			name_localizations: this.name_localizations,
 			description_localizations: this.description_localizations,
+			guild_id: this.guild_id
 		};
 	}
 

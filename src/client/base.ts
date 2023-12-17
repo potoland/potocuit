@@ -106,9 +106,26 @@ export class BaseClient {
 	async uploadCommands(applicationId?: string) {
 		applicationId ??= await this.getRC().then(x => x.applicationId ?? this.applicationId);
 		BaseClient.assertString(applicationId, 'applicationId is not a string');
-		return this.proxy.applications(applicationId).commands.put({
-			body: Object.values(this.commands.commands.map(x => x.toJSON()))
+
+		const commands = this.commands.commands.map(x => x.toJSON());
+
+		await this.proxy.applications(applicationId).commands.put({
+			body: commands.filter(x => !x.guild_id)
 		});
+
+		const guilds = new Set<string>;
+
+		for (const command of commands.filter(x => x.guild_id)) {
+			for (const guild_id of command.guild_id!) {
+				guilds.add(guild_id);
+			}
+		}
+
+		for (const guild of guilds) {
+			await this.proxy.applications(applicationId).guilds(guild).commands.put({
+				body: commands.filter(x => x.guild_id?.includes(guild))
+			});
+		}
 	}
 
 	async loadCommands(dir?: string) {

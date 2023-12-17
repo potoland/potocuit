@@ -9,7 +9,10 @@ export async function onInteraction(body: APIInteraction, self: BaseClient, __re
 	switch (body.type) {
 		case InteractionType.ApplicationCommandAutocomplete: {
 			const packetData = body.data;
-			const parentCommand = self.commands.commands.find(x => x.name === packetData.name);
+			const parentCommand = self.commands.commands.find(x => {
+				if (x.guild_id && !x.guild_id.includes(packetData.guild_id ?? '')) { return false; }
+				return x.name === packetData.name;
+			});
 			const optionsResolver = new OptionResolver(self, packetData.options ?? [], parentCommand, body.data.guild_id, body.data.resolved);
 			const interaction = new AutocompleteInteraction(self, body, __reply);
 			const command = optionsResolver.getAutocomplete();
@@ -38,7 +41,10 @@ export async function onInteraction(body: APIInteraction, self: BaseClient, __re
 			switch (body.data.type) {
 				case ApplicationCommandType.ChatInput: {
 					const packetData = body.data;
-					const parentCommand = self.commands.commands.find(x => x.name === (packetData).name);
+					const parentCommand = self.commands.commands.find(x => {
+						if (x.guild_id && !x.guild_id.includes(packetData.guild_id ?? '')) { return false; }
+						return x.name === packetData.name;
+					});
 					const optionsResolver = new OptionResolver(self, packetData.options ?? [], parentCommand, packetData.guild_id, packetData.resolved);
 					const interaction = BaseInteraction.from(self, body, __reply) as ChatInputCommandInteraction;
 					const command = optionsResolver.getCommand();
