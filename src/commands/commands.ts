@@ -135,7 +135,7 @@ class BaseCommand {
 	}
 
 	/** @internal */
-	static __runMiddlewares(context: CommandContext<any>, middlewares: MiddlewareContext[], global: boolean): Result<Record<string, any>, true> {
+	static __runMiddlewares(context: CommandContext<any>, middlewares: readonly MiddlewareContext[], global: boolean): Result<Record<string, any>, true> {
 		if (!middlewares.length) { return Promise.resolve([{}, undefined]); }
 		const metadata: Record<string, any> = {};
 		let index = 0;
@@ -165,7 +165,6 @@ class BaseCommand {
 
 	/** @internal */
 	__runGlobalMiddlewares(context: CommandContext<any, {}, []>) {
-		// @ts-expect-error readonly thing
 		return BaseCommand.__runMiddlewares(context, context.client.options?.globalMiddlewares ?? [], true);
 	}
 
