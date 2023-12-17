@@ -42,7 +42,7 @@ type __TypesWrapper = {
 
 export type OKFunction<T> = (value: T) => void;
 export type StopFunction = (error: Error) => void;
-export type NextFunction<T> = (data: T) => void;
+export type NextFunction<T = unknown> = (data: T) => void;
 export type AutocompleteCallback = (interaction: AutocompleteInteraction) => any;
 export type OnAutocompleteErrorCallback = (interaction: AutocompleteInteraction, error: unknown) => any;
 export type PotoCommandBaseOption = __TypesWrapper[keyof __TypesWrapper];
@@ -134,28 +134,39 @@ class BaseCommand {
 		return [errored, data];
 	}
 
-	// dont fucking touch.
 	/** @internal */
-	__runMiddlewares(context: CommandContext<any, {}, []>): Result<Record<string, any>, true> {
-		if (!this.middlewares.length) { return Promise.resolve([{}, undefined]); }
+	static __runMiddlewares(context: CommandContext<any>, middlewares: MiddlewareContext[], global: boolean): Result<Record<string, any>, true> {
+		if (!middlewares.length) { return Promise.resolve([{}, undefined]); }
 		const metadata: Record<string, any> = {};
 		let index = 0;
 
 		return new Promise(res => {
 			const next: NextFunction<any> = obj => {
-
-				Object.assign(metadata, obj);
-				if (++index >= this.middlewares.length) {
-					context.metadata = metadata;
+				Object.assign(metadata, obj ?? {});
+				if (++index >= middlewares.length) {
+					// @ts-expect-error globalMetadata doesnt exist, but is used for global middlewares
+					context[global ? 'globalMetadata' : 'metadata'] = metadata;
 					return res([metadata, undefined]);
 				}
-				this.middlewares[index]({ context, next, stop });
+				middlewares[index]({ context, next, stop });
 			};
 			const stop: StopFunction = err => {
 				return res([undefined, err]);
 			};
-			this.middlewares[0]({ context, next, stop });
+			middlewares[0]({ context, next, stop });
 		});
+	}
+
+	// dont fucking touch.
+	/** @internal */
+	__runMiddlewares(context: CommandContext<any, {}, []>) {
+		return BaseCommand.__runMiddlewares(context, this.middlewares, false);
+	}
+
+	/** @internal */
+	__runGlobalMiddlewares(context: CommandContext<any, {}, []>) {
+		// @ts-expect-error readonly thing
+		return BaseCommand.__runMiddlewares(context, context.client.options?.globalMiddlewares ?? [], true);
 	}
 
 	toJSON() {

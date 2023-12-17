@@ -3,14 +3,21 @@ import type { DeepPartial } from '../structures/extra/types';
 import { ShardManager } from '../websocket';
 import { PotoEventHandler } from '../events';
 import type { BiscuitREST } from '@biscuitland/rest';
+import type { GatewayPresenceUpdateData } from '@biscuitland/common';
 import { type GatewayDispatchPayload } from '@biscuitland/common';
-import type { InternalRuntimeConfig, StartOptions } from './base';
+import type { BaseClientOptions, InternalRuntimeConfig, StartOptions } from './base';
 import { BaseClient } from './base';
 import { onInteraction } from './oninteraction';
 
 export class PotoClient extends BaseClient {
 	gateway!: ShardManager;
 	events = new PotoEventHandler(this.logger);
+	override options: PotoClientOptions | undefined;
+
+	constructor(options?: PotoClientOptions) {
+		super(options);
+		this.options = options;
+	}
 
 	setServices({ gateway, rest, cache }: { rest?: BiscuitREST; gateway?: ShardManager; cache?: Adapter }) {
 		super.setServices({ rest, cache });
@@ -56,6 +63,7 @@ export class PotoClient extends BaseClient {
 				handlePayload: (shardId, packet) => {
 					return this.onPacket(shardId, packet);
 				},
+				presence: this.options?.initialPresence
 			});
 		}
 
@@ -79,4 +87,8 @@ export class PotoClient extends BaseClient {
 			}
 		}
 	}
+}
+
+export interface PotoClientOptions extends BaseClientOptions {
+	initialPresence?: GatewayPresenceUpdateData;
 }

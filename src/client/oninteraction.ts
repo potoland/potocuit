@@ -54,8 +54,11 @@ export async function onInteraction(body: APIInteraction, self: BaseClient, __re
 							const [erroredOptions, result] = await command.__runOptions(context, optionsResolver);
 							if (erroredOptions) { return await command.onOptionsError?.(context, result); }
 
-							const [_, erroredMiddlewares] = await command.__runMiddlewares(context);
+							const [, erroredMiddlewares] = await command.__runMiddlewares(context);
 							if (erroredMiddlewares) { return await command.onMiddlewaresError?.(context, erroredMiddlewares); }
+
+							const [, erroredGlobalMiddlewares] = await command.__runGlobalMiddlewares(context);
+							if (erroredGlobalMiddlewares) { return await command.onMiddlewaresError?.(context, erroredGlobalMiddlewares); }
 
 							try {
 								await command.run(context);

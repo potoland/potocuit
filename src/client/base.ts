@@ -42,7 +42,11 @@ export class BaseClient {
 		return Buffer.from(token.split('.')[0], 'base64').toString('ascii');
 	}
 
-	constructor(public options?: BaseClientOptions) { }
+	options: BaseClientOptions | undefined;
+
+	constructor(options?: BaseClientOptions) {
+		this.options = options;
+	}
 
 	set botId(id: string) {
 		this._botId = id;
@@ -171,6 +175,8 @@ export class BaseClient {
 
 export interface BaseClientOptions<Ctx = CommandContext<boolean, OptionsRecord, readonly MiddlewareContext[]>> {
 	context?: { new(...args: any[]): Ctx };
+	// soontm
+	globalMiddlewares?: readonly MiddlewareContext[];
 }
 
 export interface StartOptions {
