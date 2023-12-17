@@ -175,7 +175,6 @@ export class BaseClient {
 
 export interface BaseClientOptions<Ctx = CommandContext<boolean, OptionsRecord, readonly MiddlewareContext[]>> {
 	context?: { new(...args: any[]): Ctx };
-	// soontm
 	globalMiddlewares?: readonly MiddlewareContext[];
 }
 
