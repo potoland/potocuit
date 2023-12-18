@@ -1,4 +1,4 @@
-import type { APIInteractionResponseChannelMessageWithSource, RESTPatchAPIChannelMessageJSONBody, RESTPatchAPIWebhookWithTokenMessageJSONBody, RESTPostAPIChannelMessageJSONBody, RESTPostAPIWebhookWithTokenJSONBody, APIInteractionResponseCallbackData } from '@biscuitland/common';
+import type { APIInteractionResponseChannelMessageWithSource, RESTPatchAPIChannelMessageJSONBody, RESTPatchAPIWebhookWithTokenMessageJSONBody, RESTPostAPIChannelMessageJSONBody, RESTPostAPIWebhookWithTokenJSONBody, APIInteractionResponseCallbackData, APIModalInteractionResponse } from '@biscuitland/common';
 import type { ActionRow, Modal, PotoComponents, TextInput } from '../components';
 import type { OmitInsert } from './util';
 
@@ -22,4 +22,4 @@ export type ComponentInteractionMessageUpdate = OmitInsert<APIInteractionRespons
 
 export type InteractionCreateBodyRequest = OmitInsert<APIInteractionResponseChannelMessageWithSource['data'], 'components', PotoComponentProper>;
 
-export type ModalCreateBodyRequest = Modal;
+export type ModalCreateBodyRequest = APIModalInteractionResponse['data'] | Modal;

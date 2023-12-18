@@ -1,11 +1,11 @@
 import type { When } from '@biscuitland/common';
-import { InteractionResponseType, MessageFlags } from '@biscuitland/common';
+import { MessageFlags } from '@biscuitland/common';
 import type { RawFile } from '@biscuitland/rest';
 import type { __LangType } from '../__generated';
 import { type ChatInputCommandInteraction } from '../structures';
 import type { MiddlewareContext, ContextOptions, CommandMetadata, OptionsRecord } from './commands';
 import type { OptionResolver } from './optionresolver';
-import type { InteractionCreateBodyRequest, InteractionMessageUpdateBodyRequest } from '../types/write';
+import type { InteractionCreateBodyRequest, InteractionMessageUpdateBodyRequest, ModalCreateBodyRequest } from '../types/write';
 import type { PotoClient, PotoHttpClient } from '../client';
 
 export class CommandContext<C extends boolean, T extends OptionsRecord = {}, M extends Readonly<MiddlewareContext[]> = []> {
@@ -20,20 +20,18 @@ export class CommandContext<C extends boolean, T extends OptionsRecord = {}, M e
 	}
 
 	write(body: InteractionCreateBodyRequest, files: RawFile[] = []) {
-		return this.interaction.reply(
-			{
-				data: body,
-				type: InteractionResponseType.ChannelMessageWithSource
-			},
+		return this.interaction.write(
+			body,
 			files,
 		);
 	}
 
+	modal(body: ModalCreateBodyRequest) {
+		return this.interaction.modal(body);
+	}
+
 	deferReply(ephemeral = false) {
-		return this.interaction.reply({
-			data: { flags: ephemeral ? MessageFlags.Ephemeral : undefined },
-			type: InteractionResponseType.DeferredChannelMessageWithSource
-		});
+		return this.interaction.deferReply(ephemeral ? MessageFlags.Ephemeral : undefined);
 	}
 
 	editResponse(body: InteractionMessageUpdateBodyRequest, files?: RawFile[]) {

@@ -7,7 +7,6 @@ import {
 	GatewayCloseCodes,
 	GatewayDispatchEvents,
 	GatewayOpcodes
-	// type Logger,
 } from '@biscuitland/common';
 import { inflateSync } from 'node:zlib';
 import type WS from 'ws';
@@ -19,6 +18,14 @@ import { BaseSocket } from './basesocket';
 import { ConnectTimeout } from '../structures/timeout';
 import { DynamicBucket, PriorityQueue } from '../structures';
 
+export interface ShardHeart {
+	interval: number;
+	nodeInterval?: NodeJS.Timeout;
+	lastAck?: number;
+	lastBeat?: number;
+	ack: boolean;
+}
+
 export class Shard {
 	logger: Logger;
 	data: Partial<ShardData> | ShardData = {
@@ -27,21 +34,15 @@ export class Shard {
 
 	websocket: BaseSocket | null = null;
 	connectTimeout = new ConnectTimeout();
-	heart: {
-		interval: number;
-		nodeInterval?: NodeJS.Timeout;
-		lastAck?: number;
-		lastBeat?: number;
-		ack: boolean;
-	} = {
-			interval: 30e3,
-			ack: true
-		};
+	heart: ShardHeart = {
+		interval: 30e3,
+		ack: true
+	};
 
 	bucket: DynamicBucket;
 	offlineSendQueue = new PriorityQueue<(_?: unknown) => void>();
 
-	constructor(public id: number, protected options: ShardOptions) {
+	constructor(public id: number, public options: ShardOptions) {
 		this.options.ratelimitOptions ??= {
 			rateLimitResetInterval: 60_000,
 			maxRequestsPerRateLimitTick: 120,

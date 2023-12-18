@@ -4,13 +4,14 @@ import { InteractionResponseType } from '@biscuitland/common';
 import type { ModalSubmitCallback, ActionRow, ComponentCallback, PotoComponents } from './builders';
 import type { ComponentInteraction, ModalSubmitInteraction, ReplyInteractionBody } from '../structures';
 import type { InteractionMessageUpdateBodyRequest, MessageCreateBodyRequest, MessageUpdateBodyRequest, ModalCreateBodyRequest } from '../types/write';
-import { ComponentCommand } from './command';
+import type { ModalCommand } from './command';
+import { ComponentCommand, InteractionCommandType } from './command';
 import { PotoHandler } from '../utils';
 
 export class ComponentHandler extends PotoHandler {
 	readonly values = new Map<string, Partial<Record<string, ComponentCallback>>>;
 	readonly modals = new Map<string, ModalSubmitCallback>;
-	readonly commands: ComponentCommand[] = [];
+	readonly commands: (ComponentCommand | ModalCommand)[] = [];
 	protected filter = (path: string) => path.endsWith('.js');
 
 	constructor(logger: Logger, protected client: BaseClient) {
@@ -25,15 +26,15 @@ export class ComponentHandler extends PotoHandler {
 		return this.values.get(id)?.[interaction.customId]?.(interaction);
 	}
 
+	hasModal(interaction: ModalSubmitInteraction) {
+		return this.modals.has(interaction.user.id);
+	}
+
 	onModalSubmit(interaction: ModalSubmitInteraction) {
 		return this.modals.get(interaction.user.id)?.(interaction);
 	}
 
-	onMessageDelete(id: string) {
-		this.values.delete(id);
-	}
-
-	protected __setComponents(id: string, record: ActionRow<PotoComponents>[] | APIActionRowComponent<APIMessageActionRowComponent>[]) {
+	__setComponents(id: string, record: ActionRow<PotoComponents>[] | APIActionRowComponent<APIMessageActionRowComponent>[]) {
 		const components: Record<string, ComponentCallback> = {};
 
 		for (const actionRow of record) {
@@ -70,6 +71,10 @@ export class ComponentHandler extends PotoHandler {
 		}
 	}
 
+	onMessageDelete(id: string) {
+		this.values.delete(id);
+	}
+
 	onRequestInteractionUpdate(body: InteractionMessageUpdateBodyRequest, message: APIMessage) {
 		if (!body.components?.length) { return; }
 		if (message.interaction?.id) {
@@ -90,14 +95,23 @@ export class ComponentHandler extends PotoHandler {
 	}
 
 	async load(commandsDir: string) {
-		for (const i of (await this.loadFiles<ComponentCommand>(await this.getFiles(commandsDir))).filter(x => x instanceof ComponentCommand)) {
+		for (const i of (await this.loadFiles<ComponentCommand | ModalCommand>(await this.getFiles(commandsDir))).filter(x => x instanceof ComponentCommand)) {
 			this.commands.push(i);
 		}
 	}
 
-	async execute(interaction: ComponentInteraction) {
+	async executeComponent(interaction: ComponentInteraction) {
 		for (const i of this.commands) {
-			if (await i.filter(interaction)) {
+			if (i.type === InteractionCommandType.COMPONENT && await i.filter(interaction)) {
+				await i.run(interaction);
+				break;
+			}
+		}
+	}
+
+	async executeModal(interaction: ModalSubmitInteraction) {
+		for (const i of this.commands) {
+			if (i.type === InteractionCommandType.MODAL && await i.filter(interaction)) {
 				await i.run(interaction);
 				break;
 			}

@@ -14,6 +14,7 @@ export * from './commands';
 export * from './events';
 export * from './components';
 export * from './structures';
+export * from './websocket/discord/workermanager';
 
 export function throwError(msg: string): never {
 	throw new Error(msg);

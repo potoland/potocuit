@@ -59,7 +59,7 @@ export class ShardManager extends Collection<number, Shard> {
 			properties: this.options.properties,
 			logger: this.logger,
 			compress: false,
-			presence: this.options.presence
+			presence: this.options.presence?.(shardId, -1)
 		});
 
 		this.set(shardId, shard);

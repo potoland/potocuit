@@ -46,7 +46,7 @@ export class PotoClient extends BaseClient {
 		await this.gateway.spawnShards();
 	}
 
-	async start(options: Omit<DeepPartial<StartOptions>, 'httpConnection'> = {}) {
+	async start(options: Omit<DeepPartial<StartOptions>, 'httpConnection'> = {}, execute = true) {
 		await super.start(options);
 		await this.loadEvents(options.eventsDir);
 
@@ -63,13 +63,17 @@ export class PotoClient extends BaseClient {
 				handlePayload: (shardId, packet) => {
 					return this.onPacket(shardId, packet);
 				},
-				presence: this.options?.initialPresence
+				presence: this.options?.presence
 			});
 		}
 
 		this.cache.intents = this.gateway.options.intents;
 
-		await this.execute(options.connection);
+		if (execute) {
+			await this.execute(options.connection);
+		} else {
+			await super.execute(options);
+		}
 	}
 
 	protected async onPacket(shardId: number, packet: GatewayDispatchPayload) {
@@ -79,7 +83,7 @@ export class PotoClient extends BaseClient {
 			case 'READY':
 				this.botId = packet.d.user.id;
 				this.applicationId = packet.d.application.id;
-				this.debugger.debug(`[${packet.d.user.username}](${this.botId}) is online...`);
+				this.debugger.debug(`#${shardId}[ ${packet.d.user.username}](${this.botId}) is online...`);
 				break;
 			case 'INTERACTION_CREATE': {
 				await onInteraction(packet.d, this);
@@ -90,5 +94,5 @@ export class PotoClient extends BaseClient {
 }
 
 export interface PotoClientOptions extends BaseClientOptions {
-	initialPresence?: GatewayPresenceUpdateData;
+	presence?: (shardId: number) => GatewayPresenceUpdateData;
 }

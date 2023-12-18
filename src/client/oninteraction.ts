@@ -88,14 +88,18 @@ export async function onInteraction(body: APIInteraction, self: BaseClient, __re
 
 		case InteractionType.ModalSubmit: {
 			const interaction = BaseInteraction.from(self, body, __reply) as ModalSubmitInteraction;
-			await self.components.onModalSubmit(interaction);
+			if (self.components.hasModal(interaction)) {
+				await self.components.onModalSubmit(interaction);
+			} else {
+				await self.components.executeModal(interaction);
+			}
 		} break;
 		case InteractionType.MessageComponent: {
 			const interaction = BaseInteraction.from(self, body, __reply) as ComponentInteraction;
 			if (self.components.hasComponent(body.message.interaction?.id ?? body.message.id, interaction.customId)) {
 				await self.components.onComponent(body.message.interaction?.id ?? body.message.id, interaction);
 			} else {
-				await self.components.execute(interaction);
+				await self.components.executeComponent(interaction);
 			}
 		} break;
 	}

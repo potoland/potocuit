@@ -181,6 +181,13 @@ export class Interaction<FromGuild extends boolean = boolean, Type extends APIIn
 		}, files);
 	}
 
+	modal(body: ModalCreateBodyRequest) {
+		return this.reply({
+			type: InteractionResponseType.Modal,
+			data: body
+		});
+	}
+
 	async editOrReply(body: InteractionMessageUpdateBodyRequest, files?: RawFile[]) {
 		if (await this.replied) {
 			return this.editResponse(body, files);

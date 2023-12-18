@@ -22,7 +22,23 @@ export interface ShardManagerOptions extends ShardDetails {
 	 * wheter to send debug information to the console
 	 */
 	debug?: boolean;
-	presence?: GatewayPresenceUpdateData;
+	/**
+	 * Set a presence.
+	 */
+	presence?: (shardId: number, workerId: number) => GatewayPresenceUpdateData;
+
+	compress?: boolean;
+}
+
+export interface WorkerManagerOptions extends ShardManagerOptions {
+	workers?: number;
+
+	/**
+	 * @default 32
+	 */
+	shardsPerWorker?: number;
+
+	path?: string;
 }
 
 export interface ShardData {
@@ -81,4 +97,13 @@ export interface ShardOptions extends ShardDetails {
 export enum ShardSocketCloseCodes {
 	Shutdown = 3000,
 	ZombiedConnection = 3010,
+}
+
+export interface WorkerData {
+	intents: number;
+	token: string;
+	path: string;
+	shards: number[];
+	workerId: number;
+	debug: boolean;
 }

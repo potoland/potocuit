@@ -150,7 +150,7 @@ export class Modal<T extends PotoModalComponents = TextInput> {
 		this.components = this.components.concat(data.components?.map(createComponent) as ActionRow<T>[] ?? []);
 	}
 
-	addComponents(component: ActionRow<T>) {
+	addComponents(component: TypeArray<ActionRow<T>>) {
 		this.components = this.components.concat(component);
 		return this;
 	}

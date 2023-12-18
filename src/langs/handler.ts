@@ -44,7 +44,7 @@ export class PotoLangsHandler extends PotoHandler {
 				this.logger.fatal(`Invalid lang [${i.name.slice(0, -5)}]`);
 				continue;
 			}
-			this.record[i.name as LocaleString] = i.file;
+			this.record[i.name.slice(0, -5) as LocaleString] = i.file;
 		}
 	}
 }

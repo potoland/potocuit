@@ -247,7 +247,7 @@ export class Command extends BaseCommand {
 export abstract class SubCommand extends BaseCommand {
 	type = ApplicationCommandOptionType.Subcommand;
 	group?: string;
-	options?: PotoCommandOption[];
+	declare options?: PotoCommandOption[];
 
 	toJSON() {
 		return {
