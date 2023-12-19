@@ -1,7 +1,7 @@
 import { parentPort as manager, workerData as __workerData__ } from 'worker_threads';
 import { Shard } from './shard';
 import { Logger } from '@biscuitland/common';
-import type { GatewayDispatchPayload } from '@biscuitland/common';
+import type { GatewayDispatchPayload, GatewaySendPayload } from '@biscuitland/common';
 import type { WorkerData } from './shared';
 import type { ManagerMessages } from './workermanager';
 
@@ -22,6 +22,22 @@ manager!.on('message', data => handleManagerMessages(data));
 
 async function handleManagerMessages(data: ManagerMessages) {
 	switch (data.type) {
+		case 'SEND_PAYLOAD': {
+			const shard = shards.get(data.shardId);
+			if (!shard) {
+				logger.fatal('Worker trying send payload by non-existent shard');
+				return;
+			}
+
+			await shard.send(0, {
+				...data,
+			} satisfies GatewaySendPayload);
+
+			manager!.postMessage({
+				type: 'RESULT_PAYLOAD',
+				nonce: data.nonce
+			} satisfies WorkerSendResultPayload);
+		} break;
 		case 'ALLOW_CONNECT': {
 			const shard = shards.get(data.shardId);
 			if (!shard) {
@@ -46,9 +62,9 @@ async function handleManagerMessages(data: ManagerMessages) {
 							manager!.postMessage({
 								workerId: workerData.workerId,
 								shardId,
-								type: 'SHARD_PAYLOAD',
+								type: 'RECEIVE_PAYLOAD',
 								payload,
-							} as WorkerShardPayload);
+							} satisfies WorkerReceivePayload);
 						},
 					});
 					shards.set(id, shard);
@@ -58,7 +74,7 @@ async function handleManagerMessages(data: ManagerMessages) {
 					type: 'CONNECT_QUEUE',
 					shardId: id,
 					workerId: workerData.workerId
-				} as WorkerRequestConnect);
+				} satisfies WorkerRequestConnect);
 			}
 		} break;
 	}
@@ -68,6 +84,7 @@ async function handleManagerMessages(data: ManagerMessages) {
 type CreateWorkerMessage<T extends string, D extends object = {}> = { type: T } & D;
 
 export type WorkerRequestConnect = CreateWorkerMessage<'CONNECT_QUEUE', { shardId: number; workerId: number }>;
-export type WorkerShardPayload = CreateWorkerMessage<'SHARD_PAYLOAD', { shardId: number; workerId: number; payload: GatewayDispatchPayload }>;
+export type WorkerReceivePayload = CreateWorkerMessage<'RECEIVE_PAYLOAD', { shardId: number; workerId: number; payload: GatewayDispatchPayload }>;
+export type WorkerSendResultPayload = CreateWorkerMessage<'RESULT_PAYLOAD', { nonce: string }>;
 
-export type WorkerMessage = WorkerRequestConnect | WorkerShardPayload;
+export type WorkerMessage = WorkerRequestConnect | WorkerReceivePayload | WorkerSendResultPayload;

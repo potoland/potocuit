@@ -1,4 +1,4 @@
-import type { GatewayPresenceUpdateData } from '@biscuitland/common';
+import type { GatewayPresenceUpdateData, GatewaySendPayload } from '@biscuitland/common';
 import { Logger } from '@biscuitland/common';
 import { WorkerManagerDefaults } from '../constants';
 import { SequentialBucket } from '../structures';
@@ -8,11 +8,13 @@ import type { WorkerMessage } from './worker';
 import { join } from 'path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { Options } from '../../utils';
+import { randomUUID } from 'crypto';
 
 export class WorkersManger extends Map<number, Worker> {
 	options: Required<WorkerManagerOptions>;
 	logger: Logger;
 	connectQueue: SequentialBucket;
+	promises = new Map<string, (value: unknown) => void>();
 	constructor(options: WorkerManagerOptions) {
 		super();
 		this.options = Options<Required<WorkerManagerOptions>>(WorkerManagerDefaults, options, { info: { shards: options.totalShards } });
@@ -54,6 +56,14 @@ export class WorkersManger extends Map<number, Worker> {
 		return this.options.workers;
 	}
 
+	calculateWorkerId(shardId: number) {
+		let workerId = Math.floor((shardId) / this.shardsPerWorker);
+		if (workerId >= this.workers) {
+			workerId = this.workers - 1;
+		}
+		return workerId;
+	}
+
 	prepareSpaces() {
 		this.logger.info('Preparing buckets');
 
@@ -90,7 +100,7 @@ export class WorkersManger extends Map<number, Worker> {
 				compress: this.options.compress ?? false,
 				info: this.options.info,
 				properties: this.options.properties
-			} as ManagerSpawnShards);
+			} satisfies ManagerSpawnShards);
 			await delay(69);
 		}
 	}
@@ -116,7 +126,7 @@ export class WorkersManger extends Map<number, Worker> {
 				type: 'ALLOW_CONNECT',
 				shardId,
 				presence: this.options.presence(shardId, workerId)
-			} as ManagerAllowConnect);
+			} satisfies ManagerAllowConnect);
 		});
 	}
 
@@ -125,10 +135,44 @@ export class WorkersManger extends Map<number, Worker> {
 			case 'CONNECT_QUEUE':
 				this.spawn(message.workerId, message.shardId);
 				break;
-			case 'SHARD_PAYLOAD':
+			case 'RECEIVE_PAYLOAD':
 				this.options.handlePayload(message.shardId, message.payload);
 				break;
+			case 'RESULT_PAYLOAD': {
+				const resolve = this.promises.get(message.nonce);
+				if (!resolve) { return; }
+				resolve(true);
+			} break;
 		}
+	}
+
+	async send(data: GatewaySendPayload, shardId: number) {
+		const workerId = this.calculateWorkerId(shardId);
+		const worker = this.get(workerId);
+
+		if (!worker) { throw new Error(`Worker #${workerId} doesnt exist`); }
+
+		const nonce = randomUUID();
+
+		worker.postMessage({
+			type: 'SEND_PAYLOAD',
+			shardId,
+			nonce,
+			...data,
+		} satisfies ManagerSendPayload);
+
+		let resolve = (_: unknown) => { /**/ };
+
+		const promise = new Promise((res, rej) => {
+			resolve = res;
+			setTimeout(() => {
+				rej(new Error('Timeout'));
+			}, 3e3);
+		});
+
+		this.promises.set(nonce, resolve);
+
+		return promise;
 	}
 
 	async start() {
@@ -141,5 +185,6 @@ type CreateManagerMessage<T extends string, D extends object = {}> = { type: T }
 
 export type ManagerAllowConnect = CreateManagerMessage<'ALLOW_CONNECT', { shardId: number; presence: GatewayPresenceUpdateData }>;
 export type ManagerSpawnShards = CreateManagerMessage<'SPAWN_SHARDS', Pick<ShardOptions, 'info' | 'properties' | 'compress'>>;
+export type ManagerSendPayload = CreateManagerMessage<'SEND_PAYLOAD', GatewaySendPayload & { shardId: number; nonce: string }>;
 
-export type ManagerMessages = ManagerAllowConnect | ManagerSpawnShards;
+export type ManagerMessages = ManagerAllowConnect | ManagerSpawnShards | ManagerSendPayload;
