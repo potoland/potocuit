@@ -1,8 +1,6 @@
 import type {
-	APIGatewayBotInfo,
 	GatewayUpdatePresence,
 	GatewayVoiceStateUpdate,
-	// Logger,
 	ObjectToLower
 } from '@biscuitland/common';
 import {
@@ -25,7 +23,8 @@ export class ShardManager extends Collection<number, Shard> {
 
 	constructor(options: ShardManagerOptions) {
 		super();
-		this.options = Options<Required<ShardManagerOptions>>(ShardManagerDefaults, options, { info: { shards: options.totalShards } });
+		options.totalShards ??= options.info.shards;
+		this.options = Options<Required<ShardManagerOptions>>(ShardManagerDefaults, options);
 		this.connectQueue = new SequentialBucket(this.concurrency);
 
 		this.logger = new Logger({
@@ -44,7 +43,7 @@ export class ShardManager extends Collection<number, Shard> {
 	}
 
 	calculeShardId(guildId: string) {
-		return Number((BigInt(guildId) >> 22n) % BigInt(this.options.totalShards ?? 1));
+		return Number((BigInt(guildId) >> 22n) % BigInt(this.options.info.shards ?? 1));
 	}
 
 	spawn(shardId: number) {
@@ -54,7 +53,7 @@ export class ShardManager extends Collection<number, Shard> {
 		shard ??= new Shard(shardId, {
 			token: this.options.token,
 			intents: this.options.intents,
-			info: Options<APIGatewayBotInfo>(this.options.info, { shards: this.options.totalShards }),
+			info: { ...this.options.info, shards: this.options.totalShards! },
 			handlePayload: this.options.handlePayload,
 			properties: this.options.properties,
 			logger: this.logger,

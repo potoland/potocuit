@@ -17,7 +17,8 @@ export class WorkersManger extends Map<number, Worker> {
 	promises = new Map<string, (value: unknown) => void>();
 	constructor(options: WorkerManagerOptions) {
 		super();
-		this.options = Options<Required<WorkerManagerOptions>>(WorkerManagerDefaults, options, { info: { shards: options.totalShards } });
+		options.totalShards ??= options.info.shards;
+		this.options = Options<Required<WorkerManagerOptions>>(WorkerManagerDefaults, options);
 		this.options.workers ??= Math.ceil(this.options.totalShards / this.options.shardsPerWorker);
 
 		this.connectQueue = new SequentialBucket(this.concurrency);
@@ -56,14 +57,14 @@ export class WorkersManger extends Map<number, Worker> {
 		return this.options.workers;
 	}
 
-	calculeShardId(guildId: string) {
-		return Number((BigInt(guildId) >> 22n) % BigInt(this.options.totalShards ?? 1));
+	calculateShardId(guildId: string) {
+		return Number((BigInt(guildId) >> 22n) % BigInt(this.options.info.shards ?? 1));
 	}
 
 	calculateWorkerId(shardId: number) {
-		let workerId = Math.floor((shardId) / this.shardsPerWorker);
+		const workerId = Math.floor((shardId) / this.shardsPerWorker);
 		if (workerId >= this.workers) {
-			workerId = this.workers - 1;
+			throw new Error('Invalid shardId');
 		}
 		return workerId;
 	}
@@ -145,6 +146,7 @@ export class WorkersManger extends Map<number, Worker> {
 			case 'RESULT_PAYLOAD': {
 				const resolve = this.promises.get(message.nonce);
 				if (!resolve) { return; }
+				this.promises.delete(message.nonce);
 				resolve(true);
 			} break;
 		}
