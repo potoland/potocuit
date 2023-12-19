@@ -9,7 +9,7 @@ import type { InteractionCreateBodyRequest, InteractionMessageUpdateBodyRequest,
 import type { PotoClient, PotoHttpClient } from '../client';
 
 export class CommandContext<C extends boolean, T extends OptionsRecord = {}, M extends Readonly<MiddlewareContext[]> = []> {
-	constructor(readonly client: When<C, PotoClient, PotoHttpClient>, readonly interaction: ChatInputCommandInteraction, public options: ContextOptions<T>, public metadata: CommandMetadata<M>, public resolver: OptionResolver) { }
+	constructor(readonly client: When<C, PotoClient, PotoHttpClient>, readonly interaction: ChatInputCommandInteraction, public options: ContextOptions<T>, public metadata: CommandMetadata<M>, public resolver: OptionResolver, readonly shardId: number) { }
 
 	get proxy() {
 		return this.client.proxy;

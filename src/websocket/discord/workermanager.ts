@@ -56,6 +56,10 @@ export class WorkersManger extends Map<number, Worker> {
 		return this.options.workers;
 	}
 
+	calculeShardId(guildId: string) {
+		return Number((BigInt(guildId) >> 22n) % BigInt(this.options.totalShards ?? 1));
+	}
+
 	calculateWorkerId(shardId: number) {
 		let workerId = Math.floor((shardId) / this.shardsPerWorker);
 		if (workerId >= this.workers) {

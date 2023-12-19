@@ -86,7 +86,7 @@ export class PotoClient extends BaseClient {
 				this.debugger.debug(`#${shardId}[ ${packet.d.user.username}](${this.botId}) is online...`);
 				break;
 			case 'INTERACTION_CREATE': {
-				await onInteraction(packet.d, this);
+				await onInteraction(shardId, packet.d, this);
 				break;
 			}
 		}

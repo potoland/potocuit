@@ -4,7 +4,7 @@ import { AutocompleteInteraction, BaseInteraction } from '../structures';
 import type { BaseClient } from './base';
 import { OptionResolver, CommandContext } from '../commands';
 
-export async function onInteraction(body: APIInteraction, self: BaseClient, __reply?: __InternalReplyFunction) {
+export async function onInteraction(shardId: number, body: APIInteraction, self: BaseClient, __reply?: __InternalReplyFunction) {
 	self.debugger.debug(`[${InteractionType[body.type] ?? body.type}] Interaction received.`);
 	switch (body.type) {
 		case InteractionType.ApplicationCommandAutocomplete: {
@@ -49,7 +49,7 @@ export async function onInteraction(body: APIInteraction, self: BaseClient, __re
 					const interaction = BaseInteraction.from(self, body, __reply) as ChatInputCommandInteraction;
 					const command = optionsResolver.getCommand();
 					if (command?.run) {
-						const context = new (self.options?.context || CommandContext)(self as any, interaction, {}, {}, optionsResolver);
+						const context = new (self.options?.context || CommandContext)(self as any, interaction, {}, {}, optionsResolver, shardId);
 						try {
 							const [erroredOptions, result] = await command.__runOptions(context, optionsResolver);
 							if (erroredOptions) { return await command.onOptionsError?.(context, result); }

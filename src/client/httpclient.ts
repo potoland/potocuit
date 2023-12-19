@@ -112,7 +112,7 @@ export class PotoHttpClient extends BaseClient {
 						.end(JSON.stringify({ type: InteractionResponseType.Pong }));
 					break;
 				default:
-					await onInteraction(rawBody, this, async ({ body, files }) => {
+					await onInteraction(-1, rawBody, this, async ({ body, files }) => {
 						let response, headers: { ['Content-Type']?: string } = {};
 
 						if (files?.length) {
