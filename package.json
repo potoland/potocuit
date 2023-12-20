@@ -2,10 +2,10 @@
 	"name": "@potoland/core",
 	"version": "0.0.1",
 	"main": "./dist/index.js",
+	"module": "./dist/index.mjs",
 	"types": "./dist/index.d.ts",
 	"files": [
-		"dist/**",
-		"src/**"
+		"dist/**"
 	],
 	"scripts": {
 		"build": "tsc --outDir ./dist",
@@ -48,7 +48,7 @@
 		".": {
 			"import": {
 				"types": "./dist/index.d.ts",
-				"default": "./dist/index.js"
+				"default": "./dist/index.mjs"
 			},
 			"require": "./dist/index.js"
 		}
@@ -70,8 +70,5 @@
 	],
 	"publishConfig": {
 		"access": "public"
-	},
-	"_moduleAliases": {
-		"@src": "./dist"
 	}
 }
