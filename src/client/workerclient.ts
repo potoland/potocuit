@@ -1,12 +1,11 @@
-import { LogLevels, Logger } from "@biscuitland/common";
 import type { GatewayDispatchPayload } from "@biscuitland/common";
-import { parentPort as manager, workerData as __workerData__ } from "worker_threads";
+import { LogLevels, Logger } from "@biscuitland/common";
+import { workerData as __workerData__, parentPort as manager } from "worker_threads";
 import type { Cache } from "../cache";
 import { WorkerAdapter } from "../cache";
 import { PotoEventHandler } from "../events";
-import type { DeepPartial } from "../structures/extra/types";
-import type { Shard } from "../websocket";
-import type { WorkerData } from "../websocket";
+import { DeepPartial } from "../types";
+import type { Shard, WorkerData } from "../websocket";
 import { handleManagerMessages } from "../websocket/discord/handlemessage";
 import type { ManagerMessages } from "../websocket/discord/workermanager";
 import type { BaseClientOptions, StartOptions } from "./base";

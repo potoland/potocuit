@@ -1,8 +1,8 @@
 import type {
-    APISticker,
-    ObjectToLower,
-    RESTPatchAPIGuildStickerJSONBody,
-    RESTPostAPIGuildStickerFormDataBody,
+	APISticker,
+	ObjectToLower,
+	RESTPatchAPIGuildStickerJSONBody,
+	RESTPostAPIGuildStickerFormDataBody,
 } from "@biscuitland/common";
 import type { BaseClient } from "../client/base";
 import type { MethodContext } from "../types";
@@ -51,9 +51,9 @@ export class Sticker extends DiscordBase {
             },
             create: async (body: RESTPostAPIGuildStickerFormDataBody, reason?: string) => {
                 const { file, ...json } = body;
-                // @ts-expect-error esta wea hay que arreglarla, poner un file resolvable y bla bla bla
                 const sticker = await ctx.api
                     .guilds(ctx.id)
+                // @ts-expect-error esta wea hay que arreglarla, poner un file resolvable y bla bla bla
                     .stickers.post({ reason, body: json, files: [{ ...file, key: "file" }], appendToFormData: true });
                 await ctx.client.cache.stickers?.setIfNI("GuildEmojisAndStickers", sticker.id, ctx.id, sticker);
                 return new Sticker(ctx.client, sticker);

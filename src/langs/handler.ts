@@ -7,6 +7,7 @@ const values = Object.values(Locale);
 export class PotoLangsHandler extends PotoHandler {
     record: Partial<Record<LocaleString, any>> = {};
     protected filter = (path: string) => path.endsWith(".json");
+	defaultLang?: LocaleString
 
     getKey(lang: string, message: string) {
         let value: any = this.record[lang as LocaleString];
@@ -29,7 +30,7 @@ export class PotoLangsHandler extends PotoHandler {
 
     get<K extends keyof __LangType>(lang: LocaleString, message: K, metadata: __LangType[K]) {
         try {
-            const value = this.getKey(lang, message);
+        	const value = this.getKey(lang, message) ?? (this.defaultLang ? this.getKey(this.defaultLang!, message) : undefined)
             if (!value) {
                 throw new Error("Invalid key");
             }

@@ -1,9 +1,9 @@
 import { type Identify } from "@biscuitland/common";
 import type { GuildBased, GuildRelated, NonGuildBased } from "../../cache";
 import type { BaseClient } from "../../client/base";
+import { DeepPartial } from "../../types";
 import { Base } from "./Base";
 import { snowflakeToTimestamp } from "./functions";
-import type { DeepPartial } from "./types";
 
 export class DiscordBase<Data extends Record<string, any> = { id: string }> extends Base {
     id: string;

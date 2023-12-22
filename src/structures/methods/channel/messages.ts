@@ -1,13 +1,14 @@
 import type {
-    APIPartialEmoji,
-    ChannelType,
-    RESTGetAPIChannelMessageReactionUsersQuery,
-    RESTPatchAPIChannelMessageJSONBody,
-    RESTPostAPIChannelMessageJSONBody,
-    RESTPostAPIChannelMessagesBulkDeleteJSONBody,
+	APIPartialEmoji,
+	ChannelType,
+	RESTGetAPIChannelMessageReactionUsersQuery,
+	RESTPatchAPIChannelMessageJSONBody,
+	RESTPostAPIChannelMessageJSONBody,
+	RESTPostAPIChannelMessagesBulkDeleteJSONBody,
 } from "@biscuitland/common";
 import type { RawFile } from "@biscuitland/rest";
 import type { MethodContext } from "../../..";
+import { User } from "../../..";
 import type { EmojiResolvable } from "../../../types/resolvables";
 import type { MessageCreateBodyRequest, MessageUpdateBodyRequest } from "../../../types/write";
 import { Message } from "../../Message";
