@@ -85,8 +85,6 @@ class BaseCommand {
 		defaultDescription: string;
 	}>;
 
-	metadata: Record<string, any> = {};
-
 	guild_id?: string[];
 	name!: string;
 	type!: number;// ApplicationCommandType.ChatInput | ApplicationCommandOptionType.Subcommand
