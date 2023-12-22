@@ -1,12 +1,12 @@
-import type { APISelectMenuOption, APIStringSelectComponent, ComponentType } from '@biscuitland/common';
-import { BaseSelectMenuComponent } from '../structures/extra/BaseSelectMenuComponent';
+import type { APISelectMenuOption, APIStringSelectComponent, ComponentType } from "@biscuitland/common";
+import { BaseSelectMenuComponent } from "../structures/extra/BaseSelectMenuComponent";
 
 export class StringSelectMenuComponent extends BaseSelectMenuComponent<ComponentType.StringSelect> {
-	constructor(data: APIStringSelectComponent) {
-		super(data);
+  constructor(data: APIStringSelectComponent) {
+    super(data);
 
-		this.options = data.options;
-	}
+    this.options = data.options;
+  }
 
-	options: APISelectMenuOption[];
+  options: APISelectMenuOption[];
 }

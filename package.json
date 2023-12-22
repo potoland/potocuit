@@ -1,74 +1,65 @@
 {
-	"name": "@potoland/core",
-	"version": "0.0.1",
-	"main": "./dist/index.js",
-	"module": "./dist/index.mjs",
-	"types": "./dist/index.d.ts",
-	"files": [
-		"dist/**"
-	],
-	"scripts": {
-		"build": "tsc --outDir ./dist",
-		"dev": "swc src -d dist -w",
-		"prepublishOnly": "npm run build",
-		"prepare": "npm run build",
-		"test:run": "cd __test__ && node ./dist/index.js",
-		"test:build": "cd __test__ && nodemon --ext ts --watch ./src --exec \"swc ./src --config-file ../.swcrc -d ./dist\"",
-		"test": "cd __test__ && nodemon --ext ts --watch ./src --exec \"swc ./src --config-file ../.swcrc -d ./dist && node ./dist/index.js\""
-	},
-	"author": "MARCROCK22",
-	"license": "ISC",
-	"dependencies": {
-		"@biscuitland/common": "^0.0.9",
-		"@biscuitland/helpers": "^3.0.12",
-		"@biscuitland/rest": "^3.0.7",
-		"form-data": "^4.0.0",
-		"ioredis": "^5.3.2",
-		"ts-mixer": "^6.0.3",
-		"ws": "^8.15.1"
-	},
-	"devDependencies": {
-		"@swc/cli": "^0.1.62",
-		"@swc/core": "^1.3.93",
-		"@types/node": "^20.6.3",
-		"@types/ws": "^8.5.10",
-		"@typescript-eslint/eslint-plugin": "^6.7.2",
-		"@typescript-eslint/parser": "^6.7.2",
-		"eslint": "^8.50.0",
-		"eslint-config-prettier": "^9.0.0",
-		"nodemon": "^3.0.1",
-		"typescript": "^5.2.2"
-	},
-	"optionalDependencies": {
-		"tweetnacl": "^1.0.3",
-		"uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.32.0"
-	},
-	"exports": {
-		"./package.json": "./package.json",
-		".": {
-			"import": {
-				"types": "./dist/index.d.ts",
-				"default": "./dist/index.mjs"
-			},
-			"require": "./dist/index.js"
-		}
-	},
-	"homepage": "https://biscuitjs.com",
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/potoland/potocuit.git"
-	},
-	"bugs": {
-		"url": "https://github.com/potoland/potocuit"
-	},
-	"keywords": [
-		"api",
-		"discord",
-		"bots",
-		"typescript",
-		"botdev"
-	],
-	"publishConfig": {
-		"access": "public"
-	}
+    "name": "@potoland/core",
+    "version": "0.0.1",
+    "main": "./dist/index.js",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
+    "files": ["dist/**"],
+    "scripts": {
+        "build": "tsc --outDir ./dist",
+        "dev": "swc src -d dist -w",
+        "prepublishOnly": "npm run build",
+        "prepare": "npm run build",
+        "lint": "biome lint --apply ./src",
+        "format": "biome format --write ./src",
+        "check": "biome check --apply ./src",
+        "test:run": "cd __test__ && node ./dist/index.js",
+        "test:build": "cd __test__ && nodemon --ext ts --watch ./src --exec \"swc ./src --config-file ../.swcrc -d ./dist\"",
+        "test": "cd __test__ && nodemon --ext ts --watch ./src --exec \"swc ./src --config-file ../.swcrc -d ./dist && node ./dist/index.js\""
+    },
+    "author": "MARCROCK22",
+    "license": "ISC",
+    "dependencies": {
+        "@biscuitland/common": "^0.0.9",
+        "@biscuitland/helpers": "^3.0.12",
+        "@biscuitland/rest": "^3.0.7",
+        "form-data": "^4.0.0",
+        "ioredis": "^5.3.2",
+        "ts-mixer": "^6.0.3",
+        "ws": "^8.15.1"
+    },
+    "devDependencies": {
+        "@swc/cli": "^0.1.62",
+        "@swc/core": "^1.3.93",
+        "@types/node": "^20.6.3",
+        "@types/ws": "^8.5.10",
+        "nodemon": "^3.0.1",
+        "typescript": "^5.2.2"
+    },
+    "optionalDependencies": {
+        "tweetnacl": "^1.0.3",
+        "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.32.0"
+    },
+    "exports": {
+        "./package.json": "./package.json",
+        ".": {
+            "import": {
+                "types": "./dist/index.d.ts",
+                "default": "./dist/index.mjs"
+            },
+            "require": "./dist/index.js"
+        }
+    },
+    "homepage": "https://biscuitjs.com",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/potoland/potocuit.git"
+    },
+    "bugs": {
+        "url": "https://github.com/potoland/potocuit"
+    },
+    "keywords": ["api", "discord", "bots", "typescript", "botdev"],
+    "publishConfig": {
+        "access": "public"
+    }
 }

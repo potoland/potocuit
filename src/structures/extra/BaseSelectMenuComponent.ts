@@ -1,29 +1,23 @@
-import type { APIBaseSelectMenuComponent, ComponentType, Identify, ObjectToLower } from '@biscuitland/common';
-import { BaseComponent } from './BaseComponent';
+import type { APIBaseSelectMenuComponent, ComponentType, Identify, ObjectToLower } from "@biscuitland/common";
+import { BaseComponent } from "./BaseComponent";
 
 export type APISelectMenuComponentTypes =
-	| ComponentType.ChannelSelect
-	| ComponentType.MentionableSelect
-	| ComponentType.RoleSelect
-	| ComponentType.StringSelect
-	| ComponentType.UserSelect;
+  | ComponentType.ChannelSelect
+  | ComponentType.MentionableSelect
+  | ComponentType.RoleSelect
+  | ComponentType.StringSelect
+  | ComponentType.UserSelect;
 
 export interface BaseSelectMenuComponent<T extends APISelectMenuComponentTypes>
-	extends BaseComponent<T>,
-	ObjectToLower<
-		Identify<
-			Omit<APIBaseSelectMenuComponent<APISelectMenuComponentTypes>, 'type'>
-		>
-	> { }
+  extends BaseComponent<T>,
+    ObjectToLower<Identify<Omit<APIBaseSelectMenuComponent<APISelectMenuComponentTypes>, "type">>> {}
 
-export class BaseSelectMenuComponent<
-	T extends APISelectMenuComponentTypes,
-> extends BaseComponent<T> {
-	constructor(data: APIBaseSelectMenuComponent<T>) {
-		super(data);
-	}
+export class BaseSelectMenuComponent<T extends APISelectMenuComponentTypes> extends BaseComponent<T> {
+  constructor(data: APIBaseSelectMenuComponent<T>) {
+    super(data);
+  }
 
-	toJSON() {
-		return { ...this };
-	}
+  toJSON() {
+    return { ...this };
+  }
 }
