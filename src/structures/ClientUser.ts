@@ -15,7 +15,7 @@ export class ClientUser extends User {
 
 	async fetch() {
 		const data = await this.api.users('@me').get();
-		return this._patchThis(data);
+		return this._patchCache(data, 'users');
 	}
 
 	async edit(body: RESTPatchAPICurrentUserJSONBody) {
@@ -34,7 +34,8 @@ export class ClientUser extends User {
 							.map(guild => new AnonymousGuild(ctx.client, { ...guild, splash: null })));
 			},
 			fetch: async (id: string) => {
-				const guild = await ctx.api.guilds(id).get().then(g => ctx.client.cache.guilds?.patch<APIGuild>(id, g) ?? g);
+				const guild = await ctx.api.guilds(id).get();
+				await ctx.client.cache.guilds?.patch<APIGuild>(id, guild);
 				return new Guild(ctx.client, guild);
 			},
 			fetchSelf: async (id: string) => {

@@ -63,9 +63,6 @@ export class GuildMember extends DiscordBase {
 		return this.nick ?? this.globalName ?? this.username;
 	}
 
-	/**
-	 * Fetch member on API
-	 */
 	fetch(force = false) {
 		return this.__methods__.fetch(this.id, force);
 	}

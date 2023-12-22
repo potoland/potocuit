@@ -35,12 +35,14 @@ export class DiscordBase<Data extends Record<string, any> = { id: string }> exte
 	protected _patchCache<T>(data: Identify<DeepPartial<T>>, cacheType: GuildBased, guildId: string): Promise<this>;
 	protected async _patchCache<T>(data: Identify<DeepPartial<T>>, cacheType: NonGuildBased | GuildBased | GuildRelated, guildId?: string) {
 		const cache = this.cache[cacheType]!;
-		const cacheData = await this.cache.adapter.get('hashGuildId' in cache ? cache.hashGuildId(this.id, guildId) : cache.hashId(this.id));
+		// const cacheData = await this.cache.adapter.get('hashGuildId' in cache ? cache.hashGuildId(this.id, guildId) : cache.hashId(this.id));
 
-		if (cacheData) {
-			await this.cache.adapter
-				.set('hashGuildId' in cache ? cache.hashGuildId(this.id, guildId) : cache.hashId(this.id), { ...cacheData, ...data });
-		}
+		await this.cache.adapter.patch(!guildId, 'hashGuildId' in cache ? cache.hashGuildId(this.id, guildId) : cache.hashId(this.id), data);
+
+		// if (cacheData) {
+		// 	await this.cache.adapter
+		// 		.set('hashGuildId' in cache ? cache.hashGuildId(this.id, guildId) : cache.hashId(this.id), { ...cacheData, ...data });
+		// }
 
 		return this._patchThis(data);
 	}

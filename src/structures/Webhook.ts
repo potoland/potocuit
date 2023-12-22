@@ -41,8 +41,8 @@ export class Webhook extends DiscordBase {
 		return this.rest.api.cdn.avatar(this.id, this.avatar, options);
 	}
 
-	async fetch(force?: boolean) {
-		return this.__methods__.fetch(force).then(this._patchThis);
+	async fetch() {
+		return this.__methods__.fetch().then(this._patchThis);
 	}
 
 	async edit(body: RESTPatchAPIWebhookJSONBody | RESTPatchAPIWebhookWithTokenJSONBody, reason?: string) {
@@ -80,11 +80,8 @@ export class Webhook extends DiscordBase {
 				if (ctx.token) { return ctx.api.webhooks(ctx.id)(ctx.token).patch({ body, reason, auth: false }); }
 				return ctx.api.webhooks(ctx.id).patch({ body, reason });
 			},
-			fetch: async (force = false) => {
+			fetch: async () => {
 				let webhook;
-				if (!force) {
-					// xd
-				}
 				if (ctx.token) { webhook = await ctx.api.webhooks(ctx.id)(ctx.token).get({ auth: false }); } else { webhook = await ctx.api.webhooks(ctx.id).get(); }
 				return new Webhook(ctx.client, webhook);
 			}

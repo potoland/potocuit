@@ -8,18 +8,18 @@ import { type GatewayDispatchPayload } from '@biscuitland/common';
 import type { BaseClientOptions, InternalRuntimeConfig, StartOptions } from './base';
 import { BaseClient } from './base';
 import { onInteraction } from './oninteraction';
+import type { Cache } from '../cache';
 
 export class PotoClient extends BaseClient {
 	gateway!: ShardManager;
 	events = new PotoEventHandler(this.logger);
-	override options: PotoClientOptions | undefined;
+	declare options: PotoClientOptions | undefined;
 
 	constructor(options?: PotoClientOptions) {
 		super(options);
-		this.options = options;
 	}
 
-	setServices({ gateway, rest, cache }: { rest?: BiscuitREST; gateway?: ShardManager; cache?: Adapter }) {
+	setServices({ gateway, rest, cache }: { rest?: BiscuitREST; gateway?: ShardManager; cache?: { adapter: Adapter; disabledCache?: Cache['disabledCache'] } }) {
 		super.setServices({ rest, cache });
 		if (gateway) {
 			const onPacket = this.onPacket.bind(this);

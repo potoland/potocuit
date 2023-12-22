@@ -34,7 +34,6 @@ export class Sticker extends DiscordBase {
 		return this.__methods__.delete(reason);
 	}
 
-
 	static methods(ctx: MethodContext<{ stickerId?: string }>) {
 		return {
 			list: async () => {

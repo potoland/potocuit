@@ -30,7 +30,7 @@ export interface ShardManagerOptions extends ShardDetails {
 	compress?: boolean;
 }
 
-export interface WorkerManagerOptions extends ShardManagerOptions {
+export interface WorkerManagerOptions extends Omit<ShardManagerOptions, 'handlePayload'> {
 	workers?: number;
 
 	/**
@@ -39,6 +39,9 @@ export interface WorkerManagerOptions extends ShardManagerOptions {
 	shardsPerWorker?: number;
 
 	path?: string;
+
+
+	handlePayload(shardId: number, workerId: number, packet: GatewayDispatchPayload): unknown;
 }
 
 export interface ShardData {

@@ -4,7 +4,6 @@ import type {
 	ObjectToLower
 } from '@biscuitland/common';
 import {
-	Collection,
 	GatewayOpcodes,
 	LogLevels,
 	Logger,
@@ -16,7 +15,7 @@ import { Shard } from './shard.js';
 import type { ShardManagerOptions } from './shared';
 import { Options } from '../../utils';
 
-export class ShardManager extends Collection<number, Shard> {
+export class ShardManager extends Map<number, Shard> {
 	connectQueue: SequentialBucket;
 	options: ShardManagerOptions;
 	logger: Logger;
@@ -34,12 +33,20 @@ export class ShardManager extends Collection<number, Shard> {
 		});
 	}
 
-	get remaining(): number {
+	get remaining() {
 		return this.options.info.session_start_limit.remaining;
 	}
 
-	get concurrency(): number {
+	get concurrency() {
 		return this.options.info.session_start_limit.max_concurrency;
+	}
+
+	get latency() {
+		let acc = 0;
+
+		this.forEach(s => acc += s.latency);
+
+		return acc / this.size;
 	}
 
 	calculeShardId(guildId: string) {
@@ -102,7 +109,7 @@ export class ShardManager extends Collection<number, Shard> {
 	}
 
 	disconnect(shardId: number) {
-		this.logger.info(`Force disconnect shard ${shardId}`);
+		this.logger.info(`Shard #${shardId} force disconnect`);
 		return this.get(shardId)?.disconnect();
 	}
 

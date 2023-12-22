@@ -51,6 +51,9 @@ export class Guilds extends BaseResource {
 		const bulkData: Parameters<Cache['bulkSet']>[0] = [];
 
 		for (const member of data.members ?? []) {
+			if (!member.user?.id) {
+				continue;
+			}
 			bulkData.push(['members', member, member.user.id, id]);
 			bulkData.push(['users', member.user, member.user.id]);
 			// await this.cache.members.set(member.user.id, id, member);

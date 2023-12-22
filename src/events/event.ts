@@ -1,4 +1,4 @@
-import type { PotoClient } from '../client';
+import type { PotoClient, WorkerClient } from '../client';
 import type { PotocuitEvents } from './hooks';
 
 export interface DeclareEventsOptions {
@@ -11,11 +11,17 @@ export interface PotocuitDataEvent {
 	name: PotoNameEvents;
 	once: boolean;
 }
-export type Handler = {
-	[K in keyof PotocuitEvents]: (...data: [PotocuitEvents[K], PotoClient, number]) => unknown;
+
+export interface IClientEvents {
+	client: PotoClient;
+	worker: WorkerClient;
+}
+
+export type Handler<T extends PotoClient | WorkerClient> = {
+	[K in keyof PotocuitEvents]: (...data: [PotocuitEvents[K], T, number]) => unknown;
 };
-export type EventContext<T extends { data: { name: PotoNameEvents } }> = Parameters<Handler[T['data']['name']]>;
+export type EventContext<K extends keyof IClientEvents, T extends { data: { name: PotoNameEvents } }> = Parameters<Handler<IClientEvents[K]>[T['data']['name']]>;
 export interface PotocuitEvent {
 	data: PotocuitDataEvent;
-	run(...args: EventContext<any>): any;
+	run(...args: EventContext<'client', any>): any;
 }

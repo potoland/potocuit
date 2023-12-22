@@ -23,7 +23,6 @@ export class MessagesMethods extends DiscordBase {
 			add: async (messageId: string, emoji: EmojiResolvable) => {
 				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
 
-				// en una de esas creamos una clase de error
 				if (!rawEmoji) {
 					throw new Error('Emoji no resolvable');
 				}
@@ -41,7 +40,6 @@ export class MessagesMethods extends DiscordBase {
 			) => {
 				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
 
-				// en una de esas creamos una clase de error
 				if (!rawEmoji) {
 					throw new Error('Emoji no resolvable');
 				}
@@ -59,11 +57,9 @@ export class MessagesMethods extends DiscordBase {
 			) => {
 				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
 
-				// en una de esas creamos una clase de error
 				if (!rawEmoji) {
 					throw new Error('Emoji no resolvable');
 				}
-
 
 				return ctx.api
 					.channels(ctx.id)
@@ -79,9 +75,8 @@ export class MessagesMethods extends DiscordBase {
 						.messages(messageId)
 						.reactions.delete();
 				}
-
 				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
-				// en una de esas creamos una clase de error
+
 				if (!rawEmoji) {
 					throw new Error('Emoji no resolvable');
 				}

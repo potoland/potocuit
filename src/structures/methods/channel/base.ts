@@ -99,26 +99,29 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 				let channel: APIChannel;
 				if (!force) {
 					channel = await ctx.client.cache.channels?.get(channelId);
-					if (channel) { return channel; }
+					if (channel) { return BaseChannel.from(channel, ctx.client); }
 				}
 				channel = await ctx.api.channels(channelId).get();
 				await ctx.client.cache.channels?.patch(channelId, ctx.id, channel);
-				return channel;
+				return BaseChannel.from(channel, ctx.client);
 			},
-			create: (body: RESTPostAPIGuildChannelJSONBody) =>
-				ctx.api.guilds(ctx.id).channels.post({ body })
-					.then(res => ctx.client.cache.channels?.setIfNI(BaseChannel.__intent__(ctx.id), res.id, ctx.id, res).then(cacheRes => cacheRes ?? res)),
-			delete: (channelId = ctx.channelId, reason?: string) => {
+			create: async (body: RESTPostAPIGuildChannelJSONBody) => {
+				const res = await ctx.api.guilds(ctx.id).channels.post({ body });
+				await ctx.client.cache.channels?.setIfNI(BaseChannel.__intent__(ctx.id), res.id, ctx.id, res);
+				return BaseChannel.from(res, ctx.client);
+			},
+			delete: async (channelId = ctx.channelId, reason?: string) => {
 				if (!channelId) { throw new Error('No channelId'); }
-				return ctx.api.channels(channelId).delete({ reason })
-					.then(res => ctx.client.cache.channels?.removeIfNI(BaseChannel.__intent__(ctx.id), res.id, ctx.id));
+				const res = await ctx.api.channels(channelId).delete({ reason });
+				await ctx.client.cache.channels?.removeIfNI(BaseChannel.__intent__(ctx.id), res.id, ctx.id);
+				return BaseChannel.from(res, ctx.client);
 			},
-			edit: (channelId = ctx.channelId, body: RESTPatchAPIChannelJSONBody, reason?: string) => {
+			edit: async (channelId = ctx.channelId, body: RESTPatchAPIChannelJSONBody, reason?: string) => {
 				if (!channelId) { throw new Error('No channelId'); }
-				return ctx.api.channels(channelId).patch({ body, reason })
-					.then(res => ctx.client.cache.channels?.setIfNI(BaseChannel.__intent__(ctx.id), res.id, ctx.id, res).then(x => x ?? res));
+				const res = await ctx.api.channels(channelId).patch({ body, reason });
+				await ctx.client.cache.channels?.setIfNI(BaseChannel.__intent__(ctx.id), res.id, ctx.id, res);
+				return BaseChannel.from(res, ctx.client);
 			},
-
 			editPositions: (body: RESTPatchAPIGuildChannelPositionsJSONBody) => ctx.api.guilds(ctx.id).channels.patch({ body })
 		};
 	}

@@ -1,5 +1,5 @@
 import type { PotocuitEvent } from './event';
-import type { PotoClient } from '../client';
+import type { PotoClient, WorkerClient } from '../client';
 import * as RawEvents from '../events/hooks/index';
 import { ReplaceRegex, type GatewayDispatchEvents, type GatewayDispatchPayload } from '@biscuitland/common';
 import { PotoHandler } from '../utils';
@@ -22,7 +22,7 @@ export class PotoEventHandler extends PotoHandler {
 		}
 	}
 
-	async execute(name: GatewayDispatchEvents, ...args: [GatewayDispatchPayload, PotoClient, number]) {
+	async execute(name: GatewayDispatchEvents, ...args: [GatewayDispatchPayload, PotoClient | WorkerClient, number]) {
 		const Event = this.values[name];
 		if (!Event) { return; }
 		try {

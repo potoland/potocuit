@@ -10,6 +10,9 @@ import type { DeepPartial } from '../structures/extra/types';
 import { ComponentHandler } from '../components/handler';
 import type { IntentStrings, OmitInsert } from '../types/util';
 import type { CommandContext, MiddlewareContext, OptionsRecord } from '../commands';
+import type { PotoClient } from './client';
+import type { PotoHttpClient } from './httpclient';
+import type { WorkerClient } from './workerclient';
 
 export class BaseClient {
 	rest!: BiscuitREST;
@@ -68,12 +71,12 @@ export class BaseClient {
 		return new Router(this.rest).createProxy();
 	}
 
-	setServices({ rest, cache }: { rest?: BiscuitREST; cache?: Adapter }) {
+	setServices({ rest, cache }: { rest?: BiscuitREST; cache?: { adapter: Adapter; disabledCache?: Cache['disabledCache'] } }) {
 		if (rest) {
 			this.rest = rest;
 		}
 		if (cache) {
-			this.cache = new Cache(this.cache?.intents ?? 0, cache, this.cache?.disabledCache, this);
+			this.cache = new Cache(this.cache?.intents ?? 0, cache.adapter, cache.disabledCache ?? this.cache?.disabledCache, this);
 		}
 	}
 
@@ -173,7 +176,7 @@ export class BaseClient {
 	}
 }
 
-export interface BaseClientOptions<Ctx = CommandContext<boolean, OptionsRecord, readonly MiddlewareContext[]>> {
+export interface BaseClientOptions<Ctx = CommandContext<'base', OptionsRecord, readonly MiddlewareContext[]>> {
 	context?: { new(...args: any[]): Ctx };
 	globalMiddlewares?: readonly MiddlewareContext[];
 }
@@ -214,3 +217,10 @@ export type RuntimeConfigHTTP = Omit<MakeRequired<RC, 'publicKey' | 'application
 
 export type InternalRuntimeConfig = Omit<MakeRequired<RC, 'intents'>, 'publicKey' | 'port'>;
 export type RuntimeConfig = OmitInsert<InternalRuntimeConfig, 'intents', { intents?: IntentStrings | number }>;
+
+export interface IClients {
+	base: BaseClient;
+	http: PotoHttpClient;
+	client: PotoClient;
+	worker: WorkerClient;
+}

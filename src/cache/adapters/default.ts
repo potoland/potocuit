@@ -4,7 +4,6 @@ export class DefaultMemoryAdapter implements Adapter {
 	readonly storage = new Map<string, string>;
 	readonly relationships = new Map<string, string[]>;
 
-
 	scan(query: string, keys?: false): any[];
 	scan(query: string, keys: true): string[];
 	scan(query: string, keys = false) {

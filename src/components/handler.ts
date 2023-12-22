@@ -7,10 +7,12 @@ import type { InteractionMessageUpdateBodyRequest, MessageCreateBodyRequest, Mes
 import type { ModalCommand } from './command';
 import { ComponentCommand, InteractionCommandType } from './command';
 import { PotoHandler } from '../utils';
+import { Collection } from '../collection';
 
 export class ComponentHandler extends PotoHandler {
 	readonly values = new Map<string, Partial<Record<string, ComponentCallback>>>;
-	readonly modals = new Map<string, ModalSubmitCallback>;
+	// 10 minutes timeout, because discord dont send an event when the user cancel the modal
+	readonly modals = new Collection<string, ModalSubmitCallback>({ expire: 60e3 * 10 });
 	readonly commands: (ComponentCommand | ModalCommand)[] = [];
 	protected filter = (path: string) => path.endsWith('.js');
 
@@ -31,6 +33,7 @@ export class ComponentHandler extends PotoHandler {
 	}
 
 	onModalSubmit(interaction: ModalSubmitInteraction) {
+		setImmediate(() => this.modals.delete(interaction.user.id));
 		return this.modals.get(interaction.user.id)?.(interaction);
 	}
 

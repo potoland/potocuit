@@ -1,7 +1,7 @@
 import { GatewayIntentBits } from '@biscuitland/common';
 import type { InternalRuntimeConfigHTTP, InternalRuntimeConfig, RuntimeConfig, RuntimeConfigHTTP } from './client/base';
 import type { MiddlewareContext, __PotoCommandOption } from './commands';
-import type { PotoNameEvents, EventContext } from './events';
+import type { PotoNameEvents, EventContext, IClientEvents } from './events';
 
 export * from './types';
 export * from './cache';
@@ -29,9 +29,9 @@ export function createMiddleware<M, T = MiddlewareContext<M>>(data: T) {
 	return data;
 }
 
-export function createEvent<E extends PotoNameEvents>(data: {
+export function createEvent<K extends keyof IClientEvents, E extends PotoNameEvents>(data: {
 	data: { name: E; once: boolean };
-	run: (...args: EventContext<{ data: { name: E } }>) => any;
+	run: (...args: EventContext<K, { data: { name: E } }>) => any;
 }) {
 	return data;
 }
