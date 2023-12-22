@@ -13,53 +13,53 @@ import { BaseChannel } from "./methods/channel/base";
 export interface Guild extends Omit<ObjectToLower<APIGuild>, "stickers" | "emojis" | "roles">, DiscordBase {}
 
 export class Guild extends (BaseGuild as unknown as ToClass<
-  Omit<BaseGuild, keyof ObjectToLower<APIPartialGuild>>,
-  Guild
+    Omit<BaseGuild, keyof ObjectToLower<APIPartialGuild>>,
+    Guild
 >) {
-  constructor(client: BaseClient, data: APIGuild) {
-    super(client, data);
-  }
-
-  get maxStickers(): MaxStickers {
-    switch (this.premiumTier) {
-      case 1:
-        return 15;
-      case 2:
-        return 30;
-      case 3:
-        return 60;
-      default:
-        return 5;
+    constructor(client: BaseClient, data: APIGuild) {
+        super(client, data);
     }
-  }
 
-  get maxEmojis(): MaxEmojis {
-    switch (this.premiumTier) {
-      case 1:
-        return 100;
-      case 2:
-        return 150;
-      case 3:
-        return 250;
-      default:
-        return 50;
+    get maxStickers(): MaxStickers {
+        switch (this.premiumTier) {
+            case 1:
+                return 15;
+            case 2:
+                return 30;
+            case 3:
+                return 60;
+            default:
+                return 5;
+        }
     }
-  }
 
-  async fetchOwner(force = false) {
-    // For no reason, discord has some guilds without owner... 🤓
-    if (!this.ownerId) {
-      return null;
+    get maxEmojis(): MaxEmojis {
+        switch (this.premiumTier) {
+            case 1:
+                return 100;
+            case 2:
+                return 150;
+            case 3:
+                return 250;
+            default:
+                return 50;
+        }
     }
-    return this.members.fetch(this.ownerId, force);
-  }
 
-  templates = GuildTemplate.methods(this);
-  stickers = Sticker.methods(this);
-  members = GuildMember.methods(this);
-  moderationRules = AutoModerationRule.methods(this);
-  roles = GuildRole.methods(this);
-  channels = BaseChannel.methods(this);
+    async fetchOwner(force = false) {
+        // For no reason, discord has some guilds without owner... 🤓
+        if (!this.ownerId) {
+            return null;
+        }
+        return this.members.fetch(this.ownerId, force);
+    }
+
+    templates = GuildTemplate.methods(this);
+    stickers = Sticker.methods(this);
+    members = GuildMember.methods(this);
+    moderationRules = AutoModerationRule.methods(this);
+    roles = GuildRole.methods(this);
+    channels = BaseChannel.methods(this);
 }
 
 /** Maximun custom guild emojis per level */

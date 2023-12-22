@@ -19,31 +19,31 @@ import type { CamelCase } from "@biscuitland/common";
 import type * as RawEvents from "./index";
 
 export type PotocuitEvents = {
-  [X in keyof typeof RawEvents as CamelCase<X>]: ReturnType<(typeof RawEvents)[X]>;
+    [X in keyof typeof RawEvents as CamelCase<X>]: ReturnType<(typeof RawEvents)[X]>;
 };
 export type DropT<T, R> = {
-  [P in keyof T as T[P] extends R ? never : P]: T[P] extends R ? never : T[P];
+    [P in keyof T as T[P] extends R ? never : P]: T[P] extends R ? never : T[P];
 };
 
 export type DropTI<T, U> = {
-  [P in keyof T as U extends T[P] ? never : P]: U extends T[P] ? never : T[P];
+    [P in keyof T as U extends T[P] ? never : P]: U extends T[P] ? never : T[P];
 };
 
 export type KeepT<T, R> = {
-  [P in keyof T as T[P] extends R ? P : never]: T[P] extends R ? T[P] : never;
+    [P in keyof T as T[P] extends R ? P : never]: T[P] extends R ? T[P] : never;
 };
 
 export type KeepTI<T, U> = {
-  [P in keyof T as U extends T[P] ? P : never]: U extends T[P] ? T[P] : never;
+    [P in keyof T as U extends T[P] ? P : never]: U extends T[P] ? T[P] : never;
 };
 
 export type Clean<T> = DropT<T, never>;
 
 export type Identify<T> = T extends infer U
-  ? {
-      [K in keyof U]: U[K];
-    }
-  : never;
+    ? {
+          [K in keyof U]: U[K];
+      }
+    : never;
 
 export type PartialAvoid<U, T> = Identify<KeepT<T, U> & Partial<T>>;
 

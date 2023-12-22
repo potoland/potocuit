@@ -2,11 +2,11 @@ import type { APIChannelSelectComponent, ChannelType, ComponentType } from "@bis
 import { BaseSelectMenuComponent } from "../structures/extra/BaseSelectMenuComponent";
 
 export class ChannelSelectMenuComponent extends BaseSelectMenuComponent<ComponentType.ChannelSelect> {
-  constructor(data: APIChannelSelectComponent) {
-    super(data);
+    constructor(data: APIChannelSelectComponent) {
+        super(data);
 
-    this.channelTypes = data.channel_types;
-  }
+        this.channelTypes = data.channel_types;
+    }
 
-  channelTypes?: ChannelType[];
+    channelTypes?: ChannelType[];
 }

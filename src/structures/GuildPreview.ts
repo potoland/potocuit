@@ -7,7 +7,7 @@ import { AnonymousGuild } from "./AnonymousGuild";
  * @link https://discord.com/developers/docs/resources/guild#guild-preview-object
  */
 export class GuildPreview extends AnonymousGuild {
-  constructor(client: BaseClient, data: APIGuildPreview) {
-    super(client, data as APIPartialGuild);
-  }
+    constructor(client: BaseClient, data: APIGuildPreview) {
+        super(client, data as APIPartialGuild);
+    }
 }

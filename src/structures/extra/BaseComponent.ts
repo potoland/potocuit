@@ -3,11 +3,11 @@ import type { APIBaseComponent, ComponentType } from "@biscuitland/common";
 export interface BaseComponent<T extends ComponentType> extends APIBaseComponent<T> {}
 
 export class BaseComponent<T extends ComponentType> {
-  constructor(data: APIBaseComponent<T>) {
-    Object.assign(this, data);
-  }
+    constructor(data: APIBaseComponent<T>) {
+        Object.assign(this, data);
+    }
 
-  toJSON() {
-    return { type: this.type };
-  }
+    toJSON() {
+        return { type: this.type };
+    }
 }
