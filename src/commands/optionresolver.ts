@@ -37,7 +37,7 @@ export class OptionResolver {
 	}
 
 	get fullCommandName() {
-		return `${this.parent?.name} ${this.group ? `${this.group} ${this.subCommand}` : this.subCommand || ''}`;
+		return `${this.parent?.name}${this.group ? ` ${this.group} ${this.subCommand}` : this.subCommand ? ` ${this.subCommand}` : ''}`;
 	}
 
 	getCommand() {
