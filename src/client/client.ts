@@ -58,7 +58,7 @@ export class PotoClient extends BaseClient {
 		await super.start(options);
 		await this.loadEvents(options.eventsDir);
 
-		const { token: tokenRC, intents: intentsRC } = await this.getRC<InternalRuntimeConfig>();
+		const { token: tokenRC, intents: intentsRC, debug: debugRC } = await this.getRC<InternalRuntimeConfig>();
 		const token = options?.token ?? tokenRC;
 		const intents = options?.connection?.intents ?? intentsRC;
 
@@ -72,6 +72,7 @@ export class PotoClient extends BaseClient {
 					return this.onPacket(shardId, packet);
 				},
 				presence: this.options?.presence,
+				debug: debugRC
 			});
 		}
 
