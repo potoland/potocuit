@@ -1,4 +1,4 @@
-import type { GatewayPresenceUpdateData, Locale } from "@biscuitland/common";
+import type { GatewayPresenceUpdateData, LocaleString } from "@biscuitland/common";
 import { type GatewayDispatchPayload } from "@biscuitland/common";
 import type { BiscuitREST } from "@biscuitland/rest";
 import type { Adapter, Cache } from "../cache";
@@ -27,7 +27,7 @@ export class PotoClient extends BaseClient {
 		rest?: BiscuitREST;
 		gateway?: ShardManager;
 		cache?: { adapter: Adapter; disabledCache?: Cache["disabledCache"] };
-		defaultLang?: Locale
+		defaultLang?: LocaleString
 	}) {
 		super.setServices({ rest, cache, defaultLang });
 		if (gateway) {

@@ -1,4 +1,4 @@
-import type { Locale, MakeRequired } from "@biscuitland/common";
+import type { LocaleString, MakeRequired } from "@biscuitland/common";
 import { LogLevels, Logger } from "@biscuitland/common";
 import { BiscuitREST, Router } from "@biscuitland/rest";
 import { join } from "node:path";
@@ -76,7 +76,7 @@ export class BaseClient {
 		rest,
 		cache,
 		defaultLang
-	}: { rest?: BiscuitREST; cache?: { adapter: Adapter; disabledCache?: Cache["disabledCache"] }; defaultLang?: Locale }) {
+	}: { rest?: BiscuitREST; cache?: { adapter: Adapter; disabledCache?: Cache["disabledCache"] }; defaultLang?: LocaleString }) {
 		if (rest) {
 			this.rest = rest;
 		}
