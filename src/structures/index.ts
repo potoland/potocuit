@@ -1,6 +1,5 @@
 export * from "./AnonymousGuild";
 export * from "./AutoModerationRule";
-export * from "./channels";
 export * from "./ClientUser";
 export * from "./Guild";
 export * from "./GuildEmoji";
@@ -13,3 +12,4 @@ export * from "./Message";
 export * from "./Sticker";
 export * from "./User";
 export * from "./Webhook";
+export * from "./channels";

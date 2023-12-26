@@ -4,5 +4,5 @@ import { toCamelCase } from "@biscuitland/common";
 import type { BaseClient } from "../../client/base";
 
 export const PRESENCE_UPDATE = (_self: BaseClient, data: GatewayPresenceUpdateDispatchData) => {
-    return toCamelCase(data);
+	return toCamelCase(data);
 };

@@ -1,9 +1,8 @@
-import { basename, dirname } from "node:path";
 import type { LocaleString, Logger } from "@biscuitland/common";
+import { basename, dirname } from "node:path";
 import type { BaseClient } from "../client/base";
 import { PotoHandler } from "../utils";
-import { SubCommand } from "./commands";
-import { Command } from "./commands";
+import { Command, SubCommand } from "./commands";
 
 export class PotoCommandHandler extends PotoHandler {
     values: Command[] = [];

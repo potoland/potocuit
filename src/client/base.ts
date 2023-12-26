@@ -4,10 +4,11 @@ import { BiscuitREST, Router } from "@biscuitland/rest";
 import { join } from "node:path";
 import type { Adapter } from "../cache";
 import { Cache, DefaultMemoryAdapter } from "../cache";
-import type { CommandContext, MiddlewareContext, OptionsRecord } from "../commands";
+import type { MiddlewareContext } from "../commands";
 import { PotoCommandHandler } from "../commands/handler";
 import { ComponentHandler } from "../components/handler";
 import { PotoLangsHandler } from "../langs/handler";
+import { ChatInputCommandInteraction } from "../structures";
 import type { DeepPartial, IntentStrings, OmitInsert } from "../types/util";
 import type { PotoClient } from "./client";
 import type { PotoHttpClient } from "./httpclient";
@@ -207,8 +208,8 @@ export class BaseClient {
 	}
 }
 
-export interface BaseClientOptions<Ctx = CommandContext<"base", OptionsRecord, readonly MiddlewareContext[]>> {
-	context?: { new(...args: any[]): Ctx };
+export interface BaseClientOptions {
+	context?: (interaction: ChatInputCommandInteraction<boolean>) => {};
 	globalMiddlewares?: readonly MiddlewareContext[];
 }
 
