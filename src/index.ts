@@ -6,6 +6,7 @@ import { ChatInputCommandInteraction } from "./structures";
 
 export * from "./cache";
 export * from "./client";
+export * from "./collection";
 export * from "./commands";
 export * from "./components";
 export * from "./events";

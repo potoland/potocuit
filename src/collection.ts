@@ -71,6 +71,27 @@ export class Collection<K, V> {
 		return this.data.delete(key);
 	}
 
+	get closer() {
+		let d: CollectionData<V> | undefined;
+		for (const value of this.data.values()) {
+			if (value.expire === -1) {
+				continue;
+			}
+			if (!d) {
+				d = value;
+				continue;
+			}
+			if (d.expireOn > value.expireOn) {
+				d = value;
+			}
+		}
+		return d;
+	}
+
+	get size() {
+		return this.data.size;
+	}
+
 	private resetTimeout() {
 		this.stopTimeout();
 		this.startTimeout();
@@ -104,26 +125,5 @@ export class Collection<K, V> {
 				this.data.delete(key);
 			}
 		}
-	}
-
-	private get closer() {
-		let d: CollectionData<V> | undefined;
-		for (const value of this.data.values()) {
-			if (value.expire === -1) {
-				continue;
-			}
-			if (!d) {
-				d = value;
-				continue;
-			}
-			if (d.expireOn > value.expireOn) {
-				d = value;
-			}
-		}
-		return d;
-	}
-
-	get size() {
-		return this.data.size;
 	}
 }
