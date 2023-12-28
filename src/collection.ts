@@ -42,7 +42,7 @@ export class Collection<K, V> {
 			}
 		}
 
-		if (this.closer!.expireOn > expireOn) {
+		if (this.closer!.expireOn >= expireOn) {
 			this.resetTimeout();
 		}
 	}
