@@ -5,7 +5,8 @@ import {
 	ComponentType,
 	TypeArray,
 } from '@biscuitland/common';
-import { BaseComponent, FixedComponents, PotoComponents, createComponent } from '.';
+import { BaseComponent, FixedComponents, PotoComponents } from '.';
+import { createComponent } from '..';
 
 export class ActionRow<T extends PotoComponents> extends BaseComponent<
 	APIActionRowComponent<APIActionRowComponentTypes>

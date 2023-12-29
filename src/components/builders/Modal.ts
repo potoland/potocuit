@@ -12,8 +12,8 @@ import {
 	ModalSubmitCallback,
 	OptionValuesLength,
 	PotoModalComponents,
-	createComponent,
 } from '.';
+import { createComponent } from '..';
 
 export class Modal<T extends PotoModalComponents = TextInput> {
 	/** @internal */
