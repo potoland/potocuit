@@ -12,6 +12,10 @@ export function channelLink(channelId: string, guildId?: string) {
 	return `https://discord.com/channels/${guildId ?? "@me"}/${channelId}`;
 }
 
+export function messageLink(channelId: string, messageId: string, guildId?: string) {
+	return `${channelLink(channelId, guildId)}/${messageId}`
+}
+
 export async function resolveEmoji(emoji: EmojiResolvable, cache: Cache): Promise<APIPartialEmoji | undefined> {
 	if (typeof emoji === "string") {
 		const groups: Partial<APIPartialEmoji> | undefined = emoji.match(FormattingPatterns.Emoji)?.groups;

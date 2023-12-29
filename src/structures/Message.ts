@@ -15,6 +15,7 @@ import type { MessageCreateBodyRequest, MessageUpdateBodyRequest } from "../type
 import { GuildMember } from "./GuildMember";
 import { User } from "./User";
 import { DiscordBase } from "./extra/DiscordBase";
+import { messageLink } from "./extra/functions";
 import { MessagesMethods } from "./methods/channel/messages";
 
 export type MessageData = APIMessage | GatewayMessageCreateDispatchData;
@@ -50,6 +51,10 @@ export class Message extends DiscordBase {
 			__messageMethods__: MessagesMethods.messages({ id: this.channelId, api: this.api, client }),
 			__reactionMethods__: MessagesMethods.reactions({ id: this.channelId, api: this.api, client }),
 		});
+	}
+
+	get url() {
+		return messageLink(this.channelId, this.id, this.guildId);
 	}
 
 	fetch() {
