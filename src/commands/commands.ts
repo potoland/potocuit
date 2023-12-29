@@ -170,7 +170,7 @@ class BaseCommand {
 			const option = command.options!.find((x) => x.name === i.name) as __PotoCommandOption;
 			const value = (await new Promise(
 				(resolve) =>
-					option.value?.({ context: ctx, value: resolver.getValue(i.name) as never }, resolve, resolve) ||
+					option.value?.({ context: ctx, value: resolver.getValue(i.name) } as never, resolve, resolve) ||
 					resolve(resolver.getValue(i.name)),
 			)) as any | Error;
 			if (value instanceof Error) {
