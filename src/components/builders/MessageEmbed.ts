@@ -29,8 +29,8 @@ export class MessageEmbed {
 		return this;
 	}
 
-	addFields(field: RestOrArray<APIEmbedField>): this {
-		this.data.fields = this.data.fields!.concat(field.flat());
+	addFields(...fields: RestOrArray<APIEmbedField>): this {
+		this.data.fields = this.data.fields!.concat(fields.flat());
 		return this;
 	}
 

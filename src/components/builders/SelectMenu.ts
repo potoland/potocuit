@@ -99,9 +99,9 @@ export class StringSelectMenu extends SelectMenu<APIStringSelectComponent, Strin
 		super({ ...data, type: ComponentType.StringSelect });
 	}
 
-	addOption(option: RestOrArray<APISelectMenuOption>): this {
+	addOption(...options: RestOrArray<APISelectMenuOption>): this {
 		this.data.options ??= [];
-		this.data.options = this.data.options.concat(option.flat());
+		this.data.options = this.data.options.concat(options.flat());
 		return this;
 	}
 
@@ -112,7 +112,7 @@ export class StringSelectMenu extends SelectMenu<APIStringSelectComponent, Strin
 }
 
 export class StringSelectOption {
-	constructor(public data: Partial<APISelectMenuOption> = {}) {}
+	constructor(public data: Partial<APISelectMenuOption> = {}) { }
 
 	setLabel(label: string): this {
 		this.data.label = label;

@@ -3,8 +3,7 @@ import {
 	APIModalInteractionResponseCallbackData,
 	APITextInputComponent,
 	ComponentType,
-	TextInputStyle,
-	TypeArray,
+	TextInputStyle
 } from '@biscuitland/common';
 import {
 	ActionRow,
@@ -14,6 +13,7 @@ import {
 	PotoModalComponents,
 } from '.';
 import { createComponent } from '..';
+import { RestOrArray } from '../../types';
 
 export class Modal<T extends PotoModalComponents = TextInput> {
 	/** @internal */
@@ -24,8 +24,8 @@ export class Modal<T extends PotoModalComponents = TextInput> {
 		this.components = this.components.concat((data.components?.map(createComponent) as ActionRow<T>[]) ?? []);
 	}
 
-	addComponents(component: TypeArray<ActionRow<T>>) {
-		this.components = this.components.concat(component);
+	addComponents(...components: RestOrArray<ActionRow<T>>) {
+		this.components = this.components.concat(components.flat());
 		return this;
 	}
 

@@ -2,11 +2,12 @@ import {
 	APIActionRowComponent,
 	APIActionRowComponentTypes,
 	APIMessageActionRowComponent,
-	ComponentType,
-	TypeArray,
+	ComponentType
 } from '@biscuitland/common';
 import { BaseComponent, FixedComponents, PotoComponents } from '.';
 import { createComponent } from '..';
+import '../../index';
+import { RestOrArray } from '../../types';
 
 export class ActionRow<T extends PotoComponents> extends BaseComponent<
 	APIActionRowComponent<APIActionRowComponentTypes>
@@ -18,8 +19,8 @@ export class ActionRow<T extends PotoComponents> extends BaseComponent<
 
 	components: FixedComponents<T>[];
 
-	addComponents(component: TypeArray<FixedComponents<T>>): this {
-		this.components = this.components.concat(component);
+	addComponents(...component: RestOrArray<FixedComponents<T>>): this {
+		this.components = this.components.concat(component.flat() as FixedComponents<T>[]);
 		return this;
 	}
 
