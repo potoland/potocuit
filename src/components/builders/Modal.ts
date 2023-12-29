@@ -3,15 +3,9 @@ import {
 	APIModalInteractionResponseCallbackData,
 	APITextInputComponent,
 	ComponentType,
-	TextInputStyle
+	TextInputStyle,
 } from '@biscuitland/common';
-import {
-	ActionRow,
-	BaseComponent,
-	ModalSubmitCallback,
-	OptionValuesLength,
-	PotoModalComponents,
-} from '.';
+import { ActionRow, BaseComponent, ModalSubmitCallback, OptionValuesLength, PotoModalComponents } from '.';
 import { createComponent } from '..';
 import { RestOrArray } from '../../types';
 

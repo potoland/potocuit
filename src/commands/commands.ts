@@ -49,7 +49,7 @@ type Wrap<N extends ApplicationCommandOptionType> = N extends
 			type: N;
 			required: true;
 			value?(
-				data: { context: CommandContext<any>; value: ReturnOptionsTypes[N] | undefined },
+				data: { context: CommandContext<any>; value: ReturnOptionsTypes[N] },
 				ok: OKFunction<any>,
 				fail: StopFunction,
 			): void;

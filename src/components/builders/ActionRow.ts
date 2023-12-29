@@ -2,7 +2,7 @@ import {
 	APIActionRowComponent,
 	APIActionRowComponentTypes,
 	APIMessageActionRowComponent,
-	ComponentType
+	ComponentType,
 } from '@biscuitland/common';
 import { BaseComponent, FixedComponents, PotoComponents } from '.';
 import { createComponent } from '..';
