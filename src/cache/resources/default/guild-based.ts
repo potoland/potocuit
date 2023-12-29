@@ -1,10 +1,10 @@
-import type { GatewayIntentBits } from "@biscuitland/common";
-import type { BaseClient } from "../../../client/base";
-import type { Cache } from "../../index";
+import type { GatewayIntentBits } from '@biscuitland/common';
+import type { BaseClient } from '../../../client/base';
+import type { Cache } from '../../index';
 
 export class GuildBasedResource<T = any> {
 	client!: BaseClient;
-	namespace = "base";
+	namespace = 'base';
 
 	constructor(protected cache: Cache, client?: BaseClient) {
 		if (client) {

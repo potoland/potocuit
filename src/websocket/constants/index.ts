@@ -1,12 +1,12 @@
-import type { GatewayDispatchPayload } from "@biscuitland/common";
-import type { ShardManagerOptions, WorkerManagerOptions } from "../discord";
+import type { GatewayDispatchPayload } from '@biscuitland/common';
+import type { ShardManagerOptions, WorkerManagerOptions } from '../discord';
 
 const COMPRESS = false;
 
 const properties = {
 	os: process.platform,
-	browser: "Tiramisu",
-	device: "Tiramisu",
+	browser: 'Tiramisu',
+	device: 'Tiramisu',
 };
 
 const ShardManagerDefaults: Partial<ShardManagerOptions> = {

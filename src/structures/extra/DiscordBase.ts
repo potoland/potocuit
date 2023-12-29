@@ -1,9 +1,9 @@
-import { type Identify } from "@biscuitland/common";
-import type { GuildBased, GuildRelated, NonGuildBased } from "../../cache";
-import type { BaseClient } from "../../client/base";
-import { DeepPartial } from "../../types";
-import { Base } from "./Base";
-import { snowflakeToTimestamp } from "./functions";
+import { type Identify } from '@biscuitland/common';
+import type { GuildBased, GuildRelated, NonGuildBased } from '../../cache';
+import type { BaseClient } from '../../client/base';
+import { DeepPartial } from '../../types';
+import { Base } from './Base';
+import { snowflakeToTimestamp } from './functions';
 
 export class DiscordBase<Data extends Record<string, any> = { id: string }> extends Base {
 	id: string;
@@ -43,7 +43,7 @@ export class DiscordBase<Data extends Record<string, any> = { id: string }> exte
 
 		await this.cache.adapter.patch(
 			!guildId,
-			"hashGuildId" in cache ? cache.hashGuildId(this.id, guildId) : cache.hashId(this.id),
+			'hashGuildId' in cache ? cache.hashGuildId(this.id, guildId) : cache.hashId(this.id),
 			data,
 		);
 

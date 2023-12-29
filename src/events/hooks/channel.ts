@@ -4,10 +4,10 @@ import {
 	type GatewayChannelPinsUpdateDispatchData,
 	type GatewayChannelUpdateDispatchData,
 	toCamelCase,
-} from "@biscuitland/common";
+} from '@biscuitland/common';
 
-import type { BaseClient } from "../../client/base";
-import { BaseChannel } from "../../structures/methods/channel/base";
+import type { BaseClient } from '../../client/base';
+import { BaseChannel } from '../../structures/methods/channel/base';
 
 export const CHANNEL_CREATE = (self: BaseClient, data: GatewayChannelCreateDispatchData) => {
 	return BaseChannel.from(data, self);

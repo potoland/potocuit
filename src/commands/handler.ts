@@ -1,19 +1,19 @@
-import { basename, dirname } from "node:path";
-import type { LocaleString, Logger } from "@biscuitland/common";
-import type { BaseClient } from "../client/base";
-import { PotoHandler } from "../utils";
-import { Command, SubCommand } from "./commands";
+import { basename, dirname } from 'node:path';
+import type { LocaleString, Logger } from '@biscuitland/common';
+import type { BaseClient } from '../client/base';
+import { PotoHandler } from '../utils';
+import { Command, SubCommand } from './commands';
 
 export class PotoCommandHandler extends PotoHandler {
 	values: Command[] = [];
-	protected filter = (path: string) => path.endsWith(".js");
+	protected filter = (path: string) => path.endsWith('.js');
 
 	constructor(protected logger: Logger) {
 		super(logger);
 	}
 
 	async reload(resolve: string | Command) {
-		if (typeof resolve === "string") {
+		if (typeof resolve === 'string') {
 			return this.values.find((x) => x.name === resolve)?.reload();
 		}
 		return resolve.reload();
@@ -40,7 +40,7 @@ export class PotoCommandHandler extends PotoHandler {
 			if (!(commandInstance instanceof Command)) {
 				continue;
 			}
-			commandInstance.options ??= [] as NonNullable<Command["options"]>;
+			commandInstance.options ??= [] as NonNullable<Command['options']>;
 			if (commandInstance.__d) {
 				const options = await this.getFiles(dirname(command.path));
 				for (const option of options) {

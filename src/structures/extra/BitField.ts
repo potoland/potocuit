@@ -47,11 +47,11 @@ export class BitField {
 
 	static resolve(bits?: BitFieldResolvable): number {
 		switch (typeof bits) {
-			case "number":
+			case 'number':
 				return bits;
-			case "bigint":
+			case 'bigint':
 				return Number(bits);
-			case "object":
+			case 'object':
 				if (!Array.isArray(bits)) {
 					throw new TypeError(`Cannot resolve permission: ${bits}`);
 				}

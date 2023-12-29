@@ -1,4 +1,4 @@
-import { Options } from "@biscuitland/common";
+import { Options } from '@biscuitland/common';
 
 type CollectionData<V> = { expire: number; expireOn: number; value: V };
 

@@ -1,10 +1,10 @@
-import type { APIGuild } from "@biscuitland/common";
-import type { Cache } from "..";
-import { Guild } from "../../structures";
-import { BaseResource } from "./default/base";
+import type { APIGuild } from '@biscuitland/common';
+import type { Cache } from '..';
+import { Guild } from '../../structures';
+import { BaseResource } from './default/base';
 
 export class Guilds extends BaseResource {
-	namespace = "guild";
+	namespace = 'guild';
 
 	override async get(id: string) {
 		const guild = (await super.get(id)) as APIGuild | undefined;
@@ -51,54 +51,54 @@ export class Guilds extends BaseResource {
 	}
 
 	override async set(id: string, data: any) {
-		const bulkData: Parameters<Cache["bulkSet"]>[0] = [];
+		const bulkData: Parameters<Cache['bulkSet']>[0] = [];
 
 		for (const member of data.members ?? []) {
 			if (!member.user?.id) {
 				continue;
 			}
-			bulkData.push(["members", member, member.user.id, id]);
-			bulkData.push(["users", member.user, member.user.id]);
+			bulkData.push(['members', member, member.user.id, id]);
+			bulkData.push(['users', member.user, member.user.id]);
 			// await this.cache.members.set(member.user.id, id, member);
 		}
 
 		for (const role of data.roles ?? []) {
-			bulkData.push(["roles", role, role.id, id]);
+			bulkData.push(['roles', role, role.id, id]);
 			// await this.cache.roles.set(role.id, id, role);
 		}
 
 		for (const channel of data.channels ?? []) {
-			bulkData.push(["channels", channel, channel.id, id]);
+			bulkData.push(['channels', channel, channel.id, id]);
 			// await this.cache.channels.set(channel.id, id, channel);
 		}
 
 		for (const emoji of data.emojis ?? []) {
-			bulkData.push(["emojis", emoji, emoji.id, id]);
+			bulkData.push(['emojis', emoji, emoji.id, id]);
 			// await this.cache.emojis.set(emoji.id, id, emoji);
 		}
 
 		for (const sticker of data.stickers ?? []) {
-			bulkData.push(["stickers", sticker, sticker.id, id]);
+			bulkData.push(['stickers', sticker, sticker.id, id]);
 			// await this.cache.stickers.set(sticker.id, id, sticker);
 		}
 
 		for (const voiceState of data.voice_states ?? []) {
-			bulkData.push(["voiceStates", voiceState, voiceState.user_id, id]);
+			bulkData.push(['voiceStates', voiceState, voiceState.user_id, id]);
 			// await this.cache.voiceStates.set(voiceState.user_id, id, voiceState);
 		}
 
 		for (const presence of data.presences ?? []) {
-			bulkData.push(["presences", presence, presence.user.id, id]);
+			bulkData.push(['presences', presence, presence.user.id, id]);
 			// await this.cache.presences.set(presence.user.id, id, presence);
 		}
 
 		for (const thread of data.threads ?? []) {
-			bulkData.push(["threads", thread, thread.id, id]);
+			bulkData.push(['threads', thread, thread.id, id]);
 			// await this.cache.threads.set(thread.id, id, thread);
 		}
 
 		for (const instance of data.stage_instances ?? []) {
-			bulkData.push(["stageInstances", instance, instance.id, id]);
+			bulkData.push(['stageInstances', instance, instance.id, id]);
 			// await this.cache.threads.set(thread.id, id, thread);
 		}
 
@@ -134,7 +134,7 @@ export class Guilds extends BaseResource {
 		// // deprecated
 		// delete data.region;
 
-		bulkData.push(["guilds", guild, id]);
+		bulkData.push(['guilds', guild, id]);
 
 		await this.cache.bulkSet(bulkData);
 

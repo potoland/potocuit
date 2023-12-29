@@ -1,10 +1,10 @@
 import type {
 	GatewayStageInstanceCreateDispatchData,
 	GatewayStageInstanceDeleteDispatchData,
-} from "@biscuitland/common";
+} from '@biscuitland/common';
 
-import { toCamelCase } from "@biscuitland/common";
-import type { BaseClient } from "../../client/base";
+import { toCamelCase } from '@biscuitland/common';
+import type { BaseClient } from '../../client/base';
 
 export const STAGE_INSTANCE_CREATE = (_self: BaseClient, data: GatewayStageInstanceCreateDispatchData) => {
 	return toCamelCase(data);

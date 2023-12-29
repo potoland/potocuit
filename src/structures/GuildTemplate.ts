@@ -3,11 +3,11 @@ import type {
 	ObjectToLower,
 	RESTPatchAPIGuildTemplateJSONBody,
 	RESTPostAPIGuildTemplatesJSONBody,
-} from "@biscuitland/common";
-import type { BaseClient } from "../client/base";
-import type { MethodContext } from "../types";
-import { Base } from "./extra/Base";
-import { hasProp } from "./extra/functions";
+} from '@biscuitland/common';
+import type { BaseClient } from '../client/base';
+import type { MethodContext } from '../types';
+import { Base } from './extra/Base';
+import { hasProp } from './extra/functions';
 
 export interface GuildTemplate extends Base, ObjectToLower<APITemplate> {}
 
@@ -66,8 +66,8 @@ export class GuildTemplate extends Base {
 	}
 
 	protected static _hasCode(ctx: { code?: string }): asserts ctx is { code: string } {
-		if (!hasProp(ctx, "code")) {
-			throw new Error("Unavailable template code");
+		if (!hasProp(ctx, 'code')) {
+			throw new Error('Unavailable template code');
 		}
 	}
 }

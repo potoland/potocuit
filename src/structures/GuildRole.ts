@@ -4,10 +4,10 @@ import type {
 	RESTPatchAPIGuildRoleJSONBody,
 	RESTPatchAPIGuildRolePositionsJSONBody,
 	RESTPostAPIGuildRoleJSONBody,
-} from "@biscuitland/common";
-import type { BaseClient } from "../client/base";
-import type { MethodContext } from "../types";
-import { DiscordBase } from "./extra/DiscordBase";
+} from '@biscuitland/common';
+import type { BaseClient } from '../client/base';
+import type { MethodContext } from '../types';
+import { DiscordBase } from './extra/DiscordBase';
 
 export interface GuildRole extends DiscordBase, ObjectToLower<APIRole> {}
 
@@ -35,7 +35,7 @@ export class GuildRole extends DiscordBase {
 				ctx.api
 					.guilds(ctx.id)
 					.roles.post({ body })
-					.then((res) => ctx.client.cache.roles?.setIfNI("Guilds", res.id, ctx.id, res)),
+					.then((res) => ctx.client.cache.roles?.setIfNI('Guilds', res.id, ctx.id, res)),
 			list: async (force = false) => {
 				let roles: APIRole[] = [];
 				if (!force) {
@@ -53,23 +53,23 @@ export class GuildRole extends DiscordBase {
 			},
 			edit: (body: RESTPatchAPIGuildRoleJSONBody, reason?: string) => {
 				if (!ctx.roleId) {
-					throw new Error("No roleId");
+					throw new Error('No roleId');
 				}
 				return ctx.api
 					.guilds(ctx.id)
 					.roles(ctx.roleId)
 					.patch({ body, reason })
-					.then((res) => ctx.client.cache.roles?.setIfNI("Guilds", ctx.roleId!, ctx.id, res));
+					.then((res) => ctx.client.cache.roles?.setIfNI('Guilds', ctx.roleId!, ctx.id, res));
 			},
 			delete: (reason?: string) => {
 				if (!ctx.roleId) {
-					throw new Error("No ctx.roleId");
+					throw new Error('No ctx.roleId');
 				}
 				return ctx.api
 					.guilds(ctx.id)
 					.roles(ctx.roleId)
 					.delete({ reason })
-					.then(() => ctx.client.cache.roles?.removeIfNI("Guilds", ctx.roleId!, ctx.id));
+					.then(() => ctx.client.cache.roles?.removeIfNI('Guilds', ctx.roleId!, ctx.id));
 			},
 			editPositions: async (body: RESTPatchAPIGuildRolePositionsJSONBody) => {
 				const roles = await ctx.api.guilds(ctx.id).roles.patch({

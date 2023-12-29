@@ -1,7 +1,7 @@
-import { BaseResource } from "./default/base";
+import { BaseResource } from './default/base';
 
 export class Users extends BaseResource {
-	namespace = "user";
+	namespace = 'user';
 
 	// override async get(id: string) {
 	// 	const rawUser = await super.get(id) as APIUser | undefined;

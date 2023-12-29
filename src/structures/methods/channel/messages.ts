@@ -5,16 +5,16 @@ import type {
 	RESTPatchAPIChannelMessageJSONBody,
 	RESTPostAPIChannelMessageJSONBody,
 	RESTPostAPIChannelMessagesBulkDeleteJSONBody,
-} from "@biscuitland/common";
-import type { RawFile } from "@biscuitland/rest";
-import type { MethodContext } from "../../..";
-import { User } from "../../..";
-import type { EmojiResolvable } from "../../../types/resolvables";
-import type { MessageCreateBodyRequest, MessageUpdateBodyRequest } from "../../../types/write";
-import { Message } from "../../Message";
-import { DiscordBase } from "../../extra/DiscordBase";
-import { encodeEmoji, resolveEmoji } from "../../extra/functions";
-import type { BaseChannel } from "./base";
+} from '@biscuitland/common';
+import type { RawFile } from '@biscuitland/rest';
+import type { MethodContext } from '../../..';
+import { User } from '../../..';
+import type { EmojiResolvable } from '../../../types/resolvables';
+import type { MessageCreateBodyRequest, MessageUpdateBodyRequest } from '../../../types/write';
+import { Message } from '../../Message';
+import { DiscordBase } from '../../extra/DiscordBase';
+import { encodeEmoji, resolveEmoji } from '../../extra/functions';
+import type { BaseChannel } from './base';
 
 export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> {}
 export class MessagesMethods extends DiscordBase {
@@ -31,16 +31,16 @@ export class MessagesMethods extends DiscordBase {
 				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
 
 				if (!rawEmoji) {
-					throw new Error("Emoji no resolvable");
+					throw new Error('Emoji no resolvable');
 				}
 
-				return ctx.api.channels(ctx.id).messages(messageId).reactions(encodeEmoji(rawEmoji))("@me").put({});
+				return ctx.api.channels(ctx.id).messages(messageId).reactions(encodeEmoji(rawEmoji))('@me').put({});
 			},
-			delete: async (messageId: string, emoji: EmojiResolvable, userId = "@me") => {
+			delete: async (messageId: string, emoji: EmojiResolvable, userId = '@me') => {
 				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
 
 				if (!rawEmoji) {
-					throw new Error("Emoji no resolvable");
+					throw new Error('Emoji no resolvable');
 				}
 
 				return ctx.api.channels(ctx.id).messages(messageId).reactions(encodeEmoji(rawEmoji))(userId).delete();
@@ -49,7 +49,7 @@ export class MessagesMethods extends DiscordBase {
 				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
 
 				if (!rawEmoji) {
-					throw new Error("Emoji no resolvable");
+					throw new Error('Emoji no resolvable');
 				}
 
 				return ctx.api
@@ -66,7 +66,7 @@ export class MessagesMethods extends DiscordBase {
 				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
 
 				if (!rawEmoji) {
-					throw new Error("Emoji no resolvable");
+					throw new Error('Emoji no resolvable');
 				}
 
 				return ctx.api.channels(ctx.id).messages(messageId).reactions(encodeEmoji(rawEmoji)).delete();
@@ -145,7 +145,7 @@ export class MessagesMethods extends DiscordBase {
 					.then((x) => new Message(ctx.client, x));
 			},
 			purge: (body: RESTPostAPIChannelMessagesBulkDeleteJSONBody, reason?: string) => {
-				return ctx.api.channels(ctx.id).messages["bulk-delete"].post({ body, reason });
+				return ctx.api.channels(ctx.id).messages['bulk-delete'].post({ body, reason });
 			},
 		};
 	}

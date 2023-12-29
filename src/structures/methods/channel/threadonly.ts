@@ -4,11 +4,11 @@ import type {
 	ChannelType,
 	SortOrderType,
 	ThreadAutoArchiveDuration,
-} from "@biscuitland/common";
-import { mix } from "ts-mixer";
-import { DiscordBase } from "../../extra/DiscordBase";
-import type { BaseChannel } from "./base";
-import { TopicableGuildChannel } from "./topicable";
+} from '@biscuitland/common';
+import { mix } from 'ts-mixer';
+import { DiscordBase } from '../../extra/DiscordBase';
+import type { BaseChannel } from './base';
+import { TopicableGuildChannel } from './topicable';
 
 export interface ThreadOnlyMethods extends BaseChannel<ChannelType.PublicThread | ChannelType.PrivateThread> {}
 @mix(TopicableGuildChannel)

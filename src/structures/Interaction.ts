@@ -33,12 +33,12 @@ import type {
 	ObjectToLower,
 	RESTPostAPIInteractionCallbackJSONBody,
 	When,
-} from "@biscuitland/common";
-import { ApplicationCommandType, ComponentType, InteractionResponseType, InteractionType } from "@biscuitland/common";
-import type { RawFile } from "@biscuitland/rest";
-import type { BaseClient } from "../client/base";
-import { OptionResolver } from "../commands";
-import { ActionRow, MessageEmbed, Modal } from "../components";
+} from '@biscuitland/common';
+import { ApplicationCommandType, ComponentType, InteractionResponseType, InteractionType } from '@biscuitland/common';
+import type { RawFile } from '@biscuitland/rest';
+import type { BaseClient } from '../client/base';
+import { OptionResolver } from '../commands';
+import { ActionRow, MessageEmbed, Modal } from '../components';
 import type {
 	ComponentInteractionMessageUpdate,
 	InteractionCreateBodyRequest,
@@ -47,28 +47,28 @@ import type {
 	MessageUpdateBodyRequest,
 	MessageWebhookCreateBodyRequest,
 	ModalCreateBodyRequest,
-} from "../types/write";
-import { GuildMember, InteractionGuildMember } from "./";
-import { GuildRole } from "./GuildRole";
-import { Message } from "./Message";
-import { User } from "./User";
-import type { PotocuitChannels } from "./channels";
-import { DiscordBase } from "./extra/DiscordBase";
-import { BaseChannel } from "./methods/channel/base";
+} from '../types/write';
+import { GuildMember, InteractionGuildMember } from './';
+import { GuildRole } from './GuildRole';
+import { Message } from './Message';
+import { User } from './User';
+import type { PotocuitChannels } from './channels';
+import { DiscordBase } from './extra/DiscordBase';
+import { BaseChannel } from './methods/channel/base';
 
 export type ReplyInteractionBody =
 	| { type: InteractionResponseType.Modal; data: ModalCreateBodyRequest }
 	| {
-		type: InteractionResponseType.ChannelMessageWithSource | InteractionResponseType.UpdateMessage;
-		data: InteractionCreateBodyRequest | InteractionMessageUpdateBodyRequest | ComponentInteractionMessageUpdate;
-	}
+			type: InteractionResponseType.ChannelMessageWithSource | InteractionResponseType.UpdateMessage;
+			data: InteractionCreateBodyRequest | InteractionMessageUpdateBodyRequest | ComponentInteractionMessageUpdate;
+	  }
 	| Exclude<RESTPostAPIInteractionCallbackJSONBody, APIInteractionResponsePong>;
 
 /** @internal */
 export type __InternalReplyFunction = (_: { body: APIInteractionResponse; files?: RawFile[] }) => Promise<any>;
 
 export interface BaseInteraction
-	extends ObjectToLower<Omit<APIBaseInteraction<InteractionType, any>, "user" | "member" | "message" | "channel">> { }
+	extends ObjectToLower<Omit<APIBaseInteraction<InteractionType, any>, 'user' | 'member' | 'message' | 'channel'>> {}
 
 export class BaseInteraction<
 	FromGuild extends boolean = boolean,
@@ -123,15 +123,15 @@ export class BaseInteraction<
 						body.data instanceof Modal
 							? body.data.toJSON()
 							: {
-								...body.data,
-								components: body.data?.components
-									? body.data.components.map((x) =>
-										x instanceof ActionRow
-											? (x.toJSON() as unknown as APIActionRowComponent<APITextInputComponent>)
-											: x,
-									)
-									: [],
-							},
+									...body.data,
+									components: body.data?.components
+										? body.data.components.map((x) =>
+												x instanceof ActionRow
+													? (x.toJSON() as unknown as APIActionRowComponent<APITextInputComponent>)
+													: x,
+										  )
+										: [],
+							  },
 				};
 			default:
 				return body;
@@ -154,7 +154,7 @@ export class BaseInteraction<
 
 	async reply(body: ReplyInteractionBody, files?: RawFile[]) {
 		if (this.replied) {
-			throw new Error("Interaction already replied");
+			throw new Error('Interaction already replied');
 		}
 
 		this.replied = (this.__reply ?? this.api.interactions(this.id)(this.token).callback.post)({
@@ -245,15 +245,15 @@ export type PotoInteraction =
 
 export interface AutocompleteInteraction
 	extends ObjectToLower<
-		Omit<APIApplicationCommandAutocompleteInteraction, "user" | "member" | "type" | "data" | "message" | "channel">
-	> { }
+		Omit<APIApplicationCommandAutocompleteInteraction, 'user' | 'member' | 'type' | 'data' | 'message' | 'channel'>
+	> {}
 
 export class AutocompleteInteraction<FromGuild extends boolean = boolean> extends BaseInteraction<
 	FromGuild,
 	APIApplicationCommandAutocompleteInteraction
 > {
 	declare type: InteractionType.ApplicationCommandAutocomplete;
-	declare data: ObjectToLower<APIApplicationCommandAutocompleteInteraction["data"]>;
+	declare data: ObjectToLower<APIApplicationCommandAutocompleteInteraction['data']>;
 	options: OptionResolver;
 	constructor(
 		client: BaseClient,
@@ -271,16 +271,16 @@ export class AutocompleteInteraction<FromGuild extends boolean = boolean> extend
 	}
 
 	getInput() {
-		return this.options.getAutocompleteValue() ?? "";
+		return this.options.getAutocompleteValue() ?? '';
 	}
 
-	respond(choices: APICommandAutocompleteInteractionResponseCallbackData["choices"]) {
+	respond(choices: APICommandAutocompleteInteractionResponseCallbackData['choices']) {
 		return super.reply({ data: { choices }, type: InteractionResponseType.ApplicationCommandAutocompleteResult });
 	}
 
 	/** @intenal */
 	async reply(..._args: unknown[]) {
-		throw new Error("Cannot use reply in this interaction");
+		throw new Error('Cannot use reply in this interaction');
 	}
 }
 
@@ -297,7 +297,7 @@ export class Interaction<
 	}
 
 	fetchResponse() {
-		return this.fetchMessage("@original");
+		return this.fetchMessage('@original');
 	}
 
 	write(body: InteractionCreateBodyRequest, files?: RawFile[]) {
@@ -344,11 +344,11 @@ export class Interaction<
 	}
 
 	editResponse(body: InteractionMessageUpdateBodyRequest, files: RawFile[] = []) {
-		return this.editMessage("@original", body, files);
+		return this.editMessage('@original', body, files);
 	}
 
 	deleteResponse() {
-		return this.deleteMessage("@original");
+		return this.deleteMessage('@original');
 	}
 
 	deleteMessage(messageId: string) {
@@ -356,7 +356,7 @@ export class Interaction<
 			.webhooks(this.applicationId)(this.token)
 			.messages(messageId)
 			.delete()
-			.then(() => this.client.components.onMessageDelete(messageId === "@original" ? this.id : messageId));
+			.then(() => this.client.components.onMessageDelete(messageId === '@original' ? this.id : messageId));
 	}
 
 	async createResponse(body: MessageWebhookCreateBodyRequest, files: RawFile[]) {
@@ -390,14 +390,14 @@ export class ApplicationCommandInteraction<
 
 export interface ComponentInteraction
 	extends ObjectToLower<
-		Omit<APIMessageComponentInteraction, "user" | "member" | "type" | "data" | "message" | "channel">
-	> { }
+		Omit<APIMessageComponentInteraction, 'user' | 'member' | 'type' | 'data' | 'message' | 'channel'>
+	> {}
 
 export class ComponentInteraction<
 	FromGuild extends boolean = boolean,
 	Type extends APIMessageComponentInteraction = APIMessageComponentInteraction,
 > extends Interaction<FromGuild, Type> {
-	declare data: ObjectToLower<APIMessageComponentInteraction["data"]>;
+	declare data: ObjectToLower<APIMessageComponentInteraction['data']>;
 	declare channelId: string;
 	declare appPermissions: string;
 	declare channel: PotocuitChannels;
@@ -457,7 +457,7 @@ export class ButtonInteraction extends ComponentInteraction {
 }
 
 export class SelectMenuInteraction extends ComponentInteraction {
-	declare data: ObjectToLower<APIMessageComponentSelectMenuInteraction["data"]>;
+	declare data: ObjectToLower<APIMessageComponentSelectMenuInteraction['data']>;
 
 	constructor(
 		client: BaseClient,
@@ -505,14 +505,14 @@ export class MentionableSelectMenuInteraction extends SelectMenuInteraction {
 			: [];
 		this.members = resolved.members
 			? this.values.map(
-				(x) =>
-					new InteractionGuildMember(
-						this.client,
-						resolved.members![x],
-						this.users!.find((u) => u.id === x)!,
-						this.guildId!,
-					),
-			)
+					(x) =>
+						new InteractionGuildMember(
+							this.client,
+							resolved.members![x],
+							this.users!.find((u) => u.id === x)!,
+							this.guildId!,
+						),
+			  )
 			: [];
 		this.users = resolved.users ? this.values.map((x) => new User(this.client, resolved.users![x])) : [];
 	}
@@ -544,14 +544,14 @@ export class UserSelectMenuInteraction extends SelectMenuInteraction {
 		this.users = this.values.map((x) => new User(this.client, resolved.users[x]));
 		this.members = resolved.members
 			? this.values.map(
-				(x) =>
-					new InteractionGuildMember(
-						this.client,
-						resolved.members![x],
-						this.users!.find((u) => u.id === x)!,
-						this.guildId!,
-					),
-			)
+					(x) =>
+						new InteractionGuildMember(
+							this.client,
+							resolved.members![x],
+							this.users!.find((u) => u.id === x)!,
+							this.guildId!,
+						),
+			  )
 			: [];
 	}
 }

@@ -5,24 +5,24 @@ import type {
 	APIUser,
 	GatewayMessageCreateDispatchData,
 	ObjectToLower,
-} from "@biscuitland/common";
-import type { RawFile } from "@biscuitland/rest";
-import type { BaseClient } from "../client/base";
-import type { BiscuitActionRowMessageComponents } from "../components";
-import { MessageActionRowComponent } from "../components/ActionRow";
-import type { EmojiResolvable } from "../types/resolvables";
-import type { MessageCreateBodyRequest, MessageUpdateBodyRequest } from "../types/write";
-import { GuildMember } from "./GuildMember";
-import { User } from "./User";
-import { DiscordBase } from "./extra/DiscordBase";
-import { messageLink } from "./extra/functions";
-import { MessagesMethods } from "./methods/channel/messages";
+} from '@biscuitland/common';
+import type { RawFile } from '@biscuitland/rest';
+import type { BaseClient } from '../client/base';
+import type { BiscuitActionRowMessageComponents } from '../components';
+import { MessageActionRowComponent } from '../components/ActionRow';
+import type { EmojiResolvable } from '../types/resolvables';
+import type { MessageCreateBodyRequest, MessageUpdateBodyRequest } from '../types/write';
+import { GuildMember } from './GuildMember';
+import { User } from './User';
+import { DiscordBase } from './extra/DiscordBase';
+import { messageLink } from './extra/functions';
+import { MessagesMethods } from './methods/channel/messages';
 
 export type MessageData = APIMessage | GatewayMessageCreateDispatchData;
 
 export interface Message
 	extends DiscordBase,
-		ObjectToLower<Omit<MessageData, "timestamp" | "author" | "mentions" | "components">> {}
+		ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> {}
 
 export class Message extends DiscordBase {
 	guildId: string | undefined;
@@ -69,7 +69,7 @@ export class Message extends DiscordBase {
 		return this.__messageMethods__.write(body, files);
 	}
 
-	reply(body: Omit<MessageCreateBodyRequest, "message_reference">, files?: RawFile[]) {
+	reply(body: Omit<MessageCreateBodyRequest, 'message_reference'>, files?: RawFile[]) {
 		return this.write(
 			{
 				...body,
@@ -97,7 +97,7 @@ export class Message extends DiscordBase {
 	}
 
 	private patch(data: MessageData) {
-		if ("guild_id" in data) {
+		if ('guild_id' in data) {
 			this.guildId = data.guild_id;
 		}
 
@@ -105,14 +105,14 @@ export class Message extends DiscordBase {
 			this.type = data.type;
 		}
 
-		if ("timestamp" in data && data.timestamp) {
+		if ('timestamp' in data && data.timestamp) {
 			this.timestamp = Date.parse(data.timestamp);
 		}
 
-		if ("application_id" in data) {
+		if ('application_id' in data) {
 			this.applicationId = data.application_id;
 		}
-		if ("author" in data && data.author) {
+		if ('author' in data && data.author) {
 			this.author = new User(this.client, data.author);
 		}
 
@@ -123,7 +123,7 @@ export class Message extends DiscordBase {
 							new GuildMember(
 								this.client,
 								{
-									...(m as APIUser & { member?: Omit<APIGuildMember, "user"> }).member!,
+									...(m as APIUser & { member?: Omit<APIGuildMember, 'user'> }).member!,
 									user: m,
 								},
 								m,

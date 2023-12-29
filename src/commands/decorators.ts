@@ -1,6 +1,6 @@
-import { type LocaleString, PermissionFlagsBits } from "@biscuitland/common";
-import { PermissionStrings } from "../types";
-import type { MiddlewareContext, OptionsRecord, PotoCommandOption, SubCommand } from "./commands";
+import { type LocaleString, PermissionFlagsBits } from '@biscuitland/common';
+import { PermissionStrings } from '../types';
+import type { MiddlewareContext, OptionsRecord, PotoCommandOption, SubCommand } from './commands';
 
 type DeclareOptions = {
 	name: string;

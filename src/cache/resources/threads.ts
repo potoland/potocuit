@@ -1,8 +1,8 @@
-import { GuildRelatedResource } from "./default/guild-related";
+import { GuildRelatedResource } from './default/guild-related';
 // import { ThreadChannel } from '../../ThreadChannel';
 
 export class Threads extends GuildRelatedResource {
-	namespace = "thread";
+	namespace = 'thread';
 
 	// override async get(id: string, guild: string) {
 	// 	const rawThread = await super.get(id, guild) as APIThreadChannel | undefined;

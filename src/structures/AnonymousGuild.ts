@@ -1,4 +1,4 @@
-import { BaseGuild } from "./extra/BaseGuild";
+import { BaseGuild } from './extra/BaseGuild';
 
 /**
  * Class for anonymous guilds.

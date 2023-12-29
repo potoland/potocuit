@@ -5,8 +5,8 @@ import {
 	APIEmbedFooter,
 	ObjectToLower,
 	toSnakeCase,
-} from "@biscuitland/common";
-import { RestOrArray } from "../../types";
+} from '@biscuitland/common';
+import { RestOrArray } from '../../types';
 
 export class MessageEmbed {
 	constructor(public data: Partial<APIEmbed> = {}) {
@@ -39,7 +39,7 @@ export class MessageEmbed {
 		return this;
 	}
 
-	setFooter(footer: ObjectToLower<Omit<APIEmbedFooter, "proxy_icon_url">>): this {
+	setFooter(footer: ObjectToLower<Omit<APIEmbedFooter, 'proxy_icon_url'>>): this {
 		this.data.footer = toSnakeCase(footer);
 		return this;
 	}

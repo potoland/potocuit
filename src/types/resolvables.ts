@@ -1,5 +1,5 @@
-import type { APIPartialEmoji } from "@biscuitland/common";
-import type { GuildMember } from "../structures";
+import type { APIPartialEmoji } from '@biscuitland/common';
+import type { GuildMember } from '../structures';
 
 export type EmojiResolvable = string | Partial<APIPartialEmoji> | `<${string | undefined}:${string}:${string}>`;
 export type GuildMemberResolvable = string | Partial<GuildMember>;

@@ -1,7 +1,7 @@
-import type { APIUser, ObjectToLower } from "@biscuitland/common";
-import type { ImageOptions } from "../types/options";
-import { DMChannel } from "./channels";
-import { DiscordBase } from "./extra/DiscordBase";
+import type { APIUser, ObjectToLower } from '@biscuitland/common';
+import type { ImageOptions } from '../types/options';
+import { DMChannel } from './channels';
+import { DiscordBase } from './extra/DiscordBase';
 
 export interface User extends ObjectToLower<APIUser> {}
 
@@ -19,17 +19,17 @@ export class User extends DiscordBase<APIUser> {
 	 */
 	async fetch() {
 		const data = await this.api.users(this.id).get();
-		return this._patchCache(data, "users");
+		return this._patchCache(data, 'users');
 	}
 
 	/**
 	 * Open a DM with the user
 	 */
 	async dm() {
-		const data = await this.api.users("@me").channels.post({
+		const data = await this.api.users('@me').channels.post({
 			body: { recipient_id: this.id },
 		});
-		await this.cache.channels?.set(data.id, "@me", data);
+		await this.cache.channels?.set(data.id, '@me', data);
 		return new DMChannel(this.client, data);
 	}
 

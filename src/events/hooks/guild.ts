@@ -19,10 +19,10 @@ import type {
 	GatewayGuildScheduledEventUserRemoveDispatchData,
 	GatewayGuildStickersUpdateDispatchData,
 	GatewayGuildUpdateDispatchData,
-} from "@biscuitland/common";
-import { toCamelCase } from "@biscuitland/common";
-import type { BaseClient } from "../../client/base";
-import { AnonymousGuild, Guild, GuildEmoji, GuildMember, GuildRole, Sticker, User } from "../../structures";
+} from '@biscuitland/common';
+import { toCamelCase } from '@biscuitland/common';
+import type { BaseClient } from '../../client/base';
+import { AnonymousGuild, Guild, GuildEmoji, GuildMember, GuildRole, Sticker, User } from '../../structures';
 
 export const GUILD_AUDIT_LOG_ENTRY_CREATE = (_self: BaseClient, data: GatewayGuildAuditLogEntryCreateDispatchData) => {
 	return toCamelCase(data);

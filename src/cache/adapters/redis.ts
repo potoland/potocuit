@@ -1,6 +1,6 @@
-import type { RedisOptions } from "ioredis";
-import { Redis } from "ioredis";
-import type { Adapter } from "./types";
+import type { RedisOptions } from 'ioredis';
+import { Redis } from 'ioredis';
+import type { Adapter } from './types';
 
 interface RedisAdapterOptions {
 	namespace?: string;
@@ -11,8 +11,8 @@ export class RedisAdapter implements Adapter {
 	namespace: string;
 
 	constructor(data: ({ client: Redis } | { redisOptions: RedisOptions }) & RedisAdapterOptions) {
-		this.client = "client" in data ? data.client : new Redis(data.redisOptions);
-		this.namespace = data.namespace ?? "tiramisu";
+		this.client = 'client' in data ? data.client : new Redis(data.redisOptions);
+		this.namespace = data.namespace ?? 'tiramisu';
 	}
 
 	scan(query: string, returnKeys?: false): Promise<any[]>;
@@ -23,13 +23,13 @@ export class RedisAdapter implements Adapter {
 			const stream = this.client.scanStream({
 				match,
 				// omit relationships
-				type: "hash",
+				type: 'hash',
 			});
 			const keys: string[] = [];
 			stream
-				.on("data", (resultKeys) => keys.push(...resultKeys))
-				.on("end", () => (returnKeys ? r(keys.map((x) => this.buildKey(x))) : r(this.get(keys))))
-				.on("error", (err) => j(err));
+				.on('data', (resultKeys) => keys.push(...resultKeys))
+				.on('end', () => (returnKeys ? r(keys.map((x) => this.buildKey(x))) : r(this.get(keys))))
+				.on('error', (err) => j(err));
 		});
 	}
 
@@ -182,18 +182,18 @@ export class RedisAdapter implements Adapter {
 }
 
 const isObject = (o: unknown) => {
-	return !!o && typeof o === "object" && !Array.isArray(o);
+	return !!o && typeof o === 'object' && !Array.isArray(o);
 };
 
 function toNormal(target: Record<string, any>) {
 	const result: Record<string, any> = {};
 	for (const [key, value] of Object.entries(target)) {
-		if (key.startsWith("O_")) {
+		if (key.startsWith('O_')) {
 			result[key.slice(2)] = JSON.parse(value);
-		} else if (key.startsWith("N_")) {
+		} else if (key.startsWith('N_')) {
 			result[key.slice(2)] = Number(value);
-		} else if (key.startsWith("B_")) {
-			result[key.slice(2)] = value === "true";
+		} else if (key.startsWith('B_')) {
+			result[key.slice(2)] = value === 'true';
 		} else {
 			result[key] = value;
 		}
@@ -205,13 +205,13 @@ function toDb(target: Record<string, any>) {
 	const result: Record<string, any> = {};
 	for (const [key, value] of Object.entries(target)) {
 		switch (typeof value) {
-			case "boolean":
+			case 'boolean':
 				result[`B_${key}`] = value;
 				break;
-			case "number":
+			case 'number':
 				result[`N_${key}`] = `${value}`;
 				break;
-			case "object":
+			case 'object':
 				if (Array.isArray(value)) {
 					result[`O_${key}`] = JSON.stringify(value);
 					break;
@@ -221,7 +221,7 @@ function toDb(target: Record<string, any>) {
 					break;
 				}
 				if (!Number.isNaN(value)) {
-					result[`O_${key}`] = "null";
+					result[`O_${key}`] = 'null';
 					break;
 				}
 				result[`O_${key}`] = JSON.stringify(value);

@@ -1,10 +1,10 @@
-import type { GatewayUpdatePresence, GatewayVoiceStateUpdate, ObjectToLower } from "@biscuitland/common";
-import { GatewayOpcodes, LogLevels, Logger, toSnakeCase } from "@biscuitland/common";
-import { Options } from "../../utils";
-import { ShardManagerDefaults } from "../constants";
-import { SequentialBucket } from "../structures";
-import { Shard } from "./shard.js";
-import type { ShardManagerOptions } from "./shared";
+import type { GatewayUpdatePresence, GatewayVoiceStateUpdate, ObjectToLower } from '@biscuitland/common';
+import { GatewayOpcodes, LogLevels, Logger, toSnakeCase } from '@biscuitland/common';
+import { Options } from '../../utils';
+import { ShardManagerDefaults } from '../constants';
+import { SequentialBucket } from '../structures';
+import { Shard } from './shard.js';
+import type { ShardManagerOptions } from './shared';
 
 export class ShardManager extends Map<number, Shard> {
 	connectQueue: SequentialBucket;
@@ -19,7 +19,7 @@ export class ShardManager extends Map<number, Shard> {
 
 		this.logger = new Logger({
 			active: this.options.debug,
-			name: "[ShardManager]",
+			name: '[ShardManager]',
 			logLevel: LogLevels.Debug,
 		});
 	}
@@ -67,7 +67,7 @@ export class ShardManager extends Map<number, Shard> {
 	async spawnShards(): Promise<void> {
 		const buckets = this.spawnBuckets();
 
-		this.logger.info("Spawn shards");
+		this.logger.info('Spawn shards');
 		for (const bucket of buckets) {
 			for (const shard of bucket) {
 				if (!shard) {
@@ -84,7 +84,7 @@ export class ShardManager extends Map<number, Shard> {
 	 * https://discord.com/developers/docs/topics/gateway#sharding-max-concurrency
 	 */
 	spawnBuckets(): Shard[][] {
-		this.logger.info("#0 Preparing buckets");
+		this.logger.info('#0 Preparing buckets');
 		const chunks = SequentialBucket.chunk(new Array(this.options.totalShards), this.concurrency);
 		chunks.forEach((arr: any[], index: number) => {
 			for (let i = 0; i < arr.length; i++) {
@@ -107,14 +107,14 @@ export class ShardManager extends Map<number, Shard> {
 	}
 
 	disconnectAll() {
-		this.logger.info("Disconnect all shards");
+		this.logger.info('Disconnect all shards');
 		return new Promise((resolve) => {
 			this.forEach((shard) => shard.disconnect());
 			resolve(null);
 		});
 	}
 
-	setShardPresence(shardId: number, payload: GatewayUpdatePresence["d"]) {
+	setShardPresence(shardId: number, payload: GatewayUpdatePresence['d']) {
 		this.logger.info(`Shard #${shardId} update presence`);
 		return this.get(shardId)?.send<GatewayUpdatePresence>(1, {
 			op: GatewayOpcodes.PresenceUpdate,
@@ -122,7 +122,7 @@ export class ShardManager extends Map<number, Shard> {
 		});
 	}
 
-	setPresence(payload: GatewayUpdatePresence["d"]): Promise<void> | undefined {
+	setPresence(payload: GatewayUpdatePresence['d']): Promise<void> | undefined {
 		return new Promise((resolve) => {
 			this.forEach((shard) => {
 				this.setShardPresence(shard.id, payload);
@@ -134,7 +134,7 @@ export class ShardManager extends Map<number, Shard> {
 	joinVoice(
 		guild_id: string,
 		channel_id: string,
-		options: ObjectToLower<Pick<GatewayVoiceStateUpdate["d"], "self_deaf" | "self_mute">>,
+		options: ObjectToLower<Pick<GatewayVoiceStateUpdate['d'], 'self_deaf' | 'self_mute'>>,
 	) {
 		const shardId = this.calculeShardId(guild_id);
 		this.logger.info(`Shard #${shardId} join voice ${channel_id} in ${guild_id}`);

@@ -7,10 +7,10 @@ import type {
 	RESTPatchAPIWebhookWithTokenMessageJSONBody,
 	RESTPostAPIChannelMessageJSONBody,
 	RESTPostAPIWebhookWithTokenJSONBody,
-} from "@biscuitland/common";
-import type { ActionRow, Modal, PotoComponents, TextInput } from "../components";
-import { MessageEmbed } from "../components/builders/MessageEmbed";
-import type { OmitInsert } from "./util";
+} from '@biscuitland/common';
+import type { ActionRow, Modal, PotoComponents, TextInput } from '../components';
+import { MessageEmbed } from '../components/builders/MessageEmbed';
+import type { OmitInsert } from './util';
 
 export type PotoComponentProper = {
 	components?: ActionRow<PotoComponents>[] | undefined;
@@ -28,38 +28,38 @@ export interface ResolverProps extends PotoComponentProper, PotoEmbedsProper {}
 
 export type MessageCreateBodyRequest = OmitInsert<
 	RESTPostAPIChannelMessageJSONBody,
-	"components" | "embeds",
+	'components' | 'embeds',
 	ResolverProps
 >;
 
 export type MessageWebhookCreateBodyRequest = OmitInsert<
 	RESTPostAPIWebhookWithTokenJSONBody,
-	"components" | "embeds",
+	'components' | 'embeds',
 	ResolverProps
 >;
 
 export type MessageUpdateBodyRequest = OmitInsert<
 	RESTPatchAPIChannelMessageJSONBody,
-	"components" | "embeds",
+	'components' | 'embeds',
 	ResolverProps
 >;
 
 export type InteractionMessageUpdateBodyRequest = OmitInsert<
 	RESTPatchAPIWebhookWithTokenMessageJSONBody,
-	"components" | "embeds",
+	'components' | 'embeds',
 	ResolverProps
 >;
 
 export type ComponentInteractionMessageUpdate = OmitInsert<
 	APIInteractionResponseCallbackData,
-	"components" | "embeds",
+	'components' | 'embeds',
 	ResolverProps
 >;
 
 export type InteractionCreateBodyRequest = OmitInsert<
-	APIInteractionResponseChannelMessageWithSource["data"],
-	"components" | "embeds",
+	APIInteractionResponseChannelMessageWithSource['data'],
+	'components' | 'embeds',
 	ResolverProps
 >;
 
-export type ModalCreateBodyRequest = APIModalInteractionResponse["data"] | Modal;
+export type ModalCreateBodyRequest = APIModalInteractionResponse['data'] | Modal;

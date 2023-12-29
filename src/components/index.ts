@@ -1,14 +1,28 @@
-import type { APIActionRowComponent, APIActionRowComponentTypes, APIMessageActionRowComponent } from "@biscuitland/common";
-import { ButtonStyle, ComponentType } from "@biscuitland/common";
-import { BaseComponent } from "../structures/extra/BaseComponent";
-import { ButtonComponent, LinkButtonComponent } from "./ButtonComponent";
-import { ChannelSelectMenuComponent } from "./ChannelSelectMenuComponent";
-import { MentionableSelectMenuComponent } from "./MentionableSelectMenuComponent";
-import { RoleSelectMenuComponent } from "./RoleSelectMenuComponent";
-import { StringSelectMenuComponent } from "./StringSelectMenuComponent";
-import type { TextInputComponent } from "./TextInputComponent";
-import { UserSelectMenuComponent } from "./UserSelectMenuComponent";
-import { ActionRow, Button, ChannelSelectMenu, MentionableSelectMenu, PotoComponents, RoleSelectMenu, StringSelectMenu, TextInput, UserSelectMenu } from "./builders";
+import type {
+	APIActionRowComponent,
+	APIActionRowComponentTypes,
+	APIMessageActionRowComponent,
+} from '@biscuitland/common';
+import { ButtonStyle, ComponentType } from '@biscuitland/common';
+import { BaseComponent } from '../structures/extra/BaseComponent';
+import { ButtonComponent, LinkButtonComponent } from './ButtonComponent';
+import { ChannelSelectMenuComponent } from './ChannelSelectMenuComponent';
+import { MentionableSelectMenuComponent } from './MentionableSelectMenuComponent';
+import { RoleSelectMenuComponent } from './RoleSelectMenuComponent';
+import { StringSelectMenuComponent } from './StringSelectMenuComponent';
+import type { TextInputComponent } from './TextInputComponent';
+import { UserSelectMenuComponent } from './UserSelectMenuComponent';
+import {
+	ActionRow,
+	Button,
+	ChannelSelectMenu,
+	MentionableSelectMenu,
+	PotoComponents,
+	RoleSelectMenu,
+	StringSelectMenu,
+	TextInput,
+	UserSelectMenu,
+} from './builders';
 
 export * from './builders';
 
@@ -24,8 +38,8 @@ export type BiscuitComponents =
 
 export type BiscuitActionRowMessageComponents = Exclude<BiscuitComponents, TextInputComponent>;
 
-export * from "./builders";
-export * from "./command";
+export * from './builders';
+export * from './command';
 
 /**
  * Return a new component instance based on the component type.
@@ -35,7 +49,7 @@ export * from "./command";
  */
 export function componentFactory(
 	component: APIMessageActionRowComponent,
-): BiscuitActionRowMessageComponents | BaseComponent<BiscuitActionRowMessageComponents["type"]> {
+): BiscuitActionRowMessageComponents | BaseComponent<BiscuitActionRowMessageComponents['type']> {
 	switch (component.type) {
 		case ComponentType.Button:
 			if (component.style === ButtonStyle.Link) {
@@ -53,7 +67,7 @@ export function componentFactory(
 		case ComponentType.MentionableSelect:
 			return new MentionableSelectMenuComponent(component);
 		default:
-			return new BaseComponent<BiscuitActionRowMessageComponents["type"]>(component);
+			return new BaseComponent<BiscuitActionRowMessageComponents['type']>(component);
 	}
 }
 
@@ -64,7 +78,7 @@ export function createComponent(
 		| APIActionRowComponent<APIActionRowComponentTypes>
 		| ActionRow<PotoComponents>,
 ): PotoComponents | ActionRow<PotoComponents> {
-	if ("toJSON" in data) {
+	if ('toJSON' in data) {
 		return data;
 	}
 

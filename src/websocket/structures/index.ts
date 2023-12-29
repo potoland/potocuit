@@ -1,5 +1,5 @@
-import type { Logger } from "@biscuitland/common";
-import { delay } from "@biscuitland/common";
+import type { Logger } from '@biscuitland/common';
+import { delay } from '@biscuitland/common';
 
 /**
  * just any kind of request to queue and resolve later
@@ -180,7 +180,7 @@ export abstract class Queue<T> {
 	 */
 	public pop() {
 		if (TNode.null(this.head)) {
-			throw new Error("cannot pop a list without elements");
+			throw new Error('cannot pop a list without elements');
 		}
 
 		return (this.head = this.head.next);
@@ -191,7 +191,7 @@ export abstract class Queue<T> {
 	 */
 	public peek(): T {
 		if (TNode.null(this.head)) {
-			throw new Error("cannot peek an empty list");
+			throw new Error('cannot peek an empty list');
 		}
 
 		return this.head.data;
@@ -237,7 +237,7 @@ export abstract class Queue<T> {
 	}
 
 	public toString() {
-		return this.head?.toString() || "";
+		return this.head?.toString() || '';
 	}
 }
 

@@ -1,15 +1,15 @@
-import { MessageFlags } from "@biscuitland/common";
-import type { RawFile } from "@biscuitland/rest";
-import type { __LangType } from "../__generated";
-import type { IClients } from "../client/base";
-import { type ChatInputCommandInteraction } from "../structures";
+import { MessageFlags } from '@biscuitland/common';
+import type { RawFile } from '@biscuitland/rest';
+import type { __LangType } from '../__generated';
+import type { IClients } from '../client/base';
+import { type ChatInputCommandInteraction } from '../structures';
 import type {
 	InteractionCreateBodyRequest,
 	InteractionMessageUpdateBodyRequest,
 	ModalCreateBodyRequest,
-} from "../types/write";
-import type { CommandMetadata, ContextOptions, MiddlewareContext, OptionsRecord } from "./commands";
-import type { OptionResolver } from "./optionresolver";
+} from '../types/write';
+import type { CommandMetadata, ContextOptions, MiddlewareContext, OptionsRecord } from './commands';
+import type { OptionResolver } from './optionresolver';
 
 export class CommandContext<
 	C extends keyof IClients,

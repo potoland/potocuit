@@ -1,8 +1,8 @@
-import { GuildRelatedResource } from "./default/guild-related";
+import { GuildRelatedResource } from './default/guild-related';
 // import { channelFactory } from '../../miscellaneous';
 
 export class Channels extends GuildRelatedResource {
-	namespace = "channel";
+	namespace = 'channel';
 
 	// override async get(id: string, guild: string) {
 	// 	const rawChannel = await super.get(id, guild) as APIChannel;

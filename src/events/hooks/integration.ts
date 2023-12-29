@@ -2,10 +2,10 @@ import type {
 	GatewayIntegrationCreateDispatchData,
 	GatewayIntegrationDeleteDispatchData,
 	GatewayIntegrationUpdateDispatchData,
-} from "@biscuitland/common";
-import { toCamelCase } from "@biscuitland/common";
-import type { BaseClient } from "../../client/base";
-import { User } from "../../structures";
+} from '@biscuitland/common';
+import { toCamelCase } from '@biscuitland/common';
+import type { BaseClient } from '../../client/base';
+import { User } from '../../structures';
 
 export const INTEGRATION_CREATE = (self: BaseClient, data: GatewayIntegrationCreateDispatchData) => {
 	return data.user

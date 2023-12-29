@@ -1,8 +1,8 @@
-import { GuildBasedResource } from "./default/guild-based";
+import { GuildBasedResource } from './default/guild-based';
 // import { GuildMember } from '../../GuildMember';
 
 export class Members extends GuildBasedResource {
-	namespace = "member";
+	namespace = 'member';
 
 	override parse(data: any, key: string, guild_id: string) {
 		data.guild_id = guild_id;
@@ -15,12 +15,12 @@ export class Members extends GuildBasedResource {
 	override async set(memberId_dataArray: [string, any][], guildId: string): Promise<void>;
 	override async set(__keys: string | [string, any][], guild: string, data?: any) {
 		const keys: [string, any][] = Array.isArray(__keys) ? __keys : [[__keys, data]];
-		const bulkData: (["members", any, string, string] | ["users", any, string])[] = [];
+		const bulkData: (['members', any, string, string] | ['users', any, string])[] = [];
 
 		for (const [id, value] of keys) {
 			if (value.user) {
-				bulkData.push(["members", value, id, guild]);
-				bulkData.push(["users", value.user, id]);
+				bulkData.push(['members', value, id, guild]);
+				bulkData.push(['users', value.user, id]);
 			}
 		}
 

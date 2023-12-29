@@ -4,8 +4,8 @@ import type {
 	GatewayIntentBits,
 	GatewayPresenceUpdateData,
 	Logger,
-} from "@biscuitland/common";
-import type { IdentifyProperties } from "../constants";
+} from '@biscuitland/common';
+import type { IdentifyProperties } from '../constants';
 
 export interface ShardManagerOptions extends ShardDetails {
 	/** Important data which is used by the manager to connect shards to the gateway. */
@@ -36,7 +36,7 @@ export interface ShardManagerOptions extends ShardDetails {
 	compress?: boolean;
 }
 
-export interface WorkerManagerOptions extends Omit<ShardManagerOptions, "handlePayload"> {
+export interface WorkerManagerOptions extends Omit<ShardManagerOptions, 'handlePayload'> {
 	workers?: number;
 
 	/**

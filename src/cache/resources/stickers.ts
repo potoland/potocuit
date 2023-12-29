@@ -1,8 +1,8 @@
-import { GuildRelatedResource } from "./default/guild-related";
+import { GuildRelatedResource } from './default/guild-related';
 // import { Sticker } from '@potoland/structures';
 
 export class Stickers extends GuildRelatedResource {
-	namespace = "sticker";
+	namespace = 'sticker';
 
 	// override async get(id: string, guild: string) {
 	// 	const rawSticker = await super.get(id, guild) as APISticker | undefined;

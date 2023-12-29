@@ -1,9 +1,9 @@
-import { basename, join } from "node:path";
-import type { Logger } from "@biscuitland/common";
-import { readdir } from "fs/promises";
+import { basename, join } from 'node:path';
+import type { Logger } from '@biscuitland/common';
+import { readdir } from 'fs/promises';
 
 export function isObject(o: any) {
-	return o && typeof o === "object" && !Array.isArray(o);
+	return o && typeof o === 'object' && !Array.isArray(o);
 }
 
 export function Options<T>(defaults: any, ...options: any[]): T {

@@ -5,7 +5,7 @@ import {
 	ComponentType,
 	TextInputStyle,
 	TypeArray,
-} from "@biscuitland/common";
+} from '@biscuitland/common';
 import {
 	ActionRow,
 	BaseComponent,
@@ -13,7 +13,7 @@ import {
 	OptionValuesLength,
 	PotoModalComponents,
 	createComponent,
-} from ".";
+} from '.';
 
 export class Modal<T extends PotoModalComponents = TextInput> {
 	/** @internal */

@@ -1,4 +1,4 @@
-import type { ComponentInteraction, ModalSubmitInteraction } from "../structures";
+import type { ComponentInteraction, ModalSubmitInteraction } from '../structures';
 
 export const InteractionCommandType = {
 	COMPONENT: 0,

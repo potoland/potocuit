@@ -1,5 +1,5 @@
-import type { APIBaseSelectMenuComponent, ComponentType, Identify, ObjectToLower } from "@biscuitland/common";
-import { BaseComponent } from "./BaseComponent";
+import type { APIBaseSelectMenuComponent, ComponentType, Identify, ObjectToLower } from '@biscuitland/common';
+import { BaseComponent } from './BaseComponent';
 
 export type APISelectMenuComponentTypes =
 	| ComponentType.ChannelSelect
@@ -10,7 +10,7 @@ export type APISelectMenuComponentTypes =
 
 export interface BaseSelectMenuComponent<T extends APISelectMenuComponentTypes>
 	extends BaseComponent<T>,
-		ObjectToLower<Identify<Omit<APIBaseSelectMenuComponent<APISelectMenuComponentTypes>, "type">>> {}
+		ObjectToLower<Identify<Omit<APIBaseSelectMenuComponent<APISelectMenuComponentTypes>, 'type'>>> {}
 
 export class BaseSelectMenuComponent<T extends APISelectMenuComponentTypes> extends BaseComponent<T> {
 	constructor(data: APIBaseSelectMenuComponent<T>) {

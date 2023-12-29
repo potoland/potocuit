@@ -1,4 +1,4 @@
-import type { ComponentType } from "@biscuitland/common";
-import { BaseSelectMenuComponent } from "../structures/extra/BaseSelectMenuComponent";
+import type { ComponentType } from '@biscuitland/common';
+import { BaseSelectMenuComponent } from '../structures/extra/BaseSelectMenuComponent';
 
 export class MentionableSelectMenuComponent extends BaseSelectMenuComponent<ComponentType.MentionableSelect> {}

@@ -1,4 +1,4 @@
-import type { Adapter } from "./types";
+import type { Adapter } from './types';
 
 export class DefaultMemoryAdapter implements Adapter {
 	readonly storage = new Map<string, string>();
@@ -8,9 +8,9 @@ export class DefaultMemoryAdapter implements Adapter {
 	scan(query: string, keys: true): string[];
 	scan(query: string, keys = false) {
 		const values = [];
-		const sq = query.split(".");
+		const sq = query.split('.');
 		for (const [key, value] of this.storage.entries()) {
-			if (key.split(".").every((value, i) => (sq[i] === "*" ? !!value : sq[i] === value))) {
+			if (key.split('.').every((value, i) => (sq[i] === '*' ? !!value : sq[i] === value))) {
 				values.push(keys ? key : JSON.parse(value));
 			}
 		}

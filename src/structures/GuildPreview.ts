@@ -1,6 +1,6 @@
-import type { APIGuildPreview, APIPartialGuild } from "@biscuitland/common";
-import type { BaseClient } from "../client/base";
-import { AnonymousGuild } from "./AnonymousGuild";
+import type { APIGuildPreview, APIPartialGuild } from '@biscuitland/common';
+import type { BaseClient } from '../client/base';
+import { AnonymousGuild } from './AnonymousGuild';
 
 /**
  * Represent Discord Guild Preview Object

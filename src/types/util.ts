@@ -1,4 +1,4 @@
-import type { GatewayIntentBits, PermissionFlagsBits } from "@biscuitland/common";
+import type { GatewayIntentBits, PermissionFlagsBits } from '@biscuitland/common';
 
 export type ToClass<T, This> = new (
 	...args: any[]

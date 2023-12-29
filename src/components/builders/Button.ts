@@ -6,9 +6,9 @@ import {
 	ButtonStyle,
 	ComponentType,
 	When,
-} from "@biscuitland/common";
-import { ComponentCallback } from ".";
-import { ButtonInteraction } from "../../structures";
+} from '@biscuitland/common';
+import { ComponentCallback } from '.';
+import { ButtonInteraction } from '../../structures';
 
 export type ButtonStylesForID = Exclude<ButtonStyle, ButtonStyle.Link>;
 
@@ -20,13 +20,13 @@ export class Button<Type extends boolean = boolean> {
 		this.data.type = ComponentType.Button;
 	}
 
-	setCustomId(id: string): Omit<this, "setURL"> {
+	setCustomId(id: string): Omit<this, 'setURL'> {
 		// @ts-expect-error
 		this.data.custom_id = id;
 		return this;
 	}
 
-	setURL(url: string): Omit<this, "setCustomId"> {
+	setURL(url: string): Omit<this, 'setCustomId'> {
 		// @ts-expect-error
 		this.data.url = url;
 		return this;
@@ -47,9 +47,9 @@ export class Button<Type extends boolean = boolean> {
 		return this;
 	}
 
-	setStyle(style: ButtonStyle.Link): Omit<this, "setCustomId">;
-	setStyle(style: ButtonStylesForID): Omit<this, "setURL">;
-	setStyle(style: ButtonStyle): Omit<this, "setURL"> | Omit<this, "setCustomId"> {
+	setStyle(style: ButtonStyle.Link): Omit<this, 'setCustomId'>;
+	setStyle(style: ButtonStylesForID): Omit<this, 'setURL'>;
+	setStyle(style: ButtonStyle): Omit<this, 'setURL'> | Omit<this, 'setCustomId'> {
 		this.data.style = style;
 		return this as any;
 	}

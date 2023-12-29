@@ -1,8 +1,8 @@
-import type { GatewayTypingStartDispatchData } from "@biscuitland/common";
+import type { GatewayTypingStartDispatchData } from '@biscuitland/common';
 
-import { toCamelCase } from "@biscuitland/common";
-import type { BaseClient } from "../../client/base";
-import { GuildMember } from "../../structures";
+import { toCamelCase } from '@biscuitland/common';
+import type { BaseClient } from '../../client/base';
+import { GuildMember } from '../../structures';
 
 export const TYPING_START = (self: BaseClient, data: GatewayTypingStartDispatchData) => {
 	return data.member

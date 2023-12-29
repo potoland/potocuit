@@ -7,10 +7,10 @@ import type {
 	RESTPatchAPIChannelJSONBody,
 	RESTPatchAPIGuildChannelPositionsJSONBody,
 	RESTPostAPIGuildChannelJSONBody,
-} from "@biscuitland/common";
-import { ChannelType } from "@biscuitland/common";
-import { mix } from "ts-mixer";
-import type { BaseClient } from "../../../client/base";
+} from '@biscuitland/common';
+import { ChannelType } from '@biscuitland/common';
+import { mix } from 'ts-mixer';
+import type { BaseClient } from '../../../client/base';
 import {
 	CategoryChannel,
 	DMChannel,
@@ -23,11 +23,11 @@ import {
 	TextGuildChannel,
 	ThreadChannel,
 	VoiceChannel,
-} from "../../../structures/channels";
-import { DiscordBase } from "../../../structures/extra/DiscordBase";
-import { channelLink } from "../../../structures/extra/functions";
-import type { MethodContext } from "../../../types";
-import { MessagesMethods } from "./messages";
+} from '../../../structures/channels';
+import { DiscordBase } from '../../../structures/extra/DiscordBase';
+import { channelLink } from '../../../structures/extra/functions';
+import type { MethodContext } from '../../../types';
+import { MessagesMethods } from './messages';
 
 export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBase<ChannelType>> {
 	declare type: T;
@@ -41,11 +41,11 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 	}
 
 	private get __guildId__() {
-		return "guildId" in this ? (this.guildId as string) : "@me";
+		return 'guildId' in this ? (this.guildId as string) : '@me';
 	}
 
 	static __intent__(id: string) {
-		return id === "@me" ? "DirectMessages" : "Guilds";
+		return id === '@me' ? 'DirectMessages' : 'Guilds';
 	}
 
 	/** The URL to the channel */
@@ -94,7 +94,7 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 			case ChannelType.GuildAnnouncement:
 				return new NewsChannel(client, data);
 			default:
-				if ("guild_id" in data) {
+				if ('guild_id' in data) {
 					return new BaseGuildChannel(client, data);
 				}
 				return new BaseChannel(client, data);
@@ -120,7 +120,7 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 			},
 			fetch: async (channelId = ctx.channelId, force?: boolean) => {
 				if (!channelId) {
-					throw new Error("No channelId");
+					throw new Error('No channelId');
 				}
 				let channel: APIChannel;
 				if (!force) {
@@ -140,7 +140,7 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 			},
 			delete: async (channelId = ctx.channelId, reason?: string) => {
 				if (!channelId) {
-					throw new Error("No channelId");
+					throw new Error('No channelId');
 				}
 				const res = await ctx.api.channels(channelId).delete({ reason });
 				await ctx.client.cache.channels?.removeIfNI(BaseChannel.__intent__(ctx.id), res.id, ctx.id);
@@ -151,7 +151,7 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 				reason?: string,
 			) => {
 				if (!body.channelId) {
-					throw new Error("No channelId");
+					throw new Error('No channelId');
 				}
 				const res = await ctx.api.channels(body.channelId).patch({ body, reason });
 				await ctx.client.cache.channels?.setIfNI(BaseChannel.__intent__(ctx.id), res.id, ctx.id, res);

@@ -1,5 +1,5 @@
-import type { APIChannelSelectComponent, ChannelType, ComponentType } from "@biscuitland/common";
-import { BaseSelectMenuComponent } from "../structures/extra/BaseSelectMenuComponent";
+import type { APIChannelSelectComponent, ChannelType, ComponentType } from '@biscuitland/common';
+import { BaseSelectMenuComponent } from '../structures/extra/BaseSelectMenuComponent';
 
 export class ChannelSelectMenuComponent extends BaseSelectMenuComponent<ComponentType.ChannelSelect> {
 	constructor(data: APIChannelSelectComponent) {

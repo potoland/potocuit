@@ -1,22 +1,22 @@
-import { Locale, type LocaleString } from "@biscuitland/common";
-import type { __LangType } from "../__generated";
-import { PotoHandler } from "../utils";
+import { Locale, type LocaleString } from '@biscuitland/common';
+import type { __LangType } from '../__generated';
+import { PotoHandler } from '../utils';
 
 const values = Object.values(Locale);
 
 export class PotoLangsHandler extends PotoHandler {
 	record: Partial<Record<LocaleString, any>> = {};
-	protected filter = (path: string) => path.endsWith(".json");
+	protected filter = (path: string) => path.endsWith('.json');
 	defaultLang?: LocaleString;
 
 	getKey(lang: string, message: string) {
 		let value: any = this.record[lang as LocaleString];
 
-		for (const i of message.split(".")) {
+		for (const i of message.split('.')) {
 			value = value[i];
 		}
 
-		if (typeof value !== "string") {
+		if (typeof value !== 'string') {
 			return undefined;
 		}
 
@@ -33,11 +33,11 @@ export class PotoLangsHandler extends PotoHandler {
 			const value =
 				this.getKey(lang, message) ?? (this.defaultLang ? this.getKey(this.defaultLang!, message) : undefined);
 			if (!value) {
-				throw new Error("Invalid key");
+				throw new Error('Invalid key');
 			}
 			return this.parse(value, metadata);
 		} catch {
-			if (lang === this.defaultLang || !this.defaultLang) throw new Error("Invalid key");
+			if (lang === this.defaultLang || !this.defaultLang) throw new Error('Invalid key');
 			return this.get(this.defaultLang, message, metadata);
 		}
 	}

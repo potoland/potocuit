@@ -9,8 +9,8 @@ import {
 	APIUserSelectComponent,
 	ChannelType,
 	ComponentType,
-} from "@biscuitland/common";
-import { BaseComponent, ComponentCallback, OptionValuesLength } from ".";
+} from '@biscuitland/common';
+import { BaseComponent, ComponentCallback, OptionValuesLength } from '.';
 import {
 	ChannelSelectMenuInteraction,
 	ComponentInteraction,
@@ -18,8 +18,8 @@ import {
 	RoleSelectMenuInteraction,
 	StringSelectMenuInteraction,
 	UserSelectMenuInteraction,
-} from "../../structures";
-import { RestOrArray } from "../../types";
+} from '../../structures';
+import { RestOrArray } from '../../types';
 
 export type PotoSelectMenus =
 	| RoleSelectMenu
@@ -112,7 +112,7 @@ export class StringSelectMenu extends SelectMenu<APIStringSelectComponent, Strin
 }
 
 export class StringSelectOption {
-	constructor(public data: Partial<APISelectMenuOption> = {}) { }
+	constructor(public data: Partial<APISelectMenuOption> = {}) {}
 
 	setLabel(label: string): this {
 		this.data.label = label;

@@ -1,7 +1,7 @@
-import type { APIEmoji, APIPartialEmoji } from "@biscuitland/common";
-import { DiscordEpoch, FormattingPatterns } from "@biscuitland/common";
-import type { Cache } from "../../cache";
-import type { EmojiResolvable } from "../../types/resolvables";
+import type { APIEmoji, APIPartialEmoji } from '@biscuitland/common';
+import { DiscordEpoch, FormattingPatterns } from '@biscuitland/common';
+import type { Cache } from '../../cache';
+import type { EmojiResolvable } from '../../types/resolvables';
 
 /** * Convert a timestamp to a snowflake. * @param timestamp The timestamp to convert. * @returns The snowflake. */
 export function snowflakeToTimestamp(id: string): number {
@@ -9,7 +9,7 @@ export function snowflakeToTimestamp(id: string): number {
 }
 
 export function channelLink(channelId: string, guildId?: string) {
-	return `https://discord.com/channels/${guildId ?? "@me"}/${channelId}`;
+	return `https://discord.com/channels/${guildId ?? '@me'}/${channelId}`;
 }
 
 export function messageLink(channelId: string, messageId: string, guildId?: string) {
@@ -17,7 +17,7 @@ export function messageLink(channelId: string, messageId: string, guildId?: stri
 }
 
 export async function resolveEmoji(emoji: EmojiResolvable, cache: Cache): Promise<APIPartialEmoji | undefined> {
-	if (typeof emoji === "string") {
+	if (typeof emoji === 'string') {
 		const groups: Partial<APIPartialEmoji> | undefined = emoji.match(FormattingPatterns.Emoji)?.groups;
 		if (groups) {
 			return { animated: !!groups.animated, name: groups.name!, id: groups.id! };
@@ -26,10 +26,10 @@ export async function resolveEmoji(emoji: EmojiResolvable, cache: Cache): Promis
 			const fromCache = (await cache.emojis?.get(emoji)) as APIEmoji | undefined;
 			return fromCache && { animated: fromCache.animated, id: fromCache.id, name: fromCache.name };
 		}
-		if (emoji.includes("%")) {
+		if (emoji.includes('%')) {
 			emoji = encodeURIComponent(emoji);
 		}
-		if (!emoji.includes(":")) {
+		if (!emoji.includes(':')) {
 			return { name: emoji, id: null };
 		}
 		return undefined;
@@ -54,7 +54,7 @@ export function hasProp<T extends Record<any, any>>(target: T, prop: keyof T) {
 	if (!(prop in target)) {
 		return;
 	}
-	if (typeof target[prop] === "string" && !target[prop].length) {
+	if (typeof target[prop] === 'string' && !target[prop].length) {
 		return;
 	}
 	return true;

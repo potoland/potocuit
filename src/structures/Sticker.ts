@@ -3,13 +3,13 @@ import type {
 	ObjectToLower,
 	RESTPatchAPIGuildStickerJSONBody,
 	RESTPostAPIGuildStickerFormDataBody,
-} from "@biscuitland/common";
-import type { BaseClient } from "../client/base";
-import type { MethodContext } from "../types";
-import { User } from "./User";
-import { DiscordBase } from "./extra/DiscordBase";
+} from '@biscuitland/common';
+import type { BaseClient } from '../client/base';
+import type { MethodContext } from '../types';
+import { User } from './User';
+import { DiscordBase } from './extra/DiscordBase';
 
-export interface Sticker extends DiscordBase, ObjectToLower<Omit<APISticker, "user">> {}
+export interface Sticker extends DiscordBase, ObjectToLower<Omit<APISticker, 'user'>> {}
 
 export class Sticker extends DiscordBase {
 	private readonly __methods__!: ReturnType<typeof Sticker.methods>;
@@ -54,21 +54,21 @@ export class Sticker extends DiscordBase {
 				const sticker = await ctx.api
 					.guilds(ctx.id)
 					// @ts-expect-error esta wea hay que arreglarla, poner un file resolvable y bla bla bla
-					.stickers.post({ reason, body: json, files: [{ ...file, key: "file" }], appendToFormData: true });
-				await ctx.client.cache.stickers?.setIfNI("GuildEmojisAndStickers", sticker.id, ctx.id, sticker);
+					.stickers.post({ reason, body: json, files: [{ ...file, key: 'file' }], appendToFormData: true });
+				await ctx.client.cache.stickers?.setIfNI('GuildEmojisAndStickers', sticker.id, ctx.id, sticker);
 				return new Sticker(ctx.client, sticker);
 			},
 			edit: async (body: RESTPatchAPIGuildStickerJSONBody, reason?: string) => {
 				if (!ctx.stickerId) {
-					throw new Error("No stickerId");
+					throw new Error('No stickerId');
 				}
 				const sticker = await ctx.api.guilds(ctx.id).stickers(ctx.stickerId).patch({ body, reason });
-				await ctx.client.cache.stickers?.setIfNI("GuildEmojisAndStickers", ctx.stickerId, ctx.id, sticker);
+				await ctx.client.cache.stickers?.setIfNI('GuildEmojisAndStickers', ctx.stickerId, ctx.id, sticker);
 				return new Sticker(ctx.client, sticker);
 			},
 			fetch: async (force = false) => {
 				if (!ctx.stickerId) {
-					throw new Error("No stickerId");
+					throw new Error('No stickerId');
 				}
 				let sticker;
 				if (!force) {
@@ -83,10 +83,10 @@ export class Sticker extends DiscordBase {
 			},
 			delete: async (reason?: string) => {
 				if (!ctx.stickerId) {
-					throw new Error("No stickerId");
+					throw new Error('No stickerId');
 				}
 				await ctx.api.guilds(ctx.id).stickers(ctx.stickerId).delete({ reason });
-				await ctx.client.cache.stickers?.removeIfNI("GuildEmojisAndStickers", ctx.stickerId, ctx.id);
+				await ctx.client.cache.stickers?.removeIfNI('GuildEmojisAndStickers', ctx.stickerId, ctx.id);
 			},
 		};
 	}

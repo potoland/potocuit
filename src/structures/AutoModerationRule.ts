@@ -3,10 +3,10 @@ import type {
 	ObjectToLower,
 	RESTPatchAPIAutoModerationRuleJSONBody,
 	RESTPostAPIAutoModerationRuleJSONBody,
-} from "@biscuitland/common";
-import type { BaseClient } from "../client/base";
-import type { MethodContext } from "../types";
-import { DiscordBase } from "./extra/DiscordBase";
+} from '@biscuitland/common';
+import type { BaseClient } from '../client/base';
+import type { MethodContext } from '../types';
+import { DiscordBase } from './extra/DiscordBase';
 
 export interface AutoModerationRule extends ObjectToLower<APIAutoModerationRule> {}
 
@@ -34,20 +34,20 @@ export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 
 	static methods(ctx: MethodContext<{ ruleId?: string }>) {
 		return {
-			list: () => ctx.api.guilds(ctx.id)["auto-moderation"].rules.get(),
+			list: () => ctx.api.guilds(ctx.id)['auto-moderation'].rules.get(),
 			create: (body: RESTPostAPIAutoModerationRuleJSONBody) =>
-				ctx.api.guilds(ctx.id)["auto-moderation"].rules.post({ body }),
+				ctx.api.guilds(ctx.id)['auto-moderation'].rules.post({ body }),
 			delete: (ruleId = ctx.ruleId, reason?: string) => {
 				if (!ruleId) {
-					throw new Error("No ruleId");
+					throw new Error('No ruleId');
 				}
-				return ctx.api.guilds(ctx.id)["auto-moderation"].rules(ruleId).delete({ reason });
+				return ctx.api.guilds(ctx.id)['auto-moderation'].rules(ruleId).delete({ reason });
 			},
 			fetch: (ruleId = ctx.ruleId) => {
 				if (!ruleId) {
-					throw new Error("No ruleId");
+					throw new Error('No ruleId');
 				}
-				return ctx.api.guilds(ctx.id)["auto-moderation"].rules(ruleId).get();
+				return ctx.api.guilds(ctx.id)['auto-moderation'].rules(ruleId).get();
 			},
 			edit: (
 				body: ObjectToLower<RESTPatchAPIAutoModerationRuleJSONBody> & { ruleId?: string } = {
@@ -56,9 +56,9 @@ export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 				reason?: string,
 			) => {
 				if (!body.ruleId) {
-					throw new Error("No ruleId");
+					throw new Error('No ruleId');
 				}
-				return ctx.api.guilds(ctx.id)["auto-moderation"].rules(body.ruleId).patch({ body, reason });
+				return ctx.api.guilds(ctx.id)['auto-moderation'].rules(body.ruleId).patch({ body, reason });
 			},
 		};
 	}

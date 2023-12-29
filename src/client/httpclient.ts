@@ -1,23 +1,23 @@
-import type { APIInteraction } from "@biscuitland/common";
-import { InteractionResponseType, InteractionType } from "@biscuitland/common";
-import FormData from "form-data";
-import type { HttpRequest, HttpResponse } from "uWebSockets.js";
-import type { DeepPartial } from "../types";
-import type { InternalRuntimeConfigHTTP, StartOptions } from "./base";
-import { BaseClient } from "./base";
-import { onInteraction } from "./oninteraction";
+import type { APIInteraction } from '@biscuitland/common';
+import { InteractionResponseType, InteractionType } from '@biscuitland/common';
+import FormData from 'form-data';
+import type { HttpRequest, HttpResponse } from 'uWebSockets.js';
+import type { DeepPartial } from '../types';
+import type { InternalRuntimeConfigHTTP, StartOptions } from './base';
+import { BaseClient } from './base';
+import { onInteraction } from './oninteraction';
 
-let UWS: typeof import("uWebSockets.js");
-let nacl: typeof import("tweetnacl");
+let UWS: typeof import('uWebSockets.js');
+let nacl: typeof import('tweetnacl');
 
 try {
-	UWS = require("uWebSockets.js");
+	UWS = require('uWebSockets.js');
 } catch {
 	// easter egg #1
 }
 
 try {
-	nacl = require("tweetnacl");
+	nacl = require('tweetnacl');
 } catch {
 	// I always cum
 }
@@ -30,10 +30,10 @@ export class PotoHttpClient extends BaseClient {
 	constructor() {
 		super();
 		if (!UWS) {
-			throw new Error("No uws installed.");
+			throw new Error('No uws installed.');
 		}
 		if (!nacl) {
-			throw new Error("No tweetnacl installed.");
+			throw new Error('No tweetnacl installed.');
 		}
 	}
 
@@ -72,19 +72,19 @@ export class PotoHttpClient extends BaseClient {
 		const port = options?.port ?? portRC;
 
 		if (!publicKey) {
-			throw new Error("Expected a publicKey, check your .potorc.json");
+			throw new Error('Expected a publicKey, check your .potorc.json');
 		}
 		if (!port) {
-			throw new Error("Expected a port, check your .potorc.json");
+			throw new Error('Expected a port, check your .potorc.json');
 		}
 		if (applicationIdRC) {
 			this.applicationId = applicationIdRC;
 		}
 
 		this.publicKey = publicKey;
-		this.publicKeyHex = Buffer.from(this.publicKey, "hex");
+		this.publicKeyHex = Buffer.from(this.publicKey, 'hex');
 		this.app = UWS.App();
-		this.app.post("/interactions", (res, req) => {
+		this.app.post('/interactions', (res, req) => {
 			return this.onPacket(res, req);
 		});
 		this.app.listen(port, () => {
@@ -92,7 +92,7 @@ export class PotoHttpClient extends BaseClient {
 		});
 	}
 
-	async start(options: DeepPartial<Omit<StartOptions, "connection">> = {}) {
+	async start(options: DeepPartial<Omit<StartOptions, 'connection'>> = {}) {
 		await super.start(options);
 		return this.execute(options.httpConnection);
 	}
@@ -100,12 +100,12 @@ export class PotoHttpClient extends BaseClient {
 	// https://discord.com/developers/docs/interactions/receiving-and-responding#security-and-authorization
 	protected async verifySignature(res: HttpResponse, req: HttpRequest) {
 		const body = await PotoHttpClient.readJson<APIInteraction>(res);
-		const timestamp = req.getHeader("x-signature-timestamp");
-		const ed25519 = req.getHeader("x-signature-ed25519");
+		const timestamp = req.getHeader('x-signature-timestamp');
+		const ed25519 = req.getHeader('x-signature-ed25519');
 		if (
 			nacl.sign.detached.verify(
 				Buffer.from(timestamp + JSON.stringify(body)),
-				Buffer.from(ed25519, "hex"),
+				Buffer.from(ed25519, 'hex'),
 				this.publicKeyHex,
 			)
 		) {
@@ -117,21 +117,21 @@ export class PotoHttpClient extends BaseClient {
 	async onPacket(res: HttpResponse, req: HttpRequest) {
 		const rawBody = await this.verifySignature(res, req);
 		if (!rawBody) {
-			this.debugger.debug("Invalid request/No info, returning 418 status.");
+			this.debugger.debug('Invalid request/No info, returning 418 status.');
 			// I'm a teapot
-			res.writeStatus("418").end();
+			res.writeStatus('418').end();
 		} else {
 			switch (rawBody.type) {
 				case InteractionType.Ping:
-					this.debugger.debug("Ping interaction received, responding.");
+					this.debugger.debug('Ping interaction received, responding.');
 					res
-						.writeHeader("Content-Type", "application/json")
+						.writeHeader('Content-Type', 'application/json')
 						.end(JSON.stringify({ type: InteractionResponseType.Pong }));
 					break;
 				default:
 					await onInteraction(-1, rawBody, this, async ({ body, files }) => {
 						let response;
-						let headers: { "Content-Type"?: string } = {};
+						let headers: { 'Content-Type'?: string } = {};
 
 						if (files?.length) {
 							response = new FormData();
@@ -140,12 +140,12 @@ export class PotoHttpClient extends BaseClient {
 								response.append(key, file.data, file);
 							}
 							if (body) {
-								response.append("payload_json", JSON.stringify(body));
+								response.append('payload_json', JSON.stringify(body));
 							}
 							headers = Object.assign(headers, response.getHeaders());
 						} else {
 							response = body ?? {};
-							headers["Content-Type"] = "application/json";
+							headers['Content-Type'] = 'application/json';
 						}
 
 						for (const i in headers) {

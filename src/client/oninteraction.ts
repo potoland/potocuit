@@ -1,13 +1,13 @@
-import { type APIInteraction, ApplicationCommandType, InteractionType } from "@biscuitland/common";
-import { CommandContext, OptionResolver } from "../commands";
+import { type APIInteraction, ApplicationCommandType, InteractionType } from '@biscuitland/common';
+import { CommandContext, OptionResolver } from '../commands';
 import type {
 	ChatInputCommandInteraction,
 	ComponentInteraction,
 	ModalSubmitInteraction,
 	__InternalReplyFunction,
-} from "../structures";
-import { AutocompleteInteraction, BaseInteraction } from "../structures";
-import type { BaseClient } from "./base";
+} from '../structures';
+import { AutocompleteInteraction, BaseInteraction } from '../structures';
+import type { BaseClient } from './base';
 
 export async function onInteraction(
 	shardId: number,
@@ -20,7 +20,7 @@ export async function onInteraction(
 		case InteractionType.ApplicationCommandAutocomplete: {
 			const packetData = body.data;
 			const parentCommand = self.commands.values.find((x) => {
-				if (x.guild_id && !x.guild_id.includes(packetData.guild_id ?? "")) {
+				if (x.guild_id && !x.guild_id.includes(packetData.guild_id ?? '')) {
 					return false;
 				}
 				return x.name === packetData.name;
@@ -41,9 +41,9 @@ export async function onInteraction(
 					} catch (error) {
 						self.logger.error(
 							`${
-								command?.name ?? (parentCommand?.name ? `${parentCommand.name} option` : undefined) ?? "Unknown"
+								command?.name ?? (parentCommand?.name ? `${parentCommand.name} option` : undefined) ?? 'Unknown'
 							} just threw an error, ${
-								error ? (typeof error === "object" && "message" in error ? error.message : error) : "Unknown"
+								error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 							}`,
 						);
 						await command.onAutocompleteError?.(interaction, error);
@@ -60,7 +60,7 @@ export async function onInteraction(
 			// idc, is a YOU problem
 			self.debugger.debug(
 				`${
-					command?.name ?? (parentCommand?.name ? `${parentCommand.name} option` : undefined) ?? "Unknown"
+					command?.name ?? (parentCommand?.name ? `${parentCommand.name} option` : undefined) ?? 'Unknown'
 				} command does not have 'autocomplete' callback`,
 			);
 		}
@@ -70,7 +70,7 @@ export async function onInteraction(
 				case ApplicationCommandType.ChatInput: {
 					const packetData = body.data;
 					const parentCommand = self.commands.values.find((x) => {
-						if (x.guild_id && !x.guild_id.includes(packetData.guild_id ?? "")) {
+						if (x.guild_id && !x.guild_id.includes(packetData.guild_id ?? '')) {
 							return false;
 						}
 						return x.name === packetData.name;
@@ -94,7 +94,7 @@ export async function onInteraction(
 								return await command.onOptionsError?.(context, result);
 							}
 							const resultRunGlobalMiddlewares = await command.__runGlobalMiddlewares(context);
-							if (resultRunGlobalMiddlewares === "pass") {
+							if (resultRunGlobalMiddlewares === 'pass') {
 								return;
 							}
 							const [, erroredGlobalMiddlewares] = resultRunGlobalMiddlewares;
@@ -103,7 +103,7 @@ export async function onInteraction(
 							}
 
 							const resultRunMiddlewares = await command.__runMiddlewares(context);
-							if (resultRunMiddlewares === "pass") {
+							if (resultRunMiddlewares === 'pass') {
 								return;
 							}
 							const [, erroredMiddlewares] = resultRunMiddlewares;
@@ -116,7 +116,7 @@ export async function onInteraction(
 							} catch (error) {
 								self.logger.error(
 									`${command.name} just threw an error, ${
-										error ? (typeof error === "object" && "message" in error ? error.message : error) : "Unknown"
+										error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 									}`,
 								);
 								await command.onRunError?.(context, error);
@@ -131,7 +131,7 @@ export async function onInteraction(
 						return /* 418*/;
 					}
 					// idc, is a YOU problem
-					self.debugger.debug(`${command?.name ?? "Unknown"} command does not have 'run' callback`);
+					self.debugger.debug(`${command?.name ?? 'Unknown'} command does not have 'run' callback`);
 				}
 				break;
 			}

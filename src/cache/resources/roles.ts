@@ -1,8 +1,8 @@
-import { GuildRelatedResource } from "./default/guild-related";
+import { GuildRelatedResource } from './default/guild-related';
 // import { Role } from '@potoland/structures';
 
 export class Roles extends GuildRelatedResource {
-	namespace = "role";
+	namespace = 'role';
 
 	// override async get(id: string, guild: string) {
 	// 	const rawRole = await super.get(id, guild) as APIRole | undefined;

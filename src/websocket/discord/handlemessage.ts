@@ -1,17 +1,17 @@
-import type { GatewayDispatchPayload, GatewaySendPayload, Logger } from "@biscuitland/common";
-import type { MessagePort } from "worker_threads";
-import { workerData } from "worker_threads";
-import { Shard } from ".";
-import type { Cache, WorkerAdapter } from "../../cache";
-import type { WorkerShardInfo } from "./worker";
+import type { GatewayDispatchPayload, GatewaySendPayload, Logger } from '@biscuitland/common';
+import type { MessagePort } from 'worker_threads';
+import { workerData } from 'worker_threads';
+import { Shard } from '.';
+import type { Cache, WorkerAdapter } from '../../cache';
+import type { WorkerShardInfo } from './worker';
 import {
 	type WorkerReceivePayload,
 	type WorkerRequestConnect,
 	type WorkerSendInfo,
 	type WorkerSendResultPayload,
 	type WorkerSendShardInfo,
-} from "./worker";
-import type { ManagerMessages } from "./workermanager";
+} from './worker';
+import type { ManagerMessages } from './workermanager';
 
 export async function handleManagerMessages(
 	data: ManagerMessages,
@@ -22,13 +22,13 @@ export async function handleManagerMessages(
 	onPacket?: (payload: GatewayDispatchPayload, shardId: number) => any,
 ) {
 	switch (data.type) {
-		case "CACHE_RESULT":
+		case 'CACHE_RESULT':
 			(cache.adapter as WorkerAdapter).promises.get(data.nonce)?.(data.result);
 			break;
-		case "SEND_PAYLOAD": {
+		case 'SEND_PAYLOAD': {
 			const shard = shards.get(data.shardId);
 			if (!shard) {
-				logger.fatal("Worker trying send payload by non-existent shard");
+				logger.fatal('Worker trying send payload by non-existent shard');
 				return;
 			}
 
@@ -37,22 +37,22 @@ export async function handleManagerMessages(
 			} satisfies GatewaySendPayload);
 
 			manager!.postMessage({
-				type: "RESULT_PAYLOAD",
+				type: 'RESULT_PAYLOAD',
 				nonce: data.nonce,
 			} satisfies WorkerSendResultPayload);
 		}
 		break;
-		case "ALLOW_CONNECT": {
+		case 'ALLOW_CONNECT': {
 			const shard = shards.get(data.shardId);
 			if (!shard) {
-				logger.fatal("Worker trying connect non-existent shard");
+				logger.fatal('Worker trying connect non-existent shard');
 				return;
 			}
 			shard.options.presence = data.presence;
 			await shard.connect();
 		}
 		break;
-		case "SPAWN_SHARDS": {
+		case 'SPAWN_SHARDS': {
 			for (const id of workerData.shards) {
 				let shard = shards.get(id);
 
@@ -69,7 +69,7 @@ export async function handleManagerMessages(
 							manager!.postMessage({
 								workerId: workerData.workerId,
 								shardId,
-								type: "RECEIVE_PAYLOAD",
+								type: 'RECEIVE_PAYLOAD',
 								payload,
 							} satisfies WorkerReceivePayload);
 						},
@@ -78,32 +78,32 @@ export async function handleManagerMessages(
 				}
 
 				manager!.postMessage({
-					type: "CONNECT_QUEUE",
+					type: 'CONNECT_QUEUE',
 					shardId: id,
 					workerId: workerData.workerId,
 				} satisfies WorkerRequestConnect);
 			}
 		}
 		break;
-		case "SHARD_INFO": {
+		case 'SHARD_INFO': {
 			const shard = shards.get(data.shardId);
 			if (!shard) {
-				logger.fatal("Worker trying get non-existent shard");
+				logger.fatal('Worker trying get non-existent shard');
 				return;
 			}
 
 			manager!.postMessage({
 				...generateShardInfo(shard),
 				nonce: data.nonce,
-				type: "SHARD_INFO",
+				type: 'SHARD_INFO',
 			} satisfies WorkerSendShardInfo);
 		}
 		break;
-		case "WORKER_INFO": {
+		case 'WORKER_INFO': {
 			manager!.postMessage({
 				shards: [...shards.values()].map(generateShardInfo),
 				workerId: workerData.workerId,
-				type: "WORKER_INFO",
+				type: 'WORKER_INFO',
 				nonce: data.nonce,
 			} satisfies WorkerSendInfo);
 		}

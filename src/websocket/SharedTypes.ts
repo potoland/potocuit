@@ -57,12 +57,12 @@ import type {
 	GatewayWebhooksUpdateDispatchData,
 	PresenceUpdateStatus,
 	RestToKeys,
-} from "@biscuitland/common";
+} from '@biscuitland/common';
 
 /** https://discord.com/developers/docs/topics/gateway-events#update-presence */
 export interface StatusUpdate {
 	/** The user's activities */
-	activities?: Omit<GatewayActivity, "created_at" | "id">[];
+	activities?: Omit<GatewayActivity, 'created_at' | 'id'>[];
 	/** The user's new status */
 	status: PresenceUpdateStatus;
 }
@@ -79,7 +79,7 @@ export interface UpdateVoiceState {
 	self_deaf: boolean;
 }
 
-export type ShardStatusUpdate = Pick<GatewayPresenceUpdateData, "activities" | "status">;
+export type ShardStatusUpdate = Pick<GatewayPresenceUpdateData, 'activities' | 'status'>;
 
 export interface RequestGuildMembersOptions
 	extends GatewayRequestGuildMembersDataWithQuery,

@@ -1,8 +1,8 @@
-import type { APIMessageActionRowComponent, ComponentType } from "@biscuitland/common";
-import type { BiscuitREST } from "@biscuitland/rest";
-import type { BiscuitActionRowMessageComponents } from ".";
-import { componentFactory } from ".";
-import { BaseComponent } from "../structures/extra/BaseComponent";
+import type { APIMessageActionRowComponent, ComponentType } from '@biscuitland/common';
+import type { BiscuitREST } from '@biscuitland/rest';
+import type { BiscuitActionRowMessageComponents } from '.';
+import { componentFactory } from '.';
+import { BaseComponent } from '../structures/extra/BaseComponent';
 
 export class MessageActionRowComponent<
 	T extends BiscuitActionRowMessageComponents,

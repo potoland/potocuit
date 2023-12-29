@@ -3,13 +3,13 @@ import type {
 	APIAttachment,
 	APIInteractionDataResolved,
 	MakeRequired,
-} from "@biscuitland/common";
-import { ApplicationCommandOptionType } from "@biscuitland/common";
-import type { BaseClient } from "../client/base";
-import type { PotocuitChannels } from "../structures";
-import { GuildRole, InteractionGuildMember, User } from "../structures";
-import { BaseChannel } from "../structures/methods/channel/base";
-import type { Command, PotoCommandAutocompleteOption, PotoCommandOption, SubCommand } from "./commands";
+} from '@biscuitland/common';
+import { ApplicationCommandOptionType } from '@biscuitland/common';
+import type { BaseClient } from '../client/base';
+import type { PotocuitChannels } from '../structures';
+import { GuildRole, InteractionGuildMember, User } from '../structures';
+import { BaseChannel } from '../structures/methods/channel/base';
+import type { Command, PotoCommandAutocompleteOption, PotoCommandOption, SubCommand } from './commands';
 
 export class OptionResolver {
 	readonly options: OptionResolved[];
@@ -38,7 +38,7 @@ export class OptionResolver {
 
 	get fullCommandName() {
 		return `${this.parent?.name}${
-			this.group ? ` ${this.group} ${this.subCommand}` : this.subCommand ? ` ${this.subCommand}` : ""
+			this.group ? ` ${this.group} ${this.subCommand}` : this.subCommand ? ` ${this.subCommand}` : ''
 		}`;
 	}
 
@@ -113,10 +113,10 @@ export class OptionResolver {
 	private getTypedOption(name: string, allow: ApplicationCommandOptionType[]) {
 		const option = this.getHoisted(name);
 		if (!option) {
-			throw new Error("Bad Option");
+			throw new Error('Bad Option');
 		}
 		if (!allow.includes(option.type)) {
-			throw new Error("Bad Option");
+			throw new Error('Bad Option');
 		}
 		return option;
 	}
@@ -138,10 +138,10 @@ export class OptionResolver {
 			...option,
 		};
 
-		if ("value" in option) {
+		if ('value' in option) {
 			resolve.value = option.value;
 		}
-		if ("options" in option) {
+		if ('options' in option) {
 			resolve.options = option.options?.map((x) => this.transformOption(x, resolved));
 		}
 		if (resolved) {
@@ -190,7 +190,7 @@ export interface OptionResolved {
 	focused?: boolean;
 }
 
-export type OptionResolvedWithValue = MakeRequired<Pick<OptionResolved, "name" | "value" | "focused">, "value"> & {
+export type OptionResolvedWithValue = MakeRequired<Pick<OptionResolved, 'name' | 'value' | 'focused'>, 'value'> & {
 	type:
 		| ApplicationCommandOptionType.Boolean
 		| ApplicationCommandOptionType.Integer

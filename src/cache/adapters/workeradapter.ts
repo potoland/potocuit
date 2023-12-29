@@ -1,8 +1,8 @@
-import { randomUUID } from "crypto";
-import { type MessagePort, parentPort, workerData } from "worker_threads";
-import type { WorkerData } from "../../websocket";
-import type { WorkerSendCacheRequest } from "../../websocket/discord/worker";
-import type { Adapter } from "./types";
+import { randomUUID } from 'crypto';
+import { type MessagePort, parentPort, workerData } from 'worker_threads';
+import type { WorkerData } from '../../websocket';
+import type { WorkerSendCacheRequest } from '../../websocket/discord/worker';
+import type { Adapter } from './types';
 
 export class WorkerAdapter implements Adapter {
 	readonly storage = new Map<string, string>();
@@ -11,10 +11,10 @@ export class WorkerAdapter implements Adapter {
 
 	constructor(readonly parent: MessagePort) {}
 
-	protected send(method: WorkerSendCacheRequest["method"], ...args: any[]) {
+	protected send(method: WorkerSendCacheRequest['method'], ...args: any[]) {
 		const nonce = randomUUID();
 		parentPort!.postMessage({
-			type: "CACHE_REQUEST",
+			type: 'CACHE_REQUEST',
 			args,
 			nonce,
 			method,
@@ -28,7 +28,7 @@ export class WorkerAdapter implements Adapter {
 		const promise = new Promise<any>((res, rej) => {
 			resolve = res;
 			setTimeout(() => {
-				rej(new Error("Timeout cache request"));
+				rej(new Error('Timeout cache request'));
 			}, 3e3);
 		});
 
@@ -38,58 +38,58 @@ export class WorkerAdapter implements Adapter {
 	}
 
 	scan(...rest: any[]) {
-		return this.send("scan", ...rest);
+		return this.send('scan', ...rest);
 	}
 
 	get(...rest: any[]) {
-		return this.send("get", ...rest);
+		return this.send('get', ...rest);
 	}
 
 	set(...rest: any[]) {
-		return this.send("set", ...rest);
+		return this.send('set', ...rest);
 	}
 
 	patch(...rest: any[]) {
-		return this.send("patch", ...rest);
+		return this.send('patch', ...rest);
 	}
 
 	values(...rest: any[]) {
-		return this.send("values", ...rest);
+		return this.send('values', ...rest);
 	}
 
 	keys(...rest: any[]) {
-		return this.send("keys", ...rest);
+		return this.send('keys', ...rest);
 	}
 
 	count(...rest: any[]) {
-		return this.send("count", ...rest);
+		return this.send('count', ...rest);
 	}
 
 	remove(...rest: any[]) {
-		return this.send("remove", ...rest);
+		return this.send('remove', ...rest);
 	}
 
 	contains(...rest: any[]) {
-		return this.send("contains", ...rest);
+		return this.send('contains', ...rest);
 	}
 
 	getToRelationship(...rest: any[]) {
-		return this.send("getToRelationship", ...rest);
+		return this.send('getToRelationship', ...rest);
 	}
 
 	bulkAddToRelationShip(...rest: any[]) {
-		return this.send("bulkAddToRelationShip", ...rest);
+		return this.send('bulkAddToRelationShip', ...rest);
 	}
 
 	addToRelationship(...rest: any[]) {
-		return this.send("addToRelationship", ...rest);
+		return this.send('addToRelationship', ...rest);
 	}
 
 	removeToRelationship(...rest: any[]) {
-		return this.send("removeToRelationship", ...rest);
+		return this.send('removeToRelationship', ...rest);
 	}
 
 	removeRelationship(...rest: any[]) {
-		return this.send("removeRelationship", ...rest);
+		return this.send('removeRelationship', ...rest);
 	}
 }

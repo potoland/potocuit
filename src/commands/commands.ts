@@ -5,13 +5,13 @@ import type {
 	APIApplicationCommandSubcommandGroupOption,
 	APIAttachment,
 	LocaleString,
-} from "@biscuitland/common";
-import { ApplicationCommandOptionType, ApplicationCommandType } from "@biscuitland/common";
-import type { BaseClient } from "../client/base";
-import type { AutocompleteInteraction, GuildRole, InteractionGuildMember, PotocuitChannels, User } from "../structures";
-import type { CommandContext } from "./context";
-import type { Groups } from "./decorators";
-import type { OptionResolver } from "./optionresolver";
+} from '@biscuitland/common';
+import { ApplicationCommandOptionType, ApplicationCommandType } from '@biscuitland/common';
+import type { BaseClient } from '../client/base';
+import type { AutocompleteInteraction, GuildRole, InteractionGuildMember, PotocuitChannels, User } from '../structures';
+import type { CommandContext } from './context';
+import type { Groups } from './decorators';
+import type { OptionResolver } from './optionresolver';
 
 interface ReturnOptionsTypes {
 	1: never; // subcommand
@@ -54,7 +54,7 @@ type Wrap<N extends ApplicationCommandOptionType> = N extends
 					): void;
 			  }
 	  ) &
-			Omit<APIApplicationCommandBasicOption, "type" | "required" | "name"> &
+			Omit<APIApplicationCommandBasicOption, 'type' | 'required' | 'name'> &
 			(N extends
 				| ApplicationCommandOptionType.String
 				| ApplicationCommandOptionType.Number
@@ -93,13 +93,13 @@ export type PotoCommandOption = __PotoCommandOption & { name: string };
 export type OptionsRecord = Record<string, __PotoCommandOption>;
 
 export type ContextOptions<T extends OptionsRecord> = {
-	[K in keyof T]: T[K]["value"] extends (...args: any) => any
-		? T[K]["required"] extends true
-			? Parameters<Parameters<T[K]["value"]>[1]>[0]
-			: Parameters<Parameters<T[K]["value"]>[1]>[0]
-		: T[K]["required"] extends true
-		  ? ReturnOptionsTypes[T[K]["type"]]
-		  : ReturnOptionsTypes[T[K]["type"]] | undefined;
+	[K in keyof T]: T[K]['value'] extends (...args: any) => any
+		? T[K]['required'] extends true
+			? Parameters<Parameters<T[K]['value']>[1]>[0]
+			: Parameters<Parameters<T[K]['value']>[1]>[0]
+		: T[K]['required'] extends true
+		  ? ReturnOptionsTypes[T[K]['type']]
+		  : ReturnOptionsTypes[T[K]['type']] | undefined;
 };
 export type MiddlewareContext<T = any> = (context: {
 	context: CommandContext<any, {}, []>;
@@ -107,7 +107,7 @@ export type MiddlewareContext<T = any> = (context: {
 	stop: StopFunction;
 	pass: PassFunction;
 }) => any;
-export type MetadataMiddleware<T extends MiddlewareContext> = Parameters<Parameters<T>[0]["next"]>[0];
+export type MetadataMiddleware<T extends MiddlewareContext> = Parameters<Parameters<T>[0]['next']>[0];
 export type CommandMetadata<T extends Readonly<MiddlewareContext[]>> = T extends readonly [infer first, ...infer rest]
 	? first extends MiddlewareContext
 		? MetadataMiddleware<first> & (rest extends MiddlewareContext[] ? CommandMetadata<rest> : {})
@@ -205,7 +205,7 @@ class BaseCommand {
 		context: CommandContext<any>,
 		middlewares: readonly MiddlewareContext[],
 		global: boolean,
-	): Promise<[any, undefined] | [undefined, Error] | "pass"> {
+	): Promise<[any, undefined] | [undefined, Error] | 'pass'> {
 		if (!middlewares.length) {
 			return Promise.resolve([{}, undefined]);
 		}
@@ -219,7 +219,7 @@ class BaseCommand {
 					return;
 				}
 				running = false;
-				return res("pass");
+				return res('pass');
 			};
 			const next: NextFunction<any> = (obj) => {
 				if (!running) {
@@ -229,7 +229,7 @@ class BaseCommand {
 				if (++index >= middlewares.length) {
 					running = false;
 					// @ts-expect-error globalMetadata doesnt exist, but is used for global middlewares
-					context[global ? "globalMetadata" : "metadata"] = metadata;
+					context[global ? 'globalMetadata' : 'metadata'] = metadata;
 					return res([metadata, undefined]);
 				}
 				middlewares[index]({ context, next, stop, pass });
@@ -247,12 +247,12 @@ class BaseCommand {
 
 	// dont fucking touch.
 	/** @internal */
-	__runMiddlewares(context: CommandContext<"base", {}, []>) {
+	__runMiddlewares(context: CommandContext<'base', {}, []>) {
 		return BaseCommand.__runMiddlewares(context, this.middlewares, false);
 	}
 
 	/** @internal */
-	__runGlobalMiddlewares(context: CommandContext<"base", {}, []>) {
+	__runGlobalMiddlewares(context: CommandContext<'base', {}, []>) {
 		return BaseCommand.__runMiddlewares(context, context.client.options?.globalMiddlewares ?? [], true);
 	}
 
@@ -295,7 +295,7 @@ export class Command extends BaseCommand {
 
 		for (const i of this.options ?? []) {
 			if (!(i instanceof SubCommand)) {
-				options.push({ ...i, autocomplete: "autocomplete" in i } as APIApplicationCommandBasicOption);
+				options.push({ ...i, autocomplete: 'autocomplete' in i } as APIApplicationCommandBasicOption);
 				continue;
 			}
 			if (i.group) {
@@ -332,7 +332,7 @@ export abstract class SubCommand extends BaseCommand {
 		return {
 			...super.toJSON(),
 			options: (this.options ?? []).map(
-				(x) => ({ ...x, autocomplete: "autocomplete" in x }) as APIApplicationCommandBasicOption,
+				(x) => ({ ...x, autocomplete: 'autocomplete' in x }) as APIApplicationCommandBasicOption,
 			),
 		};
 	}

@@ -1,8 +1,8 @@
-import type { GatewayPresenceUpdate } from "@biscuitland/common";
-import { GuildRelatedResource } from "./default/guild-related";
+import type { GatewayPresenceUpdate } from '@biscuitland/common';
+import { GuildRelatedResource } from './default/guild-related';
 
 export class Presences extends GuildRelatedResource<PotoPresence> {
-	namespace = "presence";
+	namespace = 'presence';
 
 	override parse(data: any, key: string, guild_id: string): PotoPresence {
 		super.parse(data, key, guild_id);
@@ -12,4 +12,4 @@ export class Presences extends GuildRelatedResource<PotoPresence> {
 	}
 }
 
-export type PotoPresence = Omit<GatewayPresenceUpdate, "user"> & { id: string };
+export type PotoPresence = Omit<GatewayPresenceUpdate, 'user'> & { id: string };

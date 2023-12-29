@@ -11,14 +11,14 @@ import type {
 	ChannelType,
 	ObjectToLower,
 	ThreadAutoArchiveDuration,
-} from "@biscuitland/common";
-import { ChannelFlags, VideoQualityMode } from "@biscuitland/common";
-import { mix } from "ts-mixer";
-import type { StringToNumber, ToClass } from "../types/util";
-import { DiscordBase } from "./extra/DiscordBase";
-import { BaseChannel, BaseGuildChannel, TextBaseChannel } from "./methods/channel/base";
-import { ThreadOnlyMethods } from "./methods/channel/threadonly";
-import { TopicableGuildChannel } from "./methods/channel/topicable";
+} from '@biscuitland/common';
+import { ChannelFlags, VideoQualityMode } from '@biscuitland/common';
+import { mix } from 'ts-mixer';
+import type { StringToNumber, ToClass } from '../types/util';
+import { DiscordBase } from './extra/DiscordBase';
+import { BaseChannel, BaseGuildChannel, TextBaseChannel } from './methods/channel/base';
+import { ThreadOnlyMethods } from './methods/channel/threadonly';
+import { TopicableGuildChannel } from './methods/channel/topicable';
 
 export interface TextGuildChannel extends ObjectToLower<APITextChannel>, BaseGuildChannel, TextBaseChannel {}
 @mix(TextBaseChannel)
@@ -36,7 +36,7 @@ export interface DMChannel extends ObjectToLower<APIDMChannel>, BaseChannel<Chan
 @mix(TextBaseChannel)
 export class DMChannel extends DiscordBase {}
 
-export interface VoiceChannel extends ObjectToLower<APIGuildVoiceChannel>, Omit<TextGuildChannel, "type"> {}
+export interface VoiceChannel extends ObjectToLower<APIGuildVoiceChannel>, Omit<TextGuildChannel, 'type'> {}
 @mix(TextGuildChannel)
 export class VoiceChannel extends DiscordBase {
 	declare type: ChannelType.GuildVoice;
@@ -57,25 +57,25 @@ export class VoiceChannel extends DiscordBase {
 	}
 }
 
-export interface StageChannel extends ObjectToLower<APIGuildStageVoiceChannel>, Omit<VoiceChannel, "type"> {}
+export interface StageChannel extends ObjectToLower<APIGuildStageVoiceChannel>, Omit<VoiceChannel, 'type'> {}
 @mix(TopicableGuildChannel, VoiceChannel)
 export class StageChannel extends DiscordBase {
 	declare setTopic: (topic: string | null, reason?: string) => Promise<this>;
 }
 
-export interface MediaChannel extends ObjectToLower<APIGuildMediaChannel>, Omit<ThreadOnlyMethods, "type"> {}
+export interface MediaChannel extends ObjectToLower<APIGuildMediaChannel>, Omit<ThreadOnlyMethods, 'type'> {}
 @mix(ThreadOnlyMethods)
 export class MediaChannel extends DiscordBase {
 	declare type: ChannelType.GuildMedia;
 }
 
-export interface ForumChannel extends ObjectToLower<APIGuildForumChannel>, Omit<ThreadOnlyMethods, "type"> {}
+export interface ForumChannel extends ObjectToLower<APIGuildForumChannel>, Omit<ThreadOnlyMethods, 'type'> {}
 @mix(ThreadOnlyMethods)
 export class ForumChannel extends DiscordBase {
 	declare type: ChannelType.GuildForum;
 }
 
-export interface ThreadChannel extends ObjectToLower<APIThreadChannel>, Omit<TextGuildChannel, "type"> {}
+export interface ThreadChannel extends ObjectToLower<APIThreadChannel>, Omit<TextGuildChannel, 'type'> {}
 
 @mix(TextBaseChannel)
 export class ThreadChannel extends DiscordBase {
@@ -115,7 +115,7 @@ export class ThreadChannel extends DiscordBase {
 export interface CategoryChannel extends ObjectToLower<APIGuildCategoryChannel> {}
 
 export class CategoryChannel extends (BaseGuildChannel as unknown as ToClass<
-	Omit<BaseGuildChannel, "setParent" | "type">,
+	Omit<BaseGuildChannel, 'setParent' | 'type'>,
 	CategoryChannel
 >) {
 	declare type: ChannelType.GuildCategory;

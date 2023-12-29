@@ -1,19 +1,19 @@
-import { GatewayIntentBits } from "@biscuitland/common";
-import type { InternalRuntimeConfig, InternalRuntimeConfigHTTP, RuntimeConfig, RuntimeConfigHTTP } from "./client/base";
-import type { MiddlewareContext, __PotoCommandOption } from "./commands";
-import type { EventContext, IClientEvents, PotoNameEvents } from "./events";
-import { ChatInputCommandInteraction } from "./structures";
+import { GatewayIntentBits } from '@biscuitland/common';
+import type { InternalRuntimeConfig, InternalRuntimeConfigHTTP, RuntimeConfig, RuntimeConfigHTTP } from './client/base';
+import type { MiddlewareContext, __PotoCommandOption } from './commands';
+import type { EventContext, IClientEvents, PotoNameEvents } from './events';
+import { ChatInputCommandInteraction } from './structures';
 
-export * from "./cache";
-export * from "./client";
-export * from "./collection";
-export * from "./commands";
-export * from "./components";
-export * from "./events";
-export * from "./structures";
-export * from "./structures/extra/functions";
-export * from "./types";
-export * from "./websocket/discord/workermanager";
+export * from './cache';
+export * from './client';
+export * from './collection';
+export * from './commands';
+export * from './components';
+export * from './events';
+export * from './structures';
+export * from './structures/extra/functions';
+export * from './types';
+export * from './websocket/discord/workermanager';
 
 export function throwError(msg: string): never {
 	throw new Error(msg);
@@ -40,8 +40,8 @@ export const config = {
 		return {
 			...data,
 			intents:
-				"intents" in data
-					? typeof data.intents === "number"
+				'intents' in data
+					? typeof data.intents === 'number'
 						? data.intents
 						: data.intents?.reduce((pr, acc) => pr | GatewayIntentBits[acc], 0) ?? 0
 					: 0,

@@ -3,7 +3,7 @@ import type {
 	RESTGetAPIGuildMembersResult,
 	RESTGetAPIGuildMembersSearchQuery,
 	RESTPutAPIGuildMemberJSONBody,
-} from "@biscuitland/common";
+} from '@biscuitland/common';
 import {
 	type APIGuildMember,
 	type APIInteractionDataResolvedGuildMember,
@@ -14,8 +14,8 @@ import {
 	type ObjectToLower,
 	type RESTPatchAPIGuildMemberJSONBody,
 	type RESTPutAPIGuildBanJSONBody,
-} from "@biscuitland/common";
-import { DiscordBase } from "./extra/DiscordBase";
+} from '@biscuitland/common';
+import { DiscordBase } from './extra/DiscordBase';
 
 export type GuildMemberData =
 	| APIGuildMember
@@ -23,12 +23,12 @@ export type GuildMemberData =
 	| GatewayGuildMemberAddDispatchData
 	| APIInteractionDataResolvedGuildMember;
 
-import type { BaseClient } from "../client/base";
-import type { ImageOptions, MethodContext } from "../types/options";
-import type { GuildMemberResolvable } from "../types/resolvables";
-import { User } from "./User";
+import type { BaseClient } from '../client/base';
+import type { ImageOptions, MethodContext } from '../types/options';
+import type { GuildMemberResolvable } from '../types/resolvables';
+import { User } from './User';
 
-export interface GuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, "user"> {}
+export interface GuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user'> {}
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
@@ -96,10 +96,10 @@ export class GuildMember extends DiscordBase {
 	}
 
 	private patch(data: GuildMemberData) {
-		if ("joined_at" in data && data.joined_at) {
+		if ('joined_at' in data && data.joined_at) {
 			this.joinedTimestamp = Date.parse(data.joined_at);
 		}
-		if ("communication_disabled_until" in data) {
+		if ('communication_disabled_until' in data) {
 			this.communicationDisabledUntilTimestamp = data.communication_disabled_until?.length
 				? Date.parse(data.communication_disabled_until)
 				: null;
@@ -109,7 +109,7 @@ export class GuildMember extends DiscordBase {
 	static methods(ctx: MethodContext) {
 		return {
 			resolve: async (resolve: GuildMemberResolvable) => {
-				if (typeof resolve === "string") {
+				if (typeof resolve === 'string') {
 					const match: { id?: string } | undefined = resolve.match(FormattingPatterns.User)?.groups;
 					if (match?.id) {
 						return await this.methods(ctx).fetch(match.id);
@@ -150,15 +150,15 @@ export class GuildMember extends DiscordBase {
 			},
 			ban: async (id: string, body?: RESTPutAPIGuildBanJSONBody, reason?: string) => {
 				await ctx.api.guilds(ctx.id).bans(id).put({ reason, body });
-				await ctx.client.cache.members?.removeIfNI("GuildBans", id, ctx.id);
+				await ctx.client.cache.members?.removeIfNI('GuildBans', id, ctx.id);
 			},
 			kick: async (id: string, reason?: string) => {
 				await ctx.api.guilds(ctx.id).members(id).delete({ reason });
-				await ctx.client.cache.members?.removeIfNI("GuildMembers", id, ctx.id);
+				await ctx.client.cache.members?.removeIfNI('GuildMembers', id, ctx.id);
 			},
 			edit: async (id: string, body: RESTPatchAPIGuildMemberJSONBody, reason?: string) => {
 				const member = await ctx.api.guilds(ctx.id).members(id).patch({ body, reason });
-				await ctx.client.cache.members?.setIfNI("GuildMembers", id, ctx.id, member);
+				await ctx.client.cache.members?.setIfNI('GuildMembers', id, ctx.id, member);
 				return new GuildMember(ctx.client, member, member.user!, ctx.id);
 			},
 			add: async (id: string, body: RESTPutAPIGuildMemberJSONBody) => {
@@ -171,7 +171,7 @@ export class GuildMember extends DiscordBase {
 					return;
 				}
 
-				await ctx.client.cache.members?.setIfNI("GuildMembers", member.user!.id, ctx.id, member);
+				await ctx.client.cache.members?.setIfNI('GuildMembers', member.user!.id, ctx.id, member);
 
 				return new GuildMember(ctx.client, member, member.user!, ctx.id);
 			},

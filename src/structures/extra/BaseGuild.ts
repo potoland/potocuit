@@ -1,7 +1,7 @@
-import type { APIPartialGuild, ObjectToLower } from "@biscuitland/common";
-import { GuildFeature } from "@biscuitland/common";
-import type { ImageOptions } from "../../types/options";
-import { DiscordBase } from "./DiscordBase";
+import type { APIPartialGuild, ObjectToLower } from '@biscuitland/common';
+import { GuildFeature } from '@biscuitland/common';
+import type { ImageOptions } from '../../types/options';
+import { DiscordBase } from './DiscordBase';
 
 export interface BaseGuild extends ObjectToLower<APIPartialGuild> {}
 /**
@@ -31,7 +31,7 @@ export class BaseGuild extends DiscordBase<APIPartialGuild> {
 	 */
 	async fetch() {
 		const data = await this.api.guilds(this.id).get();
-		await this._patchCache(data, "guilds");
+		await this._patchCache(data, 'guilds');
 		return this;
 	}
 

@@ -1,10 +1,10 @@
-import type { GatewayIntentBits } from "@biscuitland/common";
-import type { BaseClient } from "../../../client/base";
-import type { Cache } from "../../index";
+import type { GatewayIntentBits } from '@biscuitland/common';
+import type { BaseClient } from '../../../client/base';
+import type { Cache } from '../../index';
 
 export class GuildRelatedResource<T = any> {
 	client!: BaseClient;
-	namespace = "base";
+	namespace = 'base';
 
 	constructor(protected cache: Cache, client?: BaseClient) {
 		if (client) {
@@ -88,7 +88,7 @@ export class GuildRelatedResource<T = any> {
 	}
 
 	async keys(guild: string): Promise<string[]> {
-		return guild === "*"
+		return guild === '*'
 			? await this.adapter.scan(this.hashId(guild), true)
 			: (async () => {
 					return (await this.adapter.getToRelationship(this.hashId(guild))).map((x) => `${this.namespace}.${x}`);
@@ -96,7 +96,7 @@ export class GuildRelatedResource<T = any> {
 	}
 
 	async values(guild: string): Promise<(T & { guild_id: string })[]> {
-		return guild === "*"
+		return guild === '*'
 			? await this.adapter.scan(this.hashId(guild))
 			: (async () => {
 					const keys = (await this.adapter.getToRelationship(this.hashId(guild))).map((x) => `${this.namespace}.${x}`);

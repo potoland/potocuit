@@ -1,9 +1,9 @@
-import type { APIEmoji } from "@biscuitland/common";
-import { GuildEmoji } from "../../structures";
-import { GuildRelatedResource } from "./default/guild-related";
+import type { APIEmoji } from '@biscuitland/common';
+import { GuildEmoji } from '../../structures';
+import { GuildRelatedResource } from './default/guild-related';
 
 export class Emojis extends GuildRelatedResource {
-	namespace = "emoji";
+	namespace = 'emoji';
 
 	override async get(id: string) {
 		const rawEmoji = (await super.get(id)) as APIEmoji & { id: string; guild_id: string };

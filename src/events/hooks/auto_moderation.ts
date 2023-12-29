@@ -4,9 +4,9 @@ import {
 	type GatewayAutoModerationRuleDeleteDispatchData,
 	type GatewayAutoModerationRuleUpdateDispatchData,
 	toCamelCase,
-} from "@biscuitland/common";
-import type { BaseClient } from "../../client/base";
-import { AutoModerationRule } from "../../structures";
+} from '@biscuitland/common';
+import type { BaseClient } from '../../client/base';
+import { AutoModerationRule } from '../../structures';
 
 export const AUTO_MODERATION_ACTION_EXECUTION = (
 	_self: BaseClient,

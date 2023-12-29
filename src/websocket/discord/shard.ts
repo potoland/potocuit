@@ -1,14 +1,14 @@
-import { inflateSync } from "node:zlib";
-import type { GatewayReceivePayload, GatewaySendPayload, Logger } from "@biscuitland/common";
-import { GatewayCloseCodes, GatewayDispatchEvents, GatewayOpcodes } from "@biscuitland/common";
-import type WS from "ws";
-import { type CloseEvent, WebSocket } from "ws";
-import { properties } from "../constants";
-import { DynamicBucket, PriorityQueue } from "../structures";
-import { ConnectTimeout } from "../structures/timeout";
-import { BaseSocket } from "./basesocket";
-import type { ShardData, ShardOptions } from "./shared";
-import { ShardSocketCloseCodes } from "./shared";
+import { inflateSync } from 'node:zlib';
+import type { GatewayReceivePayload, GatewaySendPayload, Logger } from '@biscuitland/common';
+import { GatewayCloseCodes, GatewayDispatchEvents, GatewayOpcodes } from '@biscuitland/common';
+import type WS from 'ws';
+import { type CloseEvent, WebSocket } from 'ws';
+import { properties } from '../constants';
+import { DynamicBucket, PriorityQueue } from '../structures';
+import { ConnectTimeout } from '../structures/timeout';
+import { BaseSocket } from './basesocket';
+import type { ShardData, ShardOptions } from './shared';
+import { ShardSocketCloseCodes } from './shared';
 
 export interface ShardHeart {
 	interval: number;
@@ -75,7 +75,7 @@ export class Shard {
 
 		this.logger.debug(`[Shard #${this.id}] Connecting to ${this.currentGatewayURL}`);
 
-		this.websocket = new BaseSocket("ws", this.currentGatewayURL);
+		this.websocket = new BaseSocket('ws', this.currentGatewayURL);
 
 		this.websocket!.onmessage = (event) => this.handleMessage(event);
 
@@ -129,11 +129,11 @@ export class Shard {
 
 	async heartbeat(requested: boolean) {
 		this.logger.debug(
-			`[Shard #${this.id}] Sending ${requested ? "" : "un"}requested heartbeat (Ack=${this.heart.ack})`,
+			`[Shard #${this.id}] Sending ${requested ? '' : 'un'}requested heartbeat (Ack=${this.heart.ack})`,
 		);
 		if (!requested) {
 			if (!this.heart.ack) {
-				await this.close(ShardSocketCloseCodes.ZombiedConnection, "Zombied connection");
+				await this.close(ShardSocketCloseCodes.ZombiedConnection, 'Zombied connection');
 				return;
 			}
 			this.heart.ack = false;
@@ -151,7 +151,7 @@ export class Shard {
 
 	async disconnect() {
 		this.logger.info(`[Shard #${this.id}] Disconnecting`);
-		await this.close(ShardSocketCloseCodes.Shutdown, "Shard down request");
+		await this.close(ShardSocketCloseCodes.Shutdown, 'Shard down request');
 	}
 
 	async reconnect() {
@@ -266,9 +266,9 @@ export class Shard {
 
 	async close(code: number, reason: string) {
 		if (this.websocket?.readyState !== WebSocket.OPEN) {
-			return this.logger.warn(`${new Error("418").stack} [Shard #${this.id}] Is not open`);
+			return this.logger.warn(`${new Error('418').stack} [Shard #${this.id}] Is not open`);
 		}
-		this.logger.warn(`${new Error("418").stack} [Shard #${this.id}] Called close`);
+		this.logger.warn(`${new Error('418').stack} [Shard #${this.id}] Called close`);
 		this.websocket?.close(code, reason);
 	}
 
@@ -283,7 +283,7 @@ export class Shard {
 		 *  data: "Already authenticated."
 		 * }
 		 */
-		if ((data as string).startsWith("{")) {
+		if ((data as string).startsWith('{')) {
 			data = JSON.parse(data as string);
 		}
 

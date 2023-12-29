@@ -1,13 +1,13 @@
-import type { GatewayPresenceUpdateData, LocaleString } from "@biscuitland/common";
-import { type GatewayDispatchPayload } from "@biscuitland/common";
-import type { BiscuitREST } from "@biscuitland/rest";
-import type { Adapter, Cache } from "../cache";
-import { PotoEventHandler } from "../events";
-import { DeepPartial } from "../types";
-import { ShardManager } from "../websocket";
-import type { BaseClientOptions, InternalRuntimeConfig, StartOptions } from "./base";
-import { BaseClient } from "./base";
-import { onInteraction } from "./oninteraction";
+import type { GatewayPresenceUpdateData, LocaleString } from '@biscuitland/common';
+import { type GatewayDispatchPayload } from '@biscuitland/common';
+import type { BiscuitREST } from '@biscuitland/rest';
+import type { Adapter, Cache } from '../cache';
+import { PotoEventHandler } from '../events';
+import { DeepPartial } from '../types';
+import { ShardManager } from '../websocket';
+import type { BaseClientOptions, InternalRuntimeConfig, StartOptions } from './base';
+import { BaseClient } from './base';
+import { onInteraction } from './oninteraction';
 
 export class PotoClient extends BaseClient {
 	gateway!: ShardManager;
@@ -26,7 +26,7 @@ export class PotoClient extends BaseClient {
 	}: {
 		rest?: BiscuitREST;
 		gateway?: ShardManager;
-		cache?: { adapter: Adapter; disabledCache?: Cache["disabledCache"] };
+		cache?: { adapter: Adapter; disabledCache?: Cache['disabledCache'] };
 		defaultLang?: LocaleString;
 	}) {
 		super.setServices({ rest, cache, defaultLang });
@@ -45,7 +45,7 @@ export class PotoClient extends BaseClient {
 		dir ??= await this.getRC().then((x) => x.events);
 		if (dir) {
 			await this.events.load(dir);
-			this.logger.info("PotoEventHandler loaded");
+			this.logger.info('PotoEventHandler loaded');
 		}
 	}
 
@@ -54,7 +54,7 @@ export class PotoClient extends BaseClient {
 		await this.gateway.spawnShards();
 	}
 
-	async start(options: Omit<DeepPartial<StartOptions>, "httpConnection"> = {}, execute = true) {
+	async start(options: Omit<DeepPartial<StartOptions>, 'httpConnection'> = {}, execute = true) {
 		await super.start(options);
 		await this.loadEvents(options.eventsDir);
 
@@ -63,7 +63,7 @@ export class PotoClient extends BaseClient {
 		const intents = options?.connection?.intents ?? intentsRC;
 
 		if (!this.gateway) {
-			BaseClient.assertString(token, "token is not a string");
+			BaseClient.assertString(token, 'token is not a string');
 			this.gateway = new ShardManager({
 				token,
 				info: await this.proxy.gateway.bot.get(),
@@ -89,12 +89,12 @@ export class PotoClient extends BaseClient {
 		await this.cache.onPacket(packet);
 		await this.events.execute(packet.t, packet, this, shardId);
 		switch (packet.t) {
-			case "READY":
+			case 'READY':
 				this.botId = packet.d.user.id;
 				this.applicationId = packet.d.application.id;
 				this.debugger.debug(`#${shardId}[ ${packet.d.user.username}](${this.botId}) is online...`);
 				break;
-			case "INTERACTION_CREATE": {
+			case 'INTERACTION_CREATE': {
 				await onInteraction(shardId, packet.d, this);
 				break;
 			}

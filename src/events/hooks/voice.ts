@@ -1,7 +1,7 @@
-import type { GatewayVoiceServerUpdateDispatchData, GatewayVoiceStateUpdateDispatchData } from "@biscuitland/common";
-import { toCamelCase } from "@biscuitland/common";
-import type { BaseClient } from "../../client/base";
-import { GuildMember } from "../../structures";
+import type { GatewayVoiceServerUpdateDispatchData, GatewayVoiceStateUpdateDispatchData } from '@biscuitland/common';
+import { toCamelCase } from '@biscuitland/common';
+import type { BaseClient } from '../../client/base';
+import { GuildMember } from '../../structures';
 
 export const VOICE_SERVER_UPDATE = (_self: BaseClient, data: GatewayVoiceServerUpdateDispatchData) => {
 	return toCamelCase(data);

@@ -1,14 +1,14 @@
-import { type GatewayDispatchEvents, type GatewayDispatchPayload, ReplaceRegex } from "@biscuitland/common";
-import type { PotoClient, WorkerClient } from "../client";
-import * as RawEvents from "../events/hooks/index";
-import { PotoHandler } from "../utils";
-import type { PotocuitEvent } from "./event";
+import { type GatewayDispatchEvents, type GatewayDispatchPayload, ReplaceRegex } from '@biscuitland/common';
+import type { PotoClient, WorkerClient } from '../client';
+import * as RawEvents from '../events/hooks/index';
+import { PotoHandler } from '../utils';
+import type { PotocuitEvent } from './event';
 
 type OnFailCallback = (error: unknown) => Promise<any>;
 
 export class PotoEventHandler extends PotoHandler {
 	protected onFail?: OnFailCallback;
-	protected filter = (path: string) => path.endsWith(".js");
+	protected filter = (path: string) => path.endsWith('.js');
 
 	values: Partial<Record<GatewayDispatchEvents, PotocuitEvent & { fired?: boolean }>> = {};
 

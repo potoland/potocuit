@@ -1,32 +1,32 @@
-import { join } from "node:path";
-import type { LocaleString, MakeRequired } from "@biscuitland/common";
-import { LogLevels, Logger } from "@biscuitland/common";
-import { BiscuitREST, Router } from "@biscuitland/rest";
-import type { Adapter } from "../cache";
-import { Cache, DefaultMemoryAdapter } from "../cache";
-import type { MiddlewareContext } from "../commands";
-import { PotoCommandHandler } from "../commands/handler";
-import { ComponentHandler } from "../components/handler";
-import { PotoLangsHandler } from "../langs/handler";
-import { ChatInputCommandInteraction } from "../structures";
-import type { DeepPartial, IntentStrings, OmitInsert } from "../types/util";
-import { filterSplit } from "../utils";
-import type { PotoClient } from "./client";
-import type { PotoHttpClient } from "./httpclient";
-import type { WorkerClient } from "./workerclient";
+import { join } from 'node:path';
+import type { LocaleString, MakeRequired } from '@biscuitland/common';
+import { LogLevels, Logger } from '@biscuitland/common';
+import { BiscuitREST, Router } from '@biscuitland/rest';
+import type { Adapter } from '../cache';
+import { Cache, DefaultMemoryAdapter } from '../cache';
+import type { MiddlewareContext } from '../commands';
+import { PotoCommandHandler } from '../commands/handler';
+import { ComponentHandler } from '../components/handler';
+import { PotoLangsHandler } from '../langs/handler';
+import { ChatInputCommandInteraction } from '../structures';
+import type { DeepPartial, IntentStrings, OmitInsert } from '../types/util';
+import { filterSplit } from '../utils';
+import type { PotoClient } from './client';
+import type { PotoHttpClient } from './httpclient';
+import type { WorkerClient } from './workerclient';
 
 export class BaseClient {
 	rest!: BiscuitREST;
 	cache!: Cache;
 
 	debugger = new Logger({
-		name: "[Debug]",
+		name: '[Debug]',
 		active: false,
 		logLevel: LogLevels.Debug,
 	});
 
 	logger = new Logger({
-		name: "@potoland/core",
+		name: '@potoland/core',
 		active: true,
 		logLevel: LogLevels.Info,
 	});
@@ -39,13 +39,13 @@ export class BaseClient {
 	private _botId?: string;
 
 	protected static assertString(value: unknown, message?: string): asserts value is string {
-		if (!(typeof value === "string" && value !== "")) {
-			throw new Error(message ?? "Value is not a string");
+		if (!(typeof value === 'string' && value !== '')) {
+			throw new Error(message ?? 'Value is not a string');
 		}
 	}
 
 	protected static getBotIdFromToken(token: string): string {
-		return Buffer.from(token.split(".")[0], "base64").toString("ascii");
+		return Buffer.from(token.split('.')[0], 'base64').toString('ascii');
 	}
 
 	options: BaseClientOptions | undefined;
@@ -80,7 +80,7 @@ export class BaseClient {
 		defaultLang,
 	}: {
 		rest?: BiscuitREST;
-		cache?: { adapter: Adapter; disabledCache?: Cache["disabledCache"] };
+		cache?: { adapter: Adapter; disabledCache?: Cache['disabledCache'] };
 		defaultLang?: LocaleString;
 	}) {
 		if (rest) {
@@ -102,7 +102,7 @@ export class BaseClient {
 	}
 
 	async start(
-		options: Pick<DeepPartial<StartOptions>, "langsDir" | "commandsDir" | "connection" | "token" | "componentsDir"> = {
+		options: Pick<DeepPartial<StartOptions>, 'langsDir' | 'commandsDir' | 'connection' | 'token' | 'componentsDir'> = {
 			token: undefined,
 			langsDir: undefined,
 			commandsDir: undefined,
@@ -118,7 +118,7 @@ export class BaseClient {
 		const token = options?.token ?? tokenRC;
 
 		if (!this.rest) {
-			BaseClient.assertString(token, "token is not a string");
+			BaseClient.assertString(token, 'token is not a string');
 			this.rest = new BiscuitREST({
 				token,
 			});
@@ -132,12 +132,12 @@ export class BaseClient {
 	}
 
 	protected async onPacket(..._packet: unknown[]) {
-		throw new Error("Function not implemented");
+		throw new Error('Function not implemented');
 	}
 
 	async uploadCommands(applicationId?: string) {
 		applicationId ??= await this.getRC().then((x) => x.applicationId ?? this.applicationId);
-		BaseClient.assertString(applicationId, "applicationId is not a string");
+		BaseClient.assertString(applicationId, 'applicationId is not a string');
 
 		const commands = this.commands.values.map((x) => x.toJSON());
 		const filter = filterSplit(commands, (command) => !command.guild_id);
@@ -168,14 +168,14 @@ export class BaseClient {
 		dir ??= await this.getRC().then((x) => x.commands);
 		BaseClient.assertString(dir);
 		await this.commands.load(dir, this);
-		this.logger.info("PotoCommandHandler loaded");
+		this.logger.info('PotoCommandHandler loaded');
 	}
 
 	async loadComponents(dir?: string) {
 		dir ??= await this.getRC().then((x) => x.components);
 		if (dir) {
 			await this.components.load(dir);
-			this.logger.info("PotoComponentHandler loaded");
+			this.logger.info('PotoComponentHandler loaded');
 		}
 	}
 
@@ -183,14 +183,14 @@ export class BaseClient {
 		dir ??= await this.getRC().then((x) => x.langs);
 		if (dir) {
 			await this.langs.load(dir);
-			this.logger.info("PotoLangsHandler loaded");
+			this.logger.info('PotoLangsHandler loaded');
 		}
 	}
 
 	async getRC<
 		T extends InternalRuntimeConfigHTTP | InternalRuntimeConfig = InternalRuntimeConfigHTTP | InternalRuntimeConfig,
 	>() {
-		const { locations, debug, ...env } = (await import(join(process.cwd(), "poto.config.js")).then(
+		const { locations, debug, ...env } = (await import(join(process.cwd(), 'poto.config.js')).then(
 			(x) => x.default,
 		)) as T;
 
@@ -200,7 +200,7 @@ export class BaseClient {
 			langs: locations.langs ? join(process.cwd(), locations.langs) : undefined,
 			templates: locations.templates ? join(process.cwd(), locations.base, locations.templates) : undefined,
 			events:
-				"events" in locations && locations.events ? join(process.cwd(), locations.output, locations.events) : undefined,
+				'events' in locations && locations.events ? join(process.cwd(), locations.output, locations.events) : undefined,
 			components: locations.components ? join(process.cwd(), locations.output, locations.components) : undefined,
 			base: join(process.cwd(), locations.base),
 			output: join(process.cwd(), locations.output),
@@ -246,15 +246,15 @@ export interface Variables {
 }
 
 export type InternalRuntimeConfigHTTP = Omit<
-	MakeRequired<RC, "publicKey" | "port" | "applicationId">,
-	"intents" | "locations"
-> & { locations: Omit<RC["locations"], "events"> };
-export type RuntimeConfigHTTP = Omit<MakeRequired<RC, "publicKey" | "applicationId">, "intents" | "locations"> & {
-	locations: Omit<RC["locations"], "events">;
+	MakeRequired<RC, 'publicKey' | 'port' | 'applicationId'>,
+	'intents' | 'locations'
+> & { locations: Omit<RC['locations'], 'events'> };
+export type RuntimeConfigHTTP = Omit<MakeRequired<RC, 'publicKey' | 'applicationId'>, 'intents' | 'locations'> & {
+	locations: Omit<RC['locations'], 'events'>;
 };
 
-export type InternalRuntimeConfig = Omit<MakeRequired<RC, "intents">, "publicKey" | "port">;
-export type RuntimeConfig = OmitInsert<InternalRuntimeConfig, "intents", { intents?: IntentStrings | number }>;
+export type InternalRuntimeConfig = Omit<MakeRequired<RC, 'intents'>, 'publicKey' | 'port'>;
+export type RuntimeConfig = OmitInsert<InternalRuntimeConfig, 'intents', { intents?: IntentStrings | number }>;
 
 export interface IClients {
 	base: BaseClient;

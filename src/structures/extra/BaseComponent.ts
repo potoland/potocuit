@@ -1,4 +1,4 @@
-import type { APIBaseComponent, ComponentType } from "@biscuitland/common";
+import type { APIBaseComponent, ComponentType } from '@biscuitland/common';
 
 export interface BaseComponent<T extends ComponentType> extends APIBaseComponent<T> {}
 

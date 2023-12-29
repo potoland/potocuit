@@ -4,28 +4,28 @@ import type {
 	APIMessageActionRowComponent,
 	APIModalInteractionResponseCallbackData,
 	Logger,
-} from "@biscuitland/common";
-import { InteractionResponseType } from "@biscuitland/common";
-import type { BaseClient } from "../client/base";
-import { Collection } from "../collection";
-import type { ComponentInteraction, ModalSubmitInteraction, ReplyInteractionBody } from "../structures";
+} from '@biscuitland/common';
+import { InteractionResponseType } from '@biscuitland/common';
+import type { BaseClient } from '../client/base';
+import { Collection } from '../collection';
+import type { ComponentInteraction, ModalSubmitInteraction, ReplyInteractionBody } from '../structures';
 import type {
 	InteractionMessageUpdateBodyRequest,
 	MessageCreateBodyRequest,
 	MessageUpdateBodyRequest,
 	ModalCreateBodyRequest,
-} from "../types/write";
-import { PotoHandler } from "../utils";
-import type { ActionRow, ComponentCallback, ModalSubmitCallback, PotoComponents } from "./builders";
-import type { ModalCommand } from "./command";
-import { ComponentCommand, InteractionCommandType } from "./command";
+} from '../types/write';
+import { PotoHandler } from '../utils';
+import type { ActionRow, ComponentCallback, ModalSubmitCallback, PotoComponents } from './builders';
+import type { ModalCommand } from './command';
+import { ComponentCommand, InteractionCommandType } from './command';
 
 export class ComponentHandler extends PotoHandler {
 	readonly values = new Map<string, Partial<Record<string, ComponentCallback>>>();
 	// 10 minutes timeout, because discord dont send an event when the user cancel the modal
 	readonly modals = new Collection<string, ModalSubmitCallback>({ expire: 60e3 * 10 });
 	readonly commands: (ComponentCommand | ModalCommand)[] = [];
-	protected filter = (path: string) => path.endsWith(".js");
+	protected filter = (path: string) => path.endsWith('.js');
 
 	constructor(logger: Logger, protected client: BaseClient) {
 		super(logger);
@@ -58,7 +58,7 @@ export class ComponentHandler extends PotoHandler {
 
 		for (const actionRow of record) {
 			for (const child of actionRow.components) {
-				if ("data" in child && "custom_id" in child.data && "__exec" in child) {
+				if ('data' in child && 'custom_id' in child.data && '__exec' in child) {
 					components[child.data.custom_id!] = child.__exec as ComponentCallback;
 				}
 			}
@@ -70,7 +70,7 @@ export class ComponentHandler extends PotoHandler {
 	}
 
 	protected __setModal(id: string, record: APIModalInteractionResponseCallbackData | ModalCreateBodyRequest) {
-		if ("__exec" in record) {
+		if ('__exec' in record) {
 			this.modals.set(id, record.__exec!);
 		}
 	}

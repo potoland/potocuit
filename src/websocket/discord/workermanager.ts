@@ -1,15 +1,15 @@
-import { randomUUID } from "crypto";
-import { setTimeout as delay } from "node:timers/promises";
-import { join } from "path";
-import type { GatewayPresenceUpdateData, GatewaySendPayload } from "@biscuitland/common";
-import { Logger } from "@biscuitland/common";
-import { Worker } from "worker_threads";
-import { type Adapter, DefaultMemoryAdapter } from "../../cache";
-import { Options } from "../../utils";
-import { WorkerManagerDefaults } from "../constants";
-import { SequentialBucket } from "../structures";
-import type { ShardOptions, WorkerData, WorkerManagerOptions } from "./shared";
-import type { WorkerInfo, WorkerMessage, WorkerShardInfo } from "./worker";
+import { randomUUID } from 'crypto';
+import { setTimeout as delay } from 'node:timers/promises';
+import { join } from 'path';
+import type { GatewayPresenceUpdateData, GatewaySendPayload } from '@biscuitland/common';
+import { Logger } from '@biscuitland/common';
+import { Worker } from 'worker_threads';
+import { type Adapter, DefaultMemoryAdapter } from '../../cache';
+import { Options } from '../../utils';
+import { WorkerManagerDefaults } from '../constants';
+import { SequentialBucket } from '../structures';
+import type { ShardOptions, WorkerData, WorkerManagerOptions } from './shared';
+import type { WorkerInfo, WorkerMessage, WorkerShardInfo } from './worker';
 
 export class WorkersManger extends Map<number, Worker> {
 	options: Required<WorkerManagerOptions>;
@@ -27,7 +27,7 @@ export class WorkersManger extends Map<number, Worker> {
 
 		this.logger = new Logger({
 			active: this.options.debug,
-			name: "[WorkerManager]",
+			name: '[WorkerManager]',
 		});
 
 		if (this.totalShards / this.shardsPerWorker > this.workers) {
@@ -70,7 +70,7 @@ export class WorkersManger extends Map<number, Worker> {
 	}
 
 	async syncLatency({ shardId, workerId }: { shardId?: number; workerId?: number }) {
-		if (typeof shardId !== "number" && typeof workerId !== "number") {
+		if (typeof shardId !== 'number' && typeof workerId !== 'number') {
 			return;
 		}
 
@@ -92,13 +92,13 @@ export class WorkersManger extends Map<number, Worker> {
 	calculateWorkerId(shardId: number) {
 		const workerId = Math.floor(shardId / this.shardsPerWorker);
 		if (workerId >= this.workers) {
-			throw new Error("Invalid shardId");
+			throw new Error('Invalid shardId');
 		}
 		return workerId;
 	}
 
 	prepareSpaces() {
-		this.logger.info("Preparing buckets");
+		this.logger.info('Preparing buckets');
 
 		const chunks = SequentialBucket.chunk<number>(new Array(this.options.totalShards), this.options.shardsPerWorker);
 
@@ -118,7 +118,7 @@ export class WorkersManger extends Map<number, Worker> {
 			let worker = this.get(i);
 			if (!worker) {
 				worker = this.createWorker({
-					path: this.options.path ?? `${join(__dirname, "./worker.js")}`,
+					path: this.options.path ?? `${join(__dirname, './worker.js')}`,
 					debug: this.options.debug,
 					token: this.options.token,
 					shards: shards[i],
@@ -129,7 +129,7 @@ export class WorkersManger extends Map<number, Worker> {
 			}
 			console.log(this.options.info);
 			worker.postMessage({
-				type: "SPAWN_SHARDS",
+				type: 'SPAWN_SHARDS',
 				compress: this.options.compress ?? false,
 				info: this.options.info,
 				properties: this.options.properties,
@@ -141,7 +141,7 @@ export class WorkersManger extends Map<number, Worker> {
 	createWorker(workerData: WorkerData) {
 		const worker = new Worker(workerData.path, { workerData });
 
-		worker.on("message", (data) => this.handleWorkerMessage(data));
+		worker.on('message', (data) => this.handleWorkerMessage(data));
 
 		return worker;
 	}
@@ -155,7 +155,7 @@ export class WorkersManger extends Map<number, Worker> {
 			}
 
 			worker.postMessage({
-				type: "ALLOW_CONNECT",
+				type: 'ALLOW_CONNECT',
 				shardId,
 				presence: this.options.presence(shardId, workerId),
 			} satisfies ManagerAllowConnect);
@@ -164,28 +164,28 @@ export class WorkersManger extends Map<number, Worker> {
 
 	async handleWorkerMessage(message: WorkerMessage) {
 		switch (message.type) {
-			case "CONNECT_QUEUE":
+			case 'CONNECT_QUEUE':
 				this.spawn(message.workerId, message.shardId);
 				break;
-			case "CACHE_REQUEST": {
+			case 'CACHE_REQUEST': {
 				const worker = this.get(message.workerId);
 				if (!worker) {
-					throw new Error("Invalid request from unavailable worker");
+					throw new Error('Invalid request from unavailable worker');
 				}
 				// @ts-expect-error
 				const result = await this.cacheAdapter[message.method](...message.args);
 				worker.postMessage({
-					type: "CACHE_RESULT",
+					type: 'CACHE_RESULT',
 					nonce: message.nonce,
 					result,
 				} as ManagerSendCacheResult);
 			}
 			break;
-			case "RECEIVE_PAYLOAD": {
+			case 'RECEIVE_PAYLOAD': {
 				this.options.handlePayload(message.shardId, message.workerId, message.payload);
 			}
 			break;
-			case "RESULT_PAYLOAD": {
+			case 'RESULT_PAYLOAD': {
 				const resolve = this.promises.get(message.nonce);
 				if (!resolve) {
 					return;
@@ -194,7 +194,7 @@ export class WorkersManger extends Map<number, Worker> {
 				resolve(true);
 			}
 			break;
-			case "SHARD_INFO": {
+			case 'SHARD_INFO': {
 				const { nonce, type, ...data } = message;
 				const resolve = this.promises.get(nonce);
 				if (!resolve) {
@@ -203,7 +203,7 @@ export class WorkersManger extends Map<number, Worker> {
 				resolve(data);
 			}
 			break;
-			case "WORKER_INFO": {
+			case 'WORKER_INFO': {
 				const { nonce, type, ...data } = message;
 				const resolve = this.promises.get(nonce);
 				if (!resolve) {
@@ -216,10 +216,10 @@ export class WorkersManger extends Map<number, Worker> {
 
 	private generateNonce(large = true) {
 		const nonce = randomUUID();
-		return large ? nonce : nonce.split("-")[0];
+		return large ? nonce : nonce.split('-')[0];
 	}
 
-	private generateSendPromise<T = unknown>(nonce: string, message = "Timeout") {
+	private generateSendPromise<T = unknown>(nonce: string, message = 'Timeout') {
 		let resolve = (_: T) => {
 			/**/
 		};
@@ -247,13 +247,13 @@ export class WorkersManger extends Map<number, Worker> {
 		const nonce = this.generateNonce();
 
 		worker.postMessage({
-			type: "SEND_PAYLOAD",
+			type: 'SEND_PAYLOAD',
 			shardId,
 			nonce,
 			...data,
 		} satisfies ManagerSendPayload);
 
-		return this.generateSendPromise<true>(nonce, "Shard send payload timeout");
+		return this.generateSendPromise<true>(nonce, 'Shard send payload timeout');
 	}
 
 	async getShardInfo(shardId: number) {
@@ -266,9 +266,9 @@ export class WorkersManger extends Map<number, Worker> {
 
 		const nonce = this.generateNonce(false);
 
-		worker.postMessage({ shardId, nonce, type: "SHARD_INFO" } satisfies ManagerRequestShardInfo);
+		worker.postMessage({ shardId, nonce, type: 'SHARD_INFO' } satisfies ManagerRequestShardInfo);
 
-		return this.generateSendPromise<WorkerShardInfo>(nonce, "Get shard info timeout");
+		return this.generateSendPromise<WorkerShardInfo>(nonce, 'Get shard info timeout');
 	}
 
 	async getWorkerInfo(workerId: number) {
@@ -280,9 +280,9 @@ export class WorkersManger extends Map<number, Worker> {
 
 		const nonce = this.generateNonce();
 
-		worker.postMessage({ nonce, type: "WORKER_INFO" } satisfies ManagerRequestWorkerInfo);
+		worker.postMessage({ nonce, type: 'WORKER_INFO' } satisfies ManagerRequestWorkerInfo);
 
-		return this.generateSendPromise<WorkerInfo>(nonce, "Get worker info timeout");
+		return this.generateSendPromise<WorkerInfo>(nonce, 'Get worker info timeout');
 	}
 
 	async start() {
@@ -294,20 +294,20 @@ export class WorkersManger extends Map<number, Worker> {
 type CreateManagerMessage<T extends string, D extends object = {}> = { type: T } & D;
 
 export type ManagerAllowConnect = CreateManagerMessage<
-	"ALLOW_CONNECT",
+	'ALLOW_CONNECT',
 	{ shardId: number; presence: GatewayPresenceUpdateData }
 >;
 export type ManagerSpawnShards = CreateManagerMessage<
-	"SPAWN_SHARDS",
-	Pick<ShardOptions, "info" | "properties" | "compress">
+	'SPAWN_SHARDS',
+	Pick<ShardOptions, 'info' | 'properties' | 'compress'>
 >;
 export type ManagerSendPayload = CreateManagerMessage<
-	"SEND_PAYLOAD",
+	'SEND_PAYLOAD',
 	GatewaySendPayload & { shardId: number; nonce: string }
 >;
-export type ManagerRequestShardInfo = CreateManagerMessage<"SHARD_INFO", { nonce: string; shardId: number }>;
-export type ManagerRequestWorkerInfo = CreateManagerMessage<"WORKER_INFO", { nonce: string }>;
-export type ManagerSendCacheResult = CreateManagerMessage<"CACHE_RESULT", { nonce: string; result: any }>;
+export type ManagerRequestShardInfo = CreateManagerMessage<'SHARD_INFO', { nonce: string; shardId: number }>;
+export type ManagerRequestWorkerInfo = CreateManagerMessage<'WORKER_INFO', { nonce: string }>;
+export type ManagerSendCacheResult = CreateManagerMessage<'CACHE_RESULT', { nonce: string; result: any }>;
 
 export type ManagerMessages =
 	| ManagerAllowConnect
