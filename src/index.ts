@@ -1,8 +1,9 @@
 import { GatewayIntentBits } from '@biscuitland/common';
 import type { InternalRuntimeConfig, InternalRuntimeConfigHTTP, RuntimeConfig, RuntimeConfigHTTP } from './client/base';
-import type { MiddlewareContext, __PotoCommandOption } from './commands';
+import type { CommandContext, __PotoCommandOption } from './commands';
+import { MiddlewareContext } from './commands/applications/shared';
 import type { EventContext, IClientEvents, PotoNameEvents } from './events';
-import { ChatInputCommandInteraction } from './structures';
+import { ChatInputCommandInteraction, MessageCommandInteraction, UserCommandInteraction } from './structures';
 
 export * from './cache';
 export * from './client';
@@ -24,7 +25,7 @@ export function createOption<T extends __PotoCommandOption = __PotoCommandOption
 	return data;
 }
 
-export function createMiddleware<M, T = MiddlewareContext<M>>(data: T) {
+export function createMiddleware<M, T = MiddlewareContext<M, CommandContext<'base'>>>(data: T) {
 	return data;
 }
 
@@ -55,6 +56,6 @@ export const config = {
 	},
 };
 
-export function extendContext<T extends {}>(cb: (interaction: ChatInputCommandInteraction) => T) {
+export function extendContext<T extends {}>(cb: (interaction: ChatInputCommandInteraction | UserCommandInteraction | MessageCommandInteraction) => T) {
 	return cb;
 }

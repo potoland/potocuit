@@ -1,11 +1,12 @@
-import { basename, dirname } from 'node:path';
 import type { LocaleString, Logger } from '@biscuitland/common';
+import { basename, dirname } from 'node:path';
 import type { BaseClient } from '../client/base';
 import { PotoHandler } from '../utils';
-import { Command, SubCommand } from './commands';
+import { Command, SubCommand } from './applications/chat';
+import { ContextMenuCommand } from './applications/menu';
 
 export class PotoCommandHandler extends PotoHandler {
-	values: Command[] = [];
+	values: (Command | ContextMenuCommand)[] = [];
 	protected filter = (path: string) => path.endsWith('.js');
 
 	constructor(protected logger: Logger) {
@@ -37,6 +38,11 @@ export class PotoCommandHandler extends PotoHandler {
 
 		for (const command of result) {
 			const commandInstance = new command.file();
+			if (commandInstance instanceof ContextMenuCommand) {
+				this.values.push(commandInstance)
+				console.log(commandInstance)
+				continue;
+			}
 			if (!(commandInstance instanceof Command)) {
 				continue;
 			}

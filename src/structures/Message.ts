@@ -18,11 +18,11 @@ import { DiscordBase } from './extra/DiscordBase';
 import { messageLink } from './extra/functions';
 import { MessagesMethods } from './methods/channel/messages';
 
-export type MessageData = APIMessage | GatewayMessageCreateDispatchData;
+export type MessageData = APIMessage | GatewayMessageCreateDispatchData
 
 export interface Message
 	extends DiscordBase,
-		ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> {}
+	ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> { }
 
 export class Message extends DiscordBase {
 	guildId: string | undefined;
@@ -119,17 +119,17 @@ export class Message extends DiscordBase {
 		if (data.mentions?.length) {
 			this.mentions.users = this.guildId
 				? data.mentions.map(
-						(m) =>
-							new GuildMember(
-								this.client,
-								{
-									...(m as APIUser & { member?: Omit<APIGuildMember, 'user'> }).member!,
-									user: m,
-								},
-								m,
-								this.guildId!,
-							),
-				  )
+					(m) =>
+						new GuildMember(
+							this.client,
+							{
+								...(m as APIUser & { member?: Omit<APIGuildMember, 'user'> }).member!,
+								user: m,
+							},
+							m,
+							this.guildId!,
+						),
+				)
 				: data.mentions.map((u) => new User(this.client, u));
 		}
 	}

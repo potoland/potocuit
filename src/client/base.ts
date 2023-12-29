@@ -1,14 +1,14 @@
-import { join } from 'node:path';
 import type { LocaleString, MakeRequired } from '@biscuitland/common';
 import { LogLevels, Logger } from '@biscuitland/common';
 import { BiscuitREST, Router } from '@biscuitland/rest';
+import { join } from 'node:path';
 import type { Adapter } from '../cache';
 import { Cache, DefaultMemoryAdapter } from '../cache';
-import type { MiddlewareContext } from '../commands';
+import { MiddlewareContext } from '../commands/applications/shared';
 import { PotoCommandHandler } from '../commands/handler';
 import { ComponentHandler } from '../components/handler';
 import { PotoLangsHandler } from '../langs/handler';
-import { ChatInputCommandInteraction } from '../structures';
+import { ChatInputCommandInteraction, MessageCommandInteraction, UserCommandInteraction } from '../structures';
 import type { DeepPartial, IntentStrings, OmitInsert } from '../types/util';
 import { filterSplit } from '../utils';
 import type { PotoClient } from './client';
@@ -210,7 +210,7 @@ export class BaseClient {
 }
 
 export interface BaseClientOptions {
-	context?: (interaction: ChatInputCommandInteraction<boolean>) => {};
+	context?: (interaction: ChatInputCommandInteraction<boolean> | UserCommandInteraction<boolean> | MessageCommandInteraction<boolean>) => {};
 	globalMiddlewares?: readonly MiddlewareContext[];
 }
 

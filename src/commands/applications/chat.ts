@@ -7,11 +7,13 @@ import type {
 	LocaleString,
 } from '@biscuitland/common';
 import { ApplicationCommandOptionType, ApplicationCommandType } from '@biscuitland/common';
-import type { BaseClient } from '../client/base';
-import type { AutocompleteInteraction, GuildRole, InteractionGuildMember, PotocuitChannels, User } from '../structures';
-import type { CommandContext } from './context';
-import type { Groups } from './decorators';
-import type { OptionResolver } from './optionresolver';
+import type { BaseClient } from '../../client/base';
+import type { AutocompleteInteraction, GuildRole, InteractionGuildMember, PotocuitChannels, User } from '../../structures';
+import type { Groups } from '../decorators';
+import type { OptionResolver } from '../optionresolver';
+import type { CommandContext } from './chatcontext';
+import { MenuCommandContext } from './menucontext';
+import { MiddlewareContext, NextFunction, OKFunction, OnOptionsReturnObject, PassFunction, StopFunction } from './shared';
 
 interface ReturnOptionsTypes {
 	1: never; // subcommand
@@ -69,10 +71,6 @@ type __TypesWrapper = {
 	: never;
 };
 
-export type OKFunction<T> = (value: T) => void;
-export type StopFunction = (error: Error) => void;
-export type NextFunction<T = unknown> = (data: T) => void;
-export type PassFunction = () => void;
 export type AutocompleteCallback = (interaction: AutocompleteInteraction) => any;
 export type OnAutocompleteErrorCallback = (interaction: AutocompleteInteraction, error: unknown) => any;
 export type PotoCommandBaseOption = __TypesWrapper[keyof __TypesWrapper];
@@ -102,30 +100,6 @@ export type ContextOptions<T extends OptionsRecord> = {
 	? ReturnOptionsTypes[T[K]['type']]
 	: ReturnOptionsTypes[T[K]['type']] | undefined;
 };
-export type MiddlewareContext<T = any> = (context: {
-	context: CommandContext<any, {}, []>;
-	next: NextFunction<T>;
-	stop: StopFunction;
-	pass: PassFunction;
-}) => any;
-export type MetadataMiddleware<T extends MiddlewareContext> = Parameters<Parameters<T>[0]['next']>[0];
-export type CommandMetadata<T extends Readonly<MiddlewareContext[]>> = T extends readonly [infer first, ...infer rest]
-	? first extends MiddlewareContext
-	? MetadataMiddleware<first> & (rest extends MiddlewareContext[] ? CommandMetadata<rest> : {})
-	: {}
-	: {};
-
-export type OnOptionsReturnObject = Record<
-	string,
-	| {
-		failed: false;
-		value: any;
-	}
-	| {
-		failed: true;
-		value: Error;
-	}
->;
 
 class BaseCommand {
 	middlewares: MiddlewareContext[] = [];
@@ -203,7 +177,7 @@ class BaseCommand {
 
 	/** @internal */
 	static __runMiddlewares(
-		context: CommandContext<any>,
+		context: CommandContext<'base', {}, []> | MenuCommandContext<'base', any>,
 		middlewares: readonly MiddlewareContext[],
 		global: boolean,
 	): Promise<[any, undefined] | [undefined, Error] | 'pass'> {
@@ -246,14 +220,13 @@ class BaseCommand {
 		});
 	}
 
-	// dont fucking touch.
 	/** @internal */
-	__runMiddlewares(context: CommandContext<'base', {}, []>) {
+	__runMiddlewares(context: CommandContext<'base', {}, []> | MenuCommandContext<'base', any>) {
 		return BaseCommand.__runMiddlewares(context, this.middlewares, false);
 	}
 
 	/** @internal */
-	__runGlobalMiddlewares(context: CommandContext<'base', {}, []>) {
+	__runGlobalMiddlewares(context: CommandContext<'base', {}, []> | MenuCommandContext<'base', any>) {
 		return BaseCommand.__runMiddlewares(context, context.client.options?.globalMiddlewares ?? [], true);
 	}
 
@@ -267,6 +240,7 @@ class BaseCommand {
 			description_localizations: this.description_localizations,
 			guild_id: this.guild_id,
 			dm_permission: this.dm,
+			default_member_permissions: this.default_member_permissions,
 		};
 	}
 

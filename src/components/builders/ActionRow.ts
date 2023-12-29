@@ -4,10 +4,10 @@ import {
 	APIMessageActionRowComponent,
 	ComponentType,
 } from '@biscuitland/common';
-import { BaseComponent, FixedComponents, PotoComponents } from '.';
-import { createComponent } from '..';
+import { FixedComponents, PotoComponents, createComponent } from '..';
 import '../../index';
 import { RestOrArray } from '../../types';
+import { BaseComponent } from './Base';
 
 export class ActionRow<T extends PotoComponents> extends BaseComponent<
 	APIActionRowComponent<APIActionRowComponentTypes>
