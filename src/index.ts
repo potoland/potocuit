@@ -56,5 +56,5 @@ export const config = {
 };
 
 export function extendContext<T extends {}>(cb: (interaction: ChatInputCommandInteraction) => T) {
-	return cb
+	return cb;
 }

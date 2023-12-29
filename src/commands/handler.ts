@@ -1,5 +1,5 @@
-import type { LocaleString, Logger } from "@biscuitland/common";
 import { basename, dirname } from "node:path";
+import type { LocaleString, Logger } from "@biscuitland/common";
 import type { BaseClient } from "../client/base";
 import { PotoHandler } from "../utils";
 import { Command, SubCommand } from "./commands";
@@ -48,12 +48,11 @@ export class PotoCommandHandler extends PotoHandler {
 						continue;
 					}
 					try {
-						const subCommand = new (result.find((x) => x.path === option)!.file);
+						const subCommand = new (result.find((x) => x.path === option)!.file)();
 						if (subCommand instanceof SubCommand) {
 							commandInstance.options.push(subCommand);
 						}
-					}
-					catch {
+					} catch {
 						//pass
 					}
 				}
@@ -63,10 +62,8 @@ export class PotoCommandHandler extends PotoHandler {
 				if (option instanceof SubCommand) {
 					option.middlewares = (commandInstance.middlewares ?? []).concat(option.middlewares ?? []);
 					option.onMiddlewaresError =
-						option.onMiddlewaresError?.bind(option) ??
-						commandInstance.onMiddlewaresError?.bind(commandInstance);
-					option.onRunError =
-						option.onRunError?.bind(option) ?? commandInstance.onRunError?.bind(commandInstance);
+						option.onMiddlewaresError?.bind(option) ?? commandInstance.onMiddlewaresError?.bind(commandInstance);
+					option.onRunError = option.onRunError?.bind(option) ?? commandInstance.onRunError?.bind(commandInstance);
 					option.onOptionsError =
 						option.onOptionsError?.bind(option) ?? commandInstance.onOptionsError?.bind(commandInstance);
 					option.onInternalError =

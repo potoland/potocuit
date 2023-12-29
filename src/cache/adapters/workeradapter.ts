@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { parentPort, workerData, type MessagePort } from "worker_threads";
+import { type MessagePort, parentPort, workerData } from "worker_threads";
 import type { WorkerData } from "../../websocket";
 import type { WorkerSendCacheRequest } from "../../websocket/discord/worker";
 import type { Adapter } from "./types";
@@ -9,7 +9,7 @@ export class WorkerAdapter implements Adapter {
 	readonly relationships = new Map<string, string[]>();
 	promises = new Map<string, (value: unknown) => void>();
 
-	constructor(readonly parent: MessagePort) { }
+	constructor(readonly parent: MessagePort) {}
 
 	protected send(method: WorkerSendCacheRequest["method"], ...args: any[]) {
 		const nonce = randomUUID();

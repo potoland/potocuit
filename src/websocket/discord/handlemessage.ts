@@ -41,7 +41,7 @@ export async function handleManagerMessages(
 				nonce: data.nonce,
 			} satisfies WorkerSendResultPayload);
 		}
-			break;
+		break;
 		case "ALLOW_CONNECT": {
 			const shard = shards.get(data.shardId);
 			if (!shard) {
@@ -51,7 +51,7 @@ export async function handleManagerMessages(
 			shard.options.presence = data.presence;
 			await shard.connect();
 		}
-			break;
+		break;
 		case "SPAWN_SHARDS": {
 			for (const id of workerData.shards) {
 				let shard = shards.get(id);
@@ -84,7 +84,7 @@ export async function handleManagerMessages(
 				} satisfies WorkerRequestConnect);
 			}
 		}
-			break;
+		break;
 		case "SHARD_INFO": {
 			const shard = shards.get(data.shardId);
 			if (!shard) {
@@ -98,7 +98,7 @@ export async function handleManagerMessages(
 				type: "SHARD_INFO",
 			} satisfies WorkerSendShardInfo);
 		}
-			break;
+		break;
 		case "WORKER_INFO": {
 			manager!.postMessage({
 				shards: [...shards.values()].map(generateShardInfo),

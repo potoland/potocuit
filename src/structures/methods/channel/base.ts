@@ -18,11 +18,11 @@ import {
 	ForumChannel,
 	MediaChannel,
 	NewsChannel,
+	type PotocuitChannels,
 	StageChannel,
 	TextGuildChannel,
 	ThreadChannel,
 	VoiceChannel,
-	type PotocuitChannels,
 } from "../../../structures/channels";
 import { DiscordBase } from "../../../structures/extra/DiscordBase";
 import { channelLink } from "../../../structures/extra/functions";
@@ -177,6 +177,6 @@ export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
 	}
 }
 
-export interface TextBaseChannel extends ObjectToLower<APITextChannel>, MessagesMethods { }
+export interface TextBaseChannel extends ObjectToLower<APITextChannel>, MessagesMethods {}
 @mix(MessagesMethods)
-export class TextBaseChannel extends BaseGuildChannel { }
+export class TextBaseChannel extends BaseGuildChannel {}

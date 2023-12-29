@@ -124,9 +124,9 @@ export class PotoHttpClient extends BaseClient {
 			switch (rawBody.type) {
 				case InteractionType.Ping:
 					this.debugger.debug("Ping interaction received, responding.");
-					res.writeHeader("Content-Type", "application/json").end(
-						JSON.stringify({ type: InteractionResponseType.Pong }),
-					);
+					res
+						.writeHeader("Content-Type", "application/json")
+						.end(JSON.stringify({ type: InteractionResponseType.Pong }));
 					break;
 				default:
 					await onInteraction(-1, rawBody, this, async ({ body, files }) => {

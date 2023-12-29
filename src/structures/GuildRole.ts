@@ -9,7 +9,7 @@ import type { BaseClient } from "../client/base";
 import type { MethodContext } from "../types";
 import { DiscordBase } from "./extra/DiscordBase";
 
-export interface GuildRole extends DiscordBase, ObjectToLower<APIRole> { }
+export interface GuildRole extends DiscordBase, ObjectToLower<APIRole> {}
 
 export class GuildRole extends DiscordBase {
 	private readonly __methods__!: ReturnType<typeof GuildRole.methods>;

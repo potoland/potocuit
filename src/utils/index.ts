@@ -1,6 +1,6 @@
+import { basename, join } from "node:path";
 import type { Logger } from "@biscuitland/common";
 import { readdir } from "fs/promises";
-import { basename, join } from "node:path";
 
 export function isObject(o: any) {
 	return o && typeof o === "object" && !Array.isArray(o);
@@ -27,7 +27,7 @@ export function Options<T>(defaults: any, ...options: any[]): T {
 }
 
 export class PotoHandler {
-	constructor(protected logger: Logger) { }
+	constructor(protected logger: Logger) {}
 
 	protected filter = (path: string) => !!path;
 
@@ -64,4 +64,17 @@ export class PotoHandler {
 			),
 		);
 	}
+}
+
+export function filterSplit<Element, Predicate extends (value: Element) => boolean>(arr: Element[], func: Predicate) {
+	const expect: Element[] = [];
+	const never: Element[] = [];
+
+	for (const element of arr) {
+		const test = func(element);
+		if (test) expect.push(element);
+		else never.push(element);
+	}
+
+	return { expect, never };
 }

@@ -13,7 +13,7 @@ export function channelLink(channelId: string, guildId?: string) {
 }
 
 export function messageLink(channelId: string, messageId: string, guildId?: string) {
-	return `${channelLink(channelId, guildId)}/${messageId}`
+	return `${channelLink(channelId, guildId)}/${messageId}`;
 }
 
 export async function resolveEmoji(emoji: EmojiResolvable, cache: Cache): Promise<APIPartialEmoji | undefined> {

@@ -1,10 +1,10 @@
-import type { GatewayPresenceUpdateData, GatewaySendPayload } from "@biscuitland/common";
-import { Logger } from "@biscuitland/common";
 import { randomUUID } from "crypto";
 import { setTimeout as delay } from "node:timers/promises";
 import { join } from "path";
+import type { GatewayPresenceUpdateData, GatewaySendPayload } from "@biscuitland/common";
+import { Logger } from "@biscuitland/common";
 import { Worker } from "worker_threads";
-import { DefaultMemoryAdapter, type Adapter } from "../../cache";
+import { type Adapter, DefaultMemoryAdapter } from "../../cache";
 import { Options } from "../../utils";
 import { WorkerManagerDefaults } from "../constants";
 import { SequentialBucket } from "../structures";
@@ -100,10 +100,7 @@ export class WorkersManger extends Map<number, Worker> {
 	prepareSpaces() {
 		this.logger.info("Preparing buckets");
 
-		const chunks = SequentialBucket.chunk<number>(
-			new Array(this.options.totalShards),
-			this.options.shardsPerWorker,
-		);
+		const chunks = SequentialBucket.chunk<number>(new Array(this.options.totalShards), this.options.shardsPerWorker);
 
 		chunks.forEach((shards, index) => {
 			for (let i = 0; i < shards.length; i++) {
@@ -183,11 +180,11 @@ export class WorkersManger extends Map<number, Worker> {
 					result,
 				} as ManagerSendCacheResult);
 			}
-				break;
+			break;
 			case "RECEIVE_PAYLOAD": {
 				this.options.handlePayload(message.shardId, message.workerId, message.payload);
 			}
-				break;
+			break;
 			case "RESULT_PAYLOAD": {
 				const resolve = this.promises.get(message.nonce);
 				if (!resolve) {
@@ -196,7 +193,7 @@ export class WorkersManger extends Map<number, Worker> {
 				this.promises.delete(message.nonce);
 				resolve(true);
 			}
-				break;
+			break;
 			case "SHARD_INFO": {
 				const { nonce, type, ...data } = message;
 				const resolve = this.promises.get(nonce);
@@ -205,7 +202,7 @@ export class WorkersManger extends Map<number, Worker> {
 				}
 				resolve(data);
 			}
-				break;
+			break;
 			case "WORKER_INFO": {
 				const { nonce, type, ...data } = message;
 				const resolve = this.promises.get(nonce);

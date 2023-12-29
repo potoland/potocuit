@@ -1,8 +1,8 @@
+import { inflateSync } from "node:zlib";
 import type { GatewayReceivePayload, GatewaySendPayload, Logger } from "@biscuitland/common";
 import { GatewayCloseCodes, GatewayDispatchEvents, GatewayOpcodes } from "@biscuitland/common";
-import { inflateSync } from "node:zlib";
 import type WS from "ws";
-import { WebSocket, type CloseEvent } from "ws";
+import { type CloseEvent, WebSocket } from "ws";
 import { properties } from "../constants";
 import { DynamicBucket, PriorityQueue } from "../structures";
 import { ConnectTimeout } from "../structures/timeout";
@@ -181,7 +181,7 @@ export class Shard {
 				}
 				await this.identify();
 			}
-				break;
+			break;
 			case GatewayOpcodes.HeartbeatAck:
 				this.heart.ack = true;
 				this.heart.lastAck = Date.now();
@@ -221,7 +221,7 @@ export class Shard {
 						break;
 				}
 			}
-				break;
+			break;
 		}
 	}
 

@@ -38,7 +38,7 @@ import { ApplicationCommandType, ComponentType, InteractionResponseType, Interac
 import type { RawFile } from "@biscuitland/rest";
 import type { BaseClient } from "../client/base";
 import { OptionResolver } from "../commands";
-import { ActionRow, Modal } from "../components";
+import { ActionRow, MessageEmbed, Modal } from "../components";
 import type {
 	ComponentInteractionMessageUpdate,
 	InteractionCreateBodyRequest,
@@ -112,9 +112,8 @@ export class BaseInteraction<
 					data: {
 						...(body.data ?? {}),
 						// @ts-expect-error
-						components: body.data?.components
-							? body.data.components.map((x) => (x instanceof ActionRow ? x.toJSON() : x))
-							: [],
+						components: body.data?.components?.map((x) => (x instanceof ActionRow ? x.toJSON() : x)) ?? [],
+						embeds: body.data?.embeds?.map((x) => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? [],
 					},
 				};
 			case InteractionResponseType.Modal:
@@ -148,7 +147,8 @@ export class BaseInteraction<
 	) {
 		return {
 			...body,
-			components: body?.components ? body.components.map((x) => (x instanceof ActionRow ? x.toJSON() : x)) : [],
+			components: body?.components?.map((x) => (x instanceof ActionRow ? x.toJSON() : x)) ?? [],
+			embeds: body?.embeds?.map((x) => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? [],
 		} as T;
 	}
 
@@ -193,17 +193,9 @@ export class BaseInteraction<
 							__reply,
 						);
 					case ApplicationCommandType.User:
-						return new UserCommandInteraction(
-							client,
-							gateway as APIUserApplicationCommandInteraction,
-							__reply,
-						);
+						return new UserCommandInteraction(client, gateway as APIUserApplicationCommandInteraction, __reply);
 					case ApplicationCommandType.Message:
-						return new MessageCommandInteraction(
-							client,
-							gateway as APIMessageApplicationCommandInteraction,
-							__reply,
-						);
+						return new MessageCommandInteraction(client, gateway as APIMessageApplicationCommandInteraction, __reply);
 				}
 			// biome-ignore lint/suspicious/noFallthroughSwitchClause: bad interaction  between biome and ts-server
 			case InteractionType.MessageComponent:
@@ -217,11 +209,7 @@ export class BaseInteraction<
 							__reply,
 						);
 					case ComponentType.RoleSelect:
-						return new RoleSelectMenuInteraction(
-							client,
-							gateway as APIMessageComponentSelectMenuInteraction,
-							__reply,
-						);
+						return new RoleSelectMenuInteraction(client, gateway as APIMessageComponentSelectMenuInteraction, __reply);
 					case ComponentType.MentionableSelect:
 						return new MentionableSelectMenuInteraction(
 							client,
@@ -229,11 +217,7 @@ export class BaseInteraction<
 							__reply,
 						);
 					case ComponentType.UserSelect:
-						return new UserSelectMenuInteraction(
-							client,
-							gateway as APIMessageComponentSelectMenuInteraction,
-							__reply,
-						);
+						return new UserSelectMenuInteraction(client, gateway as APIMessageComponentSelectMenuInteraction, __reply);
 					case ComponentType.StringSelect:
 						return new StringSelectMenuInteraction(
 							client,

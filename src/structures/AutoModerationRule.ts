@@ -8,7 +8,7 @@ import type { BaseClient } from "../client/base";
 import type { MethodContext } from "../types";
 import { DiscordBase } from "./extra/DiscordBase";
 
-export interface AutoModerationRule extends ObjectToLower<APIAutoModerationRule> { }
+export interface AutoModerationRule extends ObjectToLower<APIAutoModerationRule> {}
 
 export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 	private readonly __methods__!: ReturnType<typeof AutoModerationRule.methods>;

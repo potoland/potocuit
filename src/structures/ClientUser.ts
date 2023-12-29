@@ -39,9 +39,7 @@ export class ClientUser extends User {
 				return ctx.api
 					.users("@me")
 					.guilds.get({ query })
-					.then((guilds) =>
-						guilds.map((guild) => new AnonymousGuild(ctx.client, { ...guild, splash: null })),
-					);
+					.then((guilds) => guilds.map((guild) => new AnonymousGuild(ctx.client, { ...guild, splash: null })));
 			},
 			fetch: async (id: string) => {
 				const guild = await ctx.api.guilds(id).get();

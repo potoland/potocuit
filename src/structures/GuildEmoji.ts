@@ -8,4 +8,8 @@ export class GuildEmoji extends DiscordBase {
 	constructor(client: BaseClient, data: APIEmoji, readonly guildId: string) {
 		super(client, { ...data, id: data.id! });
 	}
+
+	toString() {
+		return `<${this.animated ? 'a' : ''}:${this.name}:${this.id}>`
+	}
 }

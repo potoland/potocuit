@@ -37,7 +37,7 @@ export class ComponentHandler extends PotoHandler {
 
 	onComponent(id: string, interaction: ComponentInteraction) {
 		return this.values.get(id)?.[interaction.customId]?.(interaction, () => {
-			this.values.delete(id)
+			this.values.delete(id);
 		});
 	}
 
@@ -124,9 +124,9 @@ export class ComponentHandler extends PotoHandler {
 	}
 
 	async load(commandsDir: string) {
-		for (const i of (
-			await this.loadFiles<ComponentCommand | ModalCommand>(await this.getFiles(commandsDir))
-		).filter((x) => x instanceof ComponentCommand)) {
+		for (const i of (await this.loadFiles<ComponentCommand | ModalCommand>(await this.getFiles(commandsDir))).filter(
+			(x) => x instanceof ComponentCommand,
+		)) {
 			this.commands.push(i);
 		}
 	}

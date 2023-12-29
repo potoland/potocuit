@@ -1,4 +1,5 @@
 import type {
+	APIEmbed,
 	APIInteractionResponseCallbackData,
 	APIInteractionResponseChannelMessageWithSource,
 	APIModalInteractionResponse,
@@ -8,46 +9,57 @@ import type {
 	RESTPostAPIWebhookWithTokenJSONBody,
 } from "@biscuitland/common";
 import type { ActionRow, Modal, PotoComponents, TextInput } from "../components";
+import { MessageEmbed } from "../components/builders/MessageEmbed";
 import type { OmitInsert } from "./util";
 
 export type PotoComponentProper = {
 	components?: ActionRow<PotoComponents>[] | undefined;
 };
 
+export type PotoEmbedsProper = {
+	embeds?: MessageEmbed[] | APIEmbed[] | undefined;
+};
+
 export type PotoModalComponentProper = {
 	components?: ActionRow<TextInput>[] | undefined;
 };
 
-export type MessageCreateBodyRequest = OmitInsert<RESTPostAPIChannelMessageJSONBody, "components", PotoComponentProper>;
+export interface ResolverProps extends PotoComponentProper, PotoEmbedsProper {}
+
+export type MessageCreateBodyRequest = OmitInsert<
+	RESTPostAPIChannelMessageJSONBody,
+	"components" | "embeds",
+	ResolverProps
+>;
 
 export type MessageWebhookCreateBodyRequest = OmitInsert<
 	RESTPostAPIWebhookWithTokenJSONBody,
-	"components",
-	PotoComponentProper
+	"components" | "embeds",
+	ResolverProps
 >;
 
 export type MessageUpdateBodyRequest = OmitInsert<
 	RESTPatchAPIChannelMessageJSONBody,
-	"components",
-	PotoComponentProper
+	"components" | "embeds",
+	ResolverProps
 >;
 
 export type InteractionMessageUpdateBodyRequest = OmitInsert<
 	RESTPatchAPIWebhookWithTokenMessageJSONBody,
-	"components",
-	PotoComponentProper
+	"components" | "embeds",
+	ResolverProps
 >;
 
 export type ComponentInteractionMessageUpdate = OmitInsert<
 	APIInteractionResponseCallbackData,
-	"components",
-	PotoComponentProper
+	"components" | "embeds",
+	ResolverProps
 >;
 
 export type InteractionCreateBodyRequest = OmitInsert<
 	APIInteractionResponseChannelMessageWithSource["data"],
-	"components",
-	PotoComponentProper
+	"components" | "embeds",
+	ResolverProps
 >;
 
 export type ModalCreateBodyRequest = APIModalInteractionResponse["data"] | Modal;

@@ -15,7 +15,7 @@ export class CommandContext<
 	C extends keyof IClients,
 	T extends OptionsRecord = {},
 	M extends Readonly<MiddlewareContext[]> = [],
->  {
+> {
 	constructor(
 		readonly client: IClients[C],
 		readonly interaction: ChatInputCommandInteraction,
@@ -23,7 +23,7 @@ export class CommandContext<
 		public metadata: CommandMetadata<M>,
 		public resolver: OptionResolver,
 		readonly shardId: number,
-	) { }
+	) {}
 
 	get proxy() {
 		return this.client.proxy;

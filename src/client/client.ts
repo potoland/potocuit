@@ -22,12 +22,12 @@ export class PotoClient extends BaseClient {
 		gateway,
 		rest,
 		cache,
-		defaultLang
+		defaultLang,
 	}: {
 		rest?: BiscuitREST;
 		gateway?: ShardManager;
 		cache?: { adapter: Adapter; disabledCache?: Cache["disabledCache"] };
-		defaultLang?: LocaleString
+		defaultLang?: LocaleString;
 	}) {
 		super.setServices({ rest, cache, defaultLang });
 		if (gateway) {
@@ -72,7 +72,7 @@ export class PotoClient extends BaseClient {
 					return this.onPacket(shardId, packet);
 				},
 				presence: this.options?.presence,
-				debug: debugRC
+				debug: debugRC,
 			});
 		}
 

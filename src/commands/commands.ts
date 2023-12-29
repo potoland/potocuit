@@ -36,29 +36,36 @@ type Wrap<N extends ApplicationCommandOptionType> = N extends
 	| ApplicationCommandOptionType.SubcommandGroup
 	? never
 	: (
-		| {
-			type: N;
-			required?: false;
-			value?(value: ReturnOptionsTypes[N] | undefined, ok: OKFunction<any>, fail: StopFunction): void;
-		}
-		| {
-			type: N;
-			required: true;
-			value?(value: ReturnOptionsTypes[N], ok: OKFunction<any>, fail: StopFunction): void;
-		}
-	) &
-	Omit<APIApplicationCommandBasicOption, "type" | "required" | "name"> &
-	(N extends
-		| ApplicationCommandOptionType.String
-		| ApplicationCommandOptionType.Number
-		| ApplicationCommandOptionType.Number
-		? __Choices<N>
-		: {});
+			| {
+					type: N;
+					required?: false;
+					value?(
+						data: { context: CommandContext<any>; value: ReturnOptionsTypes[N] | undefined },
+						ok: OKFunction<any>,
+						fail: StopFunction,
+					): void;
+			  }
+			| {
+					type: N;
+					required: true;
+					value?(
+						data: { context: CommandContext<any>; value: ReturnOptionsTypes[N] | undefined },
+						fail: StopFunction,
+					): void;
+			  }
+	  ) &
+			Omit<APIApplicationCommandBasicOption, "type" | "required" | "name"> &
+			(N extends
+				| ApplicationCommandOptionType.String
+				| ApplicationCommandOptionType.Number
+				| ApplicationCommandOptionType.Number
+				? __Choices<N>
+				: {});
 type __TypesWrapper = {
 	[P in keyof typeof ApplicationCommandOptionType]: `${(typeof ApplicationCommandOptionType)[P]}` extends `${infer D extends
-	number}`
-	? Wrap<D>
-	: never;
+		number}`
+		? Wrap<D>
+		: never;
 };
 
 export type OKFunction<T> = (value: T) => void;
@@ -75,9 +82,9 @@ export type PotoCommandBaseAutocompleteOption = Extract<
 	},
 	{
 		type:
-		| ApplicationCommandOptionType.String
-		| ApplicationCommandOptionType.Integer
-		| ApplicationCommandOptionType.Number;
+			| ApplicationCommandOptionType.String
+			| ApplicationCommandOptionType.Integer
+			| ApplicationCommandOptionType.Number;
 	}
 >;
 export type PotoCommandAutocompleteOption = PotoCommandBaseAutocompleteOption & { name: string };
@@ -87,12 +94,12 @@ export type OptionsRecord = Record<string, __PotoCommandOption>;
 
 export type ContextOptions<T extends OptionsRecord> = {
 	[K in keyof T]: T[K]["value"] extends (...args: any) => any
-	? T[K]["required"] extends true
-	? Parameters<Parameters<T[K]["value"]>[1]>[0]
-	: Parameters<Parameters<T[K]["value"]>[1]>[0]
-	: T[K]["required"] extends true
-	? ReturnOptionsTypes[T[K]["type"]]
-	: ReturnOptionsTypes[T[K]["type"]] | undefined;
+		? T[K]["required"] extends true
+			? Parameters<Parameters<T[K]["value"]>[1]>[0]
+			: Parameters<Parameters<T[K]["value"]>[1]>[0]
+		: T[K]["required"] extends true
+		  ? ReturnOptionsTypes[T[K]["type"]]
+		  : ReturnOptionsTypes[T[K]["type"]] | undefined;
 };
 export type MiddlewareContext<T = any> = (context: {
 	context: CommandContext<any, {}, []>;
@@ -103,20 +110,20 @@ export type MiddlewareContext<T = any> = (context: {
 export type MetadataMiddleware<T extends MiddlewareContext> = Parameters<Parameters<T>[0]["next"]>[0];
 export type CommandMetadata<T extends Readonly<MiddlewareContext[]>> = T extends readonly [infer first, ...infer rest]
 	? first extends MiddlewareContext
-	? MetadataMiddleware<first> & (rest extends MiddlewareContext[] ? CommandMetadata<rest> : {})
-	: {}
+		? MetadataMiddleware<first> & (rest extends MiddlewareContext[] ? CommandMetadata<rest> : {})
+		: {}
 	: {};
 
 export type OnOptionsReturnObject = Record<
 	string,
 	| {
-		failed: false;
-		value: any;
-	}
+			failed: false;
+			value: any;
+	  }
 	| {
-		failed: true;
-		value: Error;
-	}
+			failed: true;
+			value: Error;
+	  }
 >;
 
 class BaseCommand {
@@ -139,6 +146,9 @@ class BaseCommand {
 	type!: number; // ApplicationCommandType.ChatInput | ApplicationCommandOptionType.Subcommand
 	nsfw?: boolean;
 	description!: string;
+	default_member_permissions?: string;
+	permissions?: bigint;
+	dm?: boolean;
 	name_localizations?: Partial<Record<LocaleString, string>>;
 	description_localizations?: Partial<Record<LocaleString, string>>;
 
@@ -159,7 +169,7 @@ class BaseCommand {
 			const option = command.options!.find((x) => x.name === i.name) as __PotoCommandOption;
 			const value = (await new Promise(
 				(resolve) =>
-					option.value?.(resolver.getValue(i.name) as never, resolve, resolve) ||
+					option.value?.({ context: ctx, value: resolver.getValue(i.name) as never }, resolve, resolve) ||
 					resolve(resolver.getValue(i.name)),
 			)) as any | Error;
 			if (value instanceof Error) {
@@ -237,12 +247,12 @@ class BaseCommand {
 
 	// dont fucking touch.
 	/** @internal */
-	__runMiddlewares(context: CommandContext<'base', {}, []>) {
+	__runMiddlewares(context: CommandContext<"base", {}, []>) {
 		return BaseCommand.__runMiddlewares(context, this.middlewares, false);
 	}
 
 	/** @internal */
-	__runGlobalMiddlewares(context: CommandContext<'base', {}, []>) {
+	__runGlobalMiddlewares(context: CommandContext<"base", {}, []>) {
 		return BaseCommand.__runMiddlewares(context, context.client.options?.globalMiddlewares ?? [], true);
 	}
 
@@ -255,6 +265,7 @@ class BaseCommand {
 			name_localizations: this.name_localizations,
 			description_localizations: this.description_localizations,
 			guild_id: this.guild_id,
+			dm_permission: this.dm,
 		};
 	}
 

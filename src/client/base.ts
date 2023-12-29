@@ -1,7 +1,7 @@
+import { join } from "node:path";
 import type { LocaleString, MakeRequired } from "@biscuitland/common";
 import { LogLevels, Logger } from "@biscuitland/common";
 import { BiscuitREST, Router } from "@biscuitland/rest";
-import { join } from "node:path";
 import type { Adapter } from "../cache";
 import { Cache, DefaultMemoryAdapter } from "../cache";
 import type { MiddlewareContext } from "../commands";
@@ -10,6 +10,7 @@ import { ComponentHandler } from "../components/handler";
 import { PotoLangsHandler } from "../langs/handler";
 import { ChatInputCommandInteraction } from "../structures";
 import type { DeepPartial, IntentStrings, OmitInsert } from "../types/util";
+import { filterSplit } from "../utils";
 import type { PotoClient } from "./client";
 import type { PotoHttpClient } from "./httpclient";
 import type { WorkerClient } from "./workerclient";
@@ -76,8 +77,12 @@ export class BaseClient {
 	setServices({
 		rest,
 		cache,
-		defaultLang
-	}: { rest?: BiscuitREST; cache?: { adapter: Adapter; disabledCache?: Cache["disabledCache"] }; defaultLang?: LocaleString }) {
+		defaultLang,
+	}: {
+		rest?: BiscuitREST;
+		cache?: { adapter: Adapter; disabledCache?: Cache["disabledCache"] };
+		defaultLang?: LocaleString;
+	}) {
 		if (rest) {
 			this.rest = rest;
 		}
@@ -89,7 +94,7 @@ export class BaseClient {
 				this,
 			);
 		}
-		this.langs.defaultLang = defaultLang
+		this.langs.defaultLang = defaultLang;
 	}
 
 	protected async execute(..._options: unknown[]) {
@@ -97,16 +102,13 @@ export class BaseClient {
 	}
 
 	async start(
-		options: Pick<
-			DeepPartial<StartOptions>,
-			"langsDir" | "commandsDir" | "connection" | "token" | "componentsDir"
-		> = {
-				token: undefined,
-				langsDir: undefined,
-				commandsDir: undefined,
-				connection: undefined,
-				componentsDir: undefined
-			},
+		options: Pick<DeepPartial<StartOptions>, "langsDir" | "commandsDir" | "connection" | "token" | "componentsDir"> = {
+			token: undefined,
+			langsDir: undefined,
+			commandsDir: undefined,
+			connection: undefined,
+			componentsDir: undefined,
+		},
 	) {
 		await this.loadLangs(options.langsDir);
 		await this.loadCommands(options.commandsDir);
@@ -138,14 +140,15 @@ export class BaseClient {
 		BaseClient.assertString(applicationId, "applicationId is not a string");
 
 		const commands = this.commands.values.map((x) => x.toJSON());
+		const filter = filterSplit(commands, (command) => !command.guild_id);
 
 		await this.proxy.applications(applicationId).commands.put({
-			body: commands.filter((x) => !x.guild_id),
+			body: filter.expect,
 		});
 
 		const guilds = new Set<string>();
 
-		for (const command of commands.filter((x) => x.guild_id)) {
+		for (const command of filter.never) {
 			for (const guild_id of command.guild_id!) {
 				guilds.add(guild_id);
 			}
@@ -156,7 +159,7 @@ export class BaseClient {
 				.applications(applicationId)
 				.guilds(guild)
 				.commands.put({
-					body: commands.filter((x) => x.guild_id?.includes(guild)),
+					body: filter.never.filter((x) => x.guild_id?.includes(guild)),
 				});
 		}
 	}
@@ -197,9 +200,7 @@ export class BaseClient {
 			langs: locations.langs ? join(process.cwd(), locations.langs) : undefined,
 			templates: locations.templates ? join(process.cwd(), locations.base, locations.templates) : undefined,
 			events:
-				"events" in locations && locations.events
-					? join(process.cwd(), locations.output, locations.events)
-					: undefined,
+				"events" in locations && locations.events ? join(process.cwd(), locations.output, locations.events) : undefined,
 			components: locations.components ? join(process.cwd(), locations.output, locations.components) : undefined,
 			base: join(process.cwd(), locations.base),
 			output: join(process.cwd(), locations.output),

@@ -1,9 +1,9 @@
 import {
-	toCamelCase,
 	type GatewayAutoModerationActionExecutionDispatchData,
 	type GatewayAutoModerationRuleCreateDispatchData,
 	type GatewayAutoModerationRuleDeleteDispatchData,
 	type GatewayAutoModerationRuleUpdateDispatchData,
+	toCamelCase,
 } from "@biscuitland/common";
 import type { BaseClient } from "../../client/base";
 import { AutoModerationRule } from "../../structures";

@@ -3,7 +3,7 @@ import { GuildFeature } from "@biscuitland/common";
 import type { ImageOptions } from "../../types/options";
 import { DiscordBase } from "./DiscordBase";
 
-export interface BaseGuild extends ObjectToLower<APIPartialGuild> { }
+export interface BaseGuild extends ObjectToLower<APIPartialGuild> {}
 /**
  * Base guild class
  */

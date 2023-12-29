@@ -41,8 +41,8 @@ export type Clean<T> = DropT<T, never>;
 
 export type Identify<T> = T extends infer U
 	? {
-		[K in keyof U]: U[K];
-	}
+			[K in keyof U]: U[K];
+	  }
 	: never;
 
 export type PartialAvoid<U, T> = Identify<KeepT<T, U> & Partial<T>>;

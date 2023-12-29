@@ -16,7 +16,7 @@ import { DiscordBase } from "../../extra/DiscordBase";
 import { encodeEmoji, resolveEmoji } from "../../extra/functions";
 import type { BaseChannel } from "./base";
 
-export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> { }
+export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> {}
 export class MessagesMethods extends DiscordBase {
 	typing() {
 		return this.api.channels(this.id).typing.post();
@@ -45,11 +45,7 @@ export class MessagesMethods extends DiscordBase {
 
 				return ctx.api.channels(ctx.id).messages(messageId).reactions(encodeEmoji(rawEmoji))(userId).delete();
 			},
-			fetch: async (
-				messageId: string,
-				emoji: EmojiResolvable,
-				query?: RESTGetAPIChannelMessageReactionUsersQuery,
-			) => {
+			fetch: async (messageId: string, emoji: EmojiResolvable, query?: RESTGetAPIChannelMessageReactionUsersQuery) => {
 				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
 
 				if (!rawEmoji) {

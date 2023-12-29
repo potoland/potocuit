@@ -3,7 +3,7 @@ import type { ImageOptions } from "../types/options";
 import { DMChannel } from "./channels";
 import { DiscordBase } from "./extra/DiscordBase";
 
-export interface User extends ObjectToLower<APIUser> { }
+export interface User extends ObjectToLower<APIUser> {}
 
 export class User extends DiscordBase<APIUser> {
 	get tag(): string {

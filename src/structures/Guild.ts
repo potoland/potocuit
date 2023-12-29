@@ -10,7 +10,7 @@ import { BaseGuild } from "./extra/BaseGuild";
 import type { DiscordBase } from "./extra/DiscordBase";
 import { BaseChannel } from "./methods/channel/base";
 
-export interface Guild extends Omit<ObjectToLower<APIGuild>, "stickers" | "emojis" | "roles">, DiscordBase { }
+export interface Guild extends Omit<ObjectToLower<APIGuild>, "stickers" | "emojis" | "roles">, DiscordBase {}
 
 export class Guild extends (BaseGuild as unknown as ToClass<
 	Omit<BaseGuild, keyof ObjectToLower<APIPartialGuild>>,

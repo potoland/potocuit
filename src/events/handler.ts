@@ -1,4 +1,4 @@
-import { ReplaceRegex, type GatewayDispatchEvents, type GatewayDispatchPayload } from "@biscuitland/common";
+import { type GatewayDispatchEvents, type GatewayDispatchPayload, ReplaceRegex } from "@biscuitland/common";
 import type { PotoClient, WorkerClient } from "../client";
 import * as RawEvents from "../events/hooks/index";
 import { PotoHandler } from "../utils";

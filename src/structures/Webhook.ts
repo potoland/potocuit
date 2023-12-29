@@ -16,7 +16,7 @@ import { Message } from "./Message";
 import { User } from "./User";
 import { DiscordBase } from "./extra/DiscordBase";
 
-export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, "user" | "source_guild">> { }
+export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, "user" | "source_guild">> {}
 
 export class Webhook extends DiscordBase {
 	private readonly __methods__!: ReturnType<typeof Webhook.methods>;
@@ -65,10 +65,7 @@ export class Webhook extends DiscordBase {
 	static messages(ctx: MethodContext<{ token?: string }>) {
 		return {
 			write: async (
-				payload: MessagePayload<
-					RESTPostAPIWebhookWithTokenJSONBody,
-					{ query?: RESTPostAPIWebhookWithTokenQuery }
-				>,
+				payload: MessagePayload<RESTPostAPIWebhookWithTokenJSONBody, { query?: RESTPostAPIWebhookWithTokenQuery }>,
 			) => {
 				Webhook._hasToken(ctx);
 				return ctx.api

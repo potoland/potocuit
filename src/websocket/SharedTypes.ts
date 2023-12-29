@@ -83,7 +83,7 @@ export type ShardStatusUpdate = Pick<GatewayPresenceUpdateData, "activities" | "
 
 export interface RequestGuildMembersOptions
 	extends GatewayRequestGuildMembersDataWithQuery,
-	GatewayRequestGuildMembersDataWithUserIds { }
+		GatewayRequestGuildMembersDataWithUserIds {}
 
 export interface GatewayMemberRequest {
 	/** The unique nonce for this request. */

@@ -5,10 +5,10 @@ import type {
 	RESTPutAPIGuildMemberJSONBody,
 } from "@biscuitland/common";
 import {
-	FormattingPatterns,
 	type APIGuildMember,
 	type APIInteractionDataResolvedGuildMember,
 	type APIUser,
+	FormattingPatterns,
 	type GatewayGuildMemberAddDispatchData,
 	type GatewayGuildMemberUpdateDispatchData,
 	type ObjectToLower,
@@ -28,7 +28,7 @@ import type { ImageOptions, MethodContext } from "../types/options";
 import type { GuildMemberResolvable } from "../types/resolvables";
 import { User } from "./User";
 
-export interface GuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, "user"> { }
+export interface GuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, "user"> {}
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
@@ -131,8 +131,8 @@ export class GuildMember extends DiscordBase {
 
 				return displayName
 					? await this.methods(ctx)
-						.search({ query: displayName, limit: 1 })
-						.then((x) => x[0])
+							.search({ query: displayName, limit: 1 })
+							.then((x) => x[0])
 					: undefined;
 			},
 			search: async (query?: RESTGetAPIGuildMembersSearchQuery) => {
@@ -210,7 +210,7 @@ export class GuildMember extends DiscordBase {
 	}
 }
 
-export interface InteractionGuildMember extends GuildMember, ObjectToLower<APIInteractionDataResolvedGuildMember> { }
+export interface InteractionGuildMember extends GuildMember, ObjectToLower<APIInteractionDataResolvedGuildMember> {}
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
