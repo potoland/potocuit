@@ -101,7 +101,10 @@ export class PotoClient extends BaseClient {
 				break;
 			}
 			case 'GUILD_CREATE': {
-				if (this.handleGuilds.has(packet.d.id)) return;
+				if (this.handleGuilds.has(packet.d.id)) {
+					this.handleGuilds.delete(packet.d.id);
+					return;
+				}
 			}
 		}
 
