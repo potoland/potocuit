@@ -1,6 +1,6 @@
-import { readdir } from 'fs/promises';
 import { basename, join } from 'node:path';
 import { setTimeout } from 'node:timers/promises';
+import { readdir } from 'fs/promises';
 import { Logger, ObjectToLower, ObjectToSnake } from '..';
 
 /**
@@ -25,7 +25,9 @@ export function toSnakeCase<Obj extends Record<string, any>>(target: Obj): Objec
 			case 'object':
 				if (Array.isArray(value)) {
 					// @ts-expect-error
-					result[ReplaceRegex.snake(key)] = value.map((prop) => (typeof prop === 'object' && prop ? toSnakeCase(prop) : prop));
+					result[ReplaceRegex.snake(key)] = value.map((prop) =>
+						typeof prop === 'object' && prop ? toSnakeCase(prop) : prop,
+					);
 					break;
 				}
 				if (isObject(value)) {
@@ -68,7 +70,9 @@ export function toCamelCase<Obj extends Record<string, any>>(target: Obj): Objec
 			case 'object':
 				if (Array.isArray(value)) {
 					// @ts-expect-error
-					result[ReplaceRegex.camel(key)] = value.map((prop) => (typeof prop === 'object' && prop ? toCamelCase(prop) : prop));
+					result[ReplaceRegex.camel(key)] = value.map((prop) =>
+						typeof prop === 'object' && prop ? toCamelCase(prop) : prop,
+					);
 					break;
 				}
 				if (isObject(value)) {
@@ -95,7 +99,7 @@ export const ReplaceRegex = {
 	},
 	snake: (s: string) => {
 		return s.replace(/[A-Z]/g, (a) => `_${a.toLowerCase()}`);
-	}
+	},
 };
 
 // https://github.com/discordeno/discordeno/blob/main/packages/utils/src/colors.ts
@@ -137,7 +141,7 @@ function code(open: number[], close: number): Code {
 	return {
 		open: `\x1b[${open.join(';')}m`,
 		close: `\x1b[${close}m`,
-		regexp: new RegExp(`\\x1b\\[${close}m`, 'g')
+		regexp: new RegExp(`\\x1b\\[${close}m`, 'g'),
 	};
 }
 
@@ -558,9 +562,9 @@ export function bgRgb24(str: string, color: number | Rgb): string {
 const ANSI_PATTERN = new RegExp(
 	[
 		'[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
-		'(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]))'
+		'(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-nq-uy=><~]))',
 	].join('|'),
-	'g'
+	'g',
 );
 
 /**
@@ -574,7 +578,6 @@ export function stripColor(string: string): string {
 export function delay<T>(time: number, result?: T): Promise<T> {
 	return setTimeout(time, result);
 }
-
 
 export function isObject(o: any) {
 	return o && typeof o === 'object' && !Array.isArray(o);
@@ -601,7 +604,7 @@ export function MergeOptions<T>(defaults: any, ...options: any[]): T {
 }
 
 export class PotoHandler {
-	constructor(protected logger: Logger) { }
+	constructor(protected logger: Logger) {}
 
 	protected filter = (path: string) => !!path;
 

@@ -14,7 +14,7 @@ export interface RestEvents {
 	restDebug: [info: string];
 }
 
-export interface RestEventsMap extends RestEvents { }
+export interface RestEventsMap extends RestEvents {}
 
 /**
  * Options to be passed when creating the REST instance
@@ -128,7 +128,7 @@ export interface RESTOptions {
 	debug?: boolean;
 }
 
-export type RESTConstructorOptions = MakeRequired<Partial<RESTOptions>, "token">;
+export type RESTConstructorOptions = MakeRequired<Partial<RESTOptions>, 'token'>;
 
 /**
  * Data emitted on `RESTEvents.RateLimited`

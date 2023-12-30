@@ -3,7 +3,7 @@ import { APIBaseComponent, ComponentType } from '../../common';
 export abstract class BaseComponentBuilder<
 	TYPE extends Partial<APIBaseComponent<ComponentType>> = APIBaseComponent<ComponentType>,
 > {
-	constructor(public data: Partial<TYPE>) { }
+	constructor(public data: Partial<TYPE>) {}
 
 	toJSON(): TYPE {
 		return { ...this.data } as TYPE;

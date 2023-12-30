@@ -11,7 +11,7 @@ import type { DiscordBase } from './extra/DiscordBase';
 import { BaseChannel } from './methods/channel/base';
 import { WebhookGuildMethods } from './methods/channel/webhooks';
 
-export interface Guild extends Omit<ObjectToLower<APIGuild>, 'stickers' | 'emojis' | 'roles'>, DiscordBase { }
+export interface Guild extends Omit<ObjectToLower<APIGuild>, 'stickers' | 'emojis' | 'roles'>, DiscordBase {}
 export class Guild<State extends StructStates = 'api'> extends (BaseGuild as unknown as ToClass<
 	Omit<BaseGuild, keyof ObjectToLower<APIPartialGuild>>,
 	Guild
@@ -25,7 +25,7 @@ export class Guild<State extends StructStates = 'api'> extends (BaseGuild as unk
 		super(client, data);
 	}
 
-	webhooks = WebhookGuildMethods.guild(this)
+	webhooks = WebhookGuildMethods.guild(this);
 
 	get maxStickers(): MaxStickers {
 		switch (this.premiumTier) {

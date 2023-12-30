@@ -1,7 +1,4 @@
-import type {
-	GatewayStageInstanceCreateDispatchData,
-	GatewayStageInstanceDeleteDispatchData,
-} from '../../common';
+import type { GatewayStageInstanceCreateDispatchData, GatewayStageInstanceDeleteDispatchData } from '../../common';
 
 import type { BaseClient } from '../../client/base';
 import { toCamelCase } from '../../common';

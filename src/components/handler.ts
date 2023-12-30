@@ -1,4 +1,11 @@
-import { APIActionRowComponent, APIMessage, APIMessageActionRowComponent, APIModalInteractionResponseCallbackData, InteractionResponseType, LimitedCollection } from '..';
+import {
+	APIActionRowComponent,
+	APIMessage,
+	APIMessageActionRowComponent,
+	APIModalInteractionResponseCallbackData,
+	InteractionResponseType,
+	LimitedCollection,
+} from '..';
 import type { BaseClient } from '../client/base';
 import { Logger, PotoHandler } from '../common';
 import type {
@@ -8,7 +15,7 @@ import type {
 	ModalCreateBodyRequest,
 } from '../common/types/write';
 import type { ComponentInteraction, ModalSubmitInteraction, ReplyInteractionBody } from '../structures';
-import type { ActionRow, } from './builders';
+import type { ActionRow } from './builders';
 import { ComponentCallback, ModalSubmitCallback, PotoComponents } from './builders/types';
 import type { ModalCommand } from './command';
 import { ComponentCommand, InteractionCommandType } from './command';

@@ -3,7 +3,8 @@ import {
 	APIActionRowComponent,
 	APIActionRowComponentTypes,
 	APIMessageActionRowComponent,
-	ComponentType, RestOrArray
+	ComponentType,
+	RestOrArray,
 } from '../../common';
 import { BaseComponentBuilder } from './Base';
 import { FixedComponents, PotoComponents } from './types';

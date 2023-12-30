@@ -130,7 +130,7 @@ export class BurstHandler implements IHandler {
 					`  Hash           : ${this.hash}`,
 					`  Limit          : ${Number.POSITIVE_INFINITY}`,
 					`  Retry After    : ${retryAfter}ms`,
-					"  Sublimit       : None",
+					'  Sublimit       : None',
 					`  Scope          : ${scope}`,
 				].join('\n'),
 			);

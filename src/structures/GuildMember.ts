@@ -4,10 +4,10 @@ import type {
 	RESTPutAPIGuildMemberJSONBody,
 } from '../common';
 import {
-	FormattingPatterns,
 	type APIGuildMember,
 	type APIInteractionDataResolvedGuildMember,
 	type APIUser,
+	FormattingPatterns,
 	type GatewayGuildMemberAddDispatchData,
 	type GatewayGuildMemberUpdateDispatchData,
 	type ObjectToLower,
@@ -28,7 +28,7 @@ import type { GuildMemberResolvable } from '../common/types/resolvables';
 import { Guild } from './Guild';
 import { User } from './User';
 
-export interface GuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> { }
+export interface GuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> {}
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
@@ -47,7 +47,7 @@ export class GuildMember extends DiscordBase {
 		/** the choosen guild id */
 		readonly guildId: string,
 	) {
-		const { roles, ...dataN } = data
+		const { roles, ...dataN } = data;
 		super(client, { ...dataN, id: user.id });
 		this.user = user instanceof User ? user : new User(client, user);
 		this._roles = data.roles;
@@ -155,8 +155,8 @@ export class GuildMember extends DiscordBase {
 
 				return displayName
 					? await this.methods(ctx)
-						.search({ query: displayName, limit: 1 })
-						.then((x) => x[0])
+							.search({ query: displayName, limit: 1 })
+							.then((x) => x[0])
 					: undefined;
 			},
 			search: async (query?: RESTGetAPIGuildMembersSearchQuery) => {
@@ -232,7 +232,7 @@ export class GuildMember extends DiscordBase {
 
 export interface InteractionGuildMember
 	extends GuildMember,
-	ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles'>> { }
+		ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles'>> {}
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object

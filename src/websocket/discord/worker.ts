@@ -1,4 +1,4 @@
-import { workerData as __workerData__, parentPort as manager } from 'worker_threads';
+import { parentPort as manager, workerData as __workerData__ } from 'worker_threads';
 import { Cache, WorkerAdapter } from '../../cache';
 import type { GatewayDispatchPayload } from '../../common';
 import { Logger } from '../../common';
@@ -44,20 +44,20 @@ export type WorkerSendCacheRequest = CreateWorkerMessage<
 	{
 		nonce: string;
 		method:
-		| 'scan'
-		| 'get'
-		| 'set'
-		| 'patch'
-		| 'values'
-		| 'keys'
-		| 'count'
-		| 'remove'
-		| 'contains'
-		| 'getToRelationship'
-		| 'bulkAddToRelationShip'
-		| 'addToRelationship'
-		| 'removeRelationship'
-		| 'removeToRelationship';
+			| 'scan'
+			| 'get'
+			| 'set'
+			| 'patch'
+			| 'values'
+			| 'keys'
+			| 'count'
+			| 'remove'
+			| 'contains'
+			| 'getToRelationship'
+			| 'bulkAddToRelationShip'
+			| 'addToRelationship'
+			| 'removeRelationship'
+			| 'removeToRelationship';
 		args: any[];
 		workerId: number;
 	}

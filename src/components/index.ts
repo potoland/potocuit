@@ -1,6 +1,4 @@
-import type {
-	APIMessageActionRowComponent
-} from '../common';
+import type { APIMessageActionRowComponent } from '../common';
 import { ButtonStyle, ComponentType } from '../common';
 import { BaseComponent } from '../structures/extra/BaseComponent';
 import { ButtonComponent, LinkButtonComponent } from './ButtonComponent';

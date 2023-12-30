@@ -1,4 +1,4 @@
-import { workerData as __workerData__, parentPort as manager } from 'worker_threads';
+import { parentPort as manager, workerData as __workerData__ } from 'worker_threads';
 import type { Cache } from '../cache';
 import { WorkerAdapter } from '../cache';
 import type { GatewayDispatchPayload } from '../common';

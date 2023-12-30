@@ -1,7 +1,14 @@
 import type { __LangType } from '../../__generated';
 import { RawFile } from '../../api';
 import type { IClients } from '../../client/base';
-import { ApplicationCommandType, InteractionCreateBodyRequest, InteractionMessageUpdateBodyRequest, MessageFlags, ModalCreateBodyRequest, toSnakeCase } from '../../common';
+import {
+	ApplicationCommandType,
+	InteractionCreateBodyRequest,
+	InteractionMessageUpdateBodyRequest,
+	MessageFlags,
+	ModalCreateBodyRequest,
+	toSnakeCase,
+} from '../../common';
 import { Message, MessageCommandInteraction, User, UserCommandInteraction } from '../../structures';
 import type { CommandMetadata, MiddlewareContext } from './shared';
 
@@ -16,7 +23,7 @@ export class MenuCommandContext<
 		readonly interaction: T,
 		public metadata: CommandMetadata<M>,
 		readonly shardId: number,
-	) { }
+	) {}
 
 	get proxy() {
 		return this.client.proxy;

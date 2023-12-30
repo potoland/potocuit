@@ -24,7 +24,7 @@ export type PotoModalComponentProper = {
 	components?: ActionRow<TextInput>[] | undefined;
 };
 
-export interface ResolverProps extends PotoComponentProper, PotoEmbedsProper { }
+export interface ResolverProps extends PotoComponentProper, PotoEmbedsProper {}
 
 export type MessageCreateBodyRequest = OmitInsert<
 	RESTPostAPIChannelMessageJSONBody,

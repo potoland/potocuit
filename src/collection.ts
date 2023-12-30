@@ -1,6 +1,6 @@
-import { MergeOptions } from "./common";
+import { MergeOptions } from './common';
 
-export class Collection<K, V> extends Map<K, V>{
+export class Collection<K, V> extends Map<K, V> {
 	sweep(fn: (value: V, key: K, collection: this) => unknown, thisArg?: unknown): number {
 		if (thisArg !== undefined) fn = fn.bind(thisArg);
 		const previous = this.size;
@@ -12,11 +12,11 @@ export class Collection<K, V> extends Map<K, V>{
 
 	map<T>(fn: (value: V, key: K, collection: this) => T, thisArg?: unknown) {
 		if (thisArg !== undefined) fn = fn.bind(thisArg);
-		const results: T[] = []
+		const results: T[] = [];
 		for (const [key, val] of this) {
 			results.push(fn(val, key, this));
 		}
-		return results
+		return results;
 	}
 }
 

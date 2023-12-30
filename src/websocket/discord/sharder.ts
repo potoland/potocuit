@@ -1,4 +1,13 @@
-import { GatewayOpcodes, GatewayUpdatePresence, GatewayVoiceStateUpdate, LogLevels, Logger, MergeOptions, ObjectToLower, toSnakeCase } from '../../common';
+import {
+	GatewayOpcodes,
+	GatewayUpdatePresence,
+	GatewayVoiceStateUpdate,
+	LogLevels,
+	Logger,
+	MergeOptions,
+	ObjectToLower,
+	toSnakeCase,
+} from '../../common';
 import { ShardManagerDefaults } from '../constants';
 import { SequentialBucket } from '../structures';
 import { Shard } from './shard.js';

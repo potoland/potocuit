@@ -88,7 +88,6 @@ export async function makeNetworkRequest(
 		clearTimeout(timeout);
 	}
 
-
 	manager.logger.info(
 		RESTEvents.Response,
 		{
@@ -101,7 +100,6 @@ export async function makeNetworkRequest(
 		},
 		res instanceof Response ? res.clone() : { ...res },
 	);
-
 
 	return res;
 }

@@ -195,19 +195,19 @@ export class Cache {
 	async bulkGet(
 		keys: (
 			| readonly [
-				/* type */
-				NonGuildBased | GuildRelated,
-				/* source id */
-				string,
-			]
+					/* type */
+					NonGuildBased | GuildRelated,
+					/* source id */
+					string,
+			  ]
 			| readonly [
-				/* type */
-				GuildBased,
-				/* source id */
-				string,
-				/* guild id */
-				string,
-			]
+					/* type */
+					GuildBased,
+					/* source id */
+					string,
+					/* guild id */
+					string,
+			  ]
 		)[],
 	) {
 		const allData: Partial<Record<NonGuildBased | GuildBased | GuildRelated, string[][]>> = {};
@@ -219,7 +219,7 @@ export class Cache {
 					}
 					allData[type]!.push([id, guildId]);
 				}
-					break;
+				break;
 				case 'roles':
 				case 'threads':
 				case 'stickers':
@@ -235,7 +235,7 @@ export class Cache {
 					}
 					allData[type]!.push([id]);
 				}
-					break;
+				break;
 				default:
 					throw new Error(`Invalid type ${type}`);
 			}
@@ -264,23 +264,23 @@ export class Cache {
 	async bulkSet(
 		keys: (
 			| readonly [
-				/* type */
-				NonGuildBased,
-				/* data */
-				any,
-				/* source id */
-				string,
-			]
+					/* type */
+					NonGuildBased,
+					/* data */
+					any,
+					/* source id */
+					string,
+			  ]
 			| readonly [
-				/* type */
-				GuildBased | GuildRelated,
-				/* data */
-				any,
-				/* source id */
-				string,
-				/* guild id */
-				string,
-			]
+					/* type */
+					GuildBased | GuildRelated,
+					/* data */
+					any,
+					/* source id */
+					string,
+					/* guild id */
+					string,
+			  ]
 		)[],
 	) {
 		const allData: [string, any][] = [];
@@ -306,7 +306,7 @@ export class Cache {
 					data.guild_id = guildId;
 					allData.push([this[type]!.hashId(id), this[type]!.parse(data, id, guildId!)]);
 				}
-					break;
+				break;
 				case 'members': {
 					const hashId = this[type]?.hashId(guildId!);
 					if (!hashId) {
@@ -319,7 +319,7 @@ export class Cache {
 					data.guild_id = guildId;
 					allData.push([this[type]!.hashGuildId(id, guildId), this[type]!.parse(data, id, guildId!)]);
 				}
-					break;
+				break;
 				case 'users':
 				case 'guilds': {
 					const hashId = this[type]?.namespace;
@@ -332,7 +332,7 @@ export class Cache {
 					relationshipsData[hashId].push(id);
 					allData.push([this[type]!.hashId(id), data]);
 				}
-					break;
+				break;
 				default:
 					throw new Error(`Invalid type ${type}`);
 			}
@@ -348,7 +348,7 @@ export class Cache {
 				const data = event.d as GatewayReadyDispatchData;
 				await this.users?.set(data.user.id, data.user);
 			}
-				break;
+			break;
 			case 'GUILD_CREATE':
 			case 'GUILD_UPDATE':
 				await this.guilds?.set(event.d.id, event.d);

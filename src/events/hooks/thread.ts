@@ -1,5 +1,4 @@
 import type { BaseClient } from '../../client/base';
-import { ThreadChannel } from '../../structures';
 import type {
 	GatewayThreadCreateDispatchData,
 	GatewayThreadDeleteDispatchData,
@@ -9,6 +8,7 @@ import type {
 	GatewayThreadUpdateDispatchData,
 } from '../../common';
 import { toCamelCase } from '../../common';
+import { ThreadChannel } from '../../structures';
 
 export const THREAD_CREATE = (self: BaseClient, data: GatewayThreadCreateDispatchData) => {
 	return new ThreadChannel(self, data);

@@ -13,13 +13,13 @@ import { WebhookRoutes } from './webhooks';
 export * from './cdn';
 
 export type Routes = ApplicationRoutes &
-  ChannelRoutes &
-  GatewayRoutes &
-  GuildRoutes &
-  InteractionRoutes &
-  InviteRoutes &
-  StageInstanceRoutes &
-  StickerRoutes &
-  UserRoutes &
-  VoiceRoutes &
-  WebhookRoutes;
+	ChannelRoutes &
+	GatewayRoutes &
+	GuildRoutes &
+	InteractionRoutes &
+	InviteRoutes &
+	StageInstanceRoutes &
+	StickerRoutes &
+	UserRoutes &
+	VoiceRoutes &
+	WebhookRoutes;

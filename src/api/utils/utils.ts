@@ -2,7 +2,7 @@ import type { RESTPatchAPIChannelJSONBody, Snowflake } from 'discord-api-types/v
 import type { REST } from '../REST.js';
 import { RateLimitError } from '../errors/RateLimitError.js';
 import { DEPRECATION_WARNING_PREFIX } from './constants.js';
-import { RequestMethod, type RateLimitData, type ResponseLike } from './types.js';
+import { type RateLimitData, RequestMethod, type ResponseLike } from './types.js';
 
 function serializeSearchParam(value: unknown): string | null {
 	switch (typeof value) {

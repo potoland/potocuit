@@ -2,7 +2,13 @@ import { APIActionRowComponent, APIActionRowComponentTypes, ComponentType } from
 import { ActionRow } from './ActionRow';
 import { Button } from './Button';
 import { TextInput } from './Modal';
-import { ChannelSelectMenu, MentionableSelectMenu, RoleSelectMenu, StringSelectMenu, UserSelectMenu } from './SelectMenu';
+import {
+	ChannelSelectMenu,
+	MentionableSelectMenu,
+	RoleSelectMenu,
+	StringSelectMenu,
+	UserSelectMenu,
+} from './SelectMenu';
 import { PotoComponents } from './types';
 
 export * from './ActionRow';

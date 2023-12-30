@@ -84,7 +84,7 @@ export type ShardStatusUpdate = Pick<GatewayPresenceUpdateData, 'activities' | '
 
 export interface RequestGuildMembersOptions
 	extends GatewayRequestGuildMembersDataWithQuery,
-	GatewayRequestGuildMembersDataWithUserIds { }
+		GatewayRequestGuildMembersDataWithUserIds {}
 
 export interface GatewayMemberRequest {
 	/** The unique nonce for this request. */
@@ -205,7 +205,14 @@ export type AutoModetaractionRuleEvents = RestToKeys<
 	]
 >;
 
-export type EntitlementEvents = RestToKeys<[APIEntitlement, GatewayDispatchEvents.EntitlementCreate, GatewayDispatchEvents.EntitlementDelete, GatewayDispatchEvents.EntitlementUpdate]>
+export type EntitlementEvents = RestToKeys<
+	[
+		APIEntitlement,
+		GatewayDispatchEvents.EntitlementCreate,
+		GatewayDispatchEvents.EntitlementDelete,
+		GatewayDispatchEvents.EntitlementUpdate,
+	]
+>;
 
 export type NormalizeEvents = Events &
 	AutoModetaractionRuleEvents &

@@ -10,7 +10,7 @@ import { DiscordBase } from '../../extra/DiscordBase';
 import type { BaseChannel } from './base';
 import { TopicableGuildChannel } from './topicable';
 
-export interface ThreadOnlyMethods extends BaseChannel<ChannelType.PublicThread | ChannelType.PrivateThread> { }
+export interface ThreadOnlyMethods extends BaseChannel<ChannelType.PublicThread | ChannelType.PrivateThread> {}
 @mix(TopicableGuildChannel)
 export class ThreadOnlyMethods extends DiscordBase {
 	setTags(tags: APIGuildForumTag[], reason?: string) {

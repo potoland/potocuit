@@ -1,8 +1,7 @@
 import { APIVersion } from 'discord-api-types/v10';
 import { BASE_URL } from '../../common';
 
-export const DefaultUserAgent =
-	"DiscordBot (https://biscuitjs.com)";
+export const DefaultUserAgent = 'DiscordBot (https://biscuitjs.com)';
 
 export const DefaultRestOptions = {
 	agent: null,
@@ -20,8 +19,8 @@ export const DefaultRestOptions = {
 	hashLifetime: 86_400_000, // 24 Hours
 	handlerSweepInterval: 3_600_000, // 1 Hour
 	makeRequest(url: string, init: RequestInit) {
-		return fetch(url, init)
-	}
+		return fetch(url, init);
+	},
 };
 
 /**

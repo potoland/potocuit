@@ -5,7 +5,7 @@ import {
 	APITextInputComponent,
 	ComponentType,
 	RestOrArray,
-	TextInputStyle
+	TextInputStyle,
 } from '../../common';
 import { ActionRow } from './ActionRow';
 import { BaseComponentBuilder, OptionValuesLength } from './Base';

@@ -1,5 +1,5 @@
-import { ChannelType, VideoQualityMode } from "discord-api-types/v10";
-import { BaseChannel } from "./base";
+import { ChannelType, VideoQualityMode } from 'discord-api-types/v10';
+import { BaseChannel } from './base';
 
 export class VoiceChannelMethods extends BaseChannel<ChannelType> {
 	setBitrate(bitrate: number | null, reason?: string) {

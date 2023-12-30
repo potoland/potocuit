@@ -1,9 +1,9 @@
-import type { ImageOptions } from '../../common/types/options';
 import type { APIPartialGuild, ObjectToLower } from '../../common';
 import { GuildFeature } from '../../common';
+import type { ImageOptions } from '../../common/types/options';
 import { DiscordBase } from './DiscordBase';
 
-export interface BaseGuild extends ObjectToLower<APIPartialGuild> { }
+export interface BaseGuild extends ObjectToLower<APIPartialGuild> {}
 /**
  * Base guild class
  */

@@ -5,4 +5,3 @@ export * from './applications/menucontext';
 export * from './applications/shared';
 export * from './decorators';
 export * from './optionresolver';
-

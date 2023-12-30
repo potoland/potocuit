@@ -8,7 +8,8 @@ import {
 	APIStringSelectComponent,
 	APIUserSelectComponent,
 	ChannelType,
-	ComponentType, RestOrArray
+	ComponentType,
+	RestOrArray,
 } from '../../common';
 import {
 	ChannelSelectMenuInteraction,
@@ -112,7 +113,7 @@ export class StringSelectMenu extends SelectMenu<APIStringSelectComponent, Strin
 }
 
 export class StringSelectOption {
-	constructor(public data: Partial<APISelectMenuOption> = {}) { }
+	constructor(public data: Partial<APISelectMenuOption> = {}) {}
 
 	setLabel(label: string): this {
 		this.data.label = label;

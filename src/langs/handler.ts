@@ -1,5 +1,5 @@
 import type { __LangType } from '../__generated';
-import { Locale, PotoHandler, type LocaleString } from '../common';
+import { Locale, type LocaleString, PotoHandler } from '../common';
 
 const values = Object.values(Locale);
 

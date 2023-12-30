@@ -9,12 +9,7 @@ import { ProxyRequestMethod } from './Router';
 import { BurstHandler } from './handlers/BurstHandler';
 import { SequentialHandler } from './handlers/SequentialHandler';
 import type { IHandler } from './interfaces/Handler';
-import {
-	BurstHandlerMajorIdKey,
-	DefaultRestOptions,
-	DefaultUserAgent,
-	OverwrittenMimeTypes
-} from './utils/constants';
+import { BurstHandlerMajorIdKey, DefaultRestOptions, DefaultUserAgent, OverwrittenMimeTypes } from './utils/constants';
 import type {
 	HashData,
 	InternalRequest,
@@ -25,11 +20,10 @@ import type {
 	RequestHeaders,
 	ResponseLike,
 	RouteData,
-	RouteLike
+	RouteLike,
 } from './utils/types';
 import { RequestMethod } from './utils/types';
 import { isBufferLike, parseResponse } from './utils/utils';
-
 
 /**
  * Represents the class that manages handlers for endpoints
@@ -89,7 +83,7 @@ export class REST {
 
 		this.logger = new Logger({
 			active: options.debug,
-			name: '[REST]'
+			name: '[REST]',
 		});
 
 		// Start sweepers
@@ -170,7 +164,12 @@ export class REST {
 	 * @param options - Optional request options
 	 */
 	public async get<T>(route: string, options?: RequestObject<ProxyRequestMethod.Get>): Promise<T> {
-		const data = await this.request({ ...options, method: RequestMethod.Get, fullRoute: route as `/${string}`, query: options?.query ? new URLSearchParams(options.query) : undefined })
+		const data = await this.request({
+			...options,
+			method: RequestMethod.Get,
+			fullRoute: route as `/${string}`,
+			query: options?.query ? new URLSearchParams(options.query) : undefined,
+		});
 
 		return data as T;
 	}
@@ -182,7 +181,12 @@ export class REST {
 	 * @param options - Optional request options
 	 */
 	public async delete<T>(route: string, options?: RequestObject<ProxyRequestMethod.Delete>) {
-		const data = await this.request({ ...options, fullRoute: route as `/${string}`, method: RequestMethod.Delete, query: options?.query ? new URLSearchParams(options.query) : undefined });
+		const data = await this.request({
+			...options,
+			fullRoute: route as `/${string}`,
+			method: RequestMethod.Delete,
+			query: options?.query ? new URLSearchParams(options.query) : undefined,
+		});
 
 		return data as T;
 	}
@@ -195,10 +199,12 @@ export class REST {
 	 */
 	public async post<T>(route: string, body?: RequestObject<ProxyRequestMethod.Post>): Promise<T> {
 		const data = await this.request({
-			fullRoute: route as `/${string}`, method: RequestMethod.Post, ...body,
+			fullRoute: route as `/${string}`,
+			method: RequestMethod.Post,
+			...body,
 			body: body?.body,
 			query: body?.query ? new URLSearchParams(body.query) : undefined,
-			files: body?.files
+			files: body?.files,
 		});
 
 		return data as T;
@@ -215,7 +221,9 @@ export class REST {
 			...body,
 			body: body?.body,
 			query: body?.query ? new URLSearchParams(body.query) : undefined,
-			files: body?.files, fullRoute: route as `/${string}`, method: RequestMethod.Put
+			files: body?.files,
+			fullRoute: route as `/${string}`,
+			method: RequestMethod.Put,
 		});
 		return data as T;
 	}
@@ -231,7 +239,9 @@ export class REST {
 			...body,
 			body: body?.body,
 			query: body?.query ? new URLSearchParams(body.query) : undefined,
-			files: body?.files, fullRoute: route as `/${string}`, method: RequestMethod.Patch
+			files: body?.files,
+			fullRoute: route as `/${string}`,
+			method: RequestMethod.Patch,
 		});
 		return data as T;
 	}
@@ -357,8 +367,9 @@ export class REST {
 		}
 
 		// Format the full request URL (api base, optional version, endpoint, optional querystring)
-		const url = `${options.api}${request.versioned === false ? '' : `/v${options.version}`}${request.fullRoute
-			}${query}`;
+		const url = `${options.api}${request.versioned === false ? '' : `/v${options.version}`}${
+			request.fullRoute
+		}${query}`;
 
 		let finalBody: RequestInit['body'];
 		let additionalHeaders: Record<string, string> = {};
@@ -503,7 +514,6 @@ export class REST {
 	}
 }
 
-
 export type RequestOptions = Pick<RequestData, 'passThroughBody' | 'reason' | 'auth'>;
 
 export type RequestObject<M extends ProxyRequestMethod, B = Record<string, any>, Q = Record<string, any>> = {
@@ -512,12 +522,12 @@ export type RequestObject<M extends ProxyRequestMethod, B = Record<string, any>,
 	(M extends `${ProxyRequestMethod.Get}`
 		? unknown
 		: {
-			body?: B;
-			files?: RawFile[];
-		});
+				body?: B;
+				files?: RawFile[];
+		  });
 
-export type RestArguments<M extends ProxyRequestMethod, B = any, Q extends never | Record<string, any> = any> = M extends ProxyRequestMethod.Get
-	? Q extends never
-	? RequestObject<M, never, B>
-	: never
-	: RequestObject<M, B, Q>;
+export type RestArguments<
+	M extends ProxyRequestMethod,
+	B = any,
+	Q extends never | Record<string, any> = any,
+> = M extends ProxyRequestMethod.Get ? (Q extends never ? RequestObject<M, never, B> : never) : RequestObject<M, B, Q>;

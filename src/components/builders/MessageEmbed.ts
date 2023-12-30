@@ -3,8 +3,9 @@ import {
 	APIEmbedAuthor,
 	APIEmbedField,
 	APIEmbedFooter,
-	ObjectToLower, RestOrArray,
-	toSnakeCase
+	ObjectToLower,
+	RestOrArray,
+	toSnakeCase,
 } from '../../common';
 
 export class MessageEmbed {
