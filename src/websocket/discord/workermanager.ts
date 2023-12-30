@@ -1,11 +1,9 @@
 import { randomUUID } from 'crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import { join } from 'path';
-import type { GatewayPresenceUpdateData, GatewaySendPayload } from '@biscuitland/common';
-import { Logger } from '@biscuitland/common';
 import { Worker } from 'worker_threads';
-import { type Adapter, DefaultMemoryAdapter } from '../../cache';
-import { Options } from '../../utils';
+import { DefaultMemoryAdapter, type Adapter } from '../../cache';
+import { GatewayPresenceUpdateData, GatewaySendPayload, Logger, MergeOptions } from '../../common';
 import { WorkerManagerDefaults } from '../constants';
 import { SequentialBucket } from '../structures';
 import type { ShardOptions, WorkerData, WorkerManagerOptions } from './shared';
@@ -20,7 +18,7 @@ export class WorkersManger extends Map<number, Worker> {
 	constructor(options: WorkerManagerOptions) {
 		super();
 		options.totalShards ??= options.info.shards;
-		this.options = Options<Required<WorkerManagerOptions>>(WorkerManagerDefaults, options);
+		this.options = MergeOptions<Required<WorkerManagerOptions>>(WorkerManagerDefaults, options);
 		this.options.workers ??= Math.ceil(this.options.totalShards / this.options.shardsPerWorker);
 		this.options.info.shards = options.totalShards;
 		this.connectQueue = new SequentialBucket(this.concurrency);
@@ -180,11 +178,11 @@ export class WorkersManger extends Map<number, Worker> {
 					result,
 				} as ManagerSendCacheResult);
 			}
-			break;
+				break;
 			case 'RECEIVE_PAYLOAD': {
 				this.options.handlePayload(message.shardId, message.workerId, message.payload);
 			}
-			break;
+				break;
 			case 'RESULT_PAYLOAD': {
 				const resolve = this.promises.get(message.nonce);
 				if (!resolve) {
@@ -193,7 +191,7 @@ export class WorkersManger extends Map<number, Worker> {
 				this.promises.delete(message.nonce);
 				resolve(true);
 			}
-			break;
+				break;
 			case 'SHARD_INFO': {
 				const { nonce, type, ...data } = message;
 				const resolve = this.promises.get(nonce);
@@ -202,7 +200,7 @@ export class WorkersManger extends Map<number, Worker> {
 				}
 				resolve(data);
 			}
-			break;
+				break;
 			case 'WORKER_INFO': {
 				const { nonce, type, ...data } = message;
 				const resolve = this.promises.get(nonce);

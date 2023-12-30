@@ -1,7 +1,7 @@
-import { GatewayIntentBits } from '@biscuitland/common';
 import type { InternalRuntimeConfig, InternalRuntimeConfigHTTP, RuntimeConfig, RuntimeConfigHTTP } from './client/base';
 import type { CommandContext, __PotoCommandOption } from './commands';
 import { MiddlewareContext } from './commands/applications/shared';
+import { GatewayIntentBits } from './common';
 import type { EventContext, IClientEvents, PotoNameEvents } from './events';
 import { ChatInputCommandInteraction, MessageCommandInteraction, UserCommandInteraction } from './structures';
 
@@ -9,11 +9,11 @@ export * from './cache';
 export * from './client';
 export * from './collection';
 export * from './commands';
+export * from './common';
 export * from './components';
 export * from './events';
 export * from './structures';
 export * from './structures/extra/functions';
-export * from './types';
 export * from './websocket/discord/workermanager';
 
 export function throwError(msg: string): never {

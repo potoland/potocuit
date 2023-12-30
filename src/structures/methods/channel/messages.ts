@@ -1,21 +1,21 @@
+import type { MethodContext } from '../../..';
+import { User } from '../../..';
+import type { RawFile } from '../../../api';
 import type {
 	ChannelType,
 	RESTGetAPIChannelMessageReactionUsersQuery,
 	RESTPatchAPIChannelMessageJSONBody,
 	RESTPostAPIChannelMessageJSONBody,
 	RESTPostAPIChannelMessagesBulkDeleteJSONBody,
-} from '@biscuitland/common';
-import type { RawFile } from '@biscuitland/rest';
-import type { MethodContext } from '../../..';
-import { User } from '../../..';
-import type { EmojiResolvable } from '../../../types/resolvables';
-import type { MessageCreateBodyRequest, MessageUpdateBodyRequest } from '../../../types/write';
+} from '../../../common';
+import type { EmojiResolvable } from '../../../common/types/resolvables';
+import type { MessageCreateBodyRequest, MessageUpdateBodyRequest } from '../../../common/types/write';
 import { Message } from '../../Message';
 import { DiscordBase } from '../../extra/DiscordBase';
 import { encodeEmoji, resolveEmoji } from '../../extra/functions';
 import type { BaseChannel } from './base';
 
-export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> {}
+export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> { }
 export class MessagesMethods extends DiscordBase {
 	typing() {
 		return this.api.channels(this.id).typing.post();

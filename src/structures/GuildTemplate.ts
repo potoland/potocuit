@@ -1,15 +1,15 @@
+import type { BaseClient } from '../client/base';
 import type {
 	APITemplate,
+	MethodContext,
 	ObjectToLower,
 	RESTPatchAPIGuildTemplateJSONBody,
 	RESTPostAPIGuildTemplatesJSONBody,
-} from '@biscuitland/common';
-import type { BaseClient } from '../client/base';
-import type { MethodContext } from '../types';
+} from '../common';
 import { Base } from './extra/Base';
 import { hasProp } from './extra/functions';
 
-export interface GuildTemplate extends Base, ObjectToLower<APITemplate> {}
+export interface GuildTemplate extends Base, ObjectToLower<APITemplate> { }
 
 export class GuildTemplate extends Base {
 	private readonly __methods__!: ReturnType<typeof GuildTemplate.methods>;

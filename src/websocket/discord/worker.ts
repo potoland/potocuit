@@ -1,7 +1,7 @@
-import type { GatewayDispatchPayload } from '@biscuitland/common';
-import { Logger } from '@biscuitland/common';
-import { parentPort as manager, workerData as __workerData__ } from 'worker_threads';
+import { workerData as __workerData__, parentPort as manager } from 'worker_threads';
 import { Cache, WorkerAdapter } from '../../cache';
+import type { GatewayDispatchPayload } from '../../common';
+import { Logger } from '../../common';
 import { handleManagerMessages } from './handlemessage';
 import type { Shard } from './shard';
 import type { WorkerData } from './shared';
@@ -44,20 +44,20 @@ export type WorkerSendCacheRequest = CreateWorkerMessage<
 	{
 		nonce: string;
 		method:
-			| 'scan'
-			| 'get'
-			| 'set'
-			| 'patch'
-			| 'values'
-			| 'keys'
-			| 'count'
-			| 'remove'
-			| 'contains'
-			| 'getToRelationship'
-			| 'bulkAddToRelationShip'
-			| 'addToRelationship'
-			| 'removeRelationship'
-			| 'removeToRelationship';
+		| 'scan'
+		| 'get'
+		| 'set'
+		| 'patch'
+		| 'values'
+		| 'keys'
+		| 'count'
+		| 'remove'
+		| 'contains'
+		| 'getToRelationship'
+		| 'bulkAddToRelationShip'
+		| 'addToRelationship'
+		| 'removeRelationship'
+		| 'removeToRelationship';
 		args: any[];
 		workerId: number;
 	}

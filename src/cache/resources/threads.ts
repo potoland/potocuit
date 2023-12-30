@@ -1,4 +1,4 @@
-import { APIThreadChannel } from '@biscuitland/common';
+import { APIThreadChannel } from '../../common';
 import { ThreadChannel } from '../../structures';
 import { GuildRelatedResource } from './default/guild-related';
 

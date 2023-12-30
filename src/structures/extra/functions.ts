@@ -1,7 +1,7 @@
-import type { APIEmoji, APIPartialEmoji } from '@biscuitland/common';
-import { DiscordEpoch, FormattingPatterns } from '@biscuitland/common';
 import type { Cache } from '../../cache';
-import type { EmojiResolvable } from '../../types/resolvables';
+import type { EmojiResolvable } from '../../common/types/resolvables';
+import type { APIEmoji, APIPartialEmoji } from '../../common';
+import { DiscordEpoch, FormattingPatterns } from '../../common';
 
 /** * Convert a timestamp to a snowflake. * @param timestamp The timestamp to convert. * @returns The snowflake. */
 export function snowflakeToTimestamp(id: string): number {

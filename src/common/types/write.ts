@@ -7,9 +7,9 @@ import type {
 	RESTPatchAPIWebhookWithTokenMessageJSONBody,
 	RESTPostAPIChannelMessageJSONBody,
 	RESTPostAPIWebhookWithTokenJSONBody,
-} from '@biscuitland/common';
-import type { ActionRow, Modal, PotoComponents, TextInput } from '../components';
-import { MessageEmbed } from '../components/builders/MessageEmbed';
+} from '..';
+import type { ActionRow, Modal, PotoComponents, TextInput } from '../../components';
+import { MessageEmbed } from '../../components/builders/MessageEmbed';
 import type { OmitInsert } from './util';
 
 export type PotoComponentProper = {
@@ -24,7 +24,7 @@ export type PotoModalComponentProper = {
 	components?: ActionRow<TextInput>[] | undefined;
 };
 
-export interface ResolverProps extends PotoComponentProper, PotoEmbedsProper {}
+export interface ResolverProps extends PotoComponentProper, PotoEmbedsProper { }
 
 export type MessageCreateBodyRequest = OmitInsert<
 	RESTPostAPIChannelMessageJSONBody,

@@ -1,7 +1,7 @@
-import { type Identify } from '@biscuitland/common';
 import type { GuildBased, GuildRelated, NonGuildBased } from '../../cache';
 import type { BaseClient } from '../../client/base';
-import { DeepPartial } from '../../types';
+import { DeepPartial } from '../../common';
+import { type Identify } from '../../common';
 import { Base } from './Base';
 import { snowflakeToTimestamp } from './functions';
 

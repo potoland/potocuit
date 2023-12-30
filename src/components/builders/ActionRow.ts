@@ -1,20 +1,18 @@
+import { FixedComponents, PotoComponents } from '..';
 import {
 	APIActionRowComponent,
 	APIActionRowComponentTypes,
 	APIMessageActionRowComponent,
-	ComponentType,
-} from '@biscuitland/common';
-import { FixedComponents, PotoComponents, createComponent } from '..';
+	ComponentType, RestOrArray
+} from '../../common';
 import '../../index';
-import { RestOrArray } from '../../types';
-import { BaseComponent } from './Base';
-
-export class ActionRow<T extends PotoComponents> extends BaseComponent<
+import { BaseComponentBuilder } from './Base';
+export class ActionRow<T extends PotoComponents> extends BaseComponentBuilder<
 	APIActionRowComponent<APIActionRowComponentTypes>
 > {
 	constructor({ components, ...data }: Partial<APIActionRowComponent<APIActionRowComponentTypes>> = {}) {
 		super({ ...data, type: ComponentType.ActionRow });
-		this.components = (components?.map(createComponent) ?? []) as FixedComponents<T>[];
+		this.components = (components?.map(BaseComponentBuilder.from) ?? []) as FixedComponents<T>[];
 	}
 
 	components: FixedComponents<T>[];

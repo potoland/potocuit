@@ -1,21 +1,19 @@
+import type { BaseClient } from '../client/base';
+import { Collection } from '../collection';
 import type {
 	APIActionRowComponent,
 	APIMessage,
 	APIMessageActionRowComponent,
 	APIModalInteractionResponseCallbackData,
-	Logger,
-} from '@biscuitland/common';
-import { InteractionResponseType } from '@biscuitland/common';
-import type { BaseClient } from '../client/base';
-import { Collection } from '../collection';
-import type { ComponentInteraction, ModalSubmitInteraction, ReplyInteractionBody } from '../structures';
+} from '../common';
+import { InteractionResponseType, Logger, PotoHandler } from '../common';
 import type {
 	InteractionMessageUpdateBodyRequest,
 	MessageCreateBodyRequest,
 	MessageUpdateBodyRequest,
 	ModalCreateBodyRequest,
-} from '../types/write';
-import { PotoHandler } from '../utils';
+} from '../common/types/write';
+import type { ComponentInteraction, ModalSubmitInteraction, ReplyInteractionBody } from '../structures';
 import type { ActionRow, ComponentCallback, ModalSubmitCallback, PotoComponents } from './builders';
 import type { ModalCommand } from './command';
 import { ComponentCommand, InteractionCommandType } from './command';

@@ -1,16 +1,15 @@
 import { join } from 'node:path';
-import type { LocaleString, MakeRequired } from '@biscuitland/common';
-import { LogLevels, Logger } from '@biscuitland/common';
-import { BiscuitREST, Router } from '@biscuitland/rest';
+import { REST, Router } from '../api';
 import type { Adapter } from '../cache';
 import { Cache, DefaultMemoryAdapter } from '../cache';
 import { MiddlewareContext } from '../commands/applications/shared';
 import { PotoCommandHandler } from '../commands/handler';
+import type { LocaleString, MakeRequired } from '../common';
+import { LogLevels, Logger, filterSplit } from '../common';
+import type { DeepPartial, IntentStrings, OmitInsert } from '../common/types/util';
 import { ComponentHandler } from '../components/handler';
 import { PotoLangsHandler } from '../langs/handler';
 import { ChatInputCommandInteraction, MessageCommandInteraction, UserCommandInteraction } from '../structures';
-import type { DeepPartial, IntentStrings, OmitInsert } from '../types/util';
-import { filterSplit } from '../utils';
 import type { PotoClient } from './client';
 import type { PotoHttpClient } from './httpclient';
 import type { WorkerClient } from './workerclient';
@@ -18,7 +17,7 @@ import type { WorkerClient } from './workerclient';
 export class BaseClient {
 	/** @internal */
 	handleGuilds = new Set<string>();
-	rest!: BiscuitREST;
+	rest!: REST;
 	cache!: Cache;
 
 	debugger = new Logger({
@@ -81,7 +80,7 @@ export class BaseClient {
 		cache,
 		defaultLang,
 	}: {
-		rest?: BiscuitREST;
+		rest?: REST;
 		cache?: { adapter: Adapter; disabledCache?: Cache['disabledCache'] };
 		defaultLang?: LocaleString;
 	}) {
@@ -121,7 +120,7 @@ export class BaseClient {
 
 		if (!this.rest) {
 			BaseClient.assertString(token, 'token is not a string');
-			this.rest = new BiscuitREST({
+			this.rest = new REST({
 				token,
 			});
 		}

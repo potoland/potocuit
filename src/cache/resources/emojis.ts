@@ -1,4 +1,4 @@
-import type { APIEmoji } from '@biscuitland/common';
+import type { APIEmoji } from '../../common';
 import { GuildEmoji } from '../../structures';
 import { GuildRelatedResource } from './default/guild-related';
 

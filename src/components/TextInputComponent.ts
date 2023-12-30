@@ -1,4 +1,4 @@
-import type { APIModalComponent, APITextInputComponent, ComponentType } from '@biscuitland/common';
+import type { APIModalComponent, APITextInputComponent, ComponentType } from '../common';
 import { BaseComponent } from '../structures/extra/BaseComponent';
 
 export class TextInputComponent extends BaseComponent<ComponentType.TextInput> {

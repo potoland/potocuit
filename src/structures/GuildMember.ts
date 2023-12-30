@@ -2,18 +2,18 @@ import type {
 	RESTGetAPIGuildMembersQuery,
 	RESTGetAPIGuildMembersSearchQuery,
 	RESTPutAPIGuildMemberJSONBody,
-} from '@biscuitland/common';
+} from '../common';
 import {
+	FormattingPatterns,
 	type APIGuildMember,
 	type APIInteractionDataResolvedGuildMember,
 	type APIUser,
-	FormattingPatterns,
 	type GatewayGuildMemberAddDispatchData,
 	type GatewayGuildMemberUpdateDispatchData,
 	type ObjectToLower,
 	type RESTPatchAPIGuildMemberJSONBody,
 	type RESTPutAPIGuildBanJSONBody,
-} from '@biscuitland/common';
+} from '../common';
 import { DiscordBase } from './extra/DiscordBase';
 
 export type GuildMemberData =
@@ -23,12 +23,12 @@ export type GuildMemberData =
 	| APIInteractionDataResolvedGuildMember;
 
 import type { BaseClient } from '../client/base';
-import type { ImageOptions, MethodContext } from '../types/options';
-import type { GuildMemberResolvable } from '../types/resolvables';
+import type { ImageOptions, MethodContext } from '../common/types/options';
+import type { GuildMemberResolvable } from '../common/types/resolvables';
 import { Guild } from './Guild';
 import { User } from './User';
 
-export interface GuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> {}
+export interface GuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> { }
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
@@ -94,12 +94,12 @@ export class GuildMember extends DiscordBase {
 		return this.__methods__.edit(this.id, body, reason).then(this._patchThis);
 	}
 
-	dynamicAvatarURL(options?: ImageOptions): string | null {
+	dynamicAvatarURL(options?: ImageOptions): string {
 		if (!this.avatar) {
 			return this.user.avatarURL(options);
 		}
 
-		return this.rest.api.cdn.guildMemberAvatar(this.guildId, this.id, this.avatar, options);
+		return this.rest.cdn.guildMemberAvatar(this.guildId, this.id, this.avatar, options);
 	}
 
 	toString(): string {
@@ -154,8 +154,8 @@ export class GuildMember extends DiscordBase {
 
 				return displayName
 					? await this.methods(ctx)
-							.search({ query: displayName, limit: 1 })
-							.then((x) => x[0])
+						.search({ query: displayName, limit: 1 })
+						.then((x) => x[0])
 					: undefined;
 			},
 			search: async (query?: RESTGetAPIGuildMembersSearchQuery) => {
@@ -231,7 +231,7 @@ export class GuildMember extends DiscordBase {
 
 export interface InteractionGuildMember
 	extends GuildMember,
-		ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles'>> {}
+	ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles'>> { }
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object

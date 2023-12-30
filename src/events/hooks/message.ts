@@ -1,3 +1,6 @@
+import type { PartialClass } from '.';
+import type { BaseClient } from '../../client/base';
+import { Message } from '../../structures';
 import type {
 	APIMessage,
 	GatewayMessageCreateDispatchData,
@@ -8,11 +11,8 @@ import type {
 	GatewayMessageReactionRemoveDispatchData,
 	GatewayMessageReactionRemoveEmojiDispatchData,
 	GatewayMessageUpdateDispatchData,
-} from '@biscuitland/common';
-import { toCamelCase } from '@biscuitland/common';
-import type { PartialClass } from '.';
-import type { BaseClient } from '../../client/base';
-import { Message } from '../../structures';
+} from '../../common';
+import { toCamelCase } from '../../common';
 
 export const MESSAGE_CREATE = (self: BaseClient, data: GatewayMessageCreateDispatchData) => {
 	return new Message(self, data);

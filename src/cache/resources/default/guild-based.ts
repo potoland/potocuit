@@ -1,5 +1,5 @@
-import type { GatewayIntentBits } from '@biscuitland/common';
 import type { BaseClient } from '../../../client/base';
+import type { GatewayIntentBits } from '../../../common';
 import type { Cache } from '../../index';
 
 export class GuildBasedResource<T = any> {

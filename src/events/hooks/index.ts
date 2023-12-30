@@ -2,6 +2,7 @@ export * from './application_command';
 export * from './auto_moderation';
 export * from './channel';
 export * from './dispatch';
+export * from './entitlement';
 export * from './guild';
 export * from './integration';
 export * from './interactions';
@@ -15,7 +16,7 @@ export * from './user';
 export * from './voice';
 export * from './webhook';
 
-import type { CamelCase } from '@biscuitland/common';
+import type { CamelCase } from '../../common';
 import type * as RawEvents from './index';
 
 export type PotocuitEvents = {
@@ -41,8 +42,8 @@ export type Clean<T> = DropT<T, never>;
 
 export type Identify<T> = T extends infer U
 	? {
-			[K in keyof U]: U[K];
-	  }
+		[K in keyof U]: U[K];
+	}
 	: never;
 
 export type PartialAvoid<U, T> = Identify<KeepT<T, U> & Partial<T>>;

@@ -3,10 +3,9 @@ import {
 	APIEmbedAuthor,
 	APIEmbedField,
 	APIEmbedFooter,
-	ObjectToLower,
-	toSnakeCase,
-} from '@biscuitland/common';
-import { RestOrArray } from '../../types';
+	ObjectToLower, RestOrArray,
+	toSnakeCase
+} from '../../common';
 
 export class MessageEmbed {
 	constructor(public data: Partial<APIEmbed> = {}) {

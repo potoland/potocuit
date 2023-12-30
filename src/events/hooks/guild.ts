@@ -1,3 +1,4 @@
+import type { BaseClient } from '../../client/base';
 import type {
 	GatewayGuildAuditLogEntryCreateDispatchData,
 	GatewayGuildBanAddDispatchData,
@@ -19,9 +20,8 @@ import type {
 	GatewayGuildScheduledEventUserRemoveDispatchData,
 	GatewayGuildStickersUpdateDispatchData,
 	GatewayGuildUpdateDispatchData,
-} from '@biscuitland/common';
-import { toCamelCase } from '@biscuitland/common';
-import type { BaseClient } from '../../client/base';
+} from '../../common';
+import { toCamelCase } from '../../common';
 import { AnonymousGuild, Guild, GuildEmoji, GuildMember, GuildRole, Sticker, User } from '../../structures';
 
 export const GUILD_AUDIT_LOG_ENTRY_CREATE = (_self: BaseClient, data: GatewayGuildAuditLogEntryCreateDispatchData) => {
@@ -52,7 +52,7 @@ export const GUILD_EMOJIS_UPDATE = (self: BaseClient, data: GatewayGuildEmojisUp
 };
 
 export const GUILD_INTEGRATIONS_UPDATE = (_self: BaseClient, data: GatewayGuildIntegrationsUpdateDispatchData) => {
-	return data;
+	return toCamelCase(data);
 };
 
 export const GUILD_MEMBER_ADD = (self: BaseClient, data: GatewayGuildMemberAddDispatchData) => {

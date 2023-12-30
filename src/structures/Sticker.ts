@@ -1,11 +1,11 @@
+import type { BaseClient } from '../client/base';
 import type {
 	APISticker,
+	MethodContext,
 	ObjectToLower,
 	RESTPatchAPIGuildStickerJSONBody,
 	RESTPostAPIGuildStickerFormDataBody,
-} from '@biscuitland/common';
-import type { BaseClient } from '../client/base';
-import type { MethodContext } from '../types';
+} from '../common';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 

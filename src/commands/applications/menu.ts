@@ -1,6 +1,6 @@
-import type { LocaleString } from '@biscuitland/common';
-import { ApplicationCommandType } from '@biscuitland/common';
 import type { BaseClient } from '../../client/base';
+import type { LocaleString } from '../../common';
+import { ApplicationCommandType } from '../../common';
 import { MenuCommandContext } from './menucontext';
 import { MiddlewareContext, NextFunction, PassFunction, StopFunction } from './shared';
 

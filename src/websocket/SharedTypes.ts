@@ -2,6 +2,7 @@ import type {
 	APIAuditLogEntry,
 	APIAutoModerationRule,
 	APIChannel,
+	APIEntitlement,
 	APIGuild,
 	APIGuildMember,
 	APIGuildScheduledEvent,
@@ -57,7 +58,7 @@ import type {
 	GatewayWebhooksUpdateDispatchData,
 	PresenceUpdateStatus,
 	RestToKeys,
-} from '@biscuitland/common';
+} from '../common';
 
 /** https://discord.com/developers/docs/topics/gateway-events#update-presence */
 export interface StatusUpdate {
@@ -83,7 +84,7 @@ export type ShardStatusUpdate = Pick<GatewayPresenceUpdateData, 'activities' | '
 
 export interface RequestGuildMembersOptions
 	extends GatewayRequestGuildMembersDataWithQuery,
-		GatewayRequestGuildMembersDataWithUserIds {}
+	GatewayRequestGuildMembersDataWithUserIds { }
 
 export interface GatewayMemberRequest {
 	/** The unique nonce for this request. */
@@ -204,12 +205,15 @@ export type AutoModetaractionRuleEvents = RestToKeys<
 	]
 >;
 
+export type EntitlementEvents = RestToKeys<[APIEntitlement, GatewayDispatchEvents.EntitlementCreate, GatewayDispatchEvents.EntitlementDelete, GatewayDispatchEvents.EntitlementUpdate]>
+
 export type NormalizeEvents = Events &
 	AutoModetaractionRuleEvents &
 	ChannelSameEvents &
 	GuildScheduledSameEvents &
 	GuildScheduledUserSameEvents &
 	IntegrationSameEvents &
+	EntitlementEvents &
 	StageSameEvents & { RAW: GatewayDispatchEvents };
 
 export type GatewayEvents = { [x in keyof NormalizeEvents]: NormalizeEvents[x] };

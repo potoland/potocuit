@@ -1,5 +1,5 @@
-import type { APIGuild } from '@biscuitland/common';
 import type { Cache } from '..';
+import type { APIGuild } from '../../common';
 import { Guild } from '../../structures';
 import { BaseResource } from './default/base';
 

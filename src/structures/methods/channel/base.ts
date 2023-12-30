@@ -1,14 +1,13 @@
-import type {
-	APIChannelBase,
-	APITextChannel,
-	ObjectToLower,
-	RESTPatchAPIChannelJSONBody,
-	RESTPatchAPIGuildChannelPositionsJSONBody,
-	RESTPostAPIGuildChannelJSONBody,
-} from '@biscuitland/common';
-import { ChannelType } from '@biscuitland/common';
 import { mix } from 'ts-mixer';
 import type { BaseClient } from '../../../client/base';
+import type {
+	APIChannelBase,
+	APITextChannel, MethodContext, ObjectToLower,
+	RESTPatchAPIChannelJSONBody,
+	RESTPatchAPIGuildChannelPositionsJSONBody,
+	RESTPostAPIGuildChannelJSONBody, WithID
+} from '../../../common';
+import { ChannelType } from '../../../common';
 import {
 	CategoryChannel,
 	DMChannel,
@@ -16,15 +15,14 @@ import {
 	ForumChannel,
 	MediaChannel,
 	NewsChannel,
-	type PotocuitChannels,
 	StageChannel,
 	TextGuildChannel,
 	ThreadChannel,
 	VoiceChannel,
+	type PotocuitChannels,
 } from '../../../structures/channels';
 import { DiscordBase } from '../../../structures/extra/DiscordBase';
 import { channelLink } from '../../../structures/extra/functions';
-import type { MethodContext, WithID } from '../../../types';
 import { MessagesMethods } from './messages';
 
 export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBase<ChannelType>> {
@@ -172,6 +170,6 @@ export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
 	}
 }
 
-export interface TextBaseChannel extends ObjectToLower<APITextChannel>, MessagesMethods {}
+export interface TextBaseChannel extends ObjectToLower<APITextChannel>, MessagesMethods { }
 @mix(MessagesMethods)
-export class TextBaseChannel extends BaseGuildChannel {}
+export class TextBaseChannel extends BaseGuildChannel { }

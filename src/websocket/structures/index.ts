@@ -1,5 +1,5 @@
-import type { Logger } from '@biscuitland/common';
-import { delay } from '@biscuitland/common';
+import type { Logger } from '../../common';
+import { delay } from '../../common';
 
 /**
  * just any kind of request to queue and resolve later

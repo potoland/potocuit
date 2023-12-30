@@ -1,4 +1,4 @@
-import type { GatewayDispatchPayload } from '@biscuitland/common';
+import type { GatewayDispatchPayload } from '../../common';
 import type { ShardManagerOptions, WorkerManagerOptions } from '../discord';
 
 const COMPRESS = false;

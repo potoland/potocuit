@@ -1,6 +1,6 @@
-import type { APIGuild, APIPartialGuild, GatewayGuildCreateDispatchData, ObjectToLower } from '@biscuitland/common';
 import type { BaseClient } from '../client/base';
-import type { StructPropState, StructStates, ToClass } from '../types/util';
+import type { APIGuild, APIPartialGuild, GatewayGuildCreateDispatchData, ObjectToLower } from '../common';
+import type { StructPropState, StructStates, ToClass } from '../common/types/util';
 import { AutoModerationRule } from './AutoModerationRule';
 import { GuildMember } from './GuildMember';
 import { GuildRole } from './GuildRole';
@@ -10,7 +10,7 @@ import { BaseGuild } from './extra/BaseGuild';
 import type { DiscordBase } from './extra/DiscordBase';
 import { BaseChannel } from './methods/channel/base';
 
-export interface Guild extends Omit<ObjectToLower<APIGuild>, 'stickers' | 'emojis' | 'roles'>, DiscordBase {}
+export interface Guild extends Omit<ObjectToLower<APIGuild>, 'stickers' | 'emojis' | 'roles'>, DiscordBase { }
 export class Guild<State extends StructStates = 'api'> extends (BaseGuild as unknown as ToClass<
 	Omit<BaseGuild, keyof ObjectToLower<APIPartialGuild>>,
 	Guild

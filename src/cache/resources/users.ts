@@ -1,4 +1,4 @@
-import { APIUser } from '@biscuitland/common';
+import { APIUser } from '../../common';
 import { User } from '../../structures';
 import { BaseResource } from './default/base';
 

@@ -1,5 +1,5 @@
-import type { GatewayReadyDispatchData, GatewayResumedDispatch } from '@biscuitland/common';
 import type { BaseClient } from '../../client/base';
+import type { GatewayReadyDispatchData, GatewayResumedDispatch } from '../../common';
 import { ClientUser } from '../../structures';
 
 export const READY = (self: BaseClient, data: GatewayReadyDispatchData) => {

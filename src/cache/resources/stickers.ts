@@ -1,4 +1,4 @@
-import { APISticker } from '@biscuitland/common';
+import { APISticker } from '../../common';
 import { Sticker } from '../../structures';
 import { GuildRelatedResource } from './default/guild-related';
 

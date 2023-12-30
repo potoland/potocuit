@@ -1,3 +1,4 @@
+import { ComponentCallback } from '.';
 import {
 	APIButtonComponent,
 	APIButtonComponentWithCustomId,
@@ -6,8 +7,7 @@ import {
 	ButtonStyle,
 	ComponentType,
 	When,
-} from '@biscuitland/common';
-import { ComponentCallback } from '.';
+} from '../../common';
 import { ButtonInteraction } from '../../structures';
 
 export type ButtonStylesForID = Exclude<ButtonStyle, ButtonStyle.Link>;

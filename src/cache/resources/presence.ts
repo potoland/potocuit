@@ -1,4 +1,4 @@
-import type { GatewayPresenceUpdate } from '@biscuitland/common';
+import type { GatewayPresenceUpdate } from '../../common';
 import { GuildRelatedResource } from './default/guild-related';
 
 export class Presences extends GuildRelatedResource<PotoPresence> {

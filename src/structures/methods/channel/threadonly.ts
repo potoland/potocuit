@@ -1,16 +1,16 @@
+import { mix } from 'ts-mixer';
 import type {
 	APIGuildForumDefaultReactionEmoji,
 	APIGuildForumTag,
 	ChannelType,
 	SortOrderType,
 	ThreadAutoArchiveDuration,
-} from '@biscuitland/common';
-import { mix } from 'ts-mixer';
+} from '../../../common';
 import { DiscordBase } from '../../extra/DiscordBase';
 import type { BaseChannel } from './base';
 import { TopicableGuildChannel } from './topicable';
 
-export interface ThreadOnlyMethods extends BaseChannel<ChannelType.PublicThread | ChannelType.PrivateThread> {}
+export interface ThreadOnlyMethods extends BaseChannel<ChannelType.PublicThread | ChannelType.PrivateThread> { }
 @mix(TopicableGuildChannel)
 export class ThreadOnlyMethods extends DiscordBase {
 	setTags(tags: APIGuildForumTag[], reason?: string) {

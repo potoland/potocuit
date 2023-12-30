@@ -1,6 +1,5 @@
-import { Locale, type LocaleString } from '@biscuitland/common';
 import type { __LangType } from '../__generated';
-import { PotoHandler } from '../utils';
+import { Locale, PotoHandler, type LocaleString } from '../common';
 
 const values = Object.values(Locale);
 

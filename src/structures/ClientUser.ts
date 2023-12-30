@@ -1,11 +1,11 @@
+import type { BaseClient } from '../client/base';
 import type {
 	APIGuild,
 	GatewayReadyDispatchData,
+	MethodContext,
 	RESTGetAPICurrentUserGuildsQuery,
 	RESTPatchAPICurrentUserJSONBody,
-} from '@biscuitland/common';
-import type { BaseClient } from '../client/base';
-import type { MethodContext } from '../types';
+} from '../common';
 import { AnonymousGuild } from './AnonymousGuild';
 import { Guild } from './Guild';
 import { GuildMember } from './GuildMember';

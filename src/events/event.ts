@@ -25,5 +25,5 @@ export type EventContext<K extends keyof IClientEvents, T extends { data: { name
 >;
 export interface PotocuitEvent {
 	data: PotocuitDataEvent;
-	run(...args: EventContext<'client', any>): any;
+	run(...args: EventContext<any, any>): any;
 }

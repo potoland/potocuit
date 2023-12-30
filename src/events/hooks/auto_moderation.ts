@@ -1,12 +1,12 @@
+import type { BaseClient } from '../../client/base';
+import { AutoModerationRule } from '../../structures';
 import {
+	toCamelCase,
 	type GatewayAutoModerationActionExecutionDispatchData,
 	type GatewayAutoModerationRuleCreateDispatchData,
 	type GatewayAutoModerationRuleDeleteDispatchData,
 	type GatewayAutoModerationRuleUpdateDispatchData,
-	toCamelCase,
-} from '@biscuitland/common';
-import type { BaseClient } from '../../client/base';
-import { AutoModerationRule } from '../../structures';
+} from '../../common';
 
 export const AUTO_MODERATION_ACTION_EXECUTION = (
 	_self: BaseClient,

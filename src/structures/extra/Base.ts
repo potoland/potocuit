@@ -1,6 +1,6 @@
-import { toCamelCase } from '@biscuitland/common';
-import { Router } from '@biscuitland/rest';
+import { Router } from '../../api';
 import type { BaseClient } from '../../client/base';
+import { toCamelCase } from '../../common';
 
 /** */
 export abstract class Base {

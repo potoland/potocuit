@@ -1,9 +1,9 @@
-import type { APIUser, ObjectToLower } from '@biscuitland/common';
-import type { ImageOptions } from '../types/options';
+import type { APIUser, ObjectToLower } from '../common';
+import type { ImageOptions } from '../common/types/options';
 import { DMChannel } from './channels';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface User extends ObjectToLower<APIUser> {}
+export interface User extends ObjectToLower<APIUser> { }
 
 export class User extends DiscordBase<APIUser> {
 	get tag(): string {
@@ -35,9 +35,9 @@ export class User extends DiscordBase<APIUser> {
 
 	avatarURL(options?: ImageOptions): string {
 		if (!this.avatar) {
-			return this.rest.api.cdn.defaultAvatar(Number(this.discriminator));
+			return this.rest.cdn.defaultAvatar(Number(this.discriminator));
 		}
-		return this.rest.api.cdn.avatar(this.id, this.avatar, options);
+		return this.rest.cdn.avatar(this.id, this.avatar, options);
 	}
 
 	toString(): string {

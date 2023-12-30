@@ -1,4 +1,4 @@
-import type { GatewayVoiceState } from '@biscuitland/common';
+import type { GatewayVoiceState } from '../../common';
 import { GuildRelatedResource } from './default/guild-related';
 
 export class VoiceStates extends GuildRelatedResource<PotoVoiceState> {

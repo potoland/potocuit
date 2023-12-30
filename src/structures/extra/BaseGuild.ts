@@ -1,9 +1,9 @@
-import type { APIPartialGuild, ObjectToLower } from '@biscuitland/common';
-import { GuildFeature } from '@biscuitland/common';
-import type { ImageOptions } from '../../types/options';
+import type { ImageOptions } from '../../common/types/options';
+import type { APIPartialGuild, ObjectToLower } from '../../common';
+import { GuildFeature } from '../../common';
 import { DiscordBase } from './DiscordBase';
 
-export interface BaseGuild extends ObjectToLower<APIPartialGuild> {}
+export interface BaseGuild extends ObjectToLower<APIPartialGuild> { }
 /**
  * Base guild class
  */
@@ -43,7 +43,7 @@ export class BaseGuild extends DiscordBase<APIPartialGuild> {
 		if (!this.icon) {
 			return;
 		}
-		return this.rest.api.cdn.icon(this.id, this.icon, options);
+		return this.rest.cdn.icon(this.id, this.icon, options);
 	}
 
 	/**
@@ -56,7 +56,7 @@ export class BaseGuild extends DiscordBase<APIPartialGuild> {
 		if (!this.splash) {
 			return;
 		}
-		return this.rest.api.cdn.discoverySplash(this.id, this.splash, options);
+		return this.rest.cdn.discoverySplash(this.id, this.splash, options);
 	}
 
 	/**
@@ -69,7 +69,7 @@ export class BaseGuild extends DiscordBase<APIPartialGuild> {
 		if (!this.banner) {
 			return;
 		}
-		return this.rest.api.cdn.banner(this.id, this.banner, options);
+		return this.rest.cdn.banner(this.id, this.banner, options);
 	}
 
 	toString(): string {

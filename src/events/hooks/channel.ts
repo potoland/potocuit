@@ -1,10 +1,10 @@
 import {
+	toCamelCase,
 	type GatewayChannelCreateDispatchData,
 	type GatewayChannelDeleteDispatchData,
 	type GatewayChannelPinsUpdateDispatchData,
 	type GatewayChannelUpdateDispatchData,
-	toCamelCase,
-} from '@biscuitland/common';
+} from '../../common';
 
 import type { BaseClient } from '../../client/base';
 import { BaseChannel } from '../../structures/methods/channel/base';

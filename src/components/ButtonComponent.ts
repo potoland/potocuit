@@ -3,8 +3,8 @@ import type {
 	APIButtonComponentWithURL,
 	APIMessageComponentEmoji,
 	ComponentType,
-} from '@biscuitland/common';
-import { ButtonStyle } from '@biscuitland/common';
+} from '../common';
+import { ButtonStyle } from '../common';
 import { BaseComponent } from '../structures/extra/BaseComponent';
 
 export class LinkButtonComponent extends BaseComponent<ComponentType.Button> {

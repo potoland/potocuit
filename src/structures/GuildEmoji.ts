@@ -1,8 +1,8 @@
-import type { APIEmoji, ObjectToLower } from '@biscuitland/common';
 import type { BaseClient } from '../client/base';
+import type { APIEmoji, ObjectToLower } from '../common';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface GuildEmoji extends DiscordBase, ObjectToLower<Omit<APIEmoji, 'id'>> {}
+export interface GuildEmoji extends DiscordBase, ObjectToLower<Omit<APIEmoji, 'id'>> { }
 
 export class GuildEmoji extends DiscordBase {
 	constructor(client: BaseClient, data: APIEmoji, readonly guildId: string) {

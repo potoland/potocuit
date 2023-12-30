@@ -1,11 +1,11 @@
+import type { BaseClient } from '../client/base';
 import type {
 	APIApplicationCommandInteractionDataOption,
 	APIAttachment,
 	APIInteractionDataResolved,
 	MakeRequired,
-} from '@biscuitland/common';
-import { ApplicationCommandOptionType } from '@biscuitland/common';
-import type { BaseClient } from '../client/base';
+} from '../common';
+import { ApplicationCommandOptionType } from '../common';
 import type { PotocuitChannels } from '../structures';
 import { GuildRole, InteractionGuildMember, User } from '../structures';
 import { BaseChannel } from '../structures/methods/channel/base';
@@ -37,9 +37,8 @@ export class OptionResolver {
 	}
 
 	get fullCommandName() {
-		return `${this.parent?.name}${
-			this.group ? ` ${this.group} ${this.subCommand}` : this.subCommand ? ` ${this.subCommand}` : ''
-		}`;
+		return `${this.parent?.name}${this.group ? ` ${this.group} ${this.subCommand}` : this.subCommand ? ` ${this.subCommand}` : ''
+			}`;
 	}
 
 	getCommand() {
@@ -192,19 +191,19 @@ export interface OptionResolved {
 
 export type OptionResolvedWithValue = MakeRequired<Pick<OptionResolved, 'name' | 'value' | 'focused'>, 'value'> & {
 	type:
-		| ApplicationCommandOptionType.Boolean
-		| ApplicationCommandOptionType.Integer
-		| ApplicationCommandOptionType.Number
-		| ApplicationCommandOptionType.String;
+	| ApplicationCommandOptionType.Boolean
+	| ApplicationCommandOptionType.Integer
+	| ApplicationCommandOptionType.Number
+	| ApplicationCommandOptionType.String;
 };
 
 export type OptionResolvedWithProp = Exclude<
 	OptionResolved,
 	{
 		type:
-			| ApplicationCommandOptionType.Boolean
-			| ApplicationCommandOptionType.Integer
-			| ApplicationCommandOptionType.Number
-			| ApplicationCommandOptionType.String;
+		| ApplicationCommandOptionType.Boolean
+		| ApplicationCommandOptionType.Integer
+		| ApplicationCommandOptionType.Number
+		| ApplicationCommandOptionType.String;
 	}
 >;

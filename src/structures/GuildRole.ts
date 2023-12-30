@@ -1,15 +1,15 @@
+import type { BaseClient } from '../client/base';
 import type {
 	APIRole,
+	MethodContext,
 	ObjectToLower,
 	RESTPatchAPIGuildRoleJSONBody,
 	RESTPatchAPIGuildRolePositionsJSONBody,
 	RESTPostAPIGuildRoleJSONBody,
-} from '@biscuitland/common';
-import type { BaseClient } from '../client/base';
-import type { MethodContext } from '../types';
+} from '../common';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface GuildRole extends DiscordBase, ObjectToLower<APIRole> {}
+export interface GuildRole extends DiscordBase, ObjectToLower<APIRole> { }
 
 export class GuildRole extends DiscordBase {
 	private readonly __methods__!: ReturnType<typeof GuildRole.methods>;

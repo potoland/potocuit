@@ -1,6 +1,4 @@
-import type { GatewayUpdatePresence, GatewayVoiceStateUpdate, ObjectToLower } from '@biscuitland/common';
-import { GatewayOpcodes, LogLevels, Logger, toSnakeCase } from '@biscuitland/common';
-import { Options } from '../../utils';
+import { GatewayOpcodes, GatewayUpdatePresence, GatewayVoiceStateUpdate, LogLevels, Logger, MergeOptions, ObjectToLower, toSnakeCase } from '../../common';
 import { ShardManagerDefaults } from '../constants';
 import { SequentialBucket } from '../structures';
 import { Shard } from './shard.js';
@@ -14,7 +12,7 @@ export class ShardManager extends Map<number, Shard> {
 	constructor(options: ShardManagerOptions) {
 		super();
 		options.totalShards ??= options.info.shards;
-		this.options = Options<Required<ShardManagerOptions>>(ShardManagerDefaults, options);
+		this.options = MergeOptions<Required<ShardManagerOptions>>(ShardManagerDefaults, options);
 		this.connectQueue = new SequentialBucket(this.concurrency);
 
 		this.logger = new Logger({

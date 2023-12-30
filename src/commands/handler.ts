@@ -1,7 +1,7 @@
 import { basename, dirname } from 'node:path';
-import type { LocaleString, Logger } from '@biscuitland/common';
 import type { BaseClient } from '../client/base';
-import { PotoHandler } from '../utils';
+import type { Logger } from '../common';
+import { LocaleString, PotoHandler } from '../common';
 import { Command, SubCommand } from './applications/chat';
 import { ContextMenuCommand } from './applications/menu';
 

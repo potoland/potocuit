@@ -4,7 +4,7 @@ import type {
 	GatewayIntentBits,
 	GatewayPresenceUpdateData,
 	Logger,
-} from '@biscuitland/common';
+} from '../../common';
 import type { IdentifyProperties } from '../constants';
 
 export interface ShardManagerOptions extends ShardDetails {

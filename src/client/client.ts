@@ -1,9 +1,8 @@
-import type { GatewayPresenceUpdateData, LocaleString } from '@biscuitland/common';
-import { type GatewayDispatchPayload } from '@biscuitland/common';
-import type { BiscuitREST } from '@biscuitland/rest';
+import type { REST } from '../api';
 import type { Adapter, Cache } from '../cache';
+import type { GatewayPresenceUpdateData, LocaleString } from '../common';
+import { DeepPartial, type GatewayDispatchPayload } from '../common';
 import { PotoEventHandler } from '../events';
-import { DeepPartial } from '../types';
 import { ShardManager } from '../websocket';
 import type { BaseClientOptions, InternalRuntimeConfig, StartOptions } from './base';
 import { BaseClient } from './base';
@@ -24,7 +23,7 @@ export class PotoClient extends BaseClient {
 		cache,
 		defaultLang,
 	}: {
-		rest?: BiscuitREST;
+		rest?: REST;
 		gateway?: ShardManager;
 		cache?: { adapter: Adapter; disabledCache?: Cache['disabledCache'] };
 		defaultLang?: LocaleString;

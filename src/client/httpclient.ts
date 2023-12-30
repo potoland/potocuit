@@ -1,8 +1,7 @@
-import type { APIInteraction } from '@biscuitland/common';
-import { InteractionResponseType, InteractionType } from '@biscuitland/common';
 import FormData from 'form-data';
 import type { HttpRequest, HttpResponse } from 'uWebSockets.js';
-import type { DeepPartial } from '../types';
+import type { APIInteraction, DeepPartial } from '../common';
+import { InteractionResponseType, InteractionType } from '../common';
 import type { InternalRuntimeConfigHTTP, StartOptions } from './base';
 import { BaseClient } from './base';
 import { onInteraction } from './oninteraction';

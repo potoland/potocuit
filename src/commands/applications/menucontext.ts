@@ -1,9 +1,8 @@
-import { ApplicationCommandType, MessageFlags, toSnakeCase } from '@biscuitland/common';
-import { RawFile } from '@biscuitland/rest';
 import type { __LangType } from '../../__generated';
+import { RawFile } from '../../api';
 import type { IClients } from '../../client/base';
+import { ApplicationCommandType, InteractionCreateBodyRequest, InteractionMessageUpdateBodyRequest, MessageFlags, ModalCreateBodyRequest, toSnakeCase } from '../../common';
 import { Message, MessageCommandInteraction, User, UserCommandInteraction } from '../../structures';
-import { InteractionCreateBodyRequest, InteractionMessageUpdateBodyRequest, ModalCreateBodyRequest } from '../../types';
 import type { CommandMetadata, MiddlewareContext } from './shared';
 
 export type InteractionTarget<T> = T extends MessageCommandInteraction ? Message : User;
@@ -17,7 +16,7 @@ export class MenuCommandContext<
 		readonly interaction: T,
 		public metadata: CommandMetadata<M>,
 		readonly shardId: number,
-	) {}
+	) { }
 
 	get proxy() {
 		return this.client.proxy;

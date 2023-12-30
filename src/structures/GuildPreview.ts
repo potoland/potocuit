@@ -1,5 +1,5 @@
-import type { APIGuildPreview, APIPartialGuild } from '@biscuitland/common';
 import type { BaseClient } from '../client/base';
+import type { APIGuildPreview, APIPartialGuild } from '../common';
 import { AnonymousGuild } from './AnonymousGuild';
 
 /**

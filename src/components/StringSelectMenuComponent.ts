@@ -1,4 +1,4 @@
-import type { APISelectMenuOption, APIStringSelectComponent, ComponentType } from '@biscuitland/common';
+import type { APISelectMenuOption, APIStringSelectComponent, ComponentType } from '../common';
 import { BaseSelectMenuComponent } from '../structures/extra/BaseSelectMenuComponent';
 
 export class StringSelectMenuComponent extends BaseSelectMenuComponent<ComponentType.StringSelect> {

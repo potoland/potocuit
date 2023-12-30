@@ -1,3 +1,5 @@
+import type { RawFile } from '../api';
+import type { BaseClient } from '../client/base';
 import type {
 	APIChannelMention,
 	APIGuildMember,
@@ -5,13 +7,11 @@ import type {
 	APIUser,
 	GatewayMessageCreateDispatchData,
 	ObjectToLower,
-} from '@biscuitland/common';
-import type { RawFile } from '@biscuitland/rest';
-import type { BaseClient } from '../client/base';
+} from '../common';
+import type { EmojiResolvable } from '../common/types/resolvables';
+import type { MessageCreateBodyRequest, MessageUpdateBodyRequest } from '../common/types/write';
 import type { BiscuitActionRowMessageComponents } from '../components';
 import { MessageActionRowComponent } from '../components/ActionRow';
-import type { EmojiResolvable } from '../types/resolvables';
-import type { MessageCreateBodyRequest, MessageUpdateBodyRequest } from '../types/write';
 import { GuildMember } from './GuildMember';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
@@ -22,7 +22,7 @@ export type MessageData = APIMessage | GatewayMessageCreateDispatchData;
 
 export interface Message
 	extends DiscordBase,
-		ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> {}
+	ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> { }
 
 export class Message extends DiscordBase {
 	guildId: string | undefined;
@@ -45,7 +45,7 @@ export class Message extends DiscordBase {
 			channels: data.mention_channels ?? [],
 			users: [],
 		};
-		this.components = data.components?.map((x) => new MessageActionRowComponent(this.rest, x)) ?? [];
+		this.components = data.components?.map((x) => new MessageActionRowComponent(x)) ?? [];
 		this.patch(data);
 		Object.assign(this, {
 			__messageMethods__: MessagesMethods.messages({ id: this.channelId, api: this.api, client }),
@@ -119,17 +119,17 @@ export class Message extends DiscordBase {
 		if (data.mentions?.length) {
 			this.mentions.users = this.guildId
 				? data.mentions.map(
-						(m) =>
-							new GuildMember(
-								this.client,
-								{
-									...(m as APIUser & { member?: Omit<APIGuildMember, 'user'> }).member!,
-									user: m,
-								},
-								m,
-								this.guildId!,
-							),
-				  )
+					(m) =>
+						new GuildMember(
+							this.client,
+							{
+								...(m as APIUser & { member?: Omit<APIGuildMember, 'user'> }).member!,
+								user: m,
+							},
+							m,
+							this.guildId!,
+						),
+				)
 				: data.mentions.map((u) => new User(this.client, u));
 		}
 	}

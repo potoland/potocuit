@@ -1,4 +1,4 @@
-import { APIGuildMember } from '@biscuitland/common';
+import { APIGuildMember } from '../../common';
 import { GuildMember } from '../../structures';
 import { GuildBasedResource } from './default/guild-based';
 export class Members extends GuildBasedResource {

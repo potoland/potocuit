@@ -1,4 +1,5 @@
-import { Options } from '@biscuitland/common';
+import { MergeOptions } from "./common";
+
 
 type CollectionData<V> = { expire: number; expireOn: number; value: V };
 
@@ -21,7 +22,7 @@ export class Collection<K, V> {
 	private timeout: NodeJS.Timeout | undefined = undefined;
 
 	constructor(options: Partial<CollectionOptions>) {
-		this.options = Options(Collection.default, options);
+		this.options = MergeOptions(Collection.default, options);
 	}
 
 	set(key: K, value: V, customExpire = this.options.expire) {

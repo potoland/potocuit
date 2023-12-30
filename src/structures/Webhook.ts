@@ -1,3 +1,6 @@
+import type { ImageOptions, MessagePayload, MethodContext } from '..';
+import { hasProp } from '..';
+import type { BaseClient } from '../client/base';
 import type {
 	APIWebhook,
 	ObjectToLower,
@@ -7,16 +10,13 @@ import type {
 	RESTPatchAPIWebhookWithTokenMessageJSONBody,
 	RESTPostAPIWebhookWithTokenJSONBody,
 	RESTPostAPIWebhookWithTokenQuery,
-} from '@biscuitland/common';
-import type { ImageOptions, MessagePayload, MethodContext } from '..';
-import { hasProp } from '..';
-import type { BaseClient } from '../client/base';
+} from '../common';
 import { AnonymousGuild } from './AnonymousGuild';
 import { Message } from './Message';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> {}
+export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> { }
 
 export class Webhook extends DiscordBase {
 	private readonly __methods__!: ReturnType<typeof Webhook.methods>;
@@ -47,7 +47,7 @@ export class Webhook extends DiscordBase {
 			return null;
 		}
 
-		return this.rest.api.cdn.avatar(this.id, this.avatar, options);
+		return this.rest.cdn.avatar(this.id, this.avatar, options);
 	}
 
 	async fetch() {
