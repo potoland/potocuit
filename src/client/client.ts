@@ -86,6 +86,7 @@ export class PotoClient extends BaseClient {
 	}
 
 	protected async onPacket(shardId: number, packet: GatewayDispatchPayload) {
+		await this.cache.onPacket(packet);
 		switch (packet.t) {
 			case 'READY':
 				for (const { id } of packet.d.guilds) {
@@ -99,8 +100,11 @@ export class PotoClient extends BaseClient {
 				await onInteraction(shardId, packet.d, this);
 				break;
 			}
+			case 'GUILD_CREATE': {
+				if (this.handleGuilds.has(packet.d.id)) return;
+			}
 		}
-		await this.cache.onPacket(packet);
+
 		await this.events.execute(packet.t, packet, this, shardId);
 	}
 }

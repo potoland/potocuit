@@ -80,6 +80,9 @@ export class WorkerClient extends BaseClient {
 				await onInteraction(shardId, packet.d, this);
 				break;
 			}
+			case 'GUILD_CREATE': {
+				if (this.handleGuilds.has(packet.d.id)) return;
+			}
 		}
 		await this.events.execute(packet.t, packet, this, shardId);
 	}
