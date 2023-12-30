@@ -17,22 +17,22 @@ export class MenuCommandContext<
 		readonly interaction: T,
 		public metadata: CommandMetadata<M>,
 		readonly shardId: number,
-	) { }
+	) {}
 
 	get proxy() {
 		return this.client.proxy;
 	}
 
+	// biome-ignore lint/suspicious/useGetterReturn: bugged
 	get target(): InteractionTarget<T> {
 		switch (this.interaction.data.type) {
 			case ApplicationCommandType.Message: {
-				const data = this.interaction.data.resolved.messages[this.interaction.data.targetId as Lowercase<string>]
-				//@ts-expect-error
-				return new Message(this.client, toSnakeCase(data))
-			} case ApplicationCommandType.User: {
-				const data = this.interaction.data.resolved.users[this.interaction.data.targetId as Lowercase<string>]
-				//@ts-expect-error
-				return new User(this.client, toSnakeCase(data))
+				const data = this.interaction.data.resolved.messages[this.interaction.data.targetId as Lowercase<string>];
+				return new Message(this.client, toSnakeCase(data)) as never;
+			}
+			case ApplicationCommandType.User: {
+				const data = this.interaction.data.resolved.users[this.interaction.data.targetId as Lowercase<string>];
+				return new User(this.client, toSnakeCase(data)) as never;
 			}
 		}
 	}

@@ -1,7 +1,7 @@
+import { join } from 'node:path';
 import type { LocaleString, MakeRequired } from '@biscuitland/common';
 import { LogLevels, Logger } from '@biscuitland/common';
 import { BiscuitREST, Router } from '@biscuitland/rest';
-import { join } from 'node:path';
 import type { Adapter } from '../cache';
 import { Cache, DefaultMemoryAdapter } from '../cache';
 import { MiddlewareContext } from '../commands/applications/shared';
@@ -212,7 +212,12 @@ export class BaseClient {
 }
 
 export interface BaseClientOptions {
-	context?: (interaction: ChatInputCommandInteraction<boolean> | UserCommandInteraction<boolean> | MessageCommandInteraction<boolean>) => {};
+	context?: (
+		interaction:
+			| ChatInputCommandInteraction<boolean>
+			| UserCommandInteraction<boolean>
+			| MessageCommandInteraction<boolean>,
+	) => {};
 	globalMiddlewares?: readonly MiddlewareContext[];
 }
 

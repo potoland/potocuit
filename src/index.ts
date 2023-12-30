@@ -56,6 +56,8 @@ export const config = {
 	},
 };
 
-export function extendContext<T extends {}>(cb: (interaction: ChatInputCommandInteraction | UserCommandInteraction | MessageCommandInteraction) => T) {
+export function extendContext<T extends {}>(
+	cb: (interaction: ChatInputCommandInteraction | UserCommandInteraction | MessageCommandInteraction) => T,
+) {
 	return cb;
 }

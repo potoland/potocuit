@@ -6,4 +6,3 @@ export * from './applications/shared';
 export * from './decorators';
 export * from './helpers';
 export * from './optionresolver';
-

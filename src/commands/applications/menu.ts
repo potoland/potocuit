@@ -1,6 +1,4 @@
-import type {
-	LocaleString
-} from '@biscuitland/common';
+import type { LocaleString } from '@biscuitland/common';
 import { ApplicationCommandType } from '@biscuitland/common';
 import type { BaseClient } from '../../client/base';
 import { MenuCommandContext } from './menucontext';
@@ -14,7 +12,7 @@ export class ContextMenuCommand {
 
 	guild_id?: string[];
 	name!: string;
-	type!: ApplicationCommandType.User | ApplicationCommandType.Message
+	type!: ApplicationCommandType.User | ApplicationCommandType.Message;
 	nsfw?: boolean;
 	description!: string;
 	default_member_permissions?: string;

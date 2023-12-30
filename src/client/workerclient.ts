@@ -1,6 +1,6 @@
 import type { GatewayDispatchPayload } from '@biscuitland/common';
 import { LogLevels, Logger } from '@biscuitland/common';
-import { workerData as __workerData__, parentPort as manager } from 'worker_threads';
+import { parentPort as manager, workerData as __workerData__ } from 'worker_threads';
 import type { Cache } from '../cache';
 import { WorkerAdapter } from '../cache';
 import { PotoEventHandler } from '../events';

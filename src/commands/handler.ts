@@ -1,5 +1,5 @@
-import type { LocaleString, Logger } from '@biscuitland/common';
 import { basename, dirname } from 'node:path';
+import type { LocaleString, Logger } from '@biscuitland/common';
 import type { BaseClient } from '../client/base';
 import { PotoHandler } from '../utils';
 import { Command, SubCommand } from './applications/chat';
@@ -39,8 +39,8 @@ export class PotoCommandHandler extends PotoHandler {
 		for (const command of result) {
 			const commandInstance = new command.file();
 			if (commandInstance instanceof ContextMenuCommand) {
-				this.values.push(commandInstance)
-				console.log(commandInstance)
+				this.values.push(commandInstance);
+				console.log(commandInstance);
 				continue;
 			}
 			if (!(commandInstance instanceof Command)) {
