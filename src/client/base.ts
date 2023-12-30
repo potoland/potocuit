@@ -16,6 +16,8 @@ import type { PotoHttpClient } from './httpclient';
 import type { WorkerClient } from './workerclient';
 
 export class BaseClient {
+	/** @internal */
+	handleGuilds = new Set<string>();
 	rest!: BiscuitREST;
 	cache!: Cache;
 

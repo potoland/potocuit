@@ -37,6 +37,7 @@ export const GUILD_BAN_REMOVE = (self: BaseClient, data: GatewayGuildBanRemoveDi
 };
 
 export const GUILD_CREATE = (self: BaseClient, data: GatewayGuildCreateDispatchData) => {
+	if (self.handleGuilds.has(data.id)) return;
 	return new Guild(self, data);
 };
 

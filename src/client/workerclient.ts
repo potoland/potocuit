@@ -1,6 +1,6 @@
 import type { GatewayDispatchPayload } from '@biscuitland/common';
 import { LogLevels, Logger } from '@biscuitland/common';
-import { parentPort as manager, workerData as __workerData__ } from 'worker_threads';
+import { workerData as __workerData__, parentPort as manager } from 'worker_threads';
 import type { Cache } from '../cache';
 import { WorkerAdapter } from '../cache';
 import { PotoEventHandler } from '../events';
@@ -67,9 +67,11 @@ export class WorkerClient extends BaseClient {
 	}
 
 	protected async onPacket(packet: GatewayDispatchPayload, shardId: number) {
-		await this.events.execute(packet.t, packet, this, shardId);
 		switch (packet.t) {
 			case 'READY':
+				for (const { id } of packet.d.guilds) {
+					this.handleGuilds.add(id);
+				}
 				this.botId = packet.d.user.id;
 				this.applicationId = packet.d.application.id;
 				this.debugger.debug(`#${shardId} [${packet.d.user.username}](${this.botId}) is online...`);
@@ -79,6 +81,7 @@ export class WorkerClient extends BaseClient {
 				break;
 			}
 		}
+		await this.events.execute(packet.t, packet, this, shardId);
 	}
 }
 

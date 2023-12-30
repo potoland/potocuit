@@ -86,10 +86,11 @@ export class PotoClient extends BaseClient {
 	}
 
 	protected async onPacket(shardId: number, packet: GatewayDispatchPayload) {
-		await this.cache.onPacket(packet);
-		await this.events.execute(packet.t, packet, this, shardId);
 		switch (packet.t) {
 			case 'READY':
+				for (const { id } of packet.d.guilds) {
+					this.handleGuilds.add(id);
+				}
 				this.botId = packet.d.user.id;
 				this.applicationId = packet.d.application.id;
 				this.debugger.debug(`#${shardId}[ ${packet.d.user.username}](${this.botId}) is online...`);
@@ -99,6 +100,8 @@ export class PotoClient extends BaseClient {
 				break;
 			}
 		}
+		await this.cache.onPacket(packet);
+		await this.events.execute(packet.t, packet, this, shardId);
 	}
 }
 
