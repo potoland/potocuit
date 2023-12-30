@@ -1,9 +1,7 @@
 import type {
-	APIChannel,
 	APIChannelBase,
 	APITextChannel,
 	ObjectToLower,
-	RESTGetAPIGuildChannelsResult,
 	RESTPatchAPIChannelJSONBody,
 	RESTPatchAPIGuildChannelPositionsJSONBody,
 	RESTPostAPIGuildChannelJSONBody,
@@ -26,7 +24,7 @@ import {
 } from '../../../structures/channels';
 import { DiscordBase } from '../../../structures/extra/DiscordBase';
 import { channelLink } from '../../../structures/extra/functions';
-import type { MethodContext } from '../../../types';
+import type { MethodContext, WithID } from '../../../types';
 import { MessagesMethods } from './messages';
 
 export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBase<ChannelType>> {
@@ -54,15 +52,15 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 	}
 
 	fetch(force = false) {
-		return this.__methods__.fetch(this.id, force).then(this._patchThis);
+		return this.__methods__.fetch({ id: this.id, force }).then(this._patchThis);
 	}
 
 	delete(reason?: string) {
-		return this.__methods__.delete(this.id, reason);
+		return this.__methods__.delete({ id: this.id, reason });
 	}
 
 	edit(body: RESTPatchAPIChannelJSONBody, reason?: string) {
-		return this.__methods__.edit({ ...body, channelId: this.id }, reason).then(this._patchThis);
+		return this.__methods__.edit({ ...body, id: this.id }, reason).then(this._patchThis);
 	}
 
 	toString() {
@@ -104,11 +102,11 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 	static methods(ctx: MethodContext<{ channelId?: string }>) {
 		return {
 			list: async (force = false) => {
-				let channels: RESTGetAPIGuildChannelsResult;
+				let channels;
 				if (!force) {
 					channels = (await ctx.client.cache.channels?.values(ctx.id)) ?? [];
 					if (channels.length) {
-						return channels.map((m) => BaseChannel.from(m, ctx.client));
+						return channels;
 					}
 				}
 				channels = await ctx.api.guilds(ctx.id).channels.get();
@@ -118,19 +116,19 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 				);
 				return channels.map((m) => BaseChannel.from(m, ctx.client));
 			},
-			fetch: async (channelId = ctx.channelId, force?: boolean) => {
-				if (!channelId) {
+			fetch: async ({ force, id }: WithID<{ force?: boolean }> = { id: ctx.channelId }) => {
+				if (!id) {
 					throw new Error('No channelId');
 				}
-				let channel: APIChannel;
+				let channel;
 				if (!force) {
-					channel = await ctx.client.cache.channels?.get(channelId);
+					channel = await ctx.client.cache.channels?.get(id);
 					if (channel) {
-						return BaseChannel.from(channel, ctx.client);
+						return channel;
 					}
 				}
-				channel = await ctx.api.channels(channelId).get();
-				await ctx.client.cache.channels?.patch(channelId, ctx.id, channel);
+				channel = await ctx.api.channels(id).get();
+				await ctx.client.cache.channels?.patch(id, ctx.id, channel);
 				return BaseChannel.from(channel, ctx.client);
 			},
 			create: async (body: RESTPostAPIGuildChannelJSONBody) => {
@@ -138,22 +136,19 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 				await ctx.client.cache.channels?.setIfNI(BaseChannel.__intent__(ctx.id), res.id, ctx.id, res);
 				return BaseChannel.from(res, ctx.client);
 			},
-			delete: async (channelId = ctx.channelId, reason?: string) => {
-				if (!channelId) {
+			delete: async ({ id, reason }: WithID<{ reason?: string }> = { id: ctx.id }) => {
+				if (!id) {
 					throw new Error('No channelId');
 				}
-				const res = await ctx.api.channels(channelId).delete({ reason });
+				const res = await ctx.api.channels(id).delete({ reason });
 				await ctx.client.cache.channels?.removeIfNI(BaseChannel.__intent__(ctx.id), res.id, ctx.id);
 				return BaseChannel.from(res, ctx.client);
 			},
-			edit: async (
-				body: RESTPatchAPIChannelJSONBody & { channelId?: string } = { channelId: ctx.channelId },
-				reason?: string,
-			) => {
-				if (!body.channelId) {
+			edit: async (body: WithID<RESTPatchAPIChannelJSONBody> = { id: ctx.channelId }, reason?: string) => {
+				if (!body.id) {
 					throw new Error('No channelId');
 				}
-				const res = await ctx.api.channels(body.channelId).patch({ body, reason });
+				const res = await ctx.api.channels(body.id).patch({ body, reason });
 				await ctx.client.cache.channels?.setIfNI(BaseChannel.__intent__(ctx.id), res.id, ctx.id, res);
 				return BaseChannel.from(res, ctx.client);
 			},

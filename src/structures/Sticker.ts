@@ -9,7 +9,7 @@ import type { MethodContext } from '../types';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface Sticker extends DiscordBase, ObjectToLower<Omit<APISticker, 'user'>> {}
+export interface Sticker extends DiscordBase, ObjectToLower<Omit<APISticker, 'user'>> { }
 
 export class Sticker extends DiscordBase {
 	private readonly __methods__!: ReturnType<typeof Sticker.methods>;
@@ -73,9 +73,7 @@ export class Sticker extends DiscordBase {
 				let sticker;
 				if (!force) {
 					sticker = await ctx.client.cache.stickers?.get(ctx.stickerId);
-					if (sticker) {
-						return new Sticker(ctx.client, sticker);
-					}
+					if (sticker) return sticker;
 				}
 				sticker = await ctx.api.guilds(ctx.id).stickers(ctx.stickerId).get();
 				await ctx.client.cache.stickers?.patch(ctx.stickerId, ctx.id, sticker);

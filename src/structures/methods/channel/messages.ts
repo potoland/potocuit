@@ -1,5 +1,4 @@
 import type {
-	APIPartialEmoji,
 	ChannelType,
 	RESTGetAPIChannelMessageReactionUsersQuery,
 	RESTPatchAPIChannelMessageJSONBody,
@@ -59,7 +58,7 @@ export class MessagesMethods extends DiscordBase {
 					.get({ query })
 					.then((u) => u.map((user) => new User(ctx.client, user)));
 			},
-			purge: async (messageId: string, emoji?: string | Partial<APIPartialEmoji>) => {
+			purge: async (messageId: string, emoji?: EmojiResolvable) => {
 				if (!emoji) {
 					return ctx.api.channels(ctx.id).messages(messageId).reactions.delete();
 				}

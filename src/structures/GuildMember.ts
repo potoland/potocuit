@@ -1,6 +1,5 @@
 import type {
 	RESTGetAPIGuildMembersQuery,
-	RESTGetAPIGuildMembersResult,
 	RESTGetAPIGuildMembersSearchQuery,
 	RESTPutAPIGuildMemberJSONBody,
 } from '@biscuitland/common';
@@ -26,15 +25,17 @@ export type GuildMemberData =
 import type { BaseClient } from '../client/base';
 import type { ImageOptions, MethodContext } from '../types/options';
 import type { GuildMemberResolvable } from '../types/resolvables';
+import { Guild } from './Guild';
 import { User } from './User';
 
-export interface GuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user'> {}
+export interface GuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> {}
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
  */
 export class GuildMember extends DiscordBase {
 	user: User;
+	private _roles: string[];
 	joinedTimestamp?: number;
 	communicationDisabledUntilTimestamp?: number | null;
 	private readonly __methods__!: ReturnType<typeof GuildMember.methods>;
@@ -48,6 +49,7 @@ export class GuildMember extends DiscordBase {
 	) {
 		super(client, { ...data, id: user.id });
 		this.user = user instanceof User ? user : new User(client, user);
+		this._roles = data.roles;
 		Object.assign(this, {
 			__methods__: GuildMember.methods({ id: this.guildId, client, api: this.api }),
 		});
@@ -65,6 +67,15 @@ export class GuildMember extends DiscordBase {
 	/** gets the nickname or the username */
 	get displayName(): string {
 		return this.nick ?? this.globalName ?? this.username;
+	}
+
+	async guild(force = false) {
+		if (!force) {
+			const guild = await this.cache.guilds?.get(this.guildId);
+			if (guild) return guild;
+		}
+
+		return new Guild(this.client, await this.api.guilds(this.guildId).get());
 	}
 
 	fetch(force = false) {
@@ -104,6 +115,18 @@ export class GuildMember extends DiscordBase {
 				? Date.parse(data.communication_disabled_until)
 				: null;
 		}
+	}
+
+	get roles() {
+		return {
+			values: Object.freeze(this._roles),
+			add: async (id: string) => {
+				await this.api.guilds(this.guildId).members(this.id).roles(id).put({});
+			},
+			remove: async (id: string) => {
+				await this.api.guilds(this.guildId).members(this.id).roles(id).delete();
+			},
+		};
 	}
 
 	static methods(ctx: MethodContext) {
@@ -176,12 +199,10 @@ export class GuildMember extends DiscordBase {
 				return new GuildMember(ctx.client, member, member.user!, ctx.id);
 			},
 			fetch: async (id: string, force = false) => {
-				let member: APIGuildMember;
+				let member;
 				if (!force) {
 					member = await ctx.client.cache.members?.get(ctx.id, id);
-					if (member) {
-						return new GuildMember(ctx.client, member, member.user!, ctx.id);
-					}
+					if (member) return member;
 				}
 
 				member = await ctx.api.guilds(ctx.id).members(id).get();
@@ -190,12 +211,10 @@ export class GuildMember extends DiscordBase {
 			},
 
 			list: async (query?: RESTGetAPIGuildMembersQuery, force = false) => {
-				let members: RESTGetAPIGuildMembersResult;
+				let members;
 				if (!force) {
 					members = (await ctx.client.cache.members?.values(ctx.id)) ?? [];
-					if (members.length) {
-						return members.map((m) => new GuildMember(ctx.client, m, m.user!, ctx.id));
-					}
+					if (members.length) return members;
 				}
 				members = await ctx.api.guilds(ctx.id).members.get({
 					query,
@@ -210,7 +229,9 @@ export class GuildMember extends DiscordBase {
 	}
 }
 
-export interface InteractionGuildMember extends GuildMember, ObjectToLower<APIInteractionDataResolvedGuildMember> {}
+export interface InteractionGuildMember
+	extends GuildMember,
+		ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles'>> {}
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object

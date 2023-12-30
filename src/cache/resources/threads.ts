@@ -1,16 +1,17 @@
+import { APIThreadChannel } from '@biscuitland/common';
+import { ThreadChannel } from '../../structures';
 import { GuildRelatedResource } from './default/guild-related';
-// import { ThreadChannel } from '../../ThreadChannel';
 
 export class Threads extends GuildRelatedResource {
 	namespace = 'thread';
 
-	// override async get(id: string, guild: string) {
-	// 	const rawThread = await super.get(id, guild) as APIThreadChannel | undefined;
-	// 	return rawThread ? new ThreadChannel(this.rest, this.cache, rawThread) : undefined;
-	// }
+	override async get(id: string) {
+		const rawThread = (await super.get(id)) as APIThreadChannel | undefined;
+		return rawThread ? new ThreadChannel(this.client, rawThread) : undefined;
+	}
 
-	// override async items(guild: string, options?: any) {
-	// 	const members = await super.items(guild, options) as APIThreadChannel[];
-	// 	return members.map(rawThread => new ThreadChannel(this.rest, this.cache, rawThread));
-	// }
+	override async values(guild: string) {
+		const members = (await super.values(guild)) as APIThreadChannel[];
+		return members.map((rawThread) => new ThreadChannel(this.client, rawThread));
+	}
 }

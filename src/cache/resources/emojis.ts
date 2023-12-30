@@ -6,7 +6,7 @@ export class Emojis extends GuildRelatedResource {
 	namespace = 'emoji';
 
 	override async get(id: string) {
-		const rawEmoji = (await super.get(id)) as APIEmoji & { id: string; guild_id: string };
+		const rawEmoji = await super.get(id);
 		return rawEmoji ? new GuildEmoji(this.client, rawEmoji, rawEmoji.guild_id) : undefined;
 	}
 

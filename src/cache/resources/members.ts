@@ -1,6 +1,6 @@
+import { APIGuildMember } from '@biscuitland/common';
+import { GuildMember } from '../../structures';
 import { GuildBasedResource } from './default/guild-based';
-// import { GuildMember } from '../../GuildMember';
-
 export class Members extends GuildBasedResource {
 	namespace = 'member';
 
@@ -9,6 +9,16 @@ export class Members extends GuildBasedResource {
 		data.id = data.user?.id ?? key;
 		delete data.user;
 		return data;
+	}
+
+	override async get(id: string, guild: string): Promise<GuildMember | undefined> {
+		const rawMember = (await super.get(id, guild)) as APIGuildMember;
+		return rawMember ? new GuildMember(this.client, rawMember, rawMember.user!, guild) : undefined;
+	}
+
+	override async values(guild: string) {
+		const members = await super.values(guild);
+		return members.map((rawMember) => new GuildMember(this.client, rawMember, rawMember.user, guild));
 	}
 
 	override async set(memberId: string, guildId: string, data: any): Promise<void>;
@@ -26,18 +36,4 @@ export class Members extends GuildBasedResource {
 
 		await this.cache.bulkSet(bulkData);
 	}
-
-	// override async get(id: string, guild: string) {
-	// 	const rawMember = await super.get(id, guild) as APIGuildMember | undefined;
-	// 	return rawMember ? new GuildMember(this.rest, this.cache, rawMember, rawMember.user!, guild) : undefined;
-	// }
-
-	// override async items(guild: string, options?: any) {
-	// 	const members = await super.items(guild, options) as APIGuildMember[];
-	// 	return members.map(rawMember => new GuildMember(this.rest, this.cache, rawMember, rawMember.user!, guild));
-	// }
-
-	// async getRolesMember(id: string, guild: string) {
-	// 	return await this.cache.roles.getRolesMember(id, guild);
-	// }
 }
