@@ -1,4 +1,3 @@
-import { BaseComponentBuilder, ComponentCallback, OptionValuesLength } from '.';
 import {
 	APIChannelSelectComponent,
 	APIMentionableSelectComponent,
@@ -19,6 +18,8 @@ import {
 	StringSelectMenuInteraction,
 	UserSelectMenuInteraction,
 } from '../../structures';
+import { BaseComponentBuilder, OptionValuesLength } from './Base';
+import { ComponentCallback } from './types';
 
 export type PotoSelectMenus =
 	| RoleSelectMenu

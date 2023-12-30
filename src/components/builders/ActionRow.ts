@@ -1,18 +1,19 @@
-import { FixedComponents, PotoComponents } from '..';
+import { fromComponent } from '.';
 import {
 	APIActionRowComponent,
 	APIActionRowComponentTypes,
 	APIMessageActionRowComponent,
 	ComponentType, RestOrArray
 } from '../../common';
-import '../../index';
 import { BaseComponentBuilder } from './Base';
+import { FixedComponents, PotoComponents } from './types';
+
 export class ActionRow<T extends PotoComponents> extends BaseComponentBuilder<
 	APIActionRowComponent<APIActionRowComponentTypes>
 > {
 	constructor({ components, ...data }: Partial<APIActionRowComponent<APIActionRowComponentTypes>> = {}) {
 		super({ ...data, type: ComponentType.ActionRow });
-		this.components = (components?.map(BaseComponentBuilder.from) ?? []) as FixedComponents<T>[];
+		this.components = (components?.map(fromComponent) ?? []) as FixedComponents<T>[];
 	}
 
 	components: FixedComponents<T>[];

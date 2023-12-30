@@ -1,6 +1,6 @@
-import { Collection } from '@discordjs/collection';
 import { filetypeinfo } from 'magic-bytes.js';
 import type { BodyInit, Dispatcher, RequestInit } from 'undici';
+import { Collection } from '../collection';
 import { MergeOptions } from '../common';
 import { Logger } from '../common/it/logger';
 import { snowflakeToTimestamp } from '../structures/extra/functions';

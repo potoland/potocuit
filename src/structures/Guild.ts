@@ -9,6 +9,7 @@ import { Sticker } from './Sticker';
 import { BaseGuild } from './extra/BaseGuild';
 import type { DiscordBase } from './extra/DiscordBase';
 import { BaseChannel } from './methods/channel/base';
+import { WebhookGuildMethods } from './methods/channel/webhooks';
 
 export interface Guild extends Omit<ObjectToLower<APIGuild>, 'stickers' | 'emojis' | 'roles'>, DiscordBase { }
 export class Guild<State extends StructStates = 'api'> extends (BaseGuild as unknown as ToClass<
@@ -23,6 +24,8 @@ export class Guild<State extends StructStates = 'api'> extends (BaseGuild as unk
 	constructor(client: BaseClient, data: APIGuild | GatewayGuildCreateDispatchData) {
 		super(client, data);
 	}
+
+	webhooks = WebhookGuildMethods.guild(this)
 
 	get maxStickers(): MaxStickers {
 		switch (this.premiumTier) {

@@ -13,16 +13,18 @@ import type {
 	ObjectToLower,
 	ThreadAutoArchiveDuration,
 } from '../common';
-import { ChannelFlags, VideoQualityMode } from '../common';
+import { ChannelFlags } from '../common';
 import type { StringToNumber, ToClass } from '../common/types/util';
 import { DiscordBase } from './extra/DiscordBase';
 import { BaseChannel, BaseGuildChannel, TextBaseChannel } from './methods/channel/base';
 import { MessagesMethods } from './methods/channel/messages';
 import { ThreadOnlyMethods } from './methods/channel/threadonly';
 import { TopicableGuildChannel } from './methods/channel/topicable';
+import { VoiceChannelMethods } from './methods/channel/voice';
+import { WebhookChannelMethods } from './methods/channel/webhooks';
 
 export interface TextGuildChannel extends ObjectToLower<APITextChannel>, BaseGuildChannel, TextBaseChannel { }
-@mix(TextBaseChannel)
+@mix(TextBaseChannel, WebhookChannelMethods)
 export class TextGuildChannel extends BaseGuildChannel {
 	setRatelimitPerUser(rate_limit_per_user: number | null | undefined) {
 		return this.edit({ rate_limit_per_user });
@@ -38,28 +40,14 @@ export interface DMChannel extends ObjectToLower<APIDMChannel>, BaseChannel<Chan
 export class DMChannel extends DiscordBase { }
 
 export interface VoiceChannel extends ObjectToLower<APIGuildVoiceChannel>, Omit<TextGuildChannel, 'type'> { }
-@mix(TextGuildChannel)
+@mix(TextGuildChannel, WebhookChannelMethods, VoiceChannelMethods)
 export class VoiceChannel extends DiscordBase {
 	declare type: ChannelType.GuildVoice;
-	setBitrate(bitrate: number | null, reason?: string) {
-		return this.edit({ bitrate }, reason);
-	}
 
-	setUserLimit(user_limit: number | null, reason?: string) {
-		return this.edit({ user_limit: user_limit ?? 0 }, reason);
-	}
-
-	setRTC(rtc_region: string | null, reason?: string) {
-		return this.edit({ rtc_region }, reason);
-	}
-
-	setVideoQuality(quality: keyof typeof VideoQualityMode, reason?: string) {
-		return this.edit({ video_quality_mode: VideoQualityMode[quality] }, reason);
-	}
 }
 
 export interface StageChannel extends ObjectToLower<APIGuildStageVoiceChannel>, Omit<VoiceChannel, 'type'> { }
-@mix(TopicableGuildChannel, VoiceChannel)
+@mix(TopicableGuildChannel, VoiceChannelMethods)
 export class StageChannel extends DiscordBase {
 	declare setTopic: (topic: string | null, reason?: string) => Promise<this>;
 }
@@ -71,14 +59,13 @@ export class MediaChannel extends DiscordBase {
 }
 
 export interface ForumChannel extends ObjectToLower<APIGuildForumChannel>, Omit<ThreadOnlyMethods, 'type'> { }
-@mix(ThreadOnlyMethods)
+@mix(ThreadOnlyMethods, WebhookChannelMethods)
 export class ForumChannel extends DiscordBase {
 	declare type: ChannelType.GuildForum;
 }
 
 export interface ThreadChannel extends ObjectToLower<APIThreadChannel>, Omit<TextGuildChannel, 'type'> { }
-
-@mix(TextBaseChannel)
+@mix(TextBaseChannel, WebhookChannelMethods)
 export class ThreadChannel extends DiscordBase {
 	pin(reason?: string) {
 		return this.edit({ flags: (this.flags ?? 0) | ChannelFlags.Pinned }, reason);
@@ -123,6 +110,7 @@ export class CategoryChannel extends (BaseGuildChannel as unknown as ToClass<
 }
 
 export interface NewsChannel extends ObjectToLower<APINewsChannel> { }
+@mix(WebhookChannelMethods)
 export class NewsChannel extends BaseChannel<ChannelType.GuildAnnouncement> {
 	addFollower(webhook_channel_id: string, reason?: string) {
 		return this.api.channels(this.id).followers.post({

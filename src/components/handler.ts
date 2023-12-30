@@ -1,12 +1,6 @@
+import { APIActionRowComponent, APIMessage, APIMessageActionRowComponent, APIModalInteractionResponseCallbackData, InteractionResponseType, LimitedCollection } from '..';
 import type { BaseClient } from '../client/base';
-import { Collection } from '../collection';
-import type {
-	APIActionRowComponent,
-	APIMessage,
-	APIMessageActionRowComponent,
-	APIModalInteractionResponseCallbackData,
-} from '../common';
-import { InteractionResponseType, Logger, PotoHandler } from '../common';
+import { Logger, PotoHandler } from '../common';
 import type {
 	InteractionMessageUpdateBodyRequest,
 	MessageCreateBodyRequest,
@@ -14,14 +8,15 @@ import type {
 	ModalCreateBodyRequest,
 } from '../common/types/write';
 import type { ComponentInteraction, ModalSubmitInteraction, ReplyInteractionBody } from '../structures';
-import type { ActionRow, ComponentCallback, ModalSubmitCallback, PotoComponents } from './builders';
+import type { ActionRow, } from './builders';
+import { ComponentCallback, ModalSubmitCallback, PotoComponents } from './builders/types';
 import type { ModalCommand } from './command';
 import { ComponentCommand, InteractionCommandType } from './command';
 
 export class ComponentHandler extends PotoHandler {
 	readonly values = new Map<string, Partial<Record<string, ComponentCallback>>>();
 	// 10 minutes timeout, because discord dont send an event when the user cancel the modal
-	readonly modals = new Collection<string, ModalSubmitCallback>({ expire: 60e3 * 10 });
+	readonly modals = new LimitedCollection<string, ModalSubmitCallback>({ expire: 60e3 * 10 });
 	readonly commands: (ComponentCommand | ModalCommand)[] = [];
 	protected filter = (path: string) => path.endsWith('.js');
 

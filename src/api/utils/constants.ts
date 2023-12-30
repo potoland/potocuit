@@ -19,6 +19,9 @@ export const DefaultRestOptions = {
 	hashSweepInterval: 14_400_000, // 4 Hours
 	hashLifetime: 86_400_000, // 24 Hours
 	handlerSweepInterval: 3_600_000, // 1 Hour
+	makeRequest(url: string, init: RequestInit) {
+		return fetch(url, init)
+	}
 };
 
 /**

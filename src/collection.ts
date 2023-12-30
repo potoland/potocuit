@@ -1,28 +1,47 @@
 import { MergeOptions } from "./common";
 
+export class Collection<K, V> extends Map<K, V>{
+	sweep(fn: (value: V, key: K, collection: this) => unknown, thisArg?: unknown): number {
+		if (thisArg !== undefined) fn = fn.bind(thisArg);
+		const previous = this.size;
+		for (const [key, val] of this) {
+			if (fn(val, key, this)) this.delete(key);
+		}
+		return previous - this.size;
+	}
 
-type CollectionData<V> = { expire: number; expireOn: number; value: V };
+	map<T>(fn: (value: V, key: K, collection: this) => T, thisArg?: unknown) {
+		if (thisArg !== undefined) fn = fn.bind(thisArg);
+		const results: T[] = []
+		for (const [key, val] of this) {
+			results.push(fn(val, key, this));
+		}
+		return results
+	}
+}
 
-export interface CollectionOptions {
+type LimitedCollectionData<V> = { expire: number; expireOn: number; value: V };
+
+export interface LimitedCollectionOptions {
 	limit: number;
 	expire: number;
 	resetOnDemand: boolean;
 }
 
-export class Collection<K, V> {
-	static readonly default: CollectionOptions = {
+export class LimitedCollection<K, V> {
+	static readonly default: LimitedCollectionOptions = {
 		resetOnDemand: false,
 		limit: Infinity,
 		expire: 0,
 	};
 
-	private readonly data = new Map<K, CollectionData<V>>();
+	private readonly data = new Map<K, LimitedCollectionData<V>>();
 
-	private readonly options: CollectionOptions;
+	private readonly options: LimitedCollectionOptions;
 	private timeout: NodeJS.Timeout | undefined = undefined;
 
-	constructor(options: Partial<CollectionOptions>) {
-		this.options = MergeOptions(Collection.default, options);
+	constructor(options: Partial<LimitedCollectionOptions>) {
+		this.options = MergeOptions(LimitedCollection.default, options);
 	}
 
 	set(key: K, value: V, customExpire = this.options.expire) {
@@ -73,7 +92,7 @@ export class Collection<K, V> {
 	}
 
 	get closer() {
-		let d: CollectionData<V> | undefined;
+		let d: LimitedCollectionData<V> | undefined;
 		for (const value of this.data.values()) {
 			if (value.expire === -1) {
 				continue;

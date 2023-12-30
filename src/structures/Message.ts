@@ -28,6 +28,7 @@ export class Message extends DiscordBase {
 	guildId: string | undefined;
 	timestamp?: number;
 	author!: User;
+	member?: GuildMember;
 	components: MessageActionRowComponent<BiscuitActionRowMessageComponents>[];
 	mentions: {
 		roles: string[];
@@ -114,6 +115,10 @@ export class Message extends DiscordBase {
 		}
 		if ('author' in data && data.author) {
 			this.author = new User(this.client, data.author);
+		}
+
+		if ('member' in data && data.member) {
+			this.member = new GuildMember(this.client, data.member, this.author, this.guildId!);
 		}
 
 		if (data.mentions?.length) {

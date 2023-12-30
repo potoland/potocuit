@@ -1,10 +1,15 @@
-import { ActionRow, BaseComponentBuilder, ModalSubmitCallback, OptionValuesLength, PotoModalComponents } from '.';
+import { fromComponent } from '.';
 import {
 	APIActionRowComponent,
 	APIModalInteractionResponseCallbackData,
 	APITextInputComponent,
-	ComponentType, RestOrArray, TextInputStyle
+	ComponentType,
+	RestOrArray,
+	TextInputStyle
 } from '../../common';
+import { ActionRow } from './ActionRow';
+import { BaseComponentBuilder, OptionValuesLength } from './Base';
+import { ModalSubmitCallback, PotoModalComponents } from './types';
 
 export class Modal<T extends PotoModalComponents = TextInput> {
 	/** @internal */
@@ -12,7 +17,7 @@ export class Modal<T extends PotoModalComponents = TextInput> {
 	components: ActionRow<T>[] = [];
 
 	constructor(public data: Partial<APIModalInteractionResponseCallbackData> = {}) {
-		this.components = this.components.concat((data.components?.map(BaseComponentBuilder.from) as ActionRow<T>[]) ?? []);
+		this.components = this.components.concat((data.components?.map(fromComponent) as ActionRow<T>[]) ?? []);
 	}
 
 	addComponents(...components: RestOrArray<ActionRow<T>>) {

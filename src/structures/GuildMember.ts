@@ -47,7 +47,8 @@ export class GuildMember extends DiscordBase {
 		/** the choosen guild id */
 		readonly guildId: string,
 	) {
-		super(client, { ...data, id: user.id });
+		const { roles, ...dataN } = data
+		super(client, { ...dataN, id: user.id });
 		this.user = user instanceof User ? user : new User(client, user);
 		this._roles = data.roles;
 		Object.assign(this, {
