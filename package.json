@@ -11,7 +11,7 @@
         "build": "tsc --outDir ./dist",
         "dev": "swc src -d dist -w",
         "prepublishOnly": "npm run build",
-        "prepare": "npm run build",
+        "prepare": "npm run build && husky install",
         "lint": "biome lint --apply ./src",
         "format": "biome format --write ./src",
         "check": "biome check --apply ./src",
@@ -36,7 +36,8 @@
         "@types/node": "^20.6.3",
         "@types/ws": "^8.5.10",
         "nodemon": "^3.0.1",
-        "typescript": "^5.2.2"
+        "typescript": "^5.2.2",
+        "husky": "^8.0.0"
     },
     "optionalDependencies": {
         "tweetnacl": "^1.0.3",
