@@ -39,7 +39,6 @@
 		"formatter": {
 			"enabled": true,
 			"indentWidth": 2,
-			"lineEnding": "crlf",
 			"lineWidth": 80
 		}
 	},
@@ -48,6 +47,7 @@
 		"indentWidth": 2,
 		"indentStyle": "tab",
 		"lineWidth": 120,
+		"lineEnding": "crlf",
 		"formatWithErrors": true
 	},
 	"javascript": {
