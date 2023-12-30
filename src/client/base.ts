@@ -122,7 +122,7 @@ export class BaseClient {
 			BaseClient.assertString(token, 'token is not a string');
 			this.rest = new REST({
 				token,
-				debug: (await this.getRC()).debug
+				debug: (await this.getRC()).debug,
 			});
 		}
 
