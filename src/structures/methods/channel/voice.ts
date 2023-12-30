@@ -1,7 +1,7 @@
 import { ChannelType, VideoQualityMode } from 'discord-api-types/v10';
 import { BaseChannel } from './base';
 
-export class VoiceChannelMethods extends BaseChannel<ChannelType> {
+export class VoiceChannelMethods extends BaseChannel<ChannelType.GuildVoice> {
 	setBitrate(bitrate: number | null, reason?: string) {
 		return this.edit({ bitrate }, reason);
 	}
