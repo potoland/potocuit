@@ -30,9 +30,10 @@ export function createMiddleware<M, T = MiddlewareContext<M, CommandContext<'bas
 }
 
 export function createEvent<K extends keyof IClientEvents, E extends PotoNameEvents>(data: {
-	data: { name: E; once: boolean };
+	data: { name: E; once?: boolean };
 	run: (...args: EventContext<K, { data: { name: E } }>) => any;
 }) {
+	data.data.once ??= false;
 	return data;
 }
 

@@ -1,10 +1,11 @@
+import { APIMessageComponentEmoji, resolvePartialEmoji, throwError } from '../..';
 import {
 	APIButtonComponent,
 	APIButtonComponentWithCustomId,
 	APIButtonComponentWithURL,
-	APIMessageComponentEmoji,
 	ButtonStyle,
 	ComponentType,
+	EmojiResolvable,
 	When,
 } from '../../common';
 import { ButtonInteraction } from '../../structures';
@@ -37,8 +38,10 @@ export class Button<Type extends boolean = boolean> {
 		return this;
 	}
 
-	setEmoji(emoji: APIMessageComponentEmoji) {
-		this.data.emoji = emoji;
+	setEmoji(emoji: EmojiResolvable) {
+		const resolve = resolvePartialEmoji(emoji);
+		if (!resolve) return throwError('Invalid Emoji');
+		this.data.emoji = resolve as APIMessageComponentEmoji;
 		return this;
 	}
 

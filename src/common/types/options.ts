@@ -32,4 +32,4 @@ export type ImageOptions = ImageURLOptions;
 
 export type MethodContext<T = {}> = Identify<{ client: BaseClient; api: Routes; id: string /* resourceId*/ } & T>;
 
-export type MessagePayload<Body, Extra = {}> = Identify<{ body: Body; files?: RawFile[] } & Extra>;
+export type MessageWebhookPayload<Body, Extra = {}> = Identify<{ body: Body; files?: RawFile[] } & Extra>;

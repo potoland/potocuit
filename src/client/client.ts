@@ -85,7 +85,14 @@ export class PotoClient extends BaseClient {
 	}
 
 	protected async onPacket(shardId: number, packet: GatewayDispatchPayload) {
-		await this.cache.onPacket(packet);
+		// Cases where we must obtain the old data before upgrading
+		switch (packet.t) {
+			case 'GUILD_MEMBER_UPDATE':
+				break;
+
+			default:
+				await this.cache.onPacket(packet);
+		}
 		switch (packet.t) {
 			case 'READY':
 				for (const { id } of packet.d.guilds) {

@@ -32,14 +32,20 @@ export type MessageCreateBodyRequest = OmitInsert<
 	ResolverProps
 >;
 
+export type MessageUpdateBodyRequest = OmitInsert<
+	RESTPatchAPIChannelMessageJSONBody,
+	'components' | 'embeds',
+	ResolverProps
+>;
+
 export type MessageWebhookCreateBodyRequest = OmitInsert<
 	RESTPostAPIWebhookWithTokenJSONBody,
 	'components' | 'embeds',
 	ResolverProps
 >;
 
-export type MessageUpdateBodyRequest = OmitInsert<
-	RESTPatchAPIChannelMessageJSONBody,
+export type MessageWebhookUpdateBodyRequest = OmitInsert<
+	RESTPatchAPIWebhookWithTokenMessageJSONBody,
 	'components' | 'embeds',
 	ResolverProps
 >;

@@ -70,11 +70,13 @@ export const GUILD_MEMBERS_CHUNK = (self: BaseClient, data: GatewayGuildMembersC
 	};
 };
 
-export const GUILD_MEMBER_UPDATE = (self: BaseClient, data: GatewayGuildMemberUpdateDispatchData) => {
-	if (!data.user) {
-		return console.log(data);
-	}
-	return new GuildMember(self, data, data.user, data.guild_id);
+export const GUILD_MEMBER_UPDATE = async (
+	self: BaseClient,
+	data: GatewayGuildMemberUpdateDispatchData,
+): Promise<[member: GuildMember, old: GuildMember | undefined]> => {
+	const oldData = await self.cache.members?.get(data.user.id, data.guild_id);
+	await self.cache.members?.set(data.user.id, data.guild_id, data);
+	return [new GuildMember(self, data, data.user, data.guild_id), oldData];
 };
 
 export const GUILD_SCHEDULED_EVENT_CREATE = (_self: BaseClient, data: GatewayGuildScheduledEventCreateDispatchData) => {

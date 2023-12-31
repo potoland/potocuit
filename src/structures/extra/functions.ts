@@ -16,15 +16,11 @@ export function messageLink(channelId: string, messageId: string, guildId?: stri
 	return `${channelLink(channelId, guildId)}/${messageId}`;
 }
 
-export async function resolveEmoji(emoji: EmojiResolvable, cache: Cache): Promise<APIPartialEmoji | undefined> {
+export function resolvePartialEmoji(emoji: EmojiResolvable): APIPartialEmoji | undefined {
 	if (typeof emoji === 'string') {
 		const groups: Partial<APIPartialEmoji> | undefined = emoji.match(FormattingPatterns.Emoji)?.groups;
 		if (groups) {
 			return { animated: !!groups.animated, name: groups.name!, id: groups.id! };
-		}
-		if (emoji.match(/\d{17,20}/g)) {
-			const fromCache = (await cache.emojis?.get(emoji)) as APIEmoji | undefined;
-			return fromCache && { animated: fromCache.animated, id: fromCache.id, name: fromCache.name };
 		}
 		if (emoji.includes('%')) {
 			emoji = encodeURIComponent(emoji);
@@ -32,18 +28,30 @@ export async function resolveEmoji(emoji: EmojiResolvable, cache: Cache): Promis
 		if (!emoji.includes(':')) {
 			return { name: emoji, id: null };
 		}
-		return undefined;
+		return;
 	}
 
 	const { id, name, animated } = emoji;
-	if (!(id && name)) {
-		const fromCache = (await cache.emojis?.get(id!)) as APIEmoji | undefined;
-		if (fromCache) {
-			return { animated: fromCache.animated, id: fromCache.id, name: fromCache.name };
-		}
-		return undefined;
-	}
+
+	if (!(id && name)) return;
 	return { id, name, animated: !!animated };
+}
+
+export async function resolveEmoji(emoji: EmojiResolvable, cache: Cache): Promise<APIPartialEmoji | undefined> {
+	const partial = resolvePartialEmoji(emoji);
+	if (partial) return partial;
+
+	if (typeof emoji === 'string') {
+		if (!emoji.match(/\d{17,20}/g)) return;
+		const fromCache = (await cache?.emojis?.get(emoji)) as APIEmoji | undefined;
+		return fromCache && { animated: fromCache.animated, id: fromCache.id, name: fromCache.name };
+	}
+
+	const { id } = emoji;
+
+	const fromCache = (await cache?.emojis?.get(id!)) as APIEmoji | undefined;
+	if (fromCache) return { animated: fromCache.animated, id: fromCache.id, name: fromCache.name };
+	return;
 }
 
 export function encodeEmoji(rawEmoji: APIPartialEmoji) {

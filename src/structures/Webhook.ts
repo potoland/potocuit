@@ -1,4 +1,10 @@
-import type { ImageOptions, MessagePayload, MethodContext } from '..';
+import type {
+	ImageOptions,
+	MessageWebhookCreateBodyRequest,
+	MessageWebhookPayload,
+	MessageWebhookUpdateBodyRequest,
+	MethodContext,
+} from '..';
 import { hasProp } from '..';
 import type { BaseClient } from '../client/base';
 import type {
@@ -15,6 +21,7 @@ import { AnonymousGuild } from './AnonymousGuild';
 import { Message } from './Message';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
+import { MessagesMethods } from './methods/channel/messages';
 
 export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> {}
 
@@ -64,27 +71,33 @@ export class Webhook extends DiscordBase {
 
 	static messages(ctx: MethodContext<{ token?: string }>) {
 		return {
-			write: async (
-				payload: MessagePayload<RESTPostAPIWebhookWithTokenJSONBody, { query?: RESTPostAPIWebhookWithTokenQuery }>,
-			) => {
+			write: async ({
+				body,
+				...payload
+			}: MessageWebhookPayload<MessageWebhookCreateBodyRequest, { query?: RESTPostAPIWebhookWithTokenQuery }>) => {
 				Webhook._hasToken(ctx);
+				const transformedBody = MessagesMethods.transformMessageBody<RESTPostAPIWebhookWithTokenJSONBody>(body);
 				return ctx.api
 					.webhooks(ctx.id)(ctx.token)
-					.post(payload)
-					.then((m) => (m ? new Message(ctx.client, m) : null));
+					.post({ ...payload, body: transformedBody })
+					.then((m) => (m?.id ? new Message(ctx.client, m) : null));
 			},
 			edit: async ({
 				messageId,
+				body,
 				...json
-			}: MessagePayload<
-				RESTPatchAPIWebhookWithTokenMessageJSONBody,
+			}: MessageWebhookPayload<
+				MessageWebhookUpdateBodyRequest,
 				{ messageId: string; query?: RESTGetAPIWebhookWithTokenMessageQuery }
 			>) => {
 				Webhook._hasToken(ctx);
+
+				const transformedBody = MessagesMethods.transformMessageBody<RESTPatchAPIWebhookWithTokenMessageJSONBody>(body);
+
 				return ctx.api
 					.webhooks(ctx.id)(ctx.token)
 					.messages(messageId)
-					.patch(json)
+					.patch({ ...json, auth: false, body: transformedBody })
 					.then((m) => new Message(ctx.client, m));
 			},
 			delete: async (messageId: string) => {

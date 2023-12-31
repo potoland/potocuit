@@ -1,5 +1,5 @@
 import type { PotoClient, WorkerClient } from '../client';
-import { type GatewayDispatchEvents, type GatewayDispatchPayload, PotoHandler, ReplaceRegex } from '../common';
+import { PotoHandler, ReplaceRegex, type GatewayDispatchEvents, type GatewayDispatchPayload } from '../common';
 import * as RawEvents from '../events/hooks';
 import type { PotocuitEvent } from './event';
 
@@ -31,7 +31,8 @@ export class PotoEventHandler extends PotoHandler {
 				return;
 			}
 			Event.fired = true;
-			await Event.run(...[RawEvents[args[0].t]?.(args[1], args[0].d as never), args[1], args[2]]);
+			const hook = await RawEvents[args[0].t]?.(args[1], args[0].d as never);
+			await Event.run(...[...(Array.isArray(hook) ? hook : [hook]), args[1], args[2]]);
 		} catch (e) {
 			await this.onFail?.(e);
 		}
