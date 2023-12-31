@@ -40,7 +40,6 @@ export class PotoCommandHandler extends PotoHandler {
 			const commandInstance = new command.file();
 			if (commandInstance instanceof ContextMenuCommand) {
 				this.values.push(commandInstance);
-				console.log(commandInstance);
 				continue;
 			}
 			if (!(commandInstance instanceof Command)) {

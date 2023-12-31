@@ -66,15 +66,15 @@ export class Logger {
 
 		switch (level) {
 			case LogLevels.Debug:
-				return console.debug(...log);
+				return console.log(...log);
 			case LogLevels.Info:
-				return console.info(...log);
+				return console.log(...log);
 			case LogLevels.Warn:
-				return console.warn(...log);
+				return console.log(...log);
 			case LogLevels.Error:
-				return console.error(...log);
+				return console.log(...log);
 			case LogLevels.Fatal:
-				return console.error(...log);
+				return console.log(...log);
 			default:
 				return console.log(...log);
 		}
