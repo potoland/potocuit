@@ -15,7 +15,7 @@ import { DiscordBase } from '../../extra/DiscordBase';
 import { encodeEmoji, resolveEmoji } from '../../extra/functions';
 import type { BaseChannel } from './base';
 
-export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> {}
+export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> { }
 export class MessagesMethods extends DiscordBase {
 	typing() {
 		return this.api.channels(this.id).typing.post();
