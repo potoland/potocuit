@@ -75,7 +75,6 @@ export const GUILD_MEMBER_UPDATE = async (
 	data: GatewayGuildMemberUpdateDispatchData,
 ): Promise<[member: GuildMember, old: GuildMember | undefined]> => {
 	const oldData = await self.cache.members?.get(data.user.id, data.guild_id);
-	await self.cache.members?.set(data.user.id, data.guild_id, data);
 	return [new GuildMember(self, data, data.user, data.guild_id), oldData];
 };
 

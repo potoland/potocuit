@@ -85,36 +85,38 @@ export class PotoClient extends BaseClient {
 	}
 
 	protected async onPacket(shardId: number, packet: GatewayDispatchPayload) {
-		// Cases where we must obtain the old data before upgrading
 		switch (packet.t) {
-			case 'GUILD_MEMBER_UPDATE':
-				break;
-
-			default:
+			//// Cases where we must obtain the old data before upgrading
+			case 'GUILD_MEMBER_UPDATE': {
+				await this.events.execute(packet.t, packet, this, shardId);
 				await this.cache.onPacket(packet);
-		}
-		switch (packet.t) {
-			case 'READY':
-				for (const { id } of packet.d.guilds) {
-					this.handleGuilds.add(id);
-				}
-				this.botId = packet.d.user.id;
-				this.applicationId = packet.d.application.id;
-				this.debugger.debug(`#${shardId}[ ${packet.d.user.username}](${this.botId}) is online...`);
-				break;
-			case 'INTERACTION_CREATE': {
-				await onInteraction(shardId, packet.d, this);
-				break;
+			} break;
+			//rest of the events
+			default: {
+				await this.cache.onPacket(packet);
+				await this.events.execute(packet.t, packet, this, shardId);
+				switch (packet.t) {
+					case 'READY':
+						for (const { id } of packet.d.guilds) {
+							this.handleGuilds.add(id);
+						}
+						this.botId = packet.d.user.id;
+						this.applicationId = packet.d.application.id;
+						this.debugger.debug(`#${shardId}[ ${packet.d.user.username}](${this.botId}) is online...`);
+						break;
+					case 'INTERACTION_CREATE': {
+						await onInteraction(shardId, packet.d, this);
+						break;
+					}
+					case 'GUILD_CREATE': {
+						if (this.handleGuilds.has(packet.d.id)) {
+							this.handleGuilds.delete(packet.d.id);
+							return;
+						}
+					} break
+				}break;
 			}
-			case 'GUILD_CREATE': {
-				if (this.handleGuilds.has(packet.d.id)) {
-					this.handleGuilds.delete(packet.d.id);
-					return;
-				}
-			}
 		}
-
-		await this.events.execute(packet.t, packet, this, shardId);
 	}
 }
 
