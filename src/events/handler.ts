@@ -1,5 +1,5 @@
 import type { PotoClient, WorkerClient } from '../client';
-import { PotoHandler, ReplaceRegex, type GatewayDispatchEvents, type GatewayDispatchPayload } from '../common';
+import { type GatewayDispatchEvents, type GatewayDispatchPayload, PotoHandler, ReplaceRegex } from '../common';
 import * as RawEvents from '../events/hooks';
 import type { PotocuitEvent } from './event';
 

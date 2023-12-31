@@ -90,7 +90,8 @@ export class PotoClient extends BaseClient {
 			case 'GUILD_MEMBER_UPDATE': {
 				await this.events.execute(packet.t, packet, this, shardId);
 				await this.cache.onPacket(packet);
-			} break;
+			}
+			break;
 			//rest of the events
 			default: {
 				await this.cache.onPacket(packet);
@@ -113,8 +114,10 @@ export class PotoClient extends BaseClient {
 							this.handleGuilds.delete(packet.d.id);
 							return;
 						}
-					} break
-				}break;
+					}
+					break;
+				}
+				break;
 			}
 		}
 	}
