@@ -2,7 +2,7 @@
 	"name": "@potoland/core",
 	"version": "0.0.1",
 	"main": "./dist/index.js",
-	"module": "./dist/index.mjs",
+	"module": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"files": [
 		"dist/**"
@@ -50,7 +50,7 @@
 		".": {
 			"import": {
 				"types": "./dist/index.d.ts",
-				"default": "./dist/index.mjs"
+				"default": "./dist/index.js"
 			},
 			"require": "./dist/index.js"
 		}
