@@ -18,7 +18,7 @@ export interface IClientEvents {
 }
 
 export type Handler<T extends PotoClient | WorkerClient> = {
-	[K in keyof PotocuitEvents]: (...data: [...Awaited<PotocuitEvents[K]>, T, number]) => unknown;
+	[K in keyof PotocuitEvents]: (...data: [Awaited<PotocuitEvents[K]>, T, number]) => unknown;
 };
 export type EventContext<K extends keyof IClientEvents, T extends { data: { name: PotoNameEvents } }> = Parameters<
 	Handler<IClientEvents[K]>[T['data']['name']]
