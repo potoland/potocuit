@@ -247,7 +247,7 @@ export interface GuildRoutes {
 			};
 			bans: {
 				//.
-				get(args: RestArguments<ProxyRequestMethod.Get, RESTGetAPIGuildBansQuery>): Promise<RESTGetAPIGuildBansResult>;
+				get(args?: RestArguments<ProxyRequestMethod.Get, RESTGetAPIGuildBansQuery>): Promise<RESTGetAPIGuildBansResult>;
 				(userId: string): {
 					//.
 					get(args?: RestArguments<ProxyRequestMethod.Get>): Promise<RESTGetAPIGuildBanResult>;
