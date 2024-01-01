@@ -1,6 +1,6 @@
+import { readdir } from 'fs/promises';
 import { basename, join } from 'node:path';
 import { setTimeout } from 'node:timers/promises';
-import { readdir } from 'fs/promises';
 import { Logger, ObjectToLower, ObjectToSnake } from '..';
 
 /**
@@ -659,5 +659,5 @@ export function filterSplit<Element, Predicate extends (value: Element) => boole
 export const DiscordEpoch = 14200704e5;
 
 export const BASE_HOST = 'https://discord.com';
-export const BASE_URL = `${BASE_HOST}/api/`;
+export const BASE_URL = `${BASE_HOST}/api`;
 export const CDN_URL = 'https://cdn.discordapp.com';

@@ -3,6 +3,7 @@ import type { BaseClient } from '../../../client/base';
 import type {
 	APIChannelBase,
 	APITextChannel,
+	MakePartial,
 	MethodContext,
 	ObjectToLower,
 	RESTPatchAPIChannelJSONBody,
@@ -18,11 +19,11 @@ import {
 	ForumChannel,
 	MediaChannel,
 	NewsChannel,
-	type PotocuitChannels,
 	StageChannel,
 	TextGuildChannel,
 	ThreadChannel,
 	VoiceChannel,
+	type PotocuitChannels,
 } from '../../../structures/channels';
 import { DiscordBase } from '../../../structures/extra/DiscordBase';
 import { channelLink } from '../../../structures/extra/functions';
@@ -100,7 +101,7 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 		}
 	}
 
-	static methods(ctx: MethodContext<{ channelId?: string }>) {
+	static methods(ctx: MakePartial<MethodContext<{ channelId?: string }>, 'id'>) {
 		return {
 			list: async (force = false) => {
 				let channels;
@@ -124,9 +125,7 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 				let channel;
 				if (!force) {
 					channel = await ctx.client.cache.channels?.get(id);
-					if (channel) {
-						return channel;
-					}
+					if (channel) return channel;
 				}
 				channel = await ctx.api.channels(id).get();
 				await ctx.client.cache.channels?.patch(id, ctx.id, channel);
@@ -142,7 +141,6 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 					throw new Error('No channelId');
 				}
 				const res = await ctx.api.channels(id).delete({ reason });
-				await ctx.client.cache.channels?.removeIfNI(BaseChannel.__intent__(ctx.id), res.id, ctx.id);
 				return BaseChannel.from(res, ctx.client);
 			},
 			edit: async (body: WithID<RESTPatchAPIChannelJSONBody> = { id: ctx.channelId }, reason?: string) => {

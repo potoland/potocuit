@@ -1,3 +1,4 @@
+import { mix } from 'ts-mixer';
 import type { RawFile } from '../api';
 import type { BaseClient } from '../client/base';
 import { OptionResolver } from '../commands';
@@ -585,10 +586,10 @@ export class MessageCommandInteraction<FromGuild extends boolean = boolean> exte
 	declare data: ObjectToLower<APIMessageApplicationCommandInteractionData>;
 }
 
-export class ModalSubmitInteraction<FromGuild extends boolean = boolean> extends Interaction<
-	FromGuild,
-	APIModalSubmitInteraction
-> {
+export interface ModalSubmitInteraction<FromGuild extends boolean = boolean>
+	extends Omit<Interaction<FromGuild, APIModalSubmitInteraction>, 'modal'> {}
+@mix(Interaction)
+export class ModalSubmitInteraction<FromGuild extends boolean = boolean> extends BaseInteraction<FromGuild> {
 	declare data: ObjectToLower<APIModalSubmission>;
 	get customId() {
 		return this.data.customId;

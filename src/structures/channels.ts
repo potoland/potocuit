@@ -39,7 +39,7 @@ export class TextGuildChannel extends BaseGuildChannel {
 	}
 }
 
-export interface DMChannel extends ObjectToLower<APIDMChannel>, Omit<MessagesMethods, 'type' | 'edit' | 'delete'> {}
+export interface DMChannel extends ObjectToLower<APIDMChannel>, Omit<MessagesMethods, 'type' | 'edit'> {}
 @mix(MessagesMethods)
 export class DMChannel extends DiscordBase {}
 

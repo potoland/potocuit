@@ -7,6 +7,7 @@ import type {
 	RESTPatchAPIGuildRolePositionsJSONBody,
 	RESTPostAPIGuildRoleJSONBody,
 } from '../common';
+import { Guild } from './Guild';
 import { DiscordBase } from './extra/DiscordBase';
 
 export interface GuildRole extends DiscordBase, ObjectToLower<APIRole> {}
@@ -19,6 +20,12 @@ export class GuildRole extends DiscordBase {
 		Object.assign(this, {
 			__methods__: GuildRole.methods({ id: this.guildId, api: this.api, client, roleId: this.id }),
 		});
+	}
+
+	async guild(force: true): Promise<Guild<'api'>>;
+	async guild(force = false) {
+		if (!this.guildId) return;
+		return this.client.guilds.fetch(this.guildId, force);
 	}
 
 	edit(body: RESTPatchAPIGuildRoleJSONBody, reason?: string) {

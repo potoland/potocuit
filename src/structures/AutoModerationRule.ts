@@ -6,6 +6,8 @@ import type {
 	RESTPatchAPIAutoModerationRuleJSONBody,
 	RESTPostAPIAutoModerationRuleJSONBody,
 } from '../common';
+import { Guild } from './Guild';
+import { GuildMember } from './GuildMember';
 import { DiscordBase } from './extra/DiscordBase';
 
 export interface AutoModerationRule extends ObjectToLower<APIAutoModerationRule> {}
@@ -18,6 +20,22 @@ export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 		Object.assign(this, {
 			__methods__: AutoModerationRule.methods({ client, id: this.guildId, api: this.api, ruleId: this.id }),
 		});
+	}
+
+	async fetchCreator(force: true): Promise<GuildMember>;
+	async fetchCreator(force = false) {
+		if (!force) {
+			const data = await this.cache.members?.get(this.creatorId, this.guildId);
+			if (data) return data;
+		}
+
+		return this;
+	}
+
+	async guild(force: true): Promise<Guild<'api'>>;
+	async guild(force = false) {
+		if (!this.guildId) return;
+		return this.client.guilds.fetch(this.guildId, force);
 	}
 
 	fetch() {

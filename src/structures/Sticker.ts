@@ -6,6 +6,7 @@ import type {
 	RESTPatchAPIGuildStickerJSONBody,
 	RESTPostAPIGuildStickerFormDataBody,
 } from '../common';
+import { Guild } from './Guild';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 
@@ -25,6 +26,12 @@ export class Sticker extends DiscordBase {
 				__methods__: Sticker.methods({ client, id: this.guildId, api: this.api, stickerId: this.id }),
 			});
 		}
+	}
+
+	async guild(force: true): Promise<Guild<'api'> | undefined>;
+	async guild(force = false) {
+		if (!this.guildId) return;
+		return this.client.guilds.fetch(this.id, force);
 	}
 
 	edit(body: RESTPatchAPIGuildStickerJSONBody, reason?: string) {

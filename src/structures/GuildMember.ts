@@ -4,10 +4,10 @@ import type {
 	RESTPutAPIGuildMemberJSONBody,
 } from '../common';
 import {
+	FormattingPatterns,
 	type APIGuildMember,
 	type APIInteractionDataResolvedGuildMember,
 	type APIUser,
-	FormattingPatterns,
 	type GatewayGuildMemberAddDispatchData,
 	type GatewayGuildMemberUpdateDispatchData,
 	type ObjectToLower,
@@ -70,15 +70,9 @@ export class GuildMember extends DiscordBase {
 		return this.nick ?? this.globalName ?? this.username;
 	}
 
+	async guild(force: true): Promise<Guild<'api'>>;
 	async guild(force = false) {
-		if (!force) {
-			const guild = await this.cache.guilds?.get(this.guildId);
-			if (guild) return guild;
-		}
-
-		const data = await this.api.guilds(this.guildId).get();
-		await this.cache.guilds?.patch(this.guildId, data);
-		return new Guild(this.client, data);
+		return this.client.guilds.fetch(this.id, force);
 	}
 
 	fetch(force = false) {
@@ -201,14 +195,14 @@ export class GuildMember extends DiscordBase {
 
 				return new GuildMember(ctx.client, member, member.user!, ctx.id);
 			},
-			fetch: async (id: string, force = false) => {
+			fetch: async (memberId: string, force = false) => {
 				let member;
 				if (!force) {
-					member = await ctx.client.cache.members?.get(ctx.id, id);
+					member = await ctx.client.cache.members?.get(memberId, ctx.id);
 					if (member) return member;
 				}
 
-				member = await ctx.api.guilds(ctx.id).members(id).get();
+				member = await ctx.api.guilds(ctx.id).members(memberId).get();
 				await ctx.client.cache.members?.set(member.user!.id, ctx.id, member);
 				return new GuildMember(ctx.client, member, member.user!, ctx.id);
 			},

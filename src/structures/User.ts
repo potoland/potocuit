@@ -1,6 +1,6 @@
-import type { APIUser, ObjectToLower } from '../common';
+import { RawFile } from '../api';
+import type { APIUser, MessageCreateBodyRequest, ObjectToLower } from '../common';
 import type { ImageOptions } from '../common/types/options';
-import { DMChannel } from './channels';
 import { DiscordBase } from './extra/DiscordBase';
 
 export interface User extends ObjectToLower<APIUser> {}
@@ -18,7 +18,7 @@ export class User extends DiscordBase<APIUser> {
 	 * Fetch user
 	 */
 	async fetch() {
-		const data = await this.api.users(this.id).get();
+		const data = await this.client.users.fetch(this.id, true);
 		return this._patchCache(data, 'users');
 	}
 
@@ -26,15 +26,7 @@ export class User extends DiscordBase<APIUser> {
 	 * Open a DM with the user
 	 */
 	async dm(force = false) {
-		if (!force) {
-			const dm = await this.cache.channels?.get(this.id);
-			if (dm) return dm as DMChannel;
-		}
-		const data = await this.api.users('@me').channels.post({
-			body: { recipient_id: this.id },
-		});
-		await this.cache.channels?.set(this.id, '@me', data);
-		return new DMChannel(this.client, data);
+		return this.client.users.createDM(this.id, force);
 	}
 
 	avatarURL(options?: ImageOptions): string {
@@ -42,6 +34,10 @@ export class User extends DiscordBase<APIUser> {
 			return this.rest.cdn.defaultAvatar(Number(this.discriminator));
 		}
 		return this.rest.cdn.avatar(this.id, this.avatar, options);
+	}
+
+	write(body: MessageCreateBodyRequest, files?: RawFile[]) {
+		return this.client.users.write(this.id, body, files);
 	}
 
 	toString(): string {

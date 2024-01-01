@@ -6,10 +6,17 @@ import { MiddlewareContext } from '../commands/applications/shared';
 import { PotoCommandHandler } from '../commands/handler';
 import type { LocaleString, MakeRequired } from '../common';
 import { LogLevels, Logger, filterSplit } from '../common';
+import { CodeShorter } from '../common/it/codeshorter';
 import type { DeepPartial, IntentStrings, OmitInsert } from '../common/types/util';
 import { ComponentHandler } from '../components/handler';
 import { PotoLangsHandler } from '../langs/handler';
-import { ChatInputCommandInteraction, MessageCommandInteraction, UserCommandInteraction } from '../structures';
+import {
+	ChatInputCommandInteraction,
+	GuildMember,
+	MessageCommandInteraction,
+	UserCommandInteraction,
+} from '../structures';
+import { BaseChannel } from '../structures/methods/channel/base';
 import type { PotoClient } from './client';
 import type { PotoHttpClient } from './httpclient';
 import type { WorkerClient } from './workerclient';
@@ -209,6 +216,11 @@ export class BaseClient {
 			commands: join(process.cwd(), locations.output, locations.commands),
 		};
 	}
+
+	users = CodeShorter.users({ client: this, api: this.proxy });
+	channels = (guildId?: string) => BaseChannel.methods({ client: this, api: this.proxy, id: guildId! });
+	guilds = CodeShorter.guilds({ client: this, api: this.proxy });
+	members = (guildId: string) => GuildMember.methods({ id: guildId, client: this, api: this.proxy });
 }
 
 export interface BaseClientOptions {

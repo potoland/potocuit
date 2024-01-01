@@ -1,9 +1,11 @@
 import type {
+	Guild,
 	ImageOptions,
 	MessageWebhookCreateBodyRequest,
 	MessageWebhookPayload,
 	MessageWebhookUpdateBodyRequest,
 	MethodContext,
+	PotocuitChannels,
 } from '..';
 import { hasProp } from '..';
 import type { BaseClient } from '../client/base';
@@ -47,6 +49,18 @@ export class Webhook extends DiscordBase {
 		Object.assign(this, {
 			messages: Webhook.messages({ client, id: this.id, api: this.api, token: this.token! }),
 		});
+	}
+
+	async guild(force: true): Promise<Guild<'api'>>;
+	async guild(force = false) {
+		if (!this.sourceGuild?.id) return;
+		return this.client.guilds.fetch(this.sourceGuild.id, force);
+	}
+
+	async channel(force: true): Promise<PotocuitChannels>;
+	async channel(force = false) {
+		if (!this.sourceChannel?.id) return;
+		return this.client.channels().fetch({ id: this.sourceChannel.id, force });
 	}
 
 	avatarURL(options?: ImageOptions): string | null {

@@ -12,6 +12,7 @@ import type { EmojiResolvable } from '../common/types/resolvables';
 import type { MessageCreateBodyRequest, MessageUpdateBodyRequest } from '../common/types/write';
 import type { BiscuitActionRowMessageComponents } from '../components';
 import { MessageActionRowComponent } from '../components/ActionRow';
+import { Guild } from './Guild';
 import { GuildMember } from './GuildMember';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
@@ -60,6 +61,16 @@ export class Message extends DiscordBase {
 
 	fetch() {
 		return this.__messageMethods__.fetch(this.id).then(this._patchThis);
+	}
+
+	async guild(force: true): Promise<Guild<'api'> | undefined>;
+	async guild(force = false) {
+		if (!this.guildId) return;
+		return this.client.guilds.fetch(this.guildId, force);
+	}
+
+	async channel(force = false) {
+		return this.client.channels().fetch({ id: this.channelId, force });
 	}
 
 	edit(body: MessageUpdateBodyRequest, files?: RawFile[]) {

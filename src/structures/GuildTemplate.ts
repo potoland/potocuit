@@ -6,6 +6,7 @@ import type {
 	RESTPatchAPIGuildTemplateJSONBody,
 	RESTPostAPIGuildTemplatesJSONBody,
 } from '../common';
+import { Guild } from './Guild';
 import { Base } from './extra/Base';
 import { hasProp } from './extra/functions';
 
@@ -20,6 +21,12 @@ export class GuildTemplate extends Base {
 		Object.assign(this, {
 			__methods__: GuildTemplate.methods({ client, id: this.sourceGuildId, api: this.api, code: this.code }),
 		});
+	}
+
+	async guild(force: true): Promise<Guild<'api'>>;
+	async guild(force = false) {
+		if (!this.sourceGuildId) return;
+		return this.client.guilds.fetch(this.sourceGuildId, force);
 	}
 
 	fetch() {
