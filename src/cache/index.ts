@@ -22,7 +22,7 @@ import { Threads } from './resources/threads';
 import { VoiceStates } from './resources/voice-states';
 
 import type { BaseClient } from '../client/base';
-import { GatewayIntentBits } from '../common';
+import { ChannelType, GatewayIntentBits } from '../common';
 
 // GuildBased
 export type GuildBased = 'members';
@@ -362,7 +362,14 @@ export class Cache {
 				break;
 			case 'CHANNEL_CREATE':
 			case 'CHANNEL_UPDATE':
-				await this.channels?.set(event.d.id, 'guild_id' in event.d ? event.d.guild_id! : '@me', event.d);
+				if ('guild_id' in event.d) {
+					await this.channels?.set(event.d.id, event.d.guild_id!, event.d);
+					break;
+				}
+				if (event.d.type === ChannelType.DM) {
+					await this.channels?.set(event.d.recipients![0]?.id, '@me', event.d);
+					break;
+				}
 				break;
 			case 'CHANNEL_DELETE':
 				await this.channels?.remove(event.d.id, 'guild_id' in event.d ? event.d.guild_id! : '@me');

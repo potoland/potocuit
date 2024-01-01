@@ -25,11 +25,15 @@ export class User extends DiscordBase<APIUser> {
 	/**
 	 * Open a DM with the user
 	 */
-	async dm() {
+	async dm(force = false) {
+		if (!force) {
+			const dm = await this.cache.channels?.get(this.id);
+			if (dm) return dm as DMChannel;
+		}
 		const data = await this.api.users('@me').channels.post({
 			body: { recipient_id: this.id },
 		});
-		await this.cache.channels?.set(data.id, '@me', data);
+		await this.cache.channels?.set(this.id, '@me', data);
 		return new DMChannel(this.client, data);
 	}
 
