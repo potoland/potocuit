@@ -1,6 +1,6 @@
-import { readdir } from 'fs/promises';
 import { basename, join } from 'node:path';
 import { setTimeout } from 'node:timers/promises';
+import { readdir } from 'fs/promises';
 import { Logger, ObjectToLower, ObjectToSnake } from '..';
 
 /**

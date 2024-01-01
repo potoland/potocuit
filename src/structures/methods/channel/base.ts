@@ -19,11 +19,11 @@ import {
 	ForumChannel,
 	MediaChannel,
 	NewsChannel,
+	type PotocuitChannels,
 	StageChannel,
 	TextGuildChannel,
 	ThreadChannel,
 	VoiceChannel,
-	type PotocuitChannels,
 } from '../../../structures/channels';
 import { DiscordBase } from '../../../structures/extra/DiscordBase';
 import { channelLink } from '../../../structures/extra/functions';

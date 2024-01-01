@@ -4,10 +4,10 @@ import type {
 	RESTPutAPIGuildMemberJSONBody,
 } from '../common';
 import {
-	FormattingPatterns,
 	type APIGuildMember,
 	type APIInteractionDataResolvedGuildMember,
 	type APIUser,
+	FormattingPatterns,
 	type GatewayGuildMemberAddDispatchData,
 	type GatewayGuildMemberUpdateDispatchData,
 	type ObjectToLower,
