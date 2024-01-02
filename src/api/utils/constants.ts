@@ -1,5 +1,4 @@
-import { APIVersion } from 'discord-api-types/v10';
-import { BASE_URL } from '../../common';
+import { APIVersion, BASE_URL } from '../../common';
 
 export const DefaultUserAgent = 'DiscordBot (https://biscuitjs.com)';
 

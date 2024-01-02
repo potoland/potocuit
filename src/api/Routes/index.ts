@@ -12,7 +12,7 @@ import { WebhookRoutes } from './webhooks';
 
 export * from './cdn';
 
-export type Routes = ApplicationRoutes &
+export type APIRoutes = ApplicationRoutes &
 	ChannelRoutes &
 	GatewayRoutes &
 	GuildRoutes &

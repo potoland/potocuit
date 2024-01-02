@@ -23,7 +23,7 @@ import { AnonymousGuild } from './AnonymousGuild';
 import { Message } from './Message';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
-import { MessagesMethods } from './methods/channel/messages';
+import { MessagesMethods } from './methods/channels';
 
 export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> {}
 
@@ -114,9 +114,9 @@ export class Webhook extends DiscordBase {
 					.patch({ ...json, auth: false, body: transformedBody })
 					.then((m) => new Message(ctx.client, m));
 			},
-			delete: async (messageId: string) => {
+			delete: async (messageId: string, reason?: string) => {
 				Webhook._hasToken(ctx);
-				return ctx.api.webhooks(ctx.id)(ctx.token).messages(messageId).delete();
+				return ctx.api.webhooks(ctx.id)(ctx.token).messages(messageId).delete({ reason });
 			},
 		};
 	}

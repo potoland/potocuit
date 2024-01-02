@@ -55,7 +55,7 @@ import { Message } from './Message';
 import { User } from './User';
 import type { PotocuitChannels } from './channels';
 import { DiscordBase } from './extra/DiscordBase';
-import { BaseChannel } from './methods/channel/base';
+import channelFrom from './methods/channels';
 
 export type ReplyInteractionBody =
 	| { type: InteractionResponseType.Modal; data: ModalCreateBodyRequest }
@@ -97,7 +97,7 @@ export class BaseInteraction<
 			this.message = new Message(client, interaction.message);
 		}
 		if (interaction.channel) {
-			this.channel = BaseChannel.from(interaction.channel, client);
+			this.channel = channelFrom(interaction.channel, client);
 		}
 		this.user = this.member?.user ?? new User(client, interaction.user!);
 	}
@@ -492,7 +492,7 @@ export class ChannelSelectMenuInteraction extends SelectMenuInteraction {
 	) {
 		super(client, interaction);
 		const resolved = (interaction.data as APIMessageChannelSelectInteractionData).resolved;
-		this.channels = this.values.map((x) => BaseChannel.from(resolved.channels[x], this.client));
+		this.channels = this.values.map((x) => channelFrom(resolved.channels[x], this.client));
 	}
 }
 

@@ -16,7 +16,7 @@ import {
 	MessageCommandInteraction,
 	UserCommandInteraction,
 } from '../structures';
-import { BaseChannel } from '../structures/methods/channel/base';
+import { BaseChannel } from '../structures/methods/channels';
 import type { PotoClient } from './client';
 import type { PotoHttpClient } from './httpclient';
 import type { WorkerClient } from './workerclient';

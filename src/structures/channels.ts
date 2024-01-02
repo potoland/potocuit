@@ -1,5 +1,4 @@
-import { mix } from 'ts-mixer';
-import type {
+import {
 	APIDMChannel,
 	APIGuildCategoryChannel,
 	APIGuildForumChannel,
@@ -9,19 +8,23 @@ import type {
 	APINewsChannel,
 	APITextChannel,
 	APIThreadChannel,
+	ChannelFlags,
 	ChannelType,
-	ObjectToLower,
 	ThreadAutoArchiveDuration,
-} from '../common';
-import { ChannelFlags } from '../common';
-import type { StringToNumber, ToClass } from '../common/types/util';
+} from 'discord-api-types/v10';
+import { mix } from 'ts-mixer';
+import { ObjectToLower, StringToNumber, ToClass } from '../common';
 import { DiscordBase } from './extra/DiscordBase';
-import { BaseChannel, BaseGuildChannel, TextBaseChannel } from './methods/channel/base';
-import { MessagesMethods } from './methods/channel/messages';
-import { ThreadOnlyMethods } from './methods/channel/threadonly';
-import { TopicableGuildChannel } from './methods/channel/topicable';
-import { VoiceChannelMethods } from './methods/channel/voice';
-import { WebhookChannelMethods } from './methods/channel/webhooks';
+import {
+	BaseChannel,
+	BaseGuildChannel,
+	MessagesMethods,
+	TextBaseChannel,
+	ThreadOnlyMethods,
+	TopicableGuildChannel,
+	VoiceChannelMethods,
+	WebhookChannelMethods,
+} from './methods/channels';
 
 export interface TextGuildChannel
 	extends ObjectToLower<APITextChannel>,

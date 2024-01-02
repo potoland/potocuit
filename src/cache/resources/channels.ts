@@ -1,5 +1,5 @@
 import { PotocuitChannels } from '../../structures';
-import { BaseChannel } from '../../structures/methods/channel/base';
+import channelFrom from '../../structures/methods/channels';
 import { GuildRelatedResource } from './default/guild-related';
 
 export class Channels extends GuildRelatedResource {
@@ -7,11 +7,11 @@ export class Channels extends GuildRelatedResource {
 
 	override async get(id: string): Promise<PotocuitChannels | undefined> {
 		const rawChannel = await super.get(id);
-		return rawChannel ? BaseChannel.from(rawChannel, this.client) : undefined;
+		return rawChannel ? channelFrom(rawChannel, this.client) : undefined;
 	}
 
 	override async values(guild: string) {
 		const channels = await super.values(guild);
-		return channels.map((rawChannel) => BaseChannel.from(rawChannel, this.client));
+		return channels.map((rawChannel) => channelFrom(rawChannel, this.client));
 	}
 }

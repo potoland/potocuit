@@ -1,3 +1,4 @@
+import { Webhook } from '..';
 import type { RawFile } from '../api';
 import type { BaseClient } from '../client/base';
 import type {
@@ -9,7 +10,12 @@ import type {
 	ObjectToLower,
 } from '../common';
 import type { EmojiResolvable } from '../common/types/resolvables';
-import type { MessageCreateBodyRequest, MessageUpdateBodyRequest } from '../common/types/write';
+import type {
+	MessageCreateBodyRequest,
+	MessageUpdateBodyRequest,
+	MessageWebhookCreateBodyRequest,
+	MessageWebhookUpdateBodyRequest,
+} from '../common/types/write';
 import type { BiscuitActionRowMessageComponents } from '../components';
 import { MessageActionRowComponent } from '../components/ActionRow';
 import { Guild } from './Guild';
@@ -17,15 +23,14 @@ import { GuildMember } from './GuildMember';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 import { messageLink } from './extra/functions';
-import { MessagesMethods } from './methods/channel/messages';
+import { MessagesMethods } from './methods/channels';
 
 export type MessageData = APIMessage | GatewayMessageCreateDispatchData;
 
-export interface Message
+export interface BaseMessage
 	extends DiscordBase,
 		ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> {}
-
-export class Message extends DiscordBase {
+export class BaseMessage extends DiscordBase {
 	guildId: string | undefined;
 	timestamp?: number;
 	author!: User;
@@ -37,7 +42,6 @@ export class Message extends DiscordBase {
 		users: (GuildMember | User)[];
 	};
 
-	private readonly __messageMethods__!: ReturnType<typeof MessagesMethods.messages>;
 	private readonly __reactionMethods__!: ReturnType<typeof MessagesMethods.reactions>;
 
 	constructor(client: BaseClient, data: MessageData) {
@@ -50,17 +54,12 @@ export class Message extends DiscordBase {
 		this.components = data.components?.map((x) => new MessageActionRowComponent(x)) ?? [];
 		this.patch(data);
 		Object.assign(this, {
-			__messageMethods__: MessagesMethods.messages({ id: this.channelId, api: this.api, client }),
 			__reactionMethods__: MessagesMethods.reactions({ id: this.channelId, api: this.api, client }),
 		});
 	}
 
 	get url() {
 		return messageLink(this.channelId, this.id, this.guildId);
-	}
-
-	fetch() {
-		return this.__messageMethods__.fetch(this.id).then(this._patchThis);
 	}
 
 	async guild(force: true): Promise<Guild<'api'> | undefined>;
@@ -73,39 +72,8 @@ export class Message extends DiscordBase {
 		return this.client.channels().fetch({ id: this.channelId, force });
 	}
 
-	edit(body: MessageUpdateBodyRequest, files?: RawFile[]) {
-		return this.__messageMethods__.edit(this.id, body, files);
-	}
-
-	write(body: MessageCreateBodyRequest, files?: RawFile[]) {
-		return this.__messageMethods__.write(body, files);
-	}
-
-	reply(body: Omit<MessageCreateBodyRequest, 'message_reference'>, files?: RawFile[]) {
-		return this.write(
-			{
-				...body,
-				message_reference: {
-					message_id: this.id,
-					channel_id: this.channelId,
-					guild_id: this.guildId,
-					fail_if_not_exists: true,
-				},
-			},
-			files,
-		);
-	}
-
 	react(emoji: EmojiResolvable) {
 		return this.__reactionMethods__.add(this.id, emoji);
-	}
-
-	delete(reason?: string) {
-		return this.__messageMethods__.delete(this.id, reason);
-	}
-
-	crosspost(reason?: string) {
-		return this.__messageMethods__.crosspost(this.id, reason);
 	}
 
 	private patch(data: MessageData) {
@@ -148,5 +116,79 @@ export class Message extends DiscordBase {
 				  )
 				: data.mentions.map((u) => new User(this.client, u));
 		}
+	}
+}
+
+export interface Message
+	extends BaseMessage,
+		ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> {}
+
+export class Message extends BaseMessage {
+	private readonly __messageMethods__!: ReturnType<typeof MessagesMethods.messages>;
+	constructor(client: BaseClient, data: MessageData) {
+		super(client, data);
+		Object.assign(this, {
+			__messageMethods__: MessagesMethods.messages(this),
+		});
+	}
+
+	fetch() {
+		return this.__messageMethods__.fetch(this.id).then(this._patchThis);
+	}
+
+	reply(body: Omit<MessageCreateBodyRequest, 'message_reference'>, files?: RawFile[]) {
+		return this.write(
+			{
+				...body,
+				message_reference: {
+					message_id: this.id,
+					channel_id: this.channelId,
+					guild_id: this.guildId,
+					fail_if_not_exists: true,
+				},
+			},
+			files,
+		);
+	}
+
+	edit(body: MessageUpdateBodyRequest, files?: RawFile[]) {
+		return this.__messageMethods__.edit(this.id, body, files);
+	}
+
+	write(body: MessageCreateBodyRequest, files?: RawFile[]) {
+		return this.__messageMethods__.write(body, files);
+	}
+
+	delete(reason?: string) {
+		return this.__messageMethods__.delete(this.id, reason);
+	}
+
+	crosspost(reason?: string) {
+		return this.__messageMethods__.crosspost(this.id, reason);
+	}
+}
+
+export class WebhookMessage extends BaseMessage {
+	private readonly __messageMethods__: ReturnType<typeof Webhook.messages>;
+
+	constructor(client: BaseClient, data: MessageData, readonly webhookToken: string) {
+		super(client, data);
+		this.__messageMethods__ = Webhook.messages({ ...this, token: webhookToken });
+	}
+
+	fetch() {
+		return this.api.webhooks(this.webhookId!)(this.webhookToken).get({ query: this.thread?.id }).then(this._patchThis);
+	}
+
+	edit(body: MessageWebhookUpdateBodyRequest, files?: RawFile[]) {
+		return this.__messageMethods__.edit({ body, files, messageId: this.id });
+	}
+
+	write(body: MessageWebhookCreateBodyRequest, files?: RawFile[]) {
+		return this.__messageMethods__.write({ body, files });
+	}
+
+	delete(reason?: string) {
+		return this.__messageMethods__.delete(this.id, reason);
 	}
 }

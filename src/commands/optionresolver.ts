@@ -8,7 +8,7 @@ import type {
 import { ApplicationCommandOptionType } from '../common';
 import type { PotocuitChannels } from '../structures';
 import { GuildRole, InteractionGuildMember, User } from '../structures';
-import { BaseChannel } from '../structures/methods/channel/base';
+import channelFrom from '../structures/methods/channels';
 import type { Command, PotoCommandAutocompleteOption, PotoCommandOption, SubCommand } from './applications/chat';
 
 export class OptionResolver {
@@ -159,7 +159,7 @@ export class OptionResolver {
 
 			const channel = resolved.channels?.[value];
 			if (channel) {
-				resolve.channel = BaseChannel.from(channel, this.client);
+				resolve.channel = channelFrom(channel, this.client);
 			}
 
 			const role = resolved.roles?.[value];

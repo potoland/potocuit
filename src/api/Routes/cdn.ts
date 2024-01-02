@@ -1,4 +1,4 @@
-export interface CDNRoutes {
+export interface CDNRoute {
 	embed: {
 		avatars: {
 			get(embed: UserAvatarDefault): string;
@@ -57,7 +57,7 @@ export interface CDNRoutes {
 	};
 }
 
-export interface CDNRoutes {
+export interface CDNRoute {
 	'app-assets'(id: '710982414301790216'): {
 		store(packBannerId: string): {
 			get(): string;

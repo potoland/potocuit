@@ -1,4 +1,4 @@
-import type { CDNRoutes, REST, Routes } from '.';
+import type { APIRoutes, CDNRoute, REST } from '.';
 import { CDN_URL } from '../common';
 
 export enum ProxyRequestMethod {
@@ -18,7 +18,7 @@ export class Router {
 
 	constructor(private rest: REST) {}
 
-	createProxy(route = [] as string[]): Routes {
+	createProxy(route = [] as string[]): APIRoutes {
 		return new Proxy(this.noop, {
 			get: (_, key: string) => {
 				if (ArrRequestsMethods.includes(key)) {
@@ -29,12 +29,12 @@ export class Router {
 			apply: (...[, _, args]) => {
 				return this.createProxy([...route, ...args.filter((x) => x != null)]);
 			},
-		}) as unknown as Routes;
+		}) as unknown as APIRoutes;
 	}
 }
 
 export const CDNRouter = {
-	createProxy(route = [] as string[]): CDNRoutes {
+	createProxy(route = [] as string[]): CDNRoute {
 		const noop = () => {
 			return;
 		};
@@ -57,6 +57,6 @@ export const CDNRouter = {
 			apply: (...[, _, args]) => {
 				return this.createProxy([...route, ...args.filter((x) => x != null)]);
 			},
-		}) as unknown as CDNRoutes;
+		}) as unknown as CDNRoute;
 	},
 };
