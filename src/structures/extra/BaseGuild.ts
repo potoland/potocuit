@@ -31,8 +31,7 @@ export class BaseGuild extends DiscordBase<APIPartialGuild> {
 	 */
 	async fetch() {
 		const data = await this.api.guilds(this.id).get();
-		await this._patchCache(data, 'guilds');
-		return this;
+		return new BaseGuild(this.client, data);
 	}
 
 	/**

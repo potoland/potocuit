@@ -23,13 +23,12 @@ export class ClientUser extends User {
 
 	async fetch() {
 		const data = await this.api.users('@me').get();
-		this._patchThis(data);
-		return this
+		return new ClientUser(this.client, data, this.application);
 	}
 
 	async edit(body: RESTPatchAPICurrentUserJSONBody) {
 		const data = await this.api.users('@me').patch({ body });
-		return this._patchThis(data);
+		return new ClientUser(this.client, data, this.application);
 	}
 
 	guilds = ClientUser.guilds(this);

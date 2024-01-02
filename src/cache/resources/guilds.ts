@@ -6,7 +6,7 @@ import { BaseResource } from './default/base';
 export class Guilds extends BaseResource {
 	namespace = 'guild';
 
-	override async get(id: string) {
+	override async get(id: string): Promise<Guild<'cached'> | undefined> {
 		const guild = (await super.get(id)) as APIGuild | undefined;
 		return guild ? new Guild<'cached'>(this.client, guild) : undefined;
 	}

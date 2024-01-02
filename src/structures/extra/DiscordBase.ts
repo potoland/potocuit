@@ -11,7 +11,7 @@ export class DiscordBase<Data extends Record<string, any> = { id: string }> exte
 	) {
 		super(client);
 		this.id = data.id;
-		this._patchThis(data);
+		this.__patchThis(data);
 	}
 
 	/**

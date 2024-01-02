@@ -74,7 +74,7 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 	}
 
 	fetch(force = false) {
-		return this.__methods__.fetch(this.id, force)
+		return this.__methods__.fetch(this.id, force);
 	}
 
 	delete(reason?: string) {
@@ -82,7 +82,7 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 	}
 
 	edit(body: RESTPatchAPIChannelJSONBody, reason?: string) {
-		return this.__methods__.edit(this.id, body, reason)
+		return this.__methods__.edit(this.id, body, reason);
 	}
 
 	toString() {
@@ -157,7 +157,7 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 	}
 }
 
-export interface BaseGuildChannel extends ObjectToLower<APIGuildChannel<ChannelType.GuildText>> { }
+export interface BaseGuildChannel extends ObjectToLower<APIGuildChannel<ChannelType.GuildText>> {}
 export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
 	async guild(force?: true): Promise<Guild<'api'>>;
 	async guild(force?: boolean): Promise<Guild<'cached'> | Guild<'api'>>;
@@ -178,7 +178,7 @@ export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
 	}
 }
 
-export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> { }
+export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> {}
 export class MessagesMethods extends DiscordBase {
 	typing() {
 		return this.api.channels(this.id).typing.post();
@@ -323,9 +323,9 @@ export class MessagesMethods extends DiscordBase {
 	}
 }
 
-export interface TextBaseChannel extends ObjectToLower<APITextChannel>, MessagesMethods { }
+export interface TextBaseChannel extends ObjectToLower<APITextChannel>, MessagesMethods {}
 @mix(MessagesMethods)
-export class TextBaseChannel extends BaseGuildChannel { }
+export class TextBaseChannel extends BaseGuildChannel {}
 
 export default function channelFrom(data: APIChannelBase<ChannelType>, client: BaseClient): PotocuitChannels {
 	switch (data.type) {
@@ -359,14 +359,14 @@ export default function channelFrom(data: APIChannelBase<ChannelType>, client: B
 	}
 }
 
-export interface TopicableGuildChannel extends BaseChannel<ChannelType> { }
+export interface TopicableGuildChannel extends BaseChannel<ChannelType> {}
 export class TopicableGuildChannel extends DiscordBase {
 	setTopic(topic: string | null, reason?: string) {
 		return this.edit({ topic }, reason);
 	}
 }
 
-export interface ThreadOnlyMethods extends BaseChannel<ChannelType.PublicThread | ChannelType.PrivateThread> { }
+export interface ThreadOnlyMethods extends BaseChannel<ChannelType.PublicThread | ChannelType.PrivateThread> {}
 @mix(TopicableGuildChannel)
 export class ThreadOnlyMethods extends DiscordBase {
 	setTags(tags: APIGuildForumTag[], reason?: string) {

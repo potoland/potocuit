@@ -17,15 +17,14 @@ export class User extends DiscordBase<APIUser> {
 	/**
 	 * Fetch user
 	 */
-	async fetch() {
-		const data = await this.client.users(this.id).fetch(true);
-		return this._patchCache(data, 'users');
+	fetch(force = false) {
+		return this.client.users(this.id).fetch(force);
 	}
 
 	/**
 	 * Open a DM with the user
 	 */
-	async dm(force = false) {
+	dm(force = false) {
 		return this.client.users(this.id).createDM(force);
 	}
 

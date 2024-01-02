@@ -8,14 +8,17 @@ export abstract class Base {
 		Object.assign(this, { client });
 	}
 
+	/**@internal */
 	get rest() {
 		return this.client.rest;
 	}
 
+	/**@internal */
 	get cache() {
 		return this.client.cache;
 	}
 
+	/**@internal */
 	get api() {
 		const rest = this.rest;
 		return Router.prototype.createProxy.call({
@@ -29,7 +32,8 @@ export abstract class Base {
 		});
 	}
 
-	protected _patchThis(data: Record<string, any>) {
+	/**@internal */
+	protected __patchThis(data: Record<string, any>) {
 		Object.assign(this, toCamelCase(data));
 		return this;
 	}
