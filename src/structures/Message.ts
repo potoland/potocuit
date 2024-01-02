@@ -29,7 +29,7 @@ export type MessageData = APIMessage | GatewayMessageCreateDispatchData;
 
 export interface BaseMessage
 	extends DiscordBase,
-		ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> {}
+	ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> { }
 export class BaseMessage extends DiscordBase {
 	guildId: string | undefined;
 	timestamp?: number;
@@ -104,17 +104,17 @@ export class BaseMessage extends DiscordBase {
 		if (data.mentions?.length) {
 			this.mentions.users = this.guildId
 				? data.mentions.map(
-						(m) =>
-							new GuildMember(
-								this.client,
-								{
-									...(m as APIUser & { member?: Omit<APIGuildMember, 'user'> }).member!,
-									user: m,
-								},
-								m,
-								this.guildId!,
-							),
-				  )
+					(m) =>
+						new GuildMember(
+							this.client,
+							{
+								...(m as APIUser & { member?: Omit<APIGuildMember, 'user'> }).member!,
+								user: m,
+							},
+							m,
+							this.guildId!,
+						),
+				)
 				: data.mentions.map((u) => new User(this.client, u));
 		}
 	}
@@ -122,7 +122,7 @@ export class BaseMessage extends DiscordBase {
 
 export interface Message
 	extends BaseMessage,
-		ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> {}
+	ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> { }
 
 export class Message extends BaseMessage {
 	private readonly __messageMethods__!: ReturnType<typeof MessagesMethods.messages>;
@@ -137,7 +137,7 @@ export class Message extends BaseMessage {
 	}
 
 	fetch() {
-		return this.__messageMethods__.fetch(this.id).then(this._patchThis);
+		return this.__messageMethods__.fetch(this.id)
 	}
 
 	reply(body: Omit<MessageCreateBodyRequest, 'message_reference'>, files?: RawFile[]) {
@@ -186,7 +186,7 @@ export class WebhookMessage extends BaseMessage {
 	}
 
 	fetch() {
-		return this.api.webhooks(this.webhookId)(this.webhookToken).get({ query: this.thread?.id }).then(this._patchThis);
+		return this.api.webhooks(this.webhookId)(this.webhookToken).get({ query: this.thread?.id })
 	}
 
 	edit(body: MessageWebhookUpdateBodyRequest, files?: RawFile[]) {

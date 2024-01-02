@@ -24,7 +24,7 @@ import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 import { MessagesMethods } from './methods/channels';
 
-export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> {}
+export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> { }
 
 export class Webhook extends DiscordBase {
 	private readonly __methods__!: ReturnType<typeof Webhook.methods>;
@@ -71,11 +71,11 @@ export class Webhook extends DiscordBase {
 	}
 
 	async fetch() {
-		return this.__methods__.fetch().then(this._patchThis);
+		return this.__methods__.fetch()
 	}
 
 	async edit(body: RESTPatchAPIWebhookJSONBody | RESTPatchAPIWebhookWithTokenJSONBody, reason?: string) {
-		return this.__methods__.edit(body, reason).then(this._patchThis);
+		return this.__methods__.edit(body, reason)
 	}
 
 	delete(reason?: string) {

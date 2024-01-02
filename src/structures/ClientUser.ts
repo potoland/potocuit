@@ -23,7 +23,8 @@ export class ClientUser extends User {
 
 	async fetch() {
 		const data = await this.api.users('@me').get();
-		return this._patchCache(data, 'users');
+		this._patchThis(data);
+		return this
 	}
 
 	async edit(body: RESTPatchAPICurrentUserJSONBody) {

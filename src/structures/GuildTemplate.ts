@@ -9,7 +9,7 @@ import type {
 import { Guild } from './Guild';
 import { Base } from './extra/Base';
 
-export interface GuildTemplate extends Base, ObjectToLower<APITemplate> {}
+export interface GuildTemplate extends Base, ObjectToLower<APITemplate> { }
 
 export class GuildTemplate extends Base {
 	private readonly __methods__!: ReturnType<typeof GuildTemplate.methods>;
@@ -29,15 +29,15 @@ export class GuildTemplate extends Base {
 	}
 
 	fetch() {
-		return this.__methods__.fetch(this.code).then(this._patchThis);
+		return this.__methods__.fetch(this.code)
 	}
 
 	sync() {
-		return this.__methods__.sync(this.code).then(this._patchThis);
+		return this.__methods__.sync(this.code)
 	}
 
 	edit(body: RESTPatchAPIGuildTemplateJSONBody) {
-		return this.__methods__.edit(this.code, body).then(this._patchThis);
+		return this.__methods__.edit(this.code, body)
 	}
 
 	delete() {
