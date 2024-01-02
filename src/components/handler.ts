@@ -116,9 +116,7 @@ export class ComponentHandler extends PotoHandler {
 	}
 
 	onRequestUpdateMessage(body: MessageUpdateBodyRequest, message: APIMessage) {
-		if (!body.components?.length) {
-			return;
-		}
+		if (!body.components) return
 		this.values.delete(message.id);
 		this.__setComponents(message.id, body.components);
 	}
