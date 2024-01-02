@@ -52,6 +52,7 @@ export class CodeShorter {
 		return {
 			create: async (body: RESTPostAPIGuildsJSONBody) => {
 				const guild = await ctx.client.proxy.guilds.post({ body });
+				await ctx.client.cache.guilds?.setIfNI('Guilds', guild.id, guild);
 				return new Guild<'api'>(ctx.client, guild);
 			},
 
@@ -65,12 +66,10 @@ export class CodeShorter {
 				const patched = await ctx.client.cache.guilds?.patch(id, data);
 				return new Guild(ctx.client, patched ?? data);
 			},
-			widgetURL: async (id: string, style?: GuildWidgetStyle) => {
-				let params = new URLSearchParams();
+			widgetURL: (id: string, style?: GuildWidgetStyle) => {
+				const params = new URLSearchParams();
 				if (style) {
 					params.append('style', style);
-					// @ts-expect-error
-					params = String(params);
 				}
 
 				return `${BASE_URL}/${Routes.guildWidgetJSON(id)}${params ? `?${params}` : ''}`;
