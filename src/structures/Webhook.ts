@@ -20,7 +20,7 @@ import type {
 	RESTPostAPIWebhookWithTokenQuery,
 } from '../common';
 import { AnonymousGuild } from './AnonymousGuild';
-import { Message } from './Message';
+import { WebhookMessage } from './Message';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 import { MessagesMethods } from './methods/channels';
@@ -94,7 +94,7 @@ export class Webhook extends DiscordBase {
 				return ctx.api
 					.webhooks(ctx.id)(ctx.token)
 					.post({ ...payload, body: transformedBody })
-					.then((m) => (m?.id ? new Message(ctx.client, m) : null));
+					.then((m) => (m?.id ? new WebhookMessage(ctx.client, m, ctx.token) : null));
 			},
 			edit: async ({
 				messageId,
@@ -112,7 +112,7 @@ export class Webhook extends DiscordBase {
 					.webhooks(ctx.id)(ctx.token)
 					.messages(messageId)
 					.patch({ ...json, auth: false, body: transformedBody })
-					.then((m) => new Message(ctx.client, m));
+					.then((m) => new WebhookMessage(ctx.client, m, ctx.token));
 			},
 			delete: async (messageId: string, reason?: string) => {
 				Webhook._hasToken(ctx);

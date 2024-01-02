@@ -1,9 +1,9 @@
 import {
-	toCamelCase,
 	type GatewayChannelCreateDispatchData,
 	type GatewayChannelDeleteDispatchData,
 	type GatewayChannelPinsUpdateDispatchData,
 	type GatewayChannelUpdateDispatchData,
+	toCamelCase,
 } from '../../common';
 
 import type { BaseClient } from '../../client/base';
