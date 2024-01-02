@@ -14,41 +14,41 @@ import { BaseChannel } from '../../structures/methods/channels';
 
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class CodeShorter {
-	static users(ctx: Omit<MethodContext, 'id'>) {
+	static users(ctx: MethodContext<{ userId: string }>) {
 		return {
-			createDM: async (id: string, force = false) => {
+			createDM: async (force = false) => {
 				if (!force) {
-					const dm = await ctx.client.cache.channels?.get(id);
+					const dm = await ctx.client.cache.channels?.get(ctx.userId);
 					if (dm) return dm as DMChannel;
 				}
 				const data = await ctx.client.proxy.users('@me').channels.post({
-					body: { recipient_id: id },
+					body: { recipient_id: ctx.userId },
 				});
-				await ctx.client.cache.channels?.set(id, '@me', data);
+				await ctx.client.cache.channels?.set(ctx.userId, '@me', data);
 				return new DMChannel(ctx.client, data);
 			},
-			deleteDM: async (id: string, reason?: string) => {
-				const res = await ctx.client.proxy.channels(id).delete({ reason });
+			deleteDM: async (reason?: string) => {
+				const res = await ctx.client.proxy.channels(ctx.userId).delete({ reason });
 				await ctx.client.cache.channels?.removeIfNI(BaseChannel.__intent__('@me'), res.id, '@me');
 				return new DMChannel(ctx.client, res);
 			},
-			fetch: async (id: string, force = false) => {
+			fetch: async (force = false) => {
 				if (!force) {
-					const user = await ctx.client.cache.users?.get(id);
+					const user = await ctx.client.cache.users?.get(ctx.userId);
 					if (user) return user;
 				}
 
-				const data = await ctx.client.proxy.users(id).get();
-				await ctx.client.cache.users?.patch(id, data);
+				const data = await ctx.client.proxy.users(ctx.userId).get();
+				await ctx.client.cache.users?.patch(ctx.userId, data);
 				return new User(ctx.client, data);
 			},
-			write: async (id: string, body: MessageCreateBodyRequest, files?: RawFile[]) => {
-				return (await ctx.client.users.createDM(id)).messages.write(body, files);
+			write: async (body: MessageCreateBodyRequest, files?: RawFile[]) => {
+				return (await ctx.client.users(ctx.userId).createDM()).messages.write(body, files);
 			},
 		};
 	}
 
-	static guilds(ctx: Omit<MethodContext, 'id'>) {
+	static guilds(ctx: MethodContext) {
 		return {
 			create: async (body: RESTPostAPIGuildsJSONBody) => {
 				const guild = await ctx.client.proxy.guilds.post({ body });
@@ -74,6 +74,8 @@ export class CodeShorter {
 
 				return `${BASE_URL}/${Routes.guildWidgetJSON(id)}${params ? `?${params}` : ''}`;
 			},
+			channels: (guildId: string) =>
+				BaseChannel.allMethods({ client: ctx.client, guildId })
 		};
 	}
 }

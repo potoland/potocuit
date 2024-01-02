@@ -217,10 +217,10 @@ export class BaseClient {
 		};
 	}
 
-	users = CodeShorter.users({ client: this });
-	channels = (guildId: string) => BaseChannel.methods({ client: this, id: guildId });
+	users = (userId: string) => CodeShorter.users({ client: this, userId });
+	channels = BaseChannel.globalMethods({ client: this });
 	guilds = CodeShorter.guilds({ client: this });
-	members = (guildId: string) => GuildMember.methods({ id: guildId, client: this });
+	members = (guildId: string) => GuildMember.methods({ guildId: guildId, client: this });
 }
 
 export interface BaseClientOptions {

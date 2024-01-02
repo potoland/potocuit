@@ -29,7 +29,7 @@ export type MessageData = APIMessage | GatewayMessageCreateDispatchData;
 
 export interface BaseMessage
 	extends DiscordBase,
-		ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> {}
+	ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> { }
 export class BaseMessage extends DiscordBase {
 	guildId: string | undefined;
 	timestamp?: number;
@@ -54,7 +54,7 @@ export class BaseMessage extends DiscordBase {
 		this.components = data.components?.map((x) => new MessageActionRowComponent(x)) ?? [];
 		this.patch(data);
 		Object.assign(this, {
-			__reactionMethods__: MessagesMethods.reactions({ id: this.channelId, client }),
+			__reactionMethods__: MessagesMethods.reactions({ channelId: this.channelId, client }),
 		});
 	}
 
@@ -70,7 +70,7 @@ export class BaseMessage extends DiscordBase {
 	}
 
 	async channel(force = false) {
-		return this.client.channels(this.guildId ?? '@me').fetch({ id: this.channelId, force });
+		return this.client.channels.fetch(this.channelId, force);
 	}
 
 	react(emoji: EmojiResolvable) {
@@ -104,17 +104,17 @@ export class BaseMessage extends DiscordBase {
 		if (data.mentions?.length) {
 			this.mentions.users = this.guildId
 				? data.mentions.map(
-						(m) =>
-							new GuildMember(
-								this.client,
-								{
-									...(m as APIUser & { member?: Omit<APIGuildMember, 'user'> }).member!,
-									user: m,
-								},
-								m,
-								this.guildId!,
-							),
-				  )
+					(m) =>
+						new GuildMember(
+							this.client,
+							{
+								...(m as APIUser & { member?: Omit<APIGuildMember, 'user'> }).member!,
+								user: m,
+							},
+							m,
+							this.guildId!,
+						),
+				)
 				: data.mentions.map((u) => new User(this.client, u));
 		}
 	}
@@ -122,7 +122,7 @@ export class BaseMessage extends DiscordBase {
 
 export interface Message
 	extends BaseMessage,
-		ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> {}
+	ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> { }
 
 export class Message extends BaseMessage {
 	private readonly __messageMethods__!: ReturnType<typeof MessagesMethods.messages>;
@@ -131,7 +131,7 @@ export class Message extends BaseMessage {
 		Object.assign(this, {
 			__messageMethods__: MessagesMethods.messages({
 				client: this.client,
-				id: this.channelId,
+				channelId: this.channelId,
 			}),
 		});
 	}
@@ -174,14 +174,15 @@ export class Message extends BaseMessage {
 
 export class WebhookMessage extends BaseMessage {
 	private readonly __messageMethods__: ReturnType<typeof Webhook.messages>;
+	webhookId!: string
 
 	constructor(client: BaseClient, data: MessageData, readonly webhookToken: string) {
 		super(client, data);
-		this.__messageMethods__ = Webhook.messages({ ...this, token: webhookToken });
+		this.__messageMethods__ = Webhook.messages({ client: this.client, webhookToken: webhookToken, webhookId: this.webhookId });
 	}
 
 	fetch() {
-		return this.api.webhooks(this.webhookId!)(this.webhookToken).get({ query: this.thread?.id }).then(this._patchThis);
+		return this.api.webhooks(this.webhookId)(this.webhookToken).get({ query: this.thread?.id }).then(this._patchThis);
 	}
 
 	edit(body: MessageWebhookUpdateBodyRequest, files?: RawFile[]) {

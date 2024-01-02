@@ -3,7 +3,7 @@ import type { APIUser, MessageCreateBodyRequest, ObjectToLower } from '../common
 import type { ImageOptions } from '../common/types/options';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface User extends ObjectToLower<APIUser> {}
+export interface User extends ObjectToLower<APIUser> { }
 
 export class User extends DiscordBase<APIUser> {
 	get tag(): string {
@@ -18,7 +18,7 @@ export class User extends DiscordBase<APIUser> {
 	 * Fetch user
 	 */
 	async fetch() {
-		const data = await this.client.users.fetch(this.id, true);
+		const data = await this.client.users(this.id).fetch(true);
 		return this._patchCache(data, 'users');
 	}
 
@@ -26,7 +26,7 @@ export class User extends DiscordBase<APIUser> {
 	 * Open a DM with the user
 	 */
 	async dm(force = false) {
-		return this.client.users.createDM(this.id, force);
+		return this.client.users(this.id).createDM(force);
 	}
 
 	avatarURL(options?: ImageOptions): string {
@@ -37,7 +37,7 @@ export class User extends DiscordBase<APIUser> {
 	}
 
 	write(body: MessageCreateBodyRequest, files?: RawFile[]) {
-		return this.client.users.write(this.id, body, files);
+		return this.client.users(this.id).write(body, files);
 	}
 
 	toString(): string {

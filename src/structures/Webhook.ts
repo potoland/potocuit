@@ -24,7 +24,7 @@ import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 import { MessagesMethods } from './methods/channels';
 
-export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> {}
+export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> { }
 
 export class Webhook extends DiscordBase {
 	private readonly __methods__!: ReturnType<typeof Webhook.methods>;
@@ -43,10 +43,10 @@ export class Webhook extends DiscordBase {
 		}
 
 		Object.assign(this, {
-			__methods__: Webhook.methods({ client, id: this.id, token: this.token }),
+			__methods__: Webhook.methods({ client, webhookId: this.id, webhookToken: this.token }),
 		});
 		Object.assign(this, {
-			messages: Webhook.messages({ client, id: this.id, token: this.token! }),
+			messages: Webhook.messages({ client, webhookId: this.id, webhookToken: this.token! }),
 		});
 	}
 
@@ -59,7 +59,7 @@ export class Webhook extends DiscordBase {
 
 	async channel(force = false) {
 		if (!this.sourceChannel?.id) return;
-		return this.client.channels((await this.guild(force))?.id ?? '@me').fetch({ id: this.sourceChannel.id, force });
+		return this.client.channels.fetch(this.sourceChannel.id, force);
 	}
 
 	avatarURL(options?: ImageOptions): string | null {
@@ -82,18 +82,17 @@ export class Webhook extends DiscordBase {
 		return this.__methods__.delete(reason);
 	}
 
-	static messages(ctx: MethodContext<{ token?: string }>) {
+	static messages(ctx: MethodContext<{ webhookId: string, webhookToken: string }>) {
 		return {
 			write: async ({
 				body,
 				...payload
 			}: MessageWebhookPayload<MessageWebhookCreateBodyRequest, { query?: RESTPostAPIWebhookWithTokenQuery }>) => {
-				Webhook._hasToken(ctx);
 				const transformedBody = MessagesMethods.transformMessageBody<RESTPostAPIWebhookWithTokenJSONBody>(body);
 				return ctx.client.proxy
-					.webhooks(ctx.id)(ctx.token)
+					.webhooks(ctx.webhookId)(ctx.webhookToken)
 					.post({ ...payload, body: transformedBody })
-					.then((m) => (m?.id ? new WebhookMessage(ctx.client, m, ctx.token) : null));
+					.then((m) => (m?.id ? new WebhookMessage(ctx.client, m, ctx.webhookToken) : null));
 			},
 			edit: async ({
 				messageId,
@@ -103,43 +102,40 @@ export class Webhook extends DiscordBase {
 				MessageWebhookUpdateBodyRequest,
 				{ messageId: string; query?: RESTGetAPIWebhookWithTokenMessageQuery }
 			>) => {
-				Webhook._hasToken(ctx);
-
 				const transformedBody = MessagesMethods.transformMessageBody<RESTPatchAPIWebhookWithTokenMessageJSONBody>(body);
 
 				return ctx.client.proxy
-					.webhooks(ctx.id)(ctx.token)
+					.webhooks(ctx.webhookId)(ctx.webhookToken)
 					.messages(messageId)
 					.patch({ ...json, auth: false, body: transformedBody })
-					.then((m) => new WebhookMessage(ctx.client, m, ctx.token));
+					.then((m) => new WebhookMessage(ctx.client, m, ctx.webhookToken));
 			},
 			delete: async (messageId: string, reason?: string) => {
-				Webhook._hasToken(ctx);
-				return ctx.client.proxy.webhooks(ctx.id)(ctx.token).messages(messageId).delete({ reason });
+				return ctx.client.proxy.webhooks(ctx.webhookId)(ctx.webhookToken).messages(messageId).delete({ reason });
 			},
 		};
 	}
 
-	static methods(ctx: MethodContext<{ token?: string }>) {
+	static methods(ctx: MethodContext<{ webhookId: string, webhookToken?: string }>) {
 		return {
 			delete: (reason?: string) => {
-				if (ctx.token) {
-					return ctx.client.proxy.webhooks(ctx.id)(ctx.token).delete({ reason, auth: false });
+				if (ctx.webhookToken) {
+					return ctx.client.proxy.webhooks(ctx.webhookId)(ctx.webhookToken).delete({ reason, auth: false });
 				}
-				return ctx.client.proxy.webhooks(ctx.id).delete({ reason });
+				return ctx.client.proxy.webhooks(ctx.webhookId).delete({ reason });
 			},
 			edit: (body: RESTPatchAPIWebhookWithTokenJSONBody | RESTPatchAPIWebhookJSONBody, reason?: string) => {
-				if (ctx.token) {
-					return ctx.client.proxy.webhooks(ctx.id)(ctx.token).patch({ body, reason, auth: false });
+				if (ctx.webhookToken) {
+					return ctx.client.proxy.webhooks(ctx.webhookId)(ctx.webhookToken).patch({ body, reason, auth: false });
 				}
-				return ctx.client.proxy.webhooks(ctx.id).patch({ body, reason });
+				return ctx.client.proxy.webhooks(ctx.webhookId).patch({ body, reason });
 			},
 			fetch: async () => {
 				let webhook;
-				if (ctx.token) {
-					webhook = await ctx.client.proxy.webhooks(ctx.id)(ctx.token).get({ auth: false });
+				if (ctx.webhookToken) {
+					webhook = await ctx.client.proxy.webhooks(ctx.webhookId)(ctx.webhookToken).get({ auth: false });
 				} else {
-					webhook = await ctx.client.proxy.webhooks(ctx.id).get();
+					webhook = await ctx.client.proxy.webhooks(ctx.webhookId).get();
 				}
 				return new Webhook(ctx.client, webhook);
 			},

@@ -28,7 +28,6 @@ import {
 	APITextChannel,
 	ChannelType,
 	EmojiResolvable,
-	MakePartial,
 	MessageCreateBodyRequest,
 	MessageUpdateBodyRequest,
 	MethodContext,
@@ -43,20 +42,19 @@ import {
 	RESTPostAPIGuildChannelJSONBody,
 	SortOrderType,
 	ThreadAutoArchiveDuration,
-	VideoQualityMode,
-	WithID,
+	VideoQualityMode
 } from '../../common';
 import { User } from '../User';
 import { DiscordBase } from '../extra/DiscordBase';
 
 export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBase<ChannelType>> {
 	declare type: T;
-	private readonly __methods__!: ReturnType<typeof BaseChannel.methods>;
+	private readonly __methods__!: ReturnType<typeof BaseChannel.allMethods>;
 
 	constructor(client: BaseClient, data: APIChannelBase<ChannelType>) {
 		super(client, data);
 		Object.assign(this, {
-			__methods__: BaseChannel.methods({ client, id: this.__guildId__, channelId: this.id }),
+			__methods__: BaseChannel.allMethods({ client, guildId: this.__guildId__, }),
 		});
 	}
 
@@ -76,42 +74,24 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 	}
 
 	fetch(force = false) {
-		return this.__methods__.fetch({ id: this.id, force }).then(this._patchThis);
+		return this.__methods__.fetch(this.id, force).then(this._patchThis);
 	}
 
 	delete(reason?: string) {
-		return this.__methods__.delete({ id: this.id, reason });
+		return this.__methods__.delete(this.id, reason);
 	}
 
 	edit(body: RESTPatchAPIChannelJSONBody, reason?: string) {
-		return this.__methods__.edit({ ...body, id: this.id }, reason).then(this._patchThis);
+		return this.__methods__.edit(this.id, body, reason).then(this._patchThis);
 	}
 
 	toString() {
 		return `<#${this.id}>`;
 	}
 
-	static methods(ctx: MakePartial<MethodContext<{ channelId?: string }>, 'id'>) {
+	static globalMethods(ctx: MethodContext) {
 		return {
-			list: async (force = false) => {
-				let channels;
-				if (!force) {
-					channels = (await ctx.client.cache.channels?.values(ctx.id)) ?? [];
-					if (channels.length) {
-						return channels;
-					}
-				}
-				channels = await ctx.client.proxy.guilds(ctx.id).channels.get();
-				await ctx.client.cache.channels?.set(
-					channels.map((x) => [x!.id, x]),
-					ctx.id,
-				);
-				return channels.map((m) => channelFrom(m, ctx.client));
-			},
-			fetch: async ({ force, id }: WithID<{ force?: boolean }> = { id: ctx.channelId }) => {
-				if (!id) {
-					throw new Error('No channelId');
-				}
+			fetch: async (id: string, force?: boolean) => {
 				let channel;
 				if (!force) {
 					channel = await ctx.client.cache.channels?.get(id);
@@ -119,37 +99,65 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 				}
 
 				channel = await ctx.client.proxy.channels(id).get();
-				await ctx.client.cache.channels?.patch(id, ctx.id, channel);
+				await ctx.client.cache.channels?.patch(id, undefined, channel);
+				return channelFrom(channel, ctx.client);
+			}
+		};
+	}
+
+	static allMethods(ctx: MethodContext<{ guildId: string }>) {
+		return {
+			list: async (force = false) => {
+				let channels;
+				if (!force) {
+					channels = (await ctx.client.cache.channels?.values(ctx.guildId)) ?? [];
+					if (channels.length) {
+						return channels;
+					}
+				}
+				channels = await ctx.client.proxy.guilds(ctx.guildId).channels.get();
+				await ctx.client.cache.channels?.set(
+					channels.map((x) => [x!.id, x]),
+					ctx.guildId,
+				);
+				return channels.map((m) => channelFrom(m, ctx.client));
+			},
+			fetch: async (id: string, force?: boolean) => {
+				let channel;
+				if (!force) {
+					channel = await ctx.client.cache.channels?.get(id);
+					if (channel) return channel;
+				}
+
+				channel = await ctx.client.proxy.channels(id).get();
+				await ctx.client.cache.channels?.patch(id, ctx.guildId, channel);
 				return channelFrom(channel, ctx.client);
 			},
 			create: async (body: RESTPostAPIGuildChannelJSONBody) => {
-				const res = await ctx.client.proxy.guilds(ctx.id).channels.post({ body });
-				await ctx.client.cache.channels?.setIfNI(BaseChannel.__intent__(ctx.id), res.id, ctx.id, res);
+				const res = await ctx.client.proxy.guilds(ctx.guildId).channels.post({ body });
+				await ctx.client.cache.channels?.setIfNI(BaseChannel.__intent__(ctx.guildId), res.id, ctx.guildId, res);
 				return channelFrom(res, ctx.client);
 			},
-			delete: async ({ id, reason }: WithID<{ reason?: string }> = { id: ctx.id }) => {
+			delete: async (id: string, reason?: string) => {
 				if (!id) {
 					throw new Error('No channelId');
 				}
 				const res = await ctx.client.proxy.channels(id).delete({ reason });
-				await ctx.client.cache.channels?.removeIfNI(BaseChannel.__intent__(ctx.id), res.id, ctx.id);
+				await ctx.client.cache.channels?.removeIfNI(BaseChannel.__intent__(ctx.guildId), res.id, ctx.guildId);
 				return channelFrom(res, ctx.client);
 			},
-			edit: async (body: WithID<RESTPatchAPIChannelJSONBody> = { id: ctx.channelId }, reason?: string) => {
-				if (!body.id) {
-					throw new Error('No channelId');
-				}
-				const res = await ctx.client.proxy.channels(body.id).patch({ body, reason });
-				await ctx.client.cache.channels?.setIfNI(BaseChannel.__intent__(ctx.id), res.id, ctx.id, res);
+			edit: async (id: string, body: RESTPatchAPIChannelJSONBody, reason?: string) => {
+				const res = await ctx.client.proxy.channels(id).patch({ body, reason });
+				await ctx.client.cache.channels?.setIfNI(BaseChannel.__intent__(ctx.guildId), res.id, ctx.guildId, res);
 				return channelFrom(res, ctx.client);
 			},
 			editPositions: (body: RESTPatchAPIGuildChannelPositionsJSONBody) =>
-				ctx.client.proxy.guilds(ctx.id).channels.patch({ body }),
+				ctx.client.proxy.guilds(ctx.guildId).channels.patch({ body }),
 		};
 	}
 }
 
-export interface BaseGuildChannel extends ObjectToLower<APIGuildChannel<ChannelType.GuildText>> {}
+export interface BaseGuildChannel extends ObjectToLower<APIGuildChannel<ChannelType.GuildText>> { }
 export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
 	async guild(force?: true): Promise<Guild<'api'>>;
 	async guild(force?: boolean): Promise<Guild<'cached'> | Guild<'api'>>;
@@ -170,16 +178,16 @@ export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
 	}
 }
 
-export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> {}
+export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> { }
 export class MessagesMethods extends DiscordBase {
 	typing() {
 		return this.api.channels(this.id).typing.post();
 	}
 
-	messages = MessagesMethods.messages(this);
-	pins = MessagesMethods.pins(this);
-	reactions = MessagesMethods.reactions(this);
-	static reactions(ctx: MethodContext) {
+	messages = MessagesMethods.messages({ client: this.client, channelId: this.id });
+	pins = MessagesMethods.pins({ client: this.client, channelId: this.id });
+	reactions = MessagesMethods.reactions({ client: this.client, channelId: this.id });
+	static reactions(ctx: MethodContext<{ channelId: string }>) {
 		return {
 			add: async (messageId: string, emoji: EmojiResolvable) => {
 				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
@@ -188,7 +196,7 @@ export class MessagesMethods extends DiscordBase {
 					throw new Error('Emoji no resolvable');
 				}
 
-				return ctx.client.proxy.channels(ctx.id).messages(messageId).reactions(encodeEmoji(rawEmoji))('@me').put({});
+				return ctx.client.proxy.channels(ctx.channelId).messages(messageId).reactions(encodeEmoji(rawEmoji))('@me').put({});
 			},
 			delete: async (messageId: string, emoji: EmojiResolvable, userId = '@me') => {
 				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
@@ -197,7 +205,7 @@ export class MessagesMethods extends DiscordBase {
 					throw new Error('Emoji no resolvable');
 				}
 
-				return ctx.client.proxy.channels(ctx.id).messages(messageId).reactions(encodeEmoji(rawEmoji))(userId).delete();
+				return ctx.client.proxy.channels(ctx.channelId).messages(messageId).reactions(encodeEmoji(rawEmoji))(userId).delete();
 			},
 			fetch: async (messageId: string, emoji: EmojiResolvable, query?: RESTGetAPIChannelMessageReactionUsersQuery) => {
 				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
@@ -207,7 +215,7 @@ export class MessagesMethods extends DiscordBase {
 				}
 
 				return ctx.client.proxy
-					.channels(ctx.id)
+					.channels(ctx.channelId)
 					.messages(messageId)
 					.reactions(encodeEmoji(rawEmoji))
 					.get({ query })
@@ -215,7 +223,7 @@ export class MessagesMethods extends DiscordBase {
 			},
 			purge: async (messageId: string, emoji?: EmojiResolvable) => {
 				if (!emoji) {
-					return ctx.client.proxy.channels(ctx.id).messages(messageId).reactions.delete();
+					return ctx.client.proxy.channels(ctx.channelId).messages(messageId).reactions.delete();
 				}
 				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
 
@@ -223,21 +231,21 @@ export class MessagesMethods extends DiscordBase {
 					throw new Error('Emoji no resolvable');
 				}
 
-				return ctx.client.proxy.channels(ctx.id).messages(messageId).reactions(encodeEmoji(rawEmoji)).delete();
+				return ctx.client.proxy.channels(ctx.channelId).messages(messageId).reactions(encodeEmoji(rawEmoji)).delete();
 			},
 		};
 	}
 
-	static pins(ctx: MethodContext) {
+	static pins(ctx: MethodContext<{ channelId: string }>) {
 		return {
 			fetch: () =>
 				ctx.client.proxy
-					.channels(ctx.id)
+					.channels(ctx.channelId)
 					.pins.get()
 					.then((messages) => messages.map((message) => new Message(ctx.client, message))),
-			set: (messageId: string, reason?: string) => ctx.client.proxy.channels(ctx.id).pins(messageId).put({ reason }),
+			set: (messageId: string, reason?: string) => ctx.client.proxy.channels(ctx.channelId).pins(messageId).put({ reason }),
 			delete: (messageId: string, reason?: string) =>
-				ctx.client.proxy.channels(ctx.id).pins(messageId).delete({ reason }),
+				ctx.client.proxy.channels(ctx.channelId).pins(messageId).delete({ reason }),
 		};
 	}
 
@@ -248,12 +256,12 @@ export class MessagesMethods extends DiscordBase {
 		} as T;
 	}
 
-	static messages(ctx: MethodContext) {
+	static messages(ctx: MethodContext<{ channelId: string }>) {
 		return {
 			write: (body: MessageCreateBodyRequest, files?: RawFile[]) => {
 				const transformedBody = MessagesMethods.transformMessageBody<RESTPostAPIChannelMessageJSONBody>(body);
 				return ctx.client.proxy
-					.channels(ctx.id)
+					.channels(ctx.channelId)
 					.messages.post({
 						body: transformedBody,
 						files,
@@ -265,7 +273,7 @@ export class MessagesMethods extends DiscordBase {
 			},
 			edit: (messageId: string, body: MessageUpdateBodyRequest, files?: RawFile[]) => {
 				return ctx.client.proxy
-					.channels(ctx.id)
+					.channels(ctx.channelId)
 					.messages(messageId)
 					.patch({
 						body: MessagesMethods.transformMessageBody<RESTPatchAPIChannelMessageJSONBody>(body),
@@ -278,14 +286,14 @@ export class MessagesMethods extends DiscordBase {
 			},
 			crosspost: (messageId: string, reason?: string) => {
 				return ctx.client.proxy
-					.channels(ctx.id)
+					.channels(ctx.channelId)
 					.messages(messageId)
 					.crosspost.post({ reason })
 					.then((m) => new Message(ctx.client, m));
 			},
 			delete: (messageId: string, reason?: string) => {
 				return ctx.client.proxy
-					.channels(ctx.id)
+					.channels(ctx.channelId)
 					.messages(messageId)
 					.delete({ reason })
 					.then(() => {
@@ -294,21 +302,21 @@ export class MessagesMethods extends DiscordBase {
 			},
 			fetch: async (messageId: string) => {
 				return ctx.client.proxy
-					.channels(ctx.id)
+					.channels(ctx.channelId)
 					.messages(messageId)
 					.get()
 					.then((x) => new Message(ctx.client, x));
 			},
 			purge: (body: RESTPostAPIChannelMessagesBulkDeleteJSONBody, reason?: string) => {
-				return ctx.client.proxy.channels(ctx.id).messages['bulk-delete'].post({ body, reason });
+				return ctx.client.proxy.channels(ctx.channelId).messages['bulk-delete'].post({ body, reason });
 			},
 		};
 	}
 }
 
-export interface TextBaseChannel extends ObjectToLower<APITextChannel>, MessagesMethods {}
+export interface TextBaseChannel extends ObjectToLower<APITextChannel>, MessagesMethods { }
 @mix(MessagesMethods)
-export class TextBaseChannel extends BaseGuildChannel {}
+export class TextBaseChannel extends BaseGuildChannel { }
 
 export default function channelFrom(data: APIChannelBase<ChannelType>, client: BaseClient): PotocuitChannels {
 	switch (data.type) {
@@ -342,14 +350,14 @@ export default function channelFrom(data: APIChannelBase<ChannelType>, client: B
 	}
 }
 
-export interface TopicableGuildChannel extends BaseChannel<ChannelType> {}
+export interface TopicableGuildChannel extends BaseChannel<ChannelType> { }
 export class TopicableGuildChannel extends DiscordBase {
 	setTopic(topic: string | null, reason?: string) {
 		return this.edit({ topic }, reason);
 	}
 }
 
-export interface ThreadOnlyMethods extends BaseChannel<ChannelType.PublicThread | ChannelType.PrivateThread> {}
+export interface ThreadOnlyMethods extends BaseChannel<ChannelType.PublicThread | ChannelType.PrivateThread> { }
 @mix(TopicableGuildChannel)
 export class ThreadOnlyMethods extends DiscordBase {
 	setTags(tags: APIGuildForumTag[], reason?: string) {
@@ -392,13 +400,12 @@ export class VoiceChannelMethods extends BaseChannel<ChannelType.GuildVoice> {
 }
 
 export class WebhookGuildMethods extends DiscordBase {
-	webhooks = WebhookGuildMethods.guild(this);
+	webhooks = WebhookGuildMethods.guild({ client: this.client, guildId: this.id });
 
-	static guild(ctx: MethodContext) {
+	static guild(ctx: MethodContext<{ guildId: string }>) {
 		return {
-			list: async (guildId = ctx.id) => {
-				if (!guildId) throw new Error('Non guild specified');
-				const webhooks = await ctx.client.proxy.guilds(guildId).webhooks.get();
+			list: async () => {
+				const webhooks = await ctx.client.proxy.guilds(ctx.guildId).webhooks.get();
 				return webhooks.map((webhook) => new Webhook(ctx.client, webhook));
 			},
 		};
@@ -406,18 +413,16 @@ export class WebhookGuildMethods extends DiscordBase {
 }
 
 export class WebhookChannelMethods extends DiscordBase {
-	webhooks = WebhookChannelMethods.channel(this);
+	webhooks = WebhookChannelMethods.channel({ client: this.client, channelId: this.id });
 
-	static channel(ctx: MethodContext) {
+	static channel(ctx: MethodContext<{ channelId: string }>) {
 		return {
-			list: async (channelId = ctx.id) => {
-				if (!channelId) throw new Error('Non channel specified');
-				const webhooks = await ctx.client.proxy.channels(channelId).webhooks.get();
+			list: async () => {
+				const webhooks = await ctx.client.proxy.channels(ctx.channelId).webhooks.get();
 				return webhooks.map((webhook) => new Webhook(ctx.client, webhook));
 			},
-			create: async (body: RESTPostAPIChannelWebhookJSONBody, channelId = ctx.id) => {
-				if (!channelId) throw new Error('Non channel specified');
-				const webhook = await ctx.client.proxy.channels(channelId).webhooks.post({
+			create: async (body: RESTPostAPIChannelWebhookJSONBody) => {
+				const webhook = await ctx.client.proxy.channels(ctx.channelId).webhooks.post({
 					body,
 				});
 				return new Webhook(ctx.client, webhook);

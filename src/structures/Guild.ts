@@ -10,7 +10,7 @@ import { BaseGuild } from './extra/BaseGuild';
 import type { DiscordBase } from './extra/DiscordBase';
 import { BaseChannel, WebhookGuildMethods } from './methods/channels';
 
-export interface Guild extends Omit<ObjectToLower<APIGuild>, 'stickers' | 'emojis' | 'roles'>, DiscordBase {}
+export interface Guild extends Omit<ObjectToLower<APIGuild>, 'stickers' | 'emojis' | 'roles'>, DiscordBase { }
 export class Guild<State extends StructStates = 'api'> extends (BaseGuild as unknown as ToClass<
 	Omit<BaseGuild, keyof ObjectToLower<APIPartialGuild>>,
 	Guild
@@ -24,7 +24,7 @@ export class Guild<State extends StructStates = 'api'> extends (BaseGuild as unk
 		super(client, data);
 	}
 
-	webhooks = WebhookGuildMethods.guild(this);
+	webhooks = WebhookGuildMethods.guild({ client: this.client, guildId: this.id });
 
 	get maxStickers(): MaxStickers {
 		switch (this.premiumTier) {
@@ -60,12 +60,12 @@ export class Guild<State extends StructStates = 'api'> extends (BaseGuild as unk
 		return this.members.fetch(this.ownerId, force);
 	}
 
-	templates = GuildTemplate.methods(this);
-	stickers = Sticker.methods(this);
-	members = GuildMember.methods(this);
-	moderationRules = AutoModerationRule.methods(this);
-	roles = GuildRole.methods(this);
-	channels = BaseChannel.methods(this);
+	templates = GuildTemplate.methods({ client: this.client, guildId: this.id });
+	stickers = Sticker.methods({ client: this.client, guildId: this.id });
+	members = GuildMember.methods({ client: this.client, guildId: this.id });
+	moderationRules = AutoModerationRule.methods({ client: this.client, guildId: this.id });
+	roles = GuildRole.methods({ client: this.client, guildId: this.id });
+	channels = BaseChannel.allMethods({ client: this.client, guildId: this.id });
 }
 
 /** Maximun custom guild emojis per level */

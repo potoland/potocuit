@@ -9,7 +9,7 @@ import type {
 import { Guild } from './Guild';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface AutoModerationRule extends ObjectToLower<APIAutoModerationRule> {}
+export interface AutoModerationRule extends ObjectToLower<APIAutoModerationRule> { }
 
 export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 	private readonly __methods__!: ReturnType<typeof AutoModerationRule.methods>;
@@ -17,7 +17,7 @@ export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 	constructor(client: BaseClient, data: APIAutoModerationRule) {
 		super(client, data);
 		Object.assign(this, {
-			__methods__: AutoModerationRule.methods({ client, id: this.guildId, ruleId: this.id }),
+			__methods__: AutoModerationRule.methods({ client, guildId: this.guildId }),
 		});
 	}
 
@@ -32,44 +32,33 @@ export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 	}
 
 	fetch() {
-		return this.__methods__.fetch();
+		return this.__methods__.fetch(this.id);
 	}
 
 	edit(body: ObjectToLower<RESTPatchAPIAutoModerationRuleJSONBody>, reason?: string) {
-		return this.__methods__.edit({ ...body, ruleId: this.id }, reason);
+		return this.__methods__.edit(this.id, body, reason);
 	}
 
 	delete(reason?: string) {
 		return this.__methods__.delete(this.id, reason);
 	}
 
-	static methods(ctx: MethodContext<{ ruleId?: string }>) {
+	static methods(ctx: MethodContext<{ guildId: string }>) {
 		return {
-			list: () => ctx.client.proxy.guilds(ctx.id)['auto-moderation'].rules.get(),
+			list: () => ctx.client.proxy.guilds(ctx.guildId)['auto-moderation'].rules.get(),
 			create: (body: RESTPostAPIAutoModerationRuleJSONBody) =>
-				ctx.client.proxy.guilds(ctx.id)['auto-moderation'].rules.post({ body }),
-			delete: (ruleId = ctx.ruleId, reason?: string) => {
-				if (!ruleId) {
-					throw new Error('No ruleId');
-				}
-				return ctx.client.proxy.guilds(ctx.id)['auto-moderation'].rules(ruleId).delete({ reason });
+				ctx.client.proxy.guilds(ctx.guildId)['auto-moderation'].rules.post({ body }),
+			delete: (ruleId: string, reason?: string) => {
+				return ctx.client.proxy.guilds(ctx.guildId)['auto-moderation'].rules(ruleId).delete({ reason });
 			},
-			fetch: (ruleId = ctx.ruleId) => {
-				if (!ruleId) {
-					throw new Error('No ruleId');
-				}
-				return ctx.client.proxy.guilds(ctx.id)['auto-moderation'].rules(ruleId).get();
+			fetch: (ruleId: string) => {
+				return ctx.client.proxy.guilds(ctx.guildId)['auto-moderation'].rules(ruleId).get();
 			},
-			edit: (
-				body: ObjectToLower<RESTPatchAPIAutoModerationRuleJSONBody> & { ruleId?: string } = {
-					ruleId: ctx.ruleId,
-				},
+			edit: (ruleId: string,
+				body: ObjectToLower<RESTPatchAPIAutoModerationRuleJSONBody>,
 				reason?: string,
 			) => {
-				if (!body.ruleId) {
-					throw new Error('No ruleId');
-				}
-				return ctx.client.proxy.guilds(ctx.id)['auto-moderation'].rules(body.ruleId).patch({ body, reason });
+				return ctx.client.proxy.guilds(ctx.guildId)['auto-moderation'].rules(ruleId).patch({ body, reason });
 			},
 		};
 	}
