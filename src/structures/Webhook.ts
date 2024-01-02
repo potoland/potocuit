@@ -5,7 +5,6 @@ import type {
 	MessageWebhookPayload,
 	MessageWebhookUpdateBodyRequest,
 	MethodContext,
-	PotocuitChannels,
 } from '..';
 import { hasProp } from '..';
 import type { BaseClient } from '../client/base';
@@ -51,16 +50,16 @@ export class Webhook extends DiscordBase {
 		});
 	}
 
-	async guild(force: true): Promise<Guild<'api'>>;
-	async guild(force = false) {
+	async guild(force?: true): Promise<Guild<'api'> | undefined>;
+	async guild(force?: boolean): Promise<Guild<'cached'> | Guild<'api'> | undefined>;
+	async guild(force = false): Promise<Guild<'cached'> | Guild<'api'> | undefined> {
 		if (!this.sourceGuild?.id) return;
 		return this.client.guilds.fetch(this.sourceGuild.id, force);
 	}
 
-	async channel(force: true): Promise<PotocuitChannels>;
 	async channel(force = false) {
 		if (!this.sourceChannel?.id) return;
-		return this.client.channels().fetch({ id: this.sourceChannel.id, force });
+		return this.client.channels((await this.guild(force))?.id ?? '@me').fetch({ id: this.sourceChannel.id, force });
 	}
 
 	avatarURL(options?: ImageOptions): string | null {

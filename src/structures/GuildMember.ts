@@ -70,7 +70,7 @@ export class GuildMember extends DiscordBase {
 		return this.nick ?? this.globalName ?? this.username;
 	}
 
-	async guild(force: true): Promise<Guild<'api'>>;
+	async guild(force?: true): Promise<Guild<'api'>>;
 	async guild(force = false) {
 		return this.client.guilds.fetch(this.id, force);
 	}

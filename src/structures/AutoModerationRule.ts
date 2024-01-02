@@ -7,7 +7,6 @@ import type {
 	RESTPostAPIAutoModerationRuleJSONBody,
 } from '../common';
 import { Guild } from './Guild';
-import { GuildMember } from './GuildMember';
 import { DiscordBase } from './extra/DiscordBase';
 
 export interface AutoModerationRule extends ObjectToLower<APIAutoModerationRule> {}
@@ -22,19 +21,13 @@ export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 		});
 	}
 
-	async fetchCreator(force: true): Promise<GuildMember>;
 	async fetchCreator(force = false) {
-		if (!force) {
-			const data = await this.cache.members?.get(this.creatorId, this.guildId);
-			if (data) return data;
-		}
-
-		return this;
+		return this.client.members(this.guildId).fetch(this.creatorId, force);
 	}
 
-	async guild(force: true): Promise<Guild<'api'>>;
-	async guild(force = false) {
-		if (!this.guildId) return;
+	async guild(force?: true): Promise<Guild<'api'>>;
+	async guild(force?: boolean): Promise<Guild<'cached'> | Guild<'api'> | undefined>;
+	async guild(force = false): Promise<Guild<'cached'> | Guild<'api'>> {
 		return this.client.guilds.fetch(this.guildId, force);
 	}
 

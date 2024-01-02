@@ -598,4 +598,14 @@ export class ModalSubmitInteraction<FromGuild extends boolean = boolean> extends
 	get components() {
 		return this.data.components;
 	}
+
+	getInputValue(customId: string, required?: boolean): string | undefined;
+	getInputValue(customId: string, required?: true): string;
+	getInputValue(customId: string) {
+		for (const { components } of this.components) {
+			const get = components.find((x) => x.customId === customId);
+			if (get) return get.value;
+		}
+		return undefined;
+	}
 }

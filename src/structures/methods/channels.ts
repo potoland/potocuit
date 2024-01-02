@@ -1,9 +1,11 @@
 import { mix } from 'ts-mixer';
 import {
+	APIGuildChannel,
 	CategoryChannel,
 	DMChannel,
 	DirectoryChannel,
 	ForumChannel,
+	Guild,
 	MediaChannel,
 	Message,
 	NewsChannel,
@@ -113,6 +115,7 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 					channel = await ctx.client.cache.channels?.get(id);
 					if (channel) return channel;
 				}
+
 				channel = await ctx.api.channels(id).get();
 				await ctx.client.cache.channels?.patch(id, ctx.id, channel);
 				return channelFrom(channel, ctx.client);
@@ -143,7 +146,14 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 	}
 }
 
+export interface BaseGuildChannel extends ObjectToLower<APIGuildChannel<ChannelType.GuildText>> {}
 export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
+	async guild(force?: true): Promise<Guild<'api'>>;
+	async guild(force?: boolean): Promise<Guild<'cached'> | Guild<'api'>>;
+	async guild(force = false) {
+		return this.client.guilds.fetch(this.guildId!, force);
+	}
+
 	setPosition(position: number, reason?: string) {
 		return this.edit({ position }, reason);
 	}

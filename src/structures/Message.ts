@@ -62,14 +62,15 @@ export class BaseMessage extends DiscordBase {
 		return messageLink(this.channelId, this.id, this.guildId);
 	}
 
-	async guild(force: true): Promise<Guild<'api'> | undefined>;
+	async guild(force?: true): Promise<Guild<'api'> | undefined>;
+	async guild(force?: boolean): Promise<Guild<'cached'> | Guild<'api'> | undefined>;
 	async guild(force = false) {
 		if (!this.guildId) return;
 		return this.client.guilds.fetch(this.guildId, force);
 	}
 
 	async channel(force = false) {
-		return this.client.channels().fetch({ id: this.channelId, force });
+		return this.client.channels(this.guildId ?? '@me').fetch({ id: this.channelId, force });
 	}
 
 	react(emoji: EmojiResolvable) {

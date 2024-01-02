@@ -14,11 +14,7 @@ export type ToClass<T, This> = new (
 
 export type StringToNumber<T extends string> = T extends `${infer N extends number}` ? N : never;
 
-export type MakePartial<T, K extends keyof T> = {
-	[P in keyof T]: T[P];
-} & {
-	[P in K]?: T[P] | undefined;
-};
+export type MakePartial<T, K extends keyof T> = T & { [P in K]?: T[P] };
 
 export type DeepPartial<T> = {
 	[K in keyof T]?: T[K] extends Record<any, any>

@@ -23,7 +23,7 @@ export class GuildTemplate extends Base {
 		});
 	}
 
-	async guild(force: true): Promise<Guild<'api'>>;
+	async guild(force?: true): Promise<Guild<'api'>>;
 	async guild(force = false) {
 		if (!this.sourceGuildId) return;
 		return this.client.guilds.fetch(this.sourceGuildId, force);

@@ -218,7 +218,7 @@ export class BaseClient {
 	}
 
 	users = CodeShorter.users({ client: this, api: this.proxy });
-	channels = (guildId?: string) => BaseChannel.methods({ client: this, api: this.proxy, id: guildId! });
+	channels = (guildId: string) => BaseChannel.methods({ client: this, api: this.proxy, id: guildId });
 	guilds = CodeShorter.guilds({ client: this, api: this.proxy });
 	members = (guildId: string) => GuildMember.methods({ id: guildId, client: this, api: this.proxy });
 }
