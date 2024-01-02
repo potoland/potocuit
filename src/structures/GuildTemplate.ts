@@ -9,7 +9,7 @@ import type {
 import { Guild } from './Guild';
 import { Base } from './extra/Base';
 
-export interface GuildTemplate extends Base, ObjectToLower<APITemplate> { }
+export interface GuildTemplate extends Base, ObjectToLower<APITemplate> {}
 
 export class GuildTemplate extends Base {
 	private readonly __methods__!: ReturnType<typeof GuildTemplate.methods>;

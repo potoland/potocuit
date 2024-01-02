@@ -3,7 +3,7 @@ import type { APIUser, MessageCreateBodyRequest, ObjectToLower } from '../common
 import type { ImageOptions } from '../common/types/options';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface User extends ObjectToLower<APIUser> { }
+export interface User extends ObjectToLower<APIUser> {}
 
 export class User extends DiscordBase<APIUser> {
 	get tag(): string {

@@ -4,6 +4,6 @@ import { BaseClient } from '../../client/base';
 
 export type ImageOptions = ImageURLOptions;
 
-export type MethodContext<T = {}> = Identify<{ client: BaseClient; } & T>;
+export type MethodContext<T = {}> = Identify<{ client: BaseClient } & T>;
 
 export type MessageWebhookPayload<Body, Extra = {}> = Identify<{ body: Body; files?: RawFile[] } & Extra>;

@@ -42,7 +42,7 @@ import {
 	RESTPostAPIGuildChannelJSONBody,
 	SortOrderType,
 	ThreadAutoArchiveDuration,
-	VideoQualityMode
+	VideoQualityMode,
 } from '../../common';
 import { User } from '../User';
 import { DiscordBase } from '../extra/DiscordBase';
@@ -54,7 +54,7 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 	constructor(client: BaseClient, data: APIChannelBase<ChannelType>) {
 		super(client, data);
 		Object.assign(this, {
-			__methods__: BaseChannel.allMethods({ client, guildId: this.__guildId__, }),
+			__methods__: BaseChannel.allMethods({ client, guildId: this.__guildId__ }),
 		});
 	}
 
@@ -101,7 +101,7 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 				channel = await ctx.client.proxy.channels(id).get();
 				await ctx.client.cache.channels?.patch(id, undefined, channel);
 				return channelFrom(channel, ctx.client);
-			}
+			},
 		};
 	}
 
@@ -157,7 +157,7 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 	}
 }
 
-export interface BaseGuildChannel extends ObjectToLower<APIGuildChannel<ChannelType.GuildText>> { }
+export interface BaseGuildChannel extends ObjectToLower<APIGuildChannel<ChannelType.GuildText>> {}
 export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
 	async guild(force?: true): Promise<Guild<'api'>>;
 	async guild(force?: boolean): Promise<Guild<'cached'> | Guild<'api'>>;
@@ -178,7 +178,7 @@ export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
 	}
 }
 
-export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> { }
+export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> {}
 export class MessagesMethods extends DiscordBase {
 	typing() {
 		return this.api.channels(this.id).typing.post();
@@ -196,7 +196,11 @@ export class MessagesMethods extends DiscordBase {
 					throw new Error('Emoji no resolvable');
 				}
 
-				return ctx.client.proxy.channels(ctx.channelId).messages(messageId).reactions(encodeEmoji(rawEmoji))('@me').put({});
+				return ctx.client.proxy
+					.channels(ctx.channelId)
+					.messages(messageId)
+					.reactions(encodeEmoji(rawEmoji))('@me')
+					.put({});
 			},
 			delete: async (messageId: string, emoji: EmojiResolvable, userId = '@me') => {
 				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
@@ -205,7 +209,11 @@ export class MessagesMethods extends DiscordBase {
 					throw new Error('Emoji no resolvable');
 				}
 
-				return ctx.client.proxy.channels(ctx.channelId).messages(messageId).reactions(encodeEmoji(rawEmoji))(userId).delete();
+				return ctx.client.proxy
+					.channels(ctx.channelId)
+					.messages(messageId)
+					.reactions(encodeEmoji(rawEmoji))(userId)
+					.delete();
 			},
 			fetch: async (messageId: string, emoji: EmojiResolvable, query?: RESTGetAPIChannelMessageReactionUsersQuery) => {
 				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
@@ -243,7 +251,8 @@ export class MessagesMethods extends DiscordBase {
 					.channels(ctx.channelId)
 					.pins.get()
 					.then((messages) => messages.map((message) => new Message(ctx.client, message))),
-			set: (messageId: string, reason?: string) => ctx.client.proxy.channels(ctx.channelId).pins(messageId).put({ reason }),
+			set: (messageId: string, reason?: string) =>
+				ctx.client.proxy.channels(ctx.channelId).pins(messageId).put({ reason }),
 			delete: (messageId: string, reason?: string) =>
 				ctx.client.proxy.channels(ctx.channelId).pins(messageId).delete({ reason }),
 		};
@@ -314,9 +323,9 @@ export class MessagesMethods extends DiscordBase {
 	}
 }
 
-export interface TextBaseChannel extends ObjectToLower<APITextChannel>, MessagesMethods { }
+export interface TextBaseChannel extends ObjectToLower<APITextChannel>, MessagesMethods {}
 @mix(MessagesMethods)
-export class TextBaseChannel extends BaseGuildChannel { }
+export class TextBaseChannel extends BaseGuildChannel {}
 
 export default function channelFrom(data: APIChannelBase<ChannelType>, client: BaseClient): PotocuitChannels {
 	switch (data.type) {
@@ -350,14 +359,14 @@ export default function channelFrom(data: APIChannelBase<ChannelType>, client: B
 	}
 }
 
-export interface TopicableGuildChannel extends BaseChannel<ChannelType> { }
+export interface TopicableGuildChannel extends BaseChannel<ChannelType> {}
 export class TopicableGuildChannel extends DiscordBase {
 	setTopic(topic: string | null, reason?: string) {
 		return this.edit({ topic }, reason);
 	}
 }
 
-export interface ThreadOnlyMethods extends BaseChannel<ChannelType.PublicThread | ChannelType.PrivateThread> { }
+export interface ThreadOnlyMethods extends BaseChannel<ChannelType.PublicThread | ChannelType.PrivateThread> {}
 @mix(TopicableGuildChannel)
 export class ThreadOnlyMethods extends DiscordBase {
 	setTags(tags: APIGuildForumTag[], reason?: string) {

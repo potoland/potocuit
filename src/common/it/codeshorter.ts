@@ -74,8 +74,7 @@ export class CodeShorter {
 
 				return `${BASE_URL}/${Routes.guildWidgetJSON(id)}${params ? `?${params}` : ''}`;
 			},
-			channels: (guildId: string) =>
-				BaseChannel.allMethods({ client: ctx.client, guildId })
+			channels: (guildId: string) => BaseChannel.allMethods({ client: ctx.client, guildId }),
 		};
 	}
 }

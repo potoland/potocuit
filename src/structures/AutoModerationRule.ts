@@ -9,7 +9,7 @@ import type {
 import { Guild } from './Guild';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface AutoModerationRule extends ObjectToLower<APIAutoModerationRule> { }
+export interface AutoModerationRule extends ObjectToLower<APIAutoModerationRule> {}
 
 export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 	private readonly __methods__!: ReturnType<typeof AutoModerationRule.methods>;
@@ -54,10 +54,7 @@ export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 			fetch: (ruleId: string) => {
 				return ctx.client.proxy.guilds(ctx.guildId)['auto-moderation'].rules(ruleId).get();
 			},
-			edit: (ruleId: string,
-				body: ObjectToLower<RESTPatchAPIAutoModerationRuleJSONBody>,
-				reason?: string,
-			) => {
+			edit: (ruleId: string, body: ObjectToLower<RESTPatchAPIAutoModerationRuleJSONBody>, reason?: string) => {
 				return ctx.client.proxy.guilds(ctx.guildId)['auto-moderation'].rules(ruleId).patch({ body, reason });
 			},
 		};
