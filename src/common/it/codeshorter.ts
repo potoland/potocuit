@@ -29,7 +29,7 @@ export class CodeShorter {
 			},
 			deleteDM: async (id: string, reason?: string) => {
 				const res = await ctx.client.proxy.channels(id).delete({ reason });
-				await ctx.client.cache.channels?.removeIfNI(BaseChannel.__intent__('@me'), res.id, '@me')
+				await ctx.client.cache.channels?.removeIfNI(BaseChannel.__intent__('@me'), res.id, '@me');
 				return new DMChannel(ctx.client, res);
 			},
 			fetch: async (id: string, force = false) => {

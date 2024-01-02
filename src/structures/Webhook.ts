@@ -24,7 +24,7 @@ import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 import { MessagesMethods } from './methods/channels';
 
-export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> { }
+export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> {}
 
 export class Webhook extends DiscordBase {
 	private readonly __methods__!: ReturnType<typeof Webhook.methods>;

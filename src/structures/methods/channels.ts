@@ -64,7 +64,7 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 		return 'guildId' in this ? (this.guildId as string) : '@me';
 	}
 
-	static __intent__(id: '@me'): 'DirectMessages'
+	static __intent__(id: '@me'): 'DirectMessages';
 	static __intent__(id: string): 'DirectMessages' | 'Guilds';
 	static __intent__(id: string) {
 		return id === '@me' ? 'DirectMessages' : 'Guilds';
@@ -132,7 +132,7 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 					throw new Error('No channelId');
 				}
 				const res = await ctx.client.proxy.channels(id).delete({ reason });
-				await ctx.client.cache.channels?.removeIfNI(BaseChannel.__intent__(ctx.id), res.id, ctx.id)
+				await ctx.client.cache.channels?.removeIfNI(BaseChannel.__intent__(ctx.id), res.id, ctx.id);
 				return channelFrom(res, ctx.client);
 			},
 			edit: async (body: WithID<RESTPatchAPIChannelJSONBody> = { id: ctx.channelId }, reason?: string) => {
@@ -149,7 +149,7 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 	}
 }
 
-export interface BaseGuildChannel extends ObjectToLower<APIGuildChannel<ChannelType.GuildText>> { }
+export interface BaseGuildChannel extends ObjectToLower<APIGuildChannel<ChannelType.GuildText>> {}
 export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
 	async guild(force?: true): Promise<Guild<'api'>>;
 	async guild(force?: boolean): Promise<Guild<'cached'> | Guild<'api'>>;
@@ -170,7 +170,7 @@ export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
 	}
 }
 
-export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> { }
+export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> {}
 export class MessagesMethods extends DiscordBase {
 	typing() {
 		return this.api.channels(this.id).typing.post();
@@ -236,7 +236,8 @@ export class MessagesMethods extends DiscordBase {
 					.pins.get()
 					.then((messages) => messages.map((message) => new Message(ctx.client, message))),
 			set: (messageId: string, reason?: string) => ctx.client.proxy.channels(ctx.id).pins(messageId).put({ reason }),
-			delete: (messageId: string, reason?: string) => ctx.client.proxy.channels(ctx.id).pins(messageId).delete({ reason }),
+			delete: (messageId: string, reason?: string) =>
+				ctx.client.proxy.channels(ctx.id).pins(messageId).delete({ reason }),
 		};
 	}
 
@@ -305,9 +306,9 @@ export class MessagesMethods extends DiscordBase {
 	}
 }
 
-export interface TextBaseChannel extends ObjectToLower<APITextChannel>, MessagesMethods { }
+export interface TextBaseChannel extends ObjectToLower<APITextChannel>, MessagesMethods {}
 @mix(MessagesMethods)
-export class TextBaseChannel extends BaseGuildChannel { }
+export class TextBaseChannel extends BaseGuildChannel {}
 
 export default function channelFrom(data: APIChannelBase<ChannelType>, client: BaseClient): PotocuitChannels {
 	switch (data.type) {
@@ -341,14 +342,14 @@ export default function channelFrom(data: APIChannelBase<ChannelType>, client: B
 	}
 }
 
-export interface TopicableGuildChannel extends BaseChannel<ChannelType> { }
+export interface TopicableGuildChannel extends BaseChannel<ChannelType> {}
 export class TopicableGuildChannel extends DiscordBase {
 	setTopic(topic: string | null, reason?: string) {
 		return this.edit({ topic }, reason);
 	}
 }
 
-export interface ThreadOnlyMethods extends BaseChannel<ChannelType.PublicThread | ChannelType.PrivateThread> { }
+export interface ThreadOnlyMethods extends BaseChannel<ChannelType.PublicThread | ChannelType.PrivateThread> {}
 @mix(TopicableGuildChannel)
 export class ThreadOnlyMethods extends DiscordBase {
 	setTags(tags: APIGuildForumTag[], reason?: string) {
