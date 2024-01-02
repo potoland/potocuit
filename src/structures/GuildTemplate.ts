@@ -10,7 +10,7 @@ import { Guild } from './Guild';
 import { Base } from './extra/Base';
 import { hasProp } from './extra/functions';
 
-export interface GuildTemplate extends Base, ObjectToLower<APITemplate> {}
+export interface GuildTemplate extends Base, ObjectToLower<APITemplate> { }
 
 export class GuildTemplate extends Base {
 	private readonly __methods__!: ReturnType<typeof GuildTemplate.methods>;
@@ -19,7 +19,7 @@ export class GuildTemplate extends Base {
 		super(client);
 		this._patchThis(data);
 		Object.assign(this, {
-			__methods__: GuildTemplate.methods({ client, id: this.sourceGuildId, api: this.api, code: this.code }),
+			__methods__: GuildTemplate.methods({ client, id: this.sourceGuildId, code: this.code }),
 		});
 	}
 
@@ -49,25 +49,25 @@ export class GuildTemplate extends Base {
 		return {
 			fetch: () => {
 				GuildTemplate._hasCode(ctx);
-				return ctx.api.guilds.templates(ctx.code).get();
+				return ctx.client.proxy.guilds.templates(ctx.code).get();
 			},
 			list: () => {
-				return ctx.api.guilds(ctx.id).templates.get();
+				return ctx.client.proxy.guilds(ctx.id).templates.get();
 			},
 			create: (body: RESTPostAPIGuildTemplatesJSONBody) => {
-				return ctx.api.guilds(ctx.id).templates.post({ body });
+				return ctx.client.proxy.guilds(ctx.id).templates.post({ body });
 			},
 			sync: () => {
 				GuildTemplate._hasCode(ctx);
-				return ctx.api.guilds(ctx.id).templates(ctx.code).put({});
+				return ctx.client.proxy.guilds(ctx.id).templates(ctx.code).put({});
 			},
 			edit: (body: RESTPatchAPIGuildTemplateJSONBody) => {
 				GuildTemplate._hasCode(ctx);
-				return ctx.api.guilds(ctx.id).templates(ctx.code).patch({ body });
+				return ctx.client.proxy.guilds(ctx.id).templates(ctx.code).patch({ body });
 			},
 			delete: () => {
 				GuildTemplate._hasCode(ctx);
-				return ctx.api.guilds(ctx.id).templates(ctx.code).delete();
+				return ctx.client.proxy.guilds(ctx.id).templates(ctx.code).delete();
 			},
 		};
 	}

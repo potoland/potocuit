@@ -36,23 +36,23 @@ export class ClientUser extends User {
 	static guilds(ctx: MethodContext) {
 		return {
 			list: (query?: RESTGetAPICurrentUserGuildsQuery) => {
-				return ctx.api
+				return ctx.client.proxy
 					.users('@me')
 					.guilds.get({ query })
 					.then((guilds) => guilds.map((guild) => new AnonymousGuild(ctx.client, { ...guild, splash: null })));
 			},
 			fetch: async (id: string) => {
-				const guild = await ctx.api.guilds(id).get();
+				const guild = await ctx.client.proxy.guilds(id).get();
 				const patched = await ctx.client.cache.guilds?.patch<APIGuild>(id, guild);
 				return new Guild(ctx.client, patched ?? guild);
 			},
 			fetchSelf: async (id: string) => {
-				const self = await ctx.api.users('@me').guilds(id).member.get();
+				const self = await ctx.client.proxy.users('@me').guilds(id).member.get();
 				await ctx.client.cache.members?.patch(ctx.id, id, self);
 				return new GuildMember(ctx.client, self, self.user!, id);
 			},
 			leave: async (id: string) => {
-				return ctx.api
+				return ctx.client.proxy
 					.users('@me')
 					.guilds(id)
 					.delete()

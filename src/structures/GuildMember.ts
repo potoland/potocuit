@@ -4,10 +4,10 @@ import type {
 	RESTPutAPIGuildMemberJSONBody,
 } from '../common';
 import {
+	FormattingPatterns,
 	type APIGuildMember,
 	type APIInteractionDataResolvedGuildMember,
 	type APIUser,
-	FormattingPatterns,
 	type GatewayGuildMemberAddDispatchData,
 	type GatewayGuildMemberUpdateDispatchData,
 	type ObjectToLower,
@@ -28,7 +28,7 @@ import type { GuildMemberResolvable } from '../common/types/resolvables';
 import { Guild } from './Guild';
 import { User } from './User';
 
-export interface GuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> {}
+export interface GuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> { }
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
@@ -52,7 +52,7 @@ export class GuildMember extends DiscordBase {
 		this.user = user instanceof User ? user : new User(client, user);
 		this._roles = data.roles;
 		Object.assign(this, {
-			__methods__: GuildMember.methods({ id: this.guildId, client, api: this.api }),
+			__methods__: GuildMember.methods({ id: this.guildId, client }),
 		});
 		this.patch(data);
 	}
@@ -151,12 +151,12 @@ export class GuildMember extends DiscordBase {
 
 				return displayName
 					? await this.methods(ctx)
-							.search({ query: displayName, limit: 1 })
-							.then((x) => x[0])
+						.search({ query: displayName, limit: 1 })
+						.then((x) => x[0])
 					: undefined;
 			},
 			search: async (query?: RESTGetAPIGuildMembersSearchQuery) => {
-				const members = await ctx.api.guilds(ctx.id).members.search.get({
+				const members = await ctx.client.proxy.guilds(ctx.id).members.search.get({
 					query,
 				});
 				await ctx.client.cache.members?.set(
@@ -166,23 +166,23 @@ export class GuildMember extends DiscordBase {
 				return members.map((m) => new GuildMember(ctx.client, m, m.user!, ctx.id));
 			},
 			unban: async (id: string, body?: RESTPutAPIGuildBanJSONBody, reason?: string) => {
-				await ctx.api.guilds(ctx.id).bans(id).delete({ reason, body });
+				await ctx.client.proxy.guilds(ctx.id).bans(id).delete({ reason, body });
 			},
 			ban: async (id: string, body?: RESTPutAPIGuildBanJSONBody, reason?: string) => {
-				await ctx.api.guilds(ctx.id).bans(id).put({ reason, body });
+				await ctx.client.proxy.guilds(ctx.id).bans(id).put({ reason, body });
 				await ctx.client.cache.members?.removeIfNI('GuildBans', id, ctx.id);
 			},
 			kick: async (id: string, reason?: string) => {
-				await ctx.api.guilds(ctx.id).members(id).delete({ reason });
+				await ctx.client.proxy.guilds(ctx.id).members(id).delete({ reason });
 				await ctx.client.cache.members?.removeIfNI('GuildMembers', id, ctx.id);
 			},
 			edit: async (id: string, body: RESTPatchAPIGuildMemberJSONBody, reason?: string) => {
-				const member = await ctx.api.guilds(ctx.id).members(id).patch({ body, reason });
+				const member = await ctx.client.proxy.guilds(ctx.id).members(id).patch({ body, reason });
 				await ctx.client.cache.members?.setIfNI('GuildMembers', id, ctx.id, member);
 				return new GuildMember(ctx.client, member, member.user!, ctx.id);
 			},
 			add: async (id: string, body: RESTPutAPIGuildMemberJSONBody) => {
-				const member = await ctx.api.guilds(ctx.id).members(id).put({
+				const member = await ctx.client.proxy.guilds(ctx.id).members(id).put({
 					body,
 				});
 
@@ -202,7 +202,7 @@ export class GuildMember extends DiscordBase {
 					if (member) return member;
 				}
 
-				member = await ctx.api.guilds(ctx.id).members(memberId).get();
+				member = await ctx.client.proxy.guilds(ctx.id).members(memberId).get();
 				await ctx.client.cache.members?.set(member.user!.id, ctx.id, member);
 				return new GuildMember(ctx.client, member, member.user!, ctx.id);
 			},
@@ -213,7 +213,7 @@ export class GuildMember extends DiscordBase {
 					members = (await ctx.client.cache.members?.values(ctx.id)) ?? [];
 					if (members.length) return members;
 				}
-				members = await ctx.api.guilds(ctx.id).members.get({
+				members = await ctx.client.proxy.guilds(ctx.id).members.get({
 					query,
 				});
 				await ctx.client.cache.members?.set(
@@ -228,7 +228,7 @@ export class GuildMember extends DiscordBase {
 
 export interface InteractionGuildMember
 	extends GuildMember,
-		ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles'>> {}
+	ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles'>> { }
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object

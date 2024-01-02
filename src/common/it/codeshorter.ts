@@ -10,6 +10,7 @@ import {
 	User,
 } from '../..';
 import { RawFile } from '../../api';
+import { BaseChannel } from '../../structures/methods/channels';
 
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class CodeShorter {
@@ -20,14 +21,15 @@ export class CodeShorter {
 					const dm = await ctx.client.cache.channels?.get(id);
 					if (dm) return dm as DMChannel;
 				}
-				const data = await ctx.api.users('@me').channels.post({
+				const data = await ctx.client.proxy.users('@me').channels.post({
 					body: { recipient_id: id },
 				});
 				await ctx.client.cache.channels?.set(id, '@me', data);
 				return new DMChannel(ctx.client, data);
 			},
 			deleteDM: async (id: string, reason?: string) => {
-				const res = await ctx.api.channels(id).delete({ reason });
+				const res = await ctx.client.proxy.channels(id).delete({ reason });
+				await ctx.client.cache.channels?.removeIfNI(BaseChannel.__intent__('@me'), res.id, '@me')
 				return new DMChannel(ctx.client, res);
 			},
 			fetch: async (id: string, force = false) => {
@@ -36,7 +38,9 @@ export class CodeShorter {
 					if (user) return user;
 				}
 
-				return new User(ctx.client, await ctx.api.users(id).get());
+				const data = await ctx.client.proxy.users(id).get();
+				await ctx.client.cache.users?.patch(id, data);
+				return new User(ctx.client, data);
 			},
 			write: async (id: string, body: MessageCreateBodyRequest, files?: RawFile[]) => {
 				return (await ctx.client.users.createDM(id)).messages.write(body, files);
@@ -47,7 +51,7 @@ export class CodeShorter {
 	static guilds(ctx: Omit<MethodContext, 'id'>) {
 		return {
 			create: async (body: RESTPostAPIGuildsJSONBody) => {
-				const guild = await ctx.api.guilds.post({ body });
+				const guild = await ctx.client.proxy.guilds.post({ body });
 				return new Guild<'api'>(ctx.client, guild);
 			},
 
@@ -57,7 +61,7 @@ export class CodeShorter {
 					if (guild) return guild;
 				}
 
-				const data = await ctx.api.guilds(id).get();
+				const data = await ctx.client.proxy.guilds(id).get();
 				const patched = await ctx.client.cache.guilds?.patch(id, data);
 				return new Guild(ctx.client, patched ?? data);
 			},

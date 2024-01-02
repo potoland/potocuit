@@ -10,7 +10,7 @@ import { Guild } from './Guild';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface Sticker extends DiscordBase, ObjectToLower<Omit<APISticker, 'user'>> {}
+export interface Sticker extends DiscordBase, ObjectToLower<Omit<APISticker, 'user'>> { }
 
 export class Sticker extends DiscordBase {
 	private readonly __methods__!: ReturnType<typeof Sticker.methods>;
@@ -23,7 +23,7 @@ export class Sticker extends DiscordBase {
 		}
 		if (this.guildId) {
 			Object.assign(this, {
-				__methods__: Sticker.methods({ client, id: this.guildId, api: this.api, stickerId: this.id }),
+				__methods__: Sticker.methods({ client, id: this.guildId, stickerId: this.id }),
 			});
 		}
 	}
@@ -49,7 +49,7 @@ export class Sticker extends DiscordBase {
 	static methods(ctx: MethodContext<{ stickerId?: string }>) {
 		return {
 			list: async () => {
-				const stickers = await ctx.api.guilds(ctx.id).stickers.get();
+				const stickers = await ctx.client.proxy.guilds(ctx.id).stickers.get();
 				await ctx.client.cache.stickers?.set(
 					stickers.map((st) => [st.id, st]),
 					ctx.id,
@@ -58,7 +58,7 @@ export class Sticker extends DiscordBase {
 			},
 			create: async (body: RESTPostAPIGuildStickerFormDataBody, reason?: string) => {
 				const { file, ...json } = body;
-				const sticker = await ctx.api
+				const sticker = await ctx.client.proxy
 					.guilds(ctx.id)
 					// @ts-expect-error esta wea hay que arreglarla, poner un file resolvable y bla bla bla
 					.stickers.post({ reason, body: json, files: [{ ...file, key: 'file' }], appendToFormData: true });
@@ -69,7 +69,7 @@ export class Sticker extends DiscordBase {
 				if (!ctx.stickerId) {
 					throw new Error('No stickerId');
 				}
-				const sticker = await ctx.api.guilds(ctx.id).stickers(ctx.stickerId).patch({ body, reason });
+				const sticker = await ctx.client.proxy.guilds(ctx.id).stickers(ctx.stickerId).patch({ body, reason });
 				await ctx.client.cache.stickers?.setIfNI('GuildEmojisAndStickers', ctx.stickerId, ctx.id, sticker);
 				return new Sticker(ctx.client, sticker);
 			},
@@ -82,7 +82,7 @@ export class Sticker extends DiscordBase {
 					sticker = await ctx.client.cache.stickers?.get(ctx.stickerId);
 					if (sticker) return sticker;
 				}
-				sticker = await ctx.api.guilds(ctx.id).stickers(ctx.stickerId).get();
+				sticker = await ctx.client.proxy.guilds(ctx.id).stickers(ctx.stickerId).get();
 				await ctx.client.cache.stickers?.patch(ctx.stickerId, ctx.id, sticker);
 				return new Sticker(ctx.client, sticker);
 			},
@@ -90,7 +90,7 @@ export class Sticker extends DiscordBase {
 				if (!ctx.stickerId) {
 					throw new Error('No stickerId');
 				}
-				await ctx.api.guilds(ctx.id).stickers(ctx.stickerId).delete({ reason });
+				await ctx.client.proxy.guilds(ctx.id).stickers(ctx.stickerId).delete({ reason });
 				await ctx.client.cache.stickers?.removeIfNI('GuildEmojisAndStickers', ctx.stickerId, ctx.id);
 			},
 		};

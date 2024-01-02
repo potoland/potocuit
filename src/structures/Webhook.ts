@@ -24,7 +24,7 @@ import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 import { MessagesMethods } from './methods/channels';
 
-export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> {}
+export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> { }
 
 export class Webhook extends DiscordBase {
 	private readonly __methods__!: ReturnType<typeof Webhook.methods>;
@@ -43,10 +43,10 @@ export class Webhook extends DiscordBase {
 		}
 
 		Object.assign(this, {
-			__methods__: Webhook.methods({ client, id: this.id, api: this.api, token: this.token }),
+			__methods__: Webhook.methods({ client, id: this.id, token: this.token }),
 		});
 		Object.assign(this, {
-			messages: Webhook.messages({ client, id: this.id, api: this.api, token: this.token! }),
+			messages: Webhook.messages({ client, id: this.id, token: this.token! }),
 		});
 	}
 
@@ -90,7 +90,7 @@ export class Webhook extends DiscordBase {
 			}: MessageWebhookPayload<MessageWebhookCreateBodyRequest, { query?: RESTPostAPIWebhookWithTokenQuery }>) => {
 				Webhook._hasToken(ctx);
 				const transformedBody = MessagesMethods.transformMessageBody<RESTPostAPIWebhookWithTokenJSONBody>(body);
-				return ctx.api
+				return ctx.client.proxy
 					.webhooks(ctx.id)(ctx.token)
 					.post({ ...payload, body: transformedBody })
 					.then((m) => (m?.id ? new WebhookMessage(ctx.client, m, ctx.token) : null));
@@ -107,7 +107,7 @@ export class Webhook extends DiscordBase {
 
 				const transformedBody = MessagesMethods.transformMessageBody<RESTPatchAPIWebhookWithTokenMessageJSONBody>(body);
 
-				return ctx.api
+				return ctx.client.proxy
 					.webhooks(ctx.id)(ctx.token)
 					.messages(messageId)
 					.patch({ ...json, auth: false, body: transformedBody })
@@ -115,7 +115,7 @@ export class Webhook extends DiscordBase {
 			},
 			delete: async (messageId: string, reason?: string) => {
 				Webhook._hasToken(ctx);
-				return ctx.api.webhooks(ctx.id)(ctx.token).messages(messageId).delete({ reason });
+				return ctx.client.proxy.webhooks(ctx.id)(ctx.token).messages(messageId).delete({ reason });
 			},
 		};
 	}
@@ -124,22 +124,22 @@ export class Webhook extends DiscordBase {
 		return {
 			delete: (reason?: string) => {
 				if (ctx.token) {
-					return ctx.api.webhooks(ctx.id)(ctx.token).delete({ reason, auth: false });
+					return ctx.client.proxy.webhooks(ctx.id)(ctx.token).delete({ reason, auth: false });
 				}
-				return ctx.api.webhooks(ctx.id).delete({ reason });
+				return ctx.client.proxy.webhooks(ctx.id).delete({ reason });
 			},
 			edit: (body: RESTPatchAPIWebhookWithTokenJSONBody | RESTPatchAPIWebhookJSONBody, reason?: string) => {
 				if (ctx.token) {
-					return ctx.api.webhooks(ctx.id)(ctx.token).patch({ body, reason, auth: false });
+					return ctx.client.proxy.webhooks(ctx.id)(ctx.token).patch({ body, reason, auth: false });
 				}
-				return ctx.api.webhooks(ctx.id).patch({ body, reason });
+				return ctx.client.proxy.webhooks(ctx.id).patch({ body, reason });
 			},
 			fetch: async () => {
 				let webhook;
 				if (ctx.token) {
-					webhook = await ctx.api.webhooks(ctx.id)(ctx.token).get({ auth: false });
+					webhook = await ctx.client.proxy.webhooks(ctx.id)(ctx.token).get({ auth: false });
 				} else {
-					webhook = await ctx.api.webhooks(ctx.id).get();
+					webhook = await ctx.client.proxy.webhooks(ctx.id).get();
 				}
 				return new Webhook(ctx.client, webhook);
 			},

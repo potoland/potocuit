@@ -9,7 +9,7 @@ import type {
 import { Guild } from './Guild';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface AutoModerationRule extends ObjectToLower<APIAutoModerationRule> {}
+export interface AutoModerationRule extends ObjectToLower<APIAutoModerationRule> { }
 
 export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 	private readonly __methods__!: ReturnType<typeof AutoModerationRule.methods>;
@@ -17,7 +17,7 @@ export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 	constructor(client: BaseClient, data: APIAutoModerationRule) {
 		super(client, data);
 		Object.assign(this, {
-			__methods__: AutoModerationRule.methods({ client, id: this.guildId, api: this.api, ruleId: this.id }),
+			__methods__: AutoModerationRule.methods({ client, id: this.guildId, ruleId: this.id }),
 		});
 	}
 
@@ -45,20 +45,20 @@ export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 
 	static methods(ctx: MethodContext<{ ruleId?: string }>) {
 		return {
-			list: () => ctx.api.guilds(ctx.id)['auto-moderation'].rules.get(),
+			list: () => ctx.client.proxy.guilds(ctx.id)['auto-moderation'].rules.get(),
 			create: (body: RESTPostAPIAutoModerationRuleJSONBody) =>
-				ctx.api.guilds(ctx.id)['auto-moderation'].rules.post({ body }),
+				ctx.client.proxy.guilds(ctx.id)['auto-moderation'].rules.post({ body }),
 			delete: (ruleId = ctx.ruleId, reason?: string) => {
 				if (!ruleId) {
 					throw new Error('No ruleId');
 				}
-				return ctx.api.guilds(ctx.id)['auto-moderation'].rules(ruleId).delete({ reason });
+				return ctx.client.proxy.guilds(ctx.id)['auto-moderation'].rules(ruleId).delete({ reason });
 			},
 			fetch: (ruleId = ctx.ruleId) => {
 				if (!ruleId) {
 					throw new Error('No ruleId');
 				}
-				return ctx.api.guilds(ctx.id)['auto-moderation'].rules(ruleId).get();
+				return ctx.client.proxy.guilds(ctx.id)['auto-moderation'].rules(ruleId).get();
 			},
 			edit: (
 				body: ObjectToLower<RESTPatchAPIAutoModerationRuleJSONBody> & { ruleId?: string } = {
@@ -69,7 +69,7 @@ export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 				if (!body.ruleId) {
 					throw new Error('No ruleId');
 				}
-				return ctx.api.guilds(ctx.id)['auto-moderation'].rules(body.ruleId).patch({ body, reason });
+				return ctx.client.proxy.guilds(ctx.id)['auto-moderation'].rules(body.ruleId).patch({ body, reason });
 			},
 		};
 	}

@@ -10,7 +10,7 @@ import type {
 import { Guild } from './Guild';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface GuildRole extends DiscordBase, ObjectToLower<APIRole> {}
+export interface GuildRole extends DiscordBase, ObjectToLower<APIRole> { }
 
 export class GuildRole extends DiscordBase {
 	private readonly __methods__!: ReturnType<typeof GuildRole.methods>;
@@ -18,7 +18,7 @@ export class GuildRole extends DiscordBase {
 		super(client, data);
 
 		Object.assign(this, {
-			__methods__: GuildRole.methods({ id: this.guildId, api: this.api, client, roleId: this.id }),
+			__methods__: GuildRole.methods({ id: this.guildId, client, roleId: this.id }),
 		});
 	}
 
@@ -39,7 +39,7 @@ export class GuildRole extends DiscordBase {
 	static methods(ctx: MethodContext<{ roleId?: string }>) {
 		return {
 			create: (body: RESTPostAPIGuildRoleJSONBody) =>
-				ctx.api
+				ctx.client.proxy
 					.guilds(ctx.id)
 					.roles.post({ body })
 					.then((res) => ctx.client.cache.roles?.setIfNI('Guilds', res.id, ctx.id, res)),
@@ -51,7 +51,7 @@ export class GuildRole extends DiscordBase {
 						return roles.map((r) => new GuildRole(ctx.client, r, ctx.id));
 					}
 				}
-				roles = await ctx.api.guilds(ctx.id).roles.get();
+				roles = await ctx.client.proxy.guilds(ctx.id).roles.get();
 				await ctx.client.cache.roles?.set(
 					roles.map((r) => [r.id, r]),
 					ctx.id,
@@ -62,7 +62,7 @@ export class GuildRole extends DiscordBase {
 				if (!ctx.roleId) {
 					throw new Error('No roleId');
 				}
-				return ctx.api
+				return ctx.client.proxy
 					.guilds(ctx.id)
 					.roles(ctx.roleId)
 					.patch({ body, reason })
@@ -72,14 +72,14 @@ export class GuildRole extends DiscordBase {
 				if (!ctx.roleId) {
 					throw new Error('No ctx.roleId');
 				}
-				return ctx.api
+				return ctx.client.proxy
 					.guilds(ctx.id)
 					.roles(ctx.roleId)
 					.delete({ reason })
 					.then(() => ctx.client.cache.roles?.removeIfNI('Guilds', ctx.roleId!, ctx.id));
 			},
 			editPositions: async (body: RESTPatchAPIGuildRolePositionsJSONBody) => {
-				const roles = await ctx.api.guilds(ctx.id).roles.patch({
+				const roles = await ctx.client.proxy.guilds(ctx.id).roles.patch({
 					body,
 				});
 				if (!ctx.client.cache.hasRolesIntent) {
