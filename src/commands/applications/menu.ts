@@ -23,7 +23,7 @@ export class ContextMenuCommand {
 
 	/** @internal */
 	static __runMiddlewares(
-		context: MenuCommandContext<any, any>,
+		context: MenuCommandContext<'base', any>,
 		middlewares: readonly MiddlewareContext[],
 		global: boolean,
 	): Promise<[any, undefined] | [undefined, Error] | 'pass'> {
@@ -97,8 +97,8 @@ export class ContextMenuCommand {
 		Object.setPrototypeOf(this, __tempCommand.prototype);
 	}
 
-	run?(context: MenuCommandContext<any, any>): any;
-	onRunError?(context: MenuCommandContext<any, any>, error: unknown): any;
+	run?(context: MenuCommandContext<'base', any>): any;
+	onRunError?(context: MenuCommandContext<'base', any>, error: unknown): any;
 	onMiddlewaresError?(context: MenuCommandContext<'base', any, []>, error: Error): any;
 
 	onInternalError(client: BaseClient, error?: unknown): any {

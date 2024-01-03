@@ -55,7 +55,7 @@ type Wrap<N extends ApplicationCommandOptionType> = N extends
 					type: N;
 					required?: false;
 					value?(
-						data: { context: CommandContext<any>; value: ReturnOptionsTypes[N] | undefined },
+						data: { context: CommandContext<'base'>; value: ReturnOptionsTypes[N] | undefined },
 						ok: OKFunction<any>,
 						fail: StopFunction,
 					): void;
@@ -64,7 +64,7 @@ type Wrap<N extends ApplicationCommandOptionType> = N extends
 					type: N;
 					required: true;
 					value?(
-						data: { context: CommandContext<any>; value: ReturnOptionsTypes[N] },
+						data: { context: CommandContext<'base'>; value: ReturnOptionsTypes[N] },
 						ok: OKFunction<any>,
 						fail: StopFunction,
 					): void;
@@ -144,7 +144,7 @@ class BaseCommand {
 
 	/** @internal */
 	async __runOptions(
-		ctx: CommandContext<any, {}, []>,
+		ctx: CommandContext<'base', {}, []>,
 		resolver: OptionResolver,
 	): Promise<[boolean, OnOptionsReturnObject]> {
 		const command = resolver.getCommand();
@@ -265,10 +265,10 @@ class BaseCommand {
 		Object.setPrototypeOf(this, __tempCommand.prototype);
 	}
 
-	run?(context: CommandContext<any, any>): any;
-	onRunError?(context: CommandContext<any, any>, error: unknown): any;
-	onOptionsError?(context: CommandContext<any, {}, []>, metadata: OnOptionsReturnObject): any;
-	onMiddlewaresError?(context: CommandContext<any, {}, []>, error: Error): any;
+	run?(context: CommandContext<'base', any>): any;
+	onRunError?(context: CommandContext<'base', any>, error: unknown): any;
+	onOptionsError?(context: CommandContext<'base', {}, []>, metadata: OnOptionsReturnObject): any;
+	onMiddlewaresError?(context: CommandContext<'base', {}, []>, error: Error): any;
 
 	onInternalError(client: BaseClient, error?: unknown): any {
 		client.logger.fatal(error);
@@ -326,6 +326,6 @@ export abstract class SubCommand extends BaseCommand {
 		};
 	}
 
-	abstract run(context: CommandContext<any, any>): any;
-	onRunError?(context: CommandContext<any, any>, error: unknown): any;
+	abstract run(context: CommandContext<'base', any>): any;
+	onRunError?(context: CommandContext<'base', any>, error: unknown): any;
 }
