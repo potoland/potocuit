@@ -1,5 +1,4 @@
 import type { __LangType } from '../../__generated';
-import { RawFile } from '../../api';
 import type { IClients } from '../../client/base';
 import {
 	ApplicationCommandType,
@@ -47,8 +46,8 @@ export class MenuCommandContext<
 		return this.client.langs.get(this.interaction.locale, message, metadata);
 	}
 
-	write(body: InteractionCreateBodyRequest, files: RawFile[] = []) {
-		return this.interaction.write(body, files);
+	write(body: InteractionCreateBodyRequest) {
+		return this.interaction.write(body);
 	}
 
 	modal(body: ModalCreateBodyRequest) {
@@ -59,16 +58,16 @@ export class MenuCommandContext<
 		return this.interaction.deferReply(ephemeral ? MessageFlags.Ephemeral : undefined);
 	}
 
-	editResponse(body: InteractionMessageUpdateBodyRequest, files?: RawFile[]) {
-		return this.interaction.editResponse(body, files);
+	editResponse(body: InteractionMessageUpdateBodyRequest) {
+		return this.interaction.editResponse(body);
 	}
 
 	deleteResponse() {
 		return this.interaction.deleteResponse();
 	}
 
-	editOrReply(body: InteractionMessageUpdateBodyRequest, files?: RawFile[]) {
-		return this.interaction.editOrReply(body, files);
+	editOrReply(body: InteractionMessageUpdateBodyRequest) {
+		return this.interaction.editOrReply(body);
 	}
 
 	fetchResponse() {
