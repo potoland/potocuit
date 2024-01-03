@@ -48,7 +48,7 @@ export class BaseResource<T = any> {
 	}
 
 	async patch<T extends Record<any, any> = Record<any, any>>(id: string, data: T) {
-		const old = (await this.get(id)) ?? {};
+		const old = await this.adapter.get(this.hashId(id)) ?? {};
 		const patch = { ...old, ...data };
 		await this.set(id, patch);
 		return patch;
