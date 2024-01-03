@@ -17,7 +17,6 @@ import { GuildMember } from './GuildMember';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 import { messageLink } from './extra/functions';
-import { MessagesMethods } from './methods/channels';
 
 export type MessageData = APIMessage | GatewayMessageCreateDispatchData;
 
@@ -36,8 +35,6 @@ export class BaseMessage extends DiscordBase {
 		users: (GuildMember | User)[];
 	};
 
-	private readonly __reactionMethods__!: ReturnType<typeof MessagesMethods.reactions>;
-
 	constructor(client: BaseClient, data: MessageData) {
 		super(client, data);
 		this.mentions = {
@@ -47,9 +44,6 @@ export class BaseMessage extends DiscordBase {
 		};
 		this.components = data.components?.map((x) => new MessageActionRowComponent(x)) ?? [];
 		this.patch(data);
-		Object.assign(this, {
-			__reactionMethods__: MessagesMethods.reactions({ channelId: this.channelId, client }),
-		});
 	}
 
 	get url() {
@@ -68,7 +62,7 @@ export class BaseMessage extends DiscordBase {
 	}
 
 	react(emoji: EmojiResolvable) {
-		return this.__reactionMethods__.add(this.id, emoji);
+		return this.client.messages.reactions.add(this.id, this.channelId, emoji);
 	}
 
 	private patch(data: MessageData) {
@@ -119,19 +113,12 @@ export interface Message
 		ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> {}
 
 export class Message extends BaseMessage {
-	private readonly __messageMethods__!: ReturnType<typeof MessagesMethods.messages>;
 	constructor(client: BaseClient, data: MessageData) {
 		super(client, data);
-		Object.assign(this, {
-			__messageMethods__: MessagesMethods.messages({
-				client: this.client,
-				channelId: this.channelId,
-			}),
-		});
 	}
 
 	fetch() {
-		return this.__messageMethods__.fetch(this.id);
+		return this.client.messages.fetch(this.id, this.channelId);
 	}
 
 	reply(body: Omit<MessageCreateBodyRequest, 'message_reference'>) {
@@ -147,19 +134,19 @@ export class Message extends BaseMessage {
 	}
 
 	edit(body: MessageUpdateBodyRequest) {
-		return this.__messageMethods__.edit(this.id, body);
+		return this.client.messages.edit(this.id, this.channelId, body);
 	}
 
 	write(body: MessageCreateBodyRequest) {
-		return this.__messageMethods__.write(body);
+		return this.client.messages.write(this.channelId, body);
 	}
 
 	delete(reason?: string) {
-		return this.__messageMethods__.delete(this.id, reason);
+		return this.client.messages.delete(this.id, this.channelId, reason);
 	}
 
 	crosspost(reason?: string) {
-		return this.__messageMethods__.crosspost(this.id, reason);
+		return this.client.messages.crosspost(this.id, this.channelId, reason);
 	}
 }
 
