@@ -33,19 +33,6 @@ export function throwError(msg: string): never {
 	throw new Error(msg);
 }
 
-// ts trickers
-// export function createOption<T extends __PotoCommandOption = __PotoCommandOption>(data: T) {
-// 	return data;
-// }
-
-// createOption({
-// 	type: ApplicationCommandOptionType.String,
-// 	value(ctx) {
-// 		return ctx
-// 	},
-// 	description: ''
-// })
-
 type BiscuitBasicOption<T extends keyof __TypesWrapper, D = {}> = __TypesWrapper[T] & D;
 
 type BiscuitStringOption = BiscuitBasicOption<'String'> & {
