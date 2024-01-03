@@ -4,7 +4,7 @@ import type {
 	APIApplicationCommandOption,
 	APIApplicationCommandSubcommandGroupOption,
 	APIAttachment,
-	LocaleString
+	LocaleString,
 } from '../../common';
 import { ApplicationCommandOptionType, ApplicationCommandType } from '../../common';
 import type {
@@ -46,27 +46,27 @@ type Wrap<N extends ApplicationCommandOptionType> = N extends
 	| ApplicationCommandOptionType.SubcommandGroup
 	? never
 	: (
-		| {
-			required?: false;
-			value?(
-				data: { context: CommandContext<'base'>; value: ReturnOptionsTypes[N] | undefined },
-				ok: OKFunction<any>,
-				fail: StopFunction,
-			): void;
-		}
-		| {
-			required: true;
-			value?(
-				data: { context: CommandContext<'base'>; value: ReturnOptionsTypes[N] },
-				ok: OKFunction<any>,
-				fail: StopFunction,
-			): void;
-		}
-	) & {
-		description: string
-		description_localizations?: APIApplicationCommandBasicOption['description_localizations']
-		name_localizations?: APIApplicationCommandBasicOption['name_localizations']
-	}
+			| {
+					required?: false;
+					value?(
+						data: { context: CommandContext<'base'>; value: ReturnOptionsTypes[N] | undefined },
+						ok: OKFunction<any>,
+						fail: StopFunction,
+					): void;
+			  }
+			| {
+					required: true;
+					value?(
+						data: { context: CommandContext<'base'>; value: ReturnOptionsTypes[N] },
+						ok: OKFunction<any>,
+						fail: StopFunction,
+					): void;
+			  }
+	  ) & {
+			description: string;
+			description_localizations?: APIApplicationCommandBasicOption['description_localizations'];
+			name_localizations?: APIApplicationCommandBasicOption['name_localizations'];
+	  };
 
 // type Wrap<N extends ApplicationCommandOptionType> = N extends
 // 	| ApplicationCommandOptionType.Subcommand
@@ -101,36 +101,35 @@ type Wrap<N extends ApplicationCommandOptionType> = N extends
 // 	? __Choices<N>
 // 	: {});
 
-export type __TypeWrapper<T extends ApplicationCommandOptionType> = Wrap<T>
+export type __TypeWrapper<T extends ApplicationCommandOptionType> = Wrap<T>;
 
 export type __TypesWrapper = {
 	[P in keyof typeof ApplicationCommandOptionType]: `${(typeof ApplicationCommandOptionType)[P]}` extends `${infer D extends
-	number}`
-	? Wrap<D>
-	: never;
+		number}`
+		? Wrap<D>
+		: never;
 };
 
 export type AutocompleteCallback = (interaction: AutocompleteInteraction) => any;
 export type OnAutocompleteErrorCallback = (interaction: AutocompleteInteraction, error: unknown) => any;
 export type PotoCommandBaseOption = __TypesWrapper[keyof __TypesWrapper];
-export type PotoCommandBaseAutocompleteOption =
-	__TypesWrapper[keyof __TypesWrapper] & {
-		autocomplete: AutocompleteCallback;
-		onAutocompleteError?: OnAutocompleteErrorCallback;
-	};
+export type PotoCommandBaseAutocompleteOption = __TypesWrapper[keyof __TypesWrapper] & {
+	autocomplete: AutocompleteCallback;
+	onAutocompleteError?: OnAutocompleteErrorCallback;
+};
 export type PotoCommandAutocompleteOption = PotoCommandBaseAutocompleteOption & { name: string };
-export type __PotoCommandOption = PotoCommandBaseOption //| PotoCommandBaseAutocompleteOption;
+export type __PotoCommandOption = PotoCommandBaseOption; //| PotoCommandBaseAutocompleteOption;
 export type PotoCommandOption = __PotoCommandOption & { name: string };
 export type OptionsRecord = Record<string, __PotoCommandOption & { type: ApplicationCommandOptionType }>;
 
 export type ContextOptions<T extends OptionsRecord> = {
 	[K in keyof T]: T[K]['value'] extends (...args: any) => any
-	? T[K]['required'] extends true
-	? Parameters<Parameters<T[K]['value']>[1]>[0]
-	: Parameters<Parameters<T[K]['value']>[1]>[0]
-	: T[K]['required'] extends true
-	? ReturnOptionsTypes[T[K]['type']]
-	: ReturnOptionsTypes[T[K]['type']] | undefined;
+		? T[K]['required'] extends true
+			? Parameters<Parameters<T[K]['value']>[1]>[0]
+			: Parameters<Parameters<T[K]['value']>[1]>[0]
+		: T[K]['required'] extends true
+		  ? ReturnOptionsTypes[T[K]['type']]
+		  : ReturnOptionsTypes[T[K]['type']] | undefined;
 };
 
 class BaseCommand {

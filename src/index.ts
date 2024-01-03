@@ -1,7 +1,18 @@
 import type { InternalRuntimeConfig, InternalRuntimeConfigHTTP, RuntimeConfig, RuntimeConfigHTTP } from './client/base';
-import type { AutocompleteCallback, CommandContext, OnAutocompleteErrorCallback, ReturnOptionsTypes, __TypesWrapper } from './commands';
+import type {
+	AutocompleteCallback,
+	CommandContext,
+	OnAutocompleteErrorCallback,
+	ReturnOptionsTypes,
+	__TypesWrapper,
+} from './commands';
 import { MiddlewareContext } from './commands/applications/shared';
-import { APIApplicationCommandOptionChoice, ApplicationCommandOptionType, ChannelType, GatewayIntentBits } from './common';
+import {
+	APIApplicationCommandOptionChoice,
+	ApplicationCommandOptionType,
+	ChannelType,
+	GatewayIntentBits,
+} from './common';
 import type { EventContext, IClientEvents, PotoNameEvents } from './events';
 import { ChatInputCommandInteraction, MessageCommandInteraction, UserCommandInteraction } from './structures';
 
@@ -35,37 +46,37 @@ export function throwError(msg: string): never {
 // 	description: ''
 // })
 
-type BiscuitBasicOption<T extends keyof __TypesWrapper, D = {}> = __TypesWrapper[T] & D
+type BiscuitBasicOption<T extends keyof __TypesWrapper, D = {}> = __TypesWrapper[T] & D;
 
 type BiscuitStringOption = BiscuitBasicOption<'String'> & {
-	autocomplete?: AutocompleteCallback
-	onAutocompleteError?: OnAutocompleteErrorCallback
+	autocomplete?: AutocompleteCallback;
+	onAutocompleteError?: OnAutocompleteErrorCallback;
 	choices?: APIApplicationCommandOptionChoice<ReturnOptionsTypes[ApplicationCommandOptionType.String]>[];
 	min_length?: number;
 	max_length?: number;
-}
+};
 type BiscuitIntegerOption = BiscuitBasicOption<'Integer'> & {
-	autocomplete?: AutocompleteCallback
-	onAutocompleteError?: OnAutocompleteErrorCallback
+	autocomplete?: AutocompleteCallback;
+	onAutocompleteError?: OnAutocompleteErrorCallback;
 	choices?: APIApplicationCommandOptionChoice<ReturnOptionsTypes[ApplicationCommandOptionType.Integer]>[];
 	min_value?: number;
 	max_value?: number;
-}
-type BiscuitBooleanOption = BiscuitBasicOption<'Boolean'>
-type BiscuitUserOption = BiscuitBasicOption<'User'>
+};
+type BiscuitBooleanOption = BiscuitBasicOption<'Boolean'>;
+type BiscuitUserOption = BiscuitBasicOption<'User'>;
 type BiscuitChannelOption = BiscuitBasicOption<'Channel'> & {
-	channel_types?: ChannelType[]
-}
-type BiscuitRoleOption = BiscuitBasicOption<'Role'>
-type BiscuitMentionableOption = BiscuitBasicOption<'Mentionable'>
+	channel_types?: ChannelType[];
+};
+type BiscuitRoleOption = BiscuitBasicOption<'Role'>;
+type BiscuitMentionableOption = BiscuitBasicOption<'Mentionable'>;
 type BiscuitNumberOption = BiscuitBasicOption<'Number'> & {
-	autocomplete?: AutocompleteCallback
-	onAutocompleteError?: OnAutocompleteErrorCallback
+	autocomplete?: AutocompleteCallback;
+	onAutocompleteError?: OnAutocompleteErrorCallback;
 	choices?: APIApplicationCommandOptionChoice<ReturnOptionsTypes[ApplicationCommandOptionType.Number]>[];
 	min_value?: number;
 	max_value?: number;
-}
-type BiscuitAttachmentOption = BiscuitBasicOption<'Attachment'>
+};
+type BiscuitAttachmentOption = BiscuitBasicOption<'Attachment'>;
 
 export function createStringOption<T extends BiscuitStringOption = BiscuitStringOption>(data: T) {
 	return { ...data, type: ApplicationCommandOptionType.String } as const;
