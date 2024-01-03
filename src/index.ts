@@ -5,6 +5,7 @@ import { GatewayIntentBits } from './common';
 import type { EventContext, IClientEvents, PotoNameEvents } from './events';
 import { ChatInputCommandInteraction, MessageCommandInteraction, UserCommandInteraction } from './structures';
 
+export * from './api';
 export * from './cache';
 export * from './client';
 export * from './collection';
@@ -15,7 +16,6 @@ export * from './events';
 export * from './structures';
 export * from './structures/extra/functions';
 export * from './websocket/discord/workermanager';
-export * from './api';
 
 export function throwError(msg: string): never {
 	throw new Error(msg);

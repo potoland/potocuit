@@ -63,7 +63,7 @@ export class CodeShorter {
 				}
 
 				const data = await ctx.client.proxy.guilds(id).get();
-				const patched = await ctx.client.cache.guilds?.patch(id, data);
+				const patched = await ctx.client.cache.guilds?.set(id, data);
 				return new Guild(ctx.client, patched ?? data);
 			},
 			widgetURL: (id: string, style?: GuildWidgetStyle) => {
