@@ -6,6 +6,7 @@ import type { EventContext, IClientEvents, PotoNameEvents } from './events';
 import { ChatInputCommandInteraction, MessageCommandInteraction, UserCommandInteraction } from './structures';
 
 export * from './api';
+export * from './builders';
 export * from './cache';
 export * from './client';
 export * from './collection';
