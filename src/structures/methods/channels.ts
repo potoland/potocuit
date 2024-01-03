@@ -101,6 +101,7 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 				await ctx.client.cache.channels?.patch(id, undefined, channel);
 				return channelFrom(channel, ctx.client);
 			},
+			messages: (channelId: string) => MessagesMethods.messages({ client: ctx.client, channelId }),
 		};
 	}
 

@@ -50,7 +50,7 @@ import type {
 	ModalCreateBodyRequest,
 } from '../common/types/write';
 
-import { ActionRow, MessageEmbed, Modal, resolveAttachment } from '../builders';
+import { ActionRow, Attachment, MessageEmbed, Modal, resolveAttachment, resolveFiles } from '../builders';
 import { GuildMember, InteractionGuildMember } from './';
 import { GuildRole } from './GuildRole';
 import { Message } from './Message';
@@ -159,10 +159,13 @@ export class BaseInteraction<
 		} as T;
 	}
 
-	async reply(body: ReplyInteractionBody, files?: RawFile[]) {
+	async reply(body: ReplyInteractionBody) {
 		if (this.replied) {
 			throw new Error('Interaction already replied');
 		}
+
+		// @ts-expect-error
+		const files = body.data.files ?? body.attachments ? await resolveFiles(body.attachments as Attachment[]) : [];
 
 		this.replied = (this.__reply ?? this.api.interactions(this.id)(this.token).callback.post)({
 			body: BaseInteraction.transformBodyRequest(body),
@@ -311,14 +314,11 @@ export class Interaction<
 		return this.fetchMessage('@original');
 	}
 
-	write(body: InteractionCreateBodyRequest, files?: RawFile[]) {
-		return this.reply(
-			{
-				type: InteractionResponseType.ChannelMessageWithSource,
-				data: body,
-			},
-			files,
-		);
+	write(body: InteractionCreateBodyRequest) {
+		return this.reply({
+			type: InteractionResponseType.ChannelMessageWithSource,
+			data: body,
+		});
 	}
 
 	modal(body: ModalCreateBodyRequest) {
@@ -328,34 +328,32 @@ export class Interaction<
 		});
 	}
 
-	async editOrReply(body: InteractionMessageUpdateBodyRequest, files?: RawFile[]) {
+	async editOrReply(body: InteractionMessageUpdateBodyRequest) {
 		if (await this.replied) {
-			return this.editResponse(body, files);
+			return this.editResponse(body);
 		}
-		return this.reply(
-			{
-				type: InteractionResponseType.ChannelMessageWithSource,
-				data: body,
-			},
-			files,
-		);
+		return this.reply({
+			type: InteractionResponseType.ChannelMessageWithSource,
+			data: body,
+		});
 	}
 
-	async editMessage(messageId: string, body: InteractionMessageUpdateBodyRequest, files?: RawFile[]) {
+	async editMessage(messageId: string, body: InteractionMessageUpdateBodyRequest) {
+		body.files ??= body.attachments ? await resolveFiles(body.attachments as Attachment[]) : [];
 		const apiMessage = await this.api
 			.webhooks(this.applicationId)(this.token)
 			.messages(messageId)
 			.patch({
 				body: BaseInteraction.transformBody(body),
-				files,
 			});
 
 		this.client.components.onRequestInteractionUpdate(body, apiMessage);
 		return new Message(this.client, apiMessage);
 	}
 
-	editResponse(body: InteractionMessageUpdateBodyRequest, files: RawFile[] = []) {
-		return this.editMessage('@original', body, files);
+	async editResponse(body: InteractionMessageUpdateBodyRequest) {
+		body.files ??= body.attachments ? await resolveFiles(body.attachments as Attachment[]) : [];
+		return this.editMessage('@original', body);
 	}
 
 	deleteResponse() {
@@ -370,7 +368,8 @@ export class Interaction<
 			.then(() => this.client.components.onMessageDelete(messageId === '@original' ? this.id : messageId));
 	}
 
-	async createResponse(body: MessageWebhookCreateBodyRequest, files: RawFile[]) {
+	async createResponse({ files, ...body }: MessageWebhookCreateBodyRequest) {
+		files ??= body.attachments ? await resolveFiles(body.attachments as Attachment[]) : [];
 		const apiMessage = await this.api
 			.webhooks(this.applicationId)(this.token)
 			.post({
@@ -387,15 +386,14 @@ export class ApplicationCommandInteraction<
 	Type extends APIApplicationCommandInteraction = APIApplicationCommandInteraction,
 > extends Interaction<FromGuild, Type> {
 	type = ApplicationCommandType.ChatInput;
-	respond(
+	async respond(
 		data:
 			| APIInteractionResponseChannelMessageWithSource
 			| APIInteractionResponseDeferredChannelMessageWithSource
 			| APIInteractionResponseDeferredMessageUpdate
 			| APIInteractionResponseUpdateMessage,
-		files: RawFile[] = [],
 	) {
-		return this.reply(data, files);
+		return this.reply(data);
 	}
 }
 
@@ -414,14 +412,11 @@ export class ComponentInteraction<
 	declare channel: PotocuitChannels;
 	declare type: InteractionType.MessageComponent;
 
-	update(data: ComponentInteractionMessageUpdate, files: RawFile[] = []) {
-		return this.reply(
-			{
-				type: InteractionResponseType.UpdateMessage,
-				data,
-			},
-			files,
-		);
+	update(data: ComponentInteractionMessageUpdate) {
+		return this.reply({
+			type: InteractionResponseType.UpdateMessage,
+			data,
+		});
 	}
 
 	deferUpdate() {

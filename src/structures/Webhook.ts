@@ -1,4 +1,5 @@
 import type {
+	Attachment,
 	Guild,
 	ImageOptions,
 	MessageWebhookCreateBodyRequest,
@@ -6,7 +7,7 @@ import type {
 	MessageWebhookUpdateBodyRequest,
 	MethodContext,
 } from '..';
-import { hasProps } from '..';
+import { hasProps, resolveFiles } from '..';
 import type { BaseClient } from '../client/base';
 import type {
 	APIWebhook,
@@ -84,20 +85,21 @@ export class Webhook extends DiscordBase {
 
 	static messages(ctx: MethodContext<{ webhookId: string; webhookToken: string }>) {
 		return {
-			write: async ({ body, ...payload }: MessageWebhookMethodWriteParams) => {
+			write: async ({ body, files, ...payload }: MessageWebhookMethodWriteParams) => {
 				const transformedBody = MessagesMethods.transformMessageBody<RESTPostAPIWebhookWithTokenJSONBody>(body);
+				files ??= body.attachments ? await resolveFiles(body.attachments as Attachment[]) : [];
 				return ctx.client.proxy
 					.webhooks(ctx.webhookId)(ctx.webhookToken)
-					.post({ ...payload, body: transformedBody })
+					.post({ ...payload, files, body: transformedBody })
 					.then((m) => (m?.id ? new WebhookMessage(ctx.client, m, ctx.webhookId, ctx.webhookToken) : null));
 			},
-			edit: async ({ messageId, body, ...json }: MessageWebhookMethodEditParams) => {
+			edit: async ({ messageId, body, files, ...json }: MessageWebhookMethodEditParams) => {
 				const transformedBody = MessagesMethods.transformMessageBody<RESTPatchAPIWebhookWithTokenMessageJSONBody>(body);
-
+				files ??= body.attachments ? await resolveFiles(body.attachments as Attachment[]) : [];
 				return ctx.client.proxy
 					.webhooks(ctx.webhookId)(ctx.webhookToken)
 					.messages(messageId)
-					.patch({ ...json, auth: false, body: transformedBody })
+					.patch({ ...json, auth: false, files, body: transformedBody })
 					.then((m) => new WebhookMessage(ctx.client, m, ctx.webhookId, ctx.webhookToken));
 			},
 			delete: async (messageId: string, reason?: string) => {

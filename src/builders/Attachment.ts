@@ -30,10 +30,7 @@ export class Attachment {
 		return this;
 	}
 
-	setFile<T extends AttachmentDataType = AttachmentDataType>(
-		data: AttachmentResolvableMap[T],
-		type: AttachmentDataType,
-	) {
+	setFile<T extends AttachmentDataType = AttachmentDataType>(type: T, data: AttachmentResolvableMap[T]) {
 		this.data.type = type;
 		this.data.resolvable = data;
 	}
