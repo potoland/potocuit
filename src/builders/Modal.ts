@@ -6,7 +6,7 @@ import {
 	ComponentType,
 	RestOrArray,
 	TextInputStyle,
-} from '../../common';
+} from '../common';
 import { ActionRow } from './ActionRow';
 import { BaseComponentBuilder, OptionValuesLength } from './Base';
 import { ModalSubmitCallback, PotoModalComponents } from './types';

@@ -10,7 +10,7 @@ import {
 	ChannelType,
 	ComponentType,
 	RestOrArray,
-} from '../../common';
+} from '../common';
 import {
 	ChannelSelectMenuInteraction,
 	ComponentInteraction,
@@ -18,7 +18,7 @@ import {
 	RoleSelectMenuInteraction,
 	StringSelectMenuInteraction,
 	UserSelectMenuInteraction,
-} from '../../structures';
+} from '../structures';
 import { BaseComponentBuilder, OptionValuesLength } from './Base';
 import { ComponentCallback } from './types';
 

@@ -49,7 +49,8 @@ import type {
 	MessageWebhookCreateBodyRequest,
 	ModalCreateBodyRequest,
 } from '../common/types/write';
-import { ActionRow, MessageEmbed, Modal } from '../components';
+
+import { ActionRow, MessageEmbed, Modal, resolveAttachment } from '../builders';
 import { GuildMember, InteractionGuildMember } from './';
 import { GuildRole } from './GuildRole';
 import { Message } from './Message';
@@ -118,6 +119,7 @@ export class BaseInteraction<
 						// @ts-expect-error
 						components: body.data?.components?.map((x) => (x instanceof ActionRow ? x.toJSON() : x)) ?? [],
 						embeds: body.data?.embeds?.map((x) => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? [],
+						attachments: body.data?.attachments?.map((x, i) => ({ id: i, ...resolveAttachment(x) })) ?? [],
 					},
 				};
 			case InteractionResponseType.Modal:
@@ -153,6 +155,7 @@ export class BaseInteraction<
 			...body,
 			components: body?.components?.map((x) => (x instanceof ActionRow ? x.toJSON() : x)) ?? [],
 			embeds: body?.embeds?.map((x) => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? [],
+			attachments: body.attachments?.map((x, i) => ({ id: i, ...resolveAttachment(x) })) ?? [],
 		} as T;
 	}
 

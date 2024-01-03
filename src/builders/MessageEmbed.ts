@@ -6,7 +6,7 @@ import {
 	ObjectToLower,
 	RestOrArray,
 	toSnakeCase,
-} from '../../common';
+} from '../common';
 
 export class MessageEmbed {
 	constructor(public data: Partial<APIEmbed> = {}) {

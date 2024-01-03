@@ -1,4 +1,4 @@
-import { APIMessageComponentEmoji, resolvePartialEmoji, throwError } from '../..';
+import { APIMessageComponentEmoji, resolvePartialEmoji, throwError } from '..';
 import {
 	APIButtonComponent,
 	APIButtonComponentWithCustomId,
@@ -7,8 +7,8 @@ import {
 	ComponentType,
 	EmojiResolvable,
 	When,
-} from '../../common';
-import { ButtonInteraction } from '../../structures';
+} from '../common';
+import { ButtonInteraction } from '../structures';
 import { ComponentCallback } from './types';
 
 export type ButtonStylesForID = Exclude<ButtonStyle, ButtonStyle.Link>;

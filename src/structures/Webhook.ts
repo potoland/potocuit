@@ -6,7 +6,7 @@ import type {
 	MessageWebhookUpdateBodyRequest,
 	MethodContext,
 } from '..';
-import { hasProp } from '..';
+import { hasProps } from '..';
 import type { BaseClient } from '../client/base';
 import type {
 	APIWebhook,
@@ -84,24 +84,14 @@ export class Webhook extends DiscordBase {
 
 	static messages(ctx: MethodContext<{ webhookId: string; webhookToken: string }>) {
 		return {
-			write: async ({
-				body,
-				...payload
-			}: MessageWebhookPayload<MessageWebhookCreateBodyRequest, { query?: RESTPostAPIWebhookWithTokenQuery }>) => {
+			write: async ({ body, ...payload }: MessageWebhookMethodWriteParams) => {
 				const transformedBody = MessagesMethods.transformMessageBody<RESTPostAPIWebhookWithTokenJSONBody>(body);
 				return ctx.client.proxy
 					.webhooks(ctx.webhookId)(ctx.webhookToken)
 					.post({ ...payload, body: transformedBody })
 					.then((m) => (m?.id ? new WebhookMessage(ctx.client, m, ctx.webhookId, ctx.webhookToken) : null));
 			},
-			edit: async ({
-				messageId,
-				body,
-				...json
-			}: MessageWebhookPayload<
-				MessageWebhookUpdateBodyRequest,
-				{ messageId: string; query?: RESTGetAPIWebhookWithTokenMessageQuery }
-			>) => {
+			edit: async ({ messageId, body, ...json }: MessageWebhookMethodEditParams) => {
 				const transformedBody = MessagesMethods.transformMessageBody<RESTPatchAPIWebhookWithTokenMessageJSONBody>(body);
 
 				return ctx.client.proxy
@@ -143,8 +133,17 @@ export class Webhook extends DiscordBase {
 	}
 
 	protected static _hasToken(ctx: { token?: string }): asserts ctx is { token: string } {
-		if (!hasProp(ctx, 'token')) {
+		if (!hasProps(ctx, 'token')) {
 			throw new Error('Unavailable webhook token');
 		}
 	}
 }
+
+export type MessageWebhookMethodEditParams = MessageWebhookPayload<
+	MessageWebhookUpdateBodyRequest,
+	{ messageId: string; query?: RESTGetAPIWebhookWithTokenMessageQuery }
+>;
+export type MessageWebhookMethodWriteParams = MessageWebhookPayload<
+	MessageWebhookCreateBodyRequest,
+	{ query?: RESTPostAPIWebhookWithTokenQuery }
+>;

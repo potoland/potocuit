@@ -1,4 +1,4 @@
-import { ComponentInteraction, ModalSubmitInteraction } from '../../structures/Interaction';
+import { ComponentInteraction, ModalSubmitInteraction } from '../structures/Interaction';
 import { Button } from './Button';
 import { TextInput } from './Modal';
 import { PotoSelectMenus } from './SelectMenu';

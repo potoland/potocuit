@@ -10,7 +10,6 @@ import {
 	Message,
 	NewsChannel,
 	PotocuitChannels,
-	RawFile,
 	StageChannel,
 	TextGuildChannel,
 	ThreadChannel,
@@ -20,6 +19,7 @@ import {
 	encodeEmoji,
 	resolveEmoji,
 } from '../..';
+import { Attachment, MessageEmbed, resolveAttachment, resolveFiles } from '../../builders';
 import { BaseClient } from '../../client/base';
 import {
 	APIChannelBase,
@@ -37,7 +37,6 @@ import {
 	RESTPatchAPIChannelMessageJSONBody,
 	RESTPatchAPIGuildChannelPositionsJSONBody,
 	RESTPostAPIChannelMessageJSONBody,
-	RESTPostAPIChannelMessagesBulkDeleteJSONBody,
 	RESTPostAPIChannelWebhookJSONBody,
 	RESTPostAPIGuildChannelJSONBody,
 	SortOrderType,
@@ -262,12 +261,16 @@ export class MessagesMethods extends DiscordBase {
 		return {
 			...body,
 			components: body.components ? body.components.map((x) => x.toJSON()) : [],
+			embeds: body.embeds?.map((x) => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? [],
+			attachments: body.attachments?.map((x, i) => ({ id: i, ...resolveAttachment(x) })) ?? [],
 		} as T;
 	}
 
 	static messages(ctx: MethodContext<{ channelId: string }>) {
 		return {
-			write: (body: MessageCreateBodyRequest, files?: RawFile[]) => {
+			write: async (body: MessageCreateBodyRequest) => {
+				const files = body.files ?? body.attachments ? await resolveFiles(body.attachments as Attachment[]) : [];
+
 				const transformedBody = MessagesMethods.transformMessageBody<RESTPostAPIChannelMessageJSONBody>(body);
 				return ctx.client.proxy
 					.channels(ctx.channelId)
@@ -280,7 +283,8 @@ export class MessagesMethods extends DiscordBase {
 						return new Message(ctx.client, message);
 					});
 			},
-			edit: (messageId: string, body: MessageUpdateBodyRequest, files?: RawFile[]) => {
+			edit: async (messageId: string, body: MessageUpdateBodyRequest) => {
+				const files = body.files ?? body.attachments ? await resolveFiles(body.attachments as Attachment[]) : [];
 				return ctx.client.proxy
 					.channels(ctx.channelId)
 					.messages(messageId)
@@ -316,8 +320,8 @@ export class MessagesMethods extends DiscordBase {
 					.get()
 					.then((x) => new Message(ctx.client, x));
 			},
-			purge: (body: RESTPostAPIChannelMessagesBulkDeleteJSONBody, reason?: string) => {
-				return ctx.client.proxy.channels(ctx.channelId).messages['bulk-delete'].post({ body, reason });
+			purge: (messages: string[], reason?: string) => {
+				return ctx.client.proxy.channels(ctx.channelId).messages['bulk-delete'].post({ body: { messages }, reason });
 			},
 		};
 	}

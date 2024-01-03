@@ -1,4 +1,4 @@
-import { APIActionRowComponent, APIActionRowComponentTypes, ComponentType } from '../../common';
+import { APIActionRowComponent, APIActionRowComponentTypes, ComponentType } from '../common';
 import { ActionRow } from './ActionRow';
 import { Button } from './Button';
 import { TextInput } from './Modal';
@@ -12,6 +12,7 @@ import {
 import { PotoComponents } from './types';
 
 export * from './ActionRow';
+export * from './Attachment';
 export * from './Base';
 export * from './Button';
 export * from './MessageEmbed';

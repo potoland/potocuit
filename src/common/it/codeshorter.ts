@@ -9,7 +9,6 @@ import {
 	Routes,
 	User,
 } from '../..';
-import { RawFile } from '../../api';
 import { BaseChannel } from '../../structures/methods/channels';
 
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
@@ -42,8 +41,8 @@ export class CodeShorter {
 				await ctx.client.cache.users?.patch(ctx.userId, data);
 				return new User(ctx.client, data);
 			},
-			write: async (body: MessageCreateBodyRequest, files?: RawFile[]) => {
-				return (await ctx.client.users(ctx.userId).createDM()).messages.write(body, files);
+			write: async (body: MessageCreateBodyRequest) => {
+				return (await ctx.client.users(ctx.userId).createDM()).messages.write(body);
 			},
 		};
 	}

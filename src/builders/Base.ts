@@ -1,4 +1,4 @@
-import { APIBaseComponent, ComponentType } from '../../common';
+import { APIBaseComponent, ComponentType } from '../common';
 
 export abstract class BaseComponentBuilder<
 	TYPE extends Partial<APIBaseComponent<ComponentType>> = APIBaseComponent<ComponentType>,

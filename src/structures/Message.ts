@@ -1,5 +1,4 @@
-import { Webhook } from '..';
-import type { RawFile } from '../api';
+import { MessageWebhookMethodEditParams, MessageWebhookMethodWriteParams, Webhook } from '..';
 import type { BaseClient } from '../client/base';
 import type {
 	APIChannelMention,
@@ -10,12 +9,7 @@ import type {
 	ObjectToLower,
 } from '../common';
 import type { EmojiResolvable } from '../common/types/resolvables';
-import type {
-	MessageCreateBodyRequest,
-	MessageUpdateBodyRequest,
-	MessageWebhookCreateBodyRequest,
-	MessageWebhookUpdateBodyRequest,
-} from '../common/types/write';
+import type { MessageCreateBodyRequest, MessageUpdateBodyRequest } from '../common/types/write';
 import type { BiscuitActionRowMessageComponents } from '../components';
 import { MessageActionRowComponent } from '../components/ActionRow';
 import { Guild } from './Guild';
@@ -140,27 +134,24 @@ export class Message extends BaseMessage {
 		return this.__messageMethods__.fetch(this.id);
 	}
 
-	reply(body: Omit<MessageCreateBodyRequest, 'message_reference'>, files?: RawFile[]) {
-		return this.write(
-			{
-				...body,
-				message_reference: {
-					message_id: this.id,
-					channel_id: this.channelId,
-					guild_id: this.guildId,
-					fail_if_not_exists: true,
-				},
+	reply(body: Omit<MessageCreateBodyRequest, 'message_reference'>) {
+		return this.write({
+			...body,
+			message_reference: {
+				message_id: this.id,
+				channel_id: this.channelId,
+				guild_id: this.guildId,
+				fail_if_not_exists: true,
 			},
-			files,
-		);
+		});
 	}
 
-	edit(body: MessageUpdateBodyRequest, files?: RawFile[]) {
-		return this.__messageMethods__.edit(this.id, body, files);
+	edit(body: MessageUpdateBodyRequest) {
+		return this.__messageMethods__.edit(this.id, body);
 	}
 
-	write(body: MessageCreateBodyRequest, files?: RawFile[]) {
-		return this.__messageMethods__.write(body, files);
+	write(body: MessageCreateBodyRequest) {
+		return this.__messageMethods__.write(body);
 	}
 
 	delete(reason?: string) {
@@ -171,6 +162,9 @@ export class Message extends BaseMessage {
 		return this.__messageMethods__.crosspost(this.id, reason);
 	}
 }
+
+export type EditMessageWebhook = Omit<MessageWebhookMethodEditParams, 'messageId'>;
+export type WriteMessageWebhook = MessageWebhookMethodWriteParams;
 
 export class WebhookMessage extends BaseMessage {
 	private readonly __messageMethods__: ReturnType<typeof Webhook.messages>;
@@ -188,12 +182,12 @@ export class WebhookMessage extends BaseMessage {
 		return this.api.webhooks(this.webhookId)(this.webhookToken).get({ query: this.thread?.id });
 	}
 
-	edit(body: MessageWebhookUpdateBodyRequest, files?: RawFile[]) {
-		return this.__messageMethods__.edit({ body, files, messageId: this.id });
+	edit(body: WriteMessageWebhook) {
+		return this.__messageMethods__.edit({ ...body, messageId: this.id });
 	}
 
-	write(body: MessageWebhookCreateBodyRequest, files?: RawFile[]) {
-		return this.__messageMethods__.write({ body, files });
+	write(body: WriteMessageWebhook) {
+		return this.__messageMethods__.write(body);
 	}
 
 	delete(reason?: string) {

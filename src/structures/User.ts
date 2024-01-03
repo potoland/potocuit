@@ -1,4 +1,3 @@
-import { RawFile } from '../api';
 import type { APIUser, MessageCreateBodyRequest, ObjectToLower } from '../common';
 import type { ImageOptions } from '../common/types/options';
 import { DiscordBase } from './extra/DiscordBase';
@@ -35,8 +34,8 @@ export class User extends DiscordBase<APIUser> {
 		return this.rest.cdn.avatar(this.id, this.avatar, options);
 	}
 
-	write(body: MessageCreateBodyRequest, files?: RawFile[]) {
-		return this.client.users(this.id).write(body, files);
+	write(body: MessageCreateBodyRequest) {
+		return this.client.users(this.id).write(body);
 	}
 
 	toString(): string {

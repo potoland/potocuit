@@ -3,68 +3,67 @@ import type {
 	APIInteractionResponseCallbackData,
 	APIInteractionResponseChannelMessageWithSource,
 	APIModalInteractionResponse,
+	RESTAPIAttachment,
 	RESTPatchAPIChannelMessageJSONBody,
 	RESTPatchAPIWebhookWithTokenMessageJSONBody,
 	RESTPostAPIChannelMessageJSONBody,
 	RESTPostAPIWebhookWithTokenJSONBody,
 } from '..';
-import type { ActionRow, Modal, PotoComponents, TextInput } from '../../components';
-import { MessageEmbed } from '../../components/builders/MessageEmbed';
+import { RawFile } from '../..';
+import { ActionRow, Attachment, MessageEmbed, Modal, PotoComponents, TextInput } from '../../builders';
+
 import type { OmitInsert } from './util';
-
-export type PotoComponentProper = {
-	components?: ActionRow<PotoComponents>[] | undefined;
-};
-
-export type PotoEmbedsProper = {
-	embeds?: MessageEmbed[] | APIEmbed[] | undefined;
-};
 
 export type PotoModalComponentProper = {
 	components?: ActionRow<TextInput>[] | undefined;
 };
 
-export interface ResolverProps extends PotoComponentProper, PotoEmbedsProper {}
+export interface ResolverProps {
+	embeds?: MessageEmbed[] | APIEmbed[] | undefined;
+	components?: ActionRow<PotoComponents>[] | undefined;
+	attachments?: Attachment[] | RESTAPIAttachment[] | undefined;
+	files?: RawFile[] | undefined;
+}
 
 export type MessageCreateBodyRequest = OmitInsert<
 	RESTPostAPIChannelMessageJSONBody,
-	'components' | 'embeds',
+	'components' | 'embeds' | 'attachments',
 	ResolverProps
 >;
 
 export type MessageUpdateBodyRequest = OmitInsert<
 	RESTPatchAPIChannelMessageJSONBody,
-	'components' | 'embeds',
+	'components' | 'embeds' | 'attachments',
 	ResolverProps
 >;
 
 export type MessageWebhookCreateBodyRequest = OmitInsert<
 	RESTPostAPIWebhookWithTokenJSONBody,
-	'components' | 'embeds',
+	'components' | 'embeds' | 'attachments',
 	ResolverProps
 >;
 
 export type MessageWebhookUpdateBodyRequest = OmitInsert<
 	RESTPatchAPIWebhookWithTokenMessageJSONBody,
-	'components' | 'embeds',
+	'components' | 'embeds' | 'attachments',
 	ResolverProps
 >;
 
 export type InteractionMessageUpdateBodyRequest = OmitInsert<
 	RESTPatchAPIWebhookWithTokenMessageJSONBody,
-	'components' | 'embeds',
+	'components' | 'embeds' | 'attachments',
 	ResolverProps
 >;
 
 export type ComponentInteractionMessageUpdate = OmitInsert<
 	APIInteractionResponseCallbackData,
-	'components' | 'embeds',
+	'components' | 'embeds' | 'attachments',
 	ResolverProps
 >;
 
 export type InteractionCreateBodyRequest = OmitInsert<
 	APIInteractionResponseChannelMessageWithSource['data'],
-	'components' | 'embeds',
+	'components' | 'embeds' | 'attachments',
 	ResolverProps
 >;
 

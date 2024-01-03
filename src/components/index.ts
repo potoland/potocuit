@@ -9,8 +9,6 @@ import { StringSelectMenuComponent } from './StringSelectMenuComponent';
 import type { TextInputComponent } from './TextInputComponent';
 import { UserSelectMenuComponent } from './UserSelectMenuComponent';
 
-export * from './builders';
-
 export type BiscuitComponents =
 	| ButtonComponent
 	| LinkButtonComponent
@@ -23,7 +21,6 @@ export type BiscuitComponents =
 
 export type BiscuitActionRowMessageComponents = Exclude<BiscuitComponents, TextInputComponent>;
 
-export * from './builders';
 export * from './command';
 
 /**

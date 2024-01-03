@@ -1,5 +1,5 @@
 import type { Cache } from '../../cache';
-import type { APIEmoji, APIPartialEmoji } from '../../common';
+import type { APIEmoji, APIPartialEmoji, TypeArray } from '../../common';
 import { DiscordEpoch, FormattingPatterns } from '../../common';
 import type { EmojiResolvable } from '../../common/types/resolvables';
 
@@ -58,12 +58,16 @@ export function encodeEmoji(rawEmoji: APIPartialEmoji) {
 	return rawEmoji?.id ? `${rawEmoji.name}:${rawEmoji.id}` : `${rawEmoji?.name}`;
 }
 
-export function hasProp<T extends Record<any, any>>(target: T, prop: keyof T) {
-	if (!(prop in target)) {
-		return;
+export function hasProps<T extends Record<any, any>>(target: T, props: TypeArray<keyof T>): boolean {
+	if (Array.isArray(props)) {
+		const parse = props.map((x) => hasProps(target, x));
+		return !parse.includes(false);
 	}
-	if (typeof target[prop] === 'string' && !target[prop].length) {
-		return;
+	if (!((props as T[number]) in target)) {
+		return false;
+	}
+	if (typeof target[props] === 'string' && !target[props as T[number]].length) {
+		return false;
 	}
 	return true;
 }

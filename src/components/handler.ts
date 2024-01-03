@@ -6,6 +6,8 @@ import {
 	InteractionResponseType,
 	LimitedCollection,
 } from '..';
+import type { ActionRow } from '../builders';
+import { ComponentCallback, ModalSubmitCallback, PotoComponents } from '../builders/types';
 import type { BaseClient } from '../client/base';
 import { Logger, PotoHandler } from '../common';
 import type {
@@ -15,8 +17,6 @@ import type {
 	ModalCreateBodyRequest,
 } from '../common/types/write';
 import type { ComponentInteraction, ModalSubmitInteraction, ReplyInteractionBody } from '../structures';
-import type { ActionRow } from './builders';
-import { ComponentCallback, ModalSubmitCallback, PotoComponents } from './builders/types';
 import type { ModalCommand } from './command';
 import { ComponentCommand, InteractionCommandType } from './command';
 
