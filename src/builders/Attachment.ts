@@ -8,7 +8,7 @@ export interface AttachmentResolvableMap {
 	buffer: Buffer;
 	path: string;
 }
-export type AttachmentResolvable = AttachmentResolvableMap[keyof AttachmentResolvableMap];
+export type AttachmentResolvable = AttachmentResolvableMap[keyof AttachmentResolvableMap] | Attachment;
 export type AttachmentDataType = keyof AttachmentResolvableMap;
 export interface AttachmentData {
 	name: string;
@@ -81,6 +81,12 @@ export async function resolveFiles(resources: Attachment[]): Promise<RawFile[]> 
 }
 
 export async function resolveAttachmentData(data: AttachmentResolvable, type: AttachmentDataType) {
+	if (data instanceof Attachment) {
+		if (!data.data.resolvable)
+			return throwError('The attachment type has been expressed as attachment but cannot be resolved as one.');
+		return { data: data.data.resolvable! };
+	}
+
 	switch (type) {
 		case 'url': {
 			if (!/^https?:\/\//.test(data as string))
@@ -122,11 +128,21 @@ export function resolveBase64(data: string | Buffer) {
 	return data;
 }
 
-export async function resolveImage(image: AttachmentResolvable, type: AttachmentDataType) {
-	if (!image) return null;
-	if (typeof image === 'string' && image.startsWith('data:')) {
-		return image;
+export type ImageResolvable = { data: AttachmentResolvable; type: AttachmentDataType } | Attachment;
+
+export async function resolveImage(image: ImageResolvable): Promise<string> {
+	if (image instanceof Attachment) {
+		const {
+			data: { type, resolvable },
+		} = image;
+		if (type && resolvable) return resolveBase64((await resolveAttachmentData(resolvable, type)).data as Buffer);
+		return throwError(
+			`The attachment type has been expressed as ${(
+				type ?? 'Attachment'
+			).toUpperCase()} but cannot be resolved as one.`,
+		);
 	}
-	const file = await resolveAttachmentData(image, type);
-	return resolveBase64(file.data);
+
+	const file = await resolveAttachmentData(image.data, image.type);
+	return resolveBase64(file.data as Buffer);
 }

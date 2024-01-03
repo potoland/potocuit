@@ -17,14 +17,14 @@ export class User extends DiscordBase<APIUser> {
 	 * Fetch user
 	 */
 	fetch(force = false) {
-		return this.client.users(this.id).fetch(force);
+		return this.client.users.fetch(this.id, force);
 	}
 
 	/**
 	 * Open a DM with the user
 	 */
 	dm(force = false) {
-		return this.client.users(this.id).createDM(force);
+		return this.client.users.createDM(this.id, force);
 	}
 
 	avatarURL(options?: ImageOptions): string {
@@ -35,7 +35,7 @@ export class User extends DiscordBase<APIUser> {
 	}
 
 	write(body: MessageCreateBodyRequest) {
-		return this.client.users(this.id).write(body);
+		return this.client.users.write(this.id, body);
 	}
 
 	toString(): string {

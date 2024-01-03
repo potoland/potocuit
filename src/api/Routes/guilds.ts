@@ -1,3 +1,4 @@
+import { OmitInsert, RawFile } from '../..';
 import {
 	APIThreadChannel,
 	Identify,
@@ -361,7 +362,12 @@ export interface GuildRoutes {
 				get(args?: RestArguments<ProxyRequestMethod.Get>): Promise<RESTGetAPIGuildStickersResult>;
 				//.
 				post(
-					args: RestArguments<ProxyRequestMethod.Post, RESTPostAPIGuildStickerFormDataBody>,
+					args: RestArguments<
+						ProxyRequestMethod.Post,
+						Omit<RESTPostAPIGuildStickerFormDataBody, 'file'>,
+						{},
+						OmitInsert<RawFile, 'key', { key: 'file' }>[]
+					>,
 				): Promise<RESTPostAPIGuildStickerResult>;
 				(id: string): {
 					//.

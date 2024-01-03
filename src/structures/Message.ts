@@ -1,4 +1,4 @@
-import { MessageWebhookMethodEditParams, MessageWebhookMethodWriteParams, Webhook } from '..';
+import { MessageWebhookMethodEditParams, MessageWebhookMethodWriteParams } from '..';
 import type { BaseClient } from '../client/base';
 import type {
 	APIChannelMention,
@@ -17,7 +17,6 @@ import { GuildMember } from './GuildMember';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 import { messageLink } from './extra/functions';
-import { MessagesMethods } from './methods/channels';
 
 export type MessageData = APIMessage | GatewayMessageCreateDispatchData;
 
@@ -36,8 +35,6 @@ export class BaseMessage extends DiscordBase {
 		users: (GuildMember | User)[];
 	};
 
-	private readonly __reactionMethods__!: ReturnType<typeof MessagesMethods.reactions>;
-
 	constructor(client: BaseClient, data: MessageData) {
 		super(client, data);
 		this.mentions = {
@@ -47,9 +44,6 @@ export class BaseMessage extends DiscordBase {
 		};
 		this.components = data.components?.map((x) => new MessageActionRowComponent(x)) ?? [];
 		this.patch(data);
-		Object.assign(this, {
-			__reactionMethods__: MessagesMethods.reactions({ channelId: this.channelId, client }),
-		});
 	}
 
 	get url() {
@@ -68,7 +62,7 @@ export class BaseMessage extends DiscordBase {
 	}
 
 	react(emoji: EmojiResolvable) {
-		return this.__reactionMethods__.add(this.id, emoji);
+		return this.client.messages.reactions.add(this.id, this.channelId, emoji);
 	}
 
 	private patch(data: MessageData) {
@@ -119,19 +113,12 @@ export interface Message
 		ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> {}
 
 export class Message extends BaseMessage {
-	private readonly __messageMethods__!: ReturnType<typeof MessagesMethods.messages>;
 	constructor(client: BaseClient, data: MessageData) {
 		super(client, data);
-		Object.assign(this, {
-			__messageMethods__: MessagesMethods.messages({
-				client: this.client,
-				channelId: this.channelId,
-			}),
-		});
 	}
 
 	fetch() {
-		return this.__messageMethods__.fetch(this.id);
+		return this.client.messages.fetch(this.id, this.channelId);
 	}
 
 	reply(body: Omit<MessageCreateBodyRequest, 'message_reference'>) {
@@ -147,19 +134,19 @@ export class Message extends BaseMessage {
 	}
 
 	edit(body: MessageUpdateBodyRequest) {
-		return this.__messageMethods__.edit(this.id, body);
+		return this.client.messages.edit(this.id, this.channelId, body);
 	}
 
 	write(body: MessageCreateBodyRequest) {
-		return this.__messageMethods__.write(body);
+		return this.client.messages.write(this.channelId, body);
 	}
 
 	delete(reason?: string) {
-		return this.__messageMethods__.delete(this.id, reason);
+		return this.client.messages.delete(this.id, this.channelId, reason);
 	}
 
 	crosspost(reason?: string) {
-		return this.__messageMethods__.crosspost(this.id, reason);
+		return this.client.messages.crosspost(this.id, this.channelId, reason);
 	}
 }
 
@@ -167,30 +154,23 @@ export type EditMessageWebhook = Omit<MessageWebhookMethodEditParams, 'messageId
 export type WriteMessageWebhook = MessageWebhookMethodWriteParams;
 
 export class WebhookMessage extends BaseMessage {
-	private readonly __messageMethods__: ReturnType<typeof Webhook.messages>;
-
 	constructor(client: BaseClient, data: MessageData, readonly webhookId: string, readonly webhookToken: string) {
 		super(client, data);
-		this.__messageMethods__ = Webhook.messages({
-			client: this.client,
-			webhookToken: webhookToken,
-			webhookId: webhookId,
-		});
 	}
 
 	fetch() {
 		return this.api.webhooks(this.webhookId)(this.webhookToken).get({ query: this.thread?.id });
 	}
 
-	edit(body: WriteMessageWebhook) {
-		return this.__messageMethods__.edit({ ...body, messageId: this.id });
+	edit(body: EditMessageWebhook) {
+		return this.client.webhooks.messages.edit(this.webhookId, this.webhookToken, { ...body, messageId: this.id });
 	}
 
 	write(body: WriteMessageWebhook) {
-		return this.__messageMethods__.write(body);
+		return this.client.webhooks.messages.write(this.webhookId, this.webhookToken, body);
 	}
 
 	delete(reason?: string) {
-		return this.__messageMethods__.delete(this.id, reason);
+		return this.client.webhooks.messages.delete(this.webhookId, this.webhookToken, this.id, reason);
 	}
 }

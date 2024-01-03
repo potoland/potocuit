@@ -7,7 +7,6 @@ import {
 	type APIGuildMember,
 	type APIInteractionDataResolvedGuildMember,
 	type APIUser,
-	FormattingPatterns,
 	type GatewayGuildMemberAddDispatchData,
 	type GatewayGuildMemberUpdateDispatchData,
 	type ObjectToLower,
@@ -38,8 +37,6 @@ export class GuildMember extends DiscordBase {
 	private _roles: string[];
 	joinedTimestamp?: number;
 	communicationDisabledUntilTimestamp?: number | null;
-	private readonly __methods__!: ReturnType<typeof GuildMember.methods>;
-
 	constructor(
 		client: BaseClient,
 		data: GuildMemberData,
@@ -51,9 +48,6 @@ export class GuildMember extends DiscordBase {
 		super(client, { ...dataN, id: user.id });
 		this.user = user instanceof User ? user : new User(client, user);
 		this._roles = data.roles;
-		Object.assign(this, {
-			__methods__: GuildMember.methods({ client, guildId }),
-		});
 		this.patch(data);
 	}
 
@@ -76,19 +70,19 @@ export class GuildMember extends DiscordBase {
 	}
 
 	fetch(force = false) {
-		return this.__methods__.fetch(this.id, force);
+		return this.client.members.fetch(this.guildId, this.id, force);
 	}
 
 	ban(body?: RESTPutAPIGuildBanJSONBody, reason?: string) {
-		return this.__methods__.ban(this.id, body, reason);
+		return this.client.members.ban(this.guildId, this.id, body, reason);
 	}
 
 	kick(reason?: string) {
-		return this.__methods__.kick(this.id, reason);
+		return this.client.members.kick(this.guildId, this.id, reason);
 	}
 
 	edit(body: RESTPatchAPIGuildMemberJSONBody, reason?: string) {
-		return this.__methods__.edit(this.id, body, reason);
+		return this.client.members.edit(this.guildId, this.id, body, reason);
 	}
 
 	dynamicAvatarURL(options?: ImageOptions): string {
@@ -115,113 +109,29 @@ export class GuildMember extends DiscordBase {
 	}
 
 	get roles() {
+		const methods = this.client.members.roles;
 		return {
 			values: Object.freeze(this._roles),
-			add: async (id: string) => {
-				await this.api.guilds(this.guildId).members(this.id).roles(id).put({});
-			},
-			remove: async (id: string) => {
-				await this.api.guilds(this.guildId).members(this.id).roles(id).delete();
-			},
+			add: async (id: string) => methods.add(this.guildId, this.id, id),
+			remove: async (id: string) => methods.remove(this.guildId, this.id, id),
 		};
 	}
 
-	static methods(ctx: MethodContext<{ guildId: string }>) {
+	static methods({ client, guildId }: MethodContext<{ guildId: string }>) {
+		const methods = client.members;
 		return {
-			resolve: async (resolve: GuildMemberResolvable) => {
-				if (typeof resolve === 'string') {
-					const match: { id?: string } | undefined = resolve.match(FormattingPatterns.User)?.groups;
-					if (match?.id) {
-						return await this.methods(ctx).fetch(match.id);
-					}
-					if (resolve.match(/\d{17,20}/)) {
-						return await this.methods(ctx).fetch(resolve);
-					}
-
-					return await this.methods(ctx)
-						.search({ query: resolve, limit: 1 })
-						.then((x) => x[0]);
-				}
-
-				const { id, displayName } = resolve;
-
-				if (id) {
-					return await this.methods(ctx).fetch(id);
-				}
-
-				return displayName
-					? await this.methods(ctx)
-							.search({ query: displayName, limit: 1 })
-							.then((x) => x[0])
-					: undefined;
-			},
-			search: async (query?: RESTGetAPIGuildMembersSearchQuery) => {
-				const members = await ctx.client.proxy.guilds(ctx.guildId).members.search.get({
-					query,
-				});
-				await ctx.client.cache.members?.set(
-					members.map((x) => [x.user!.id, x]),
-					ctx.guildId,
-				);
-				return members.map((m) => new GuildMember(ctx.client, m, m.user!, ctx.guildId));
-			},
-			unban: async (id: string, body?: RESTPutAPIGuildBanJSONBody, reason?: string) => {
-				await ctx.client.proxy.guilds(ctx.guildId).bans(id).delete({ reason, body });
-			},
-			ban: async (id: string, body?: RESTPutAPIGuildBanJSONBody, reason?: string) => {
-				await ctx.client.proxy.guilds(ctx.guildId).bans(id).put({ reason, body });
-				await ctx.client.cache.members?.removeIfNI('GuildBans', id, ctx.guildId);
-			},
-			kick: async (id: string, reason?: string) => {
-				await ctx.client.proxy.guilds(ctx.guildId).members(id).delete({ reason });
-				await ctx.client.cache.members?.removeIfNI('GuildMembers', id, ctx.guildId);
-			},
-			edit: async (id: string, body: RESTPatchAPIGuildMemberJSONBody, reason?: string) => {
-				const member = await ctx.client.proxy.guilds(ctx.guildId).members(id).patch({ body, reason });
-				await ctx.client.cache.members?.setIfNI('GuildMembers', id, ctx.guildId, member);
-				return new GuildMember(ctx.client, member, member.user!, ctx.guildId);
-			},
-			add: async (id: string, body: RESTPutAPIGuildMemberJSONBody) => {
-				const member = await ctx.client.proxy.guilds(ctx.guildId).members(id).put({
-					body,
-				});
-
-				// Thanks dapi-types, fixed
-				if (!member) {
-					return;
-				}
-
-				await ctx.client.cache.members?.setIfNI('GuildMembers', member.user!.id, ctx.guildId, member);
-
-				return new GuildMember(ctx.client, member, member.user!, ctx.guildId);
-			},
-			fetch: async (memberId: string, force = false) => {
-				let member;
-				if (!force) {
-					member = await ctx.client.cache.members?.get(memberId, ctx.guildId);
-					if (member) return member;
-				}
-
-				member = await ctx.client.proxy.guilds(ctx.guildId).members(memberId).get();
-				await ctx.client.cache.members?.set(member.user!.id, ctx.guildId, member);
-				return new GuildMember(ctx.client, member, member.user!, ctx.guildId);
-			},
-
-			list: async (query?: RESTGetAPIGuildMembersQuery, force = false) => {
-				let members;
-				if (!force) {
-					members = (await ctx.client.cache.members?.values(ctx.guildId)) ?? [];
-					if (members.length) return members;
-				}
-				members = await ctx.client.proxy.guilds(ctx.guildId).members.get({
-					query,
-				});
-				await ctx.client.cache.members?.set(
-					members.map((x) => [x.user!.id, x]),
-					ctx.guildId,
-				);
-				return members.map((m) => new GuildMember(ctx.client, m, m.user!, ctx.guildId));
-			},
+			resolve: async (resolve: GuildMemberResolvable) => methods.resolve(guildId, resolve),
+			search: async (query?: RESTGetAPIGuildMembersSearchQuery) => methods.search(guildId, query),
+			unban: async (id: string, body?: RESTPutAPIGuildBanJSONBody, reason?: string) =>
+				methods.unban(guildId, id, body, reason),
+			ban: async (id: string, body?: RESTPutAPIGuildBanJSONBody, reason?: string) =>
+				methods.ban(guildId, id, body, reason),
+			kick: async (id: string, reason?: string) => methods.kick(guildId, id, reason),
+			edit: async (id: string, body: RESTPatchAPIGuildMemberJSONBody, reason?: string) =>
+				methods.edit(guildId, id, body, reason),
+			add: async (id: string, body: RESTPutAPIGuildMemberJSONBody) => methods.add(guildId, id, body),
+			fetch: async (memberId: string, force = false) => methods.fetch(guildId, memberId, force),
+			list: async (query?: RESTGetAPIGuildMembersQuery, force = false) => methods.list(guildId, query, force),
 		};
 	}
 }
