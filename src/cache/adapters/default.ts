@@ -58,9 +58,11 @@ export class DefaultMemoryAdapter implements Adapter {
 			}
 		} else {
 			const oldData = this.get(keys);
+			console.log({ oldData, updateOnly })
 			if (updateOnly && !oldData) {
 				return;
 			}
+			console.log('xdd', keys)
 			this.storage.set(keys, JSON.stringify({ ...(oldData ?? {}), ...data }));
 		}
 	}
