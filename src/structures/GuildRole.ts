@@ -10,7 +10,7 @@ import type {
 import { Guild } from './Guild';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface GuildRole extends DiscordBase, ObjectToLower<APIRole> {}
+export interface GuildRole extends DiscordBase, ObjectToLower<APIRole> { }
 
 export class GuildRole extends DiscordBase {
 	private readonly __methods__!: ReturnType<typeof GuildRole.methods>;
@@ -38,52 +38,11 @@ export class GuildRole extends DiscordBase {
 
 	static methods(ctx: MethodContext<{ guildId: string }>) {
 		return {
-			create: (body: RESTPostAPIGuildRoleJSONBody) =>
-				ctx.client.proxy
-					.guilds(ctx.guildId)
-					.roles.post({ body })
-					.then((res) => ctx.client.cache.roles?.setIfNI('Guilds', res.id, ctx.guildId, res)),
-			list: async (force = false) => {
-				let roles: APIRole[] = [];
-				if (!force) {
-					roles = (await ctx.client.cache.roles?.values(ctx.guildId)) ?? [];
-					if (roles.length) {
-						return roles.map((r) => new GuildRole(ctx.client, r, ctx.guildId));
-					}
-				}
-				roles = await ctx.client.proxy.guilds(ctx.guildId).roles.get();
-				await ctx.client.cache.roles?.set(
-					roles.map((r) => [r.id, r]),
-					ctx.guildId,
-				);
-				return roles.map((r) => new GuildRole(ctx.client, r, ctx.guildId));
-			},
-			edit: (roleId: string, body: RESTPatchAPIGuildRoleJSONBody, reason?: string) => {
-				return ctx.client.proxy
-					.guilds(ctx.guildId)
-					.roles(roleId)
-					.patch({ body, reason })
-					.then((res) => ctx.client.cache.roles?.setIfNI('Guilds', roleId, ctx.guildId, res));
-			},
-			delete: (roleId: string, reason?: string) => {
-				return ctx.client.proxy
-					.guilds(ctx.guildId)
-					.roles(roleId)
-					.delete({ reason })
-					.then(() => ctx.client.cache.roles?.removeIfNI('Guilds', roleId, ctx.guildId));
-			},
-			editPositions: async (body: RESTPatchAPIGuildRolePositionsJSONBody) => {
-				const roles = await ctx.client.proxy.guilds(ctx.guildId).roles.patch({
-					body,
-				});
-				if (!ctx.client.cache.hasRolesIntent) {
-					await ctx.client.cache.roles?.set(
-						roles.map((x) => [x.id, x]),
-						ctx.guildId,
-					);
-				}
-				return roles.map((x) => new GuildRole(ctx.client, x, ctx.guildId));
-			},
+			create: (body: RESTPostAPIGuildRoleJSONBody) => ctx.client.roles.create(ctx.guildId, body),
+			list: async (force = false) => ctx.client.roles.list(ctx.guildId, force),
+			edit: (roleId: string, body: RESTPatchAPIGuildRoleJSONBody, reason?: string) => ctx.client.roles.edit(ctx.guildId, roleId, body, reason),
+			delete: (roleId: string, reason?: string) => ctx.client.roles.delete(ctx.guildId, roleId, reason),
+			editPositions: async (body: RESTPatchAPIGuildRolePositionsJSONBody) => ctx.client.roles.editPositions(ctx.guildId, body),
 		};
 	}
 }

@@ -16,6 +16,8 @@ import {
 } from '../common';
 import { MemberShorter } from '../common/shorters/members';
 import { MessageShorter } from '../common/shorters/messages';
+import { RoleShorter } from '../common/shorters/roles';
+import { TemplateShorter } from '../common/shorters/templates';
 import { WebhookShorter } from '../common/shorters/webhook';
 import type { DeepPartial, IntentStrings, OmitInsert } from '../common/types/util';
 import { ComponentHandler } from '../components/handler';
@@ -30,12 +32,15 @@ export class BaseClient {
 	handleGuilds = new Set<string>();
 	rest!: REST;
 	cache!: Cache;
-	users: UsersShorter['users'];
-	guilds: GuildShorter['guilds'];
-	channels: ChannelShorter['channels'];
-	messages: MessageShorter['messages'];
-	members: MemberShorter['members'];
-	webhooks: WebhookShorter['webhooks'];
+
+	users = new UsersShorter(this).users;
+	channels = new ChannelShorter(this).channels;
+	guilds = new GuildShorter(this).guilds;
+	messages = new MessageShorter(this).messages;
+	members = new MemberShorter(this).members;
+	webhooks = new WebhookShorter(this).webhooks;
+	templates = new TemplateShorter(this).templates
+	roles = new RoleShorter(this).roles
 
 	debugger = new Logger({
 		name: '[Debug]',
@@ -70,12 +75,6 @@ export class BaseClient {
 
 	constructor(options?: BaseClientOptions) {
 		this.options = options;
-		this.users = new UsersShorter(this).users;
-		this.channels = new ChannelShorter(this).channels;
-		this.guilds = new GuildShorter(this).guilds;
-		this.messages = new MessageShorter(this).messages;
-		this.members = new MemberShorter(this).members;
-		this.webhooks = new WebhookShorter(this).webhooks;
 	}
 
 	set botId(id: string) {

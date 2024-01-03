@@ -1,4 +1,4 @@
-import { MessageWebhookMethodEditParams, MessageWebhookMethodWriteParams, Webhook } from '..';
+import { MessageWebhookMethodEditParams, MessageWebhookMethodWriteParams } from '..';
 import type { BaseClient } from '../client/base';
 import type {
 	APIChannelMention,
@@ -22,7 +22,7 @@ export type MessageData = APIMessage | GatewayMessageCreateDispatchData;
 
 export interface BaseMessage
 	extends DiscordBase,
-		ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> {}
+	ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> { }
 export class BaseMessage extends DiscordBase {
 	guildId: string | undefined;
 	timestamp?: number;
@@ -92,17 +92,17 @@ export class BaseMessage extends DiscordBase {
 		if (data.mentions?.length) {
 			this.mentions.users = this.guildId
 				? data.mentions.map(
-						(m) =>
-							new GuildMember(
-								this.client,
-								{
-									...(m as APIUser & { member?: Omit<APIGuildMember, 'user'> }).member!,
-									user: m,
-								},
-								m,
-								this.guildId!,
-							),
-				  )
+					(m) =>
+						new GuildMember(
+							this.client,
+							{
+								...(m as APIUser & { member?: Omit<APIGuildMember, 'user'> }).member!,
+								user: m,
+							},
+							m,
+							this.guildId!,
+						),
+				)
 				: data.mentions.map((u) => new User(this.client, u));
 		}
 	}
@@ -110,7 +110,7 @@ export class BaseMessage extends DiscordBase {
 
 export interface Message
 	extends BaseMessage,
-		ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> {}
+	ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> { }
 
 export class Message extends BaseMessage {
 	constructor(client: BaseClient, data: MessageData) {
@@ -154,30 +154,23 @@ export type EditMessageWebhook = Omit<MessageWebhookMethodEditParams, 'messageId
 export type WriteMessageWebhook = MessageWebhookMethodWriteParams;
 
 export class WebhookMessage extends BaseMessage {
-	private readonly __messageMethods__: ReturnType<typeof Webhook.messages>;
-
 	constructor(client: BaseClient, data: MessageData, readonly webhookId: string, readonly webhookToken: string) {
 		super(client, data);
-		this.__messageMethods__ = Webhook.messages({
-			client: this.client,
-			webhookToken: webhookToken,
-			webhookId: webhookId,
-		});
 	}
 
 	fetch() {
 		return this.api.webhooks(this.webhookId)(this.webhookToken).get({ query: this.thread?.id });
 	}
 
-	edit(body: WriteMessageWebhook) {
-		return this.__messageMethods__.edit({ ...body, messageId: this.id });
+	edit(body: EditMessageWebhook) {
+		return this.client.webhooks.messages.edit(this.webhookId, this.webhookToken, { ...body, messageId: this.id });
 	}
 
 	write(body: WriteMessageWebhook) {
-		return this.__messageMethods__.write(body);
+		return this.client.webhooks.messages.write(this.webhookId, this.webhookToken, body);
 	}
 
 	delete(reason?: string) {
-		return this.__messageMethods__.delete(this.id, reason);
+		return this.client.webhooks.messages.delete(this.webhookId, this.webhookToken, this.id, reason);
 	}
 }

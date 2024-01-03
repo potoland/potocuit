@@ -6,12 +6,13 @@ import {
 	RESTPatchAPIGuildStickerJSONBody,
 	RESTPostAPIAutoModerationRuleJSONBody,
 	RESTPostAPIGuildChannelJSONBody,
+	RESTPostAPIGuildEmojiJSONBody,
 	RESTPostAPIGuildsJSONBody,
 	Routes,
 } from 'discord-api-types/v10';
-import { ObjectToLower } from '..';
-import { resolveFiles } from '../../builders';
-import { CreateStickerBodyRequest, Guild, Sticker } from '../../structures';
+import { ObjectToLower, OmitInsert } from '..';
+import { ImageResolvable, resolveFiles, resolveImage } from '../../builders';
+import { CreateStickerBodyRequest, Guild, GuildEmoji, Sticker } from '../../structures';
 import channelFrom, { BaseChannel } from '../../structures/methods/channels';
 import { BASE_URL } from '../it/utils';
 import { BaseShorter } from './base';
@@ -46,7 +47,53 @@ export class GuildShorter extends BaseShorter {
 			channels: this.channels,
 			moderation: this.moderation,
 			stickers: this.stickers,
+			emojis: this.emojis
 		};
+	}
+
+	get emojis() {
+		return {
+			list: async (guildId: string, force = false) => {
+				let emojis;
+				if (!force) {
+					emojis = (await this.client.cache.emojis?.values(guildId)) ?? [];
+					if (emojis.length) {
+						return emojis;
+					}
+				}
+				emojis = await this.client.proxy.guilds(guildId).emojis.get();
+				await this.client.cache.emojis?.set(
+					emojis.map((x) => [x.id!, x]),
+					guildId,
+				);
+				return emojis.map((m) => new GuildEmoji(this.client, m, guildId));
+			},
+			create: async (guildId: string, body: OmitInsert<RESTPostAPIGuildEmojiJSONBody, 'image', { image: ImageResolvable }>) => {
+				const bodyResolved = { ...body, image: (await resolveImage(body.image)) }
+				const emoji = await this.client.proxy.guilds(guildId).emojis.post({
+					body: bodyResolved
+				});
+				await this.client.cache.channels?.setIfNI('GuildEmojisAndStickers', emoji.id!, guildId, emoji);
+			},
+			fetch: async (guildId: string, emojiId: string, force = false) => {
+				let emoji;
+				if (!force) {
+					emoji = await this.client.proxy.guilds(guildId).emojis(emojiId).get();
+					if (emoji) return emoji;
+				}
+				emoji = await this.client.proxy.guilds(guildId).emojis(emojiId).get();
+				return new GuildEmoji(this.client, emoji, guildId);
+			},
+			delete: async (guildId: string, emojiId: string, reason?: string) => {
+				await this.client.proxy.guilds(guildId).emojis(emojiId).delete({ reason });
+				await this.client.cache.channels?.removeIfNI('GuildEmojisAndStickers', emojiId, guildId);
+			},
+			edit: async (guildId: string, emojiId: string, body: RESTPatchAPIChannelJSONBody, reason?: string) => {
+				const emoji = await this.client.proxy.guilds(guildId).emojis(emojiId).patch({ body, reason });
+				await this.client.cache.channels?.setIfNI('GuildEmojisAndStickers', emoji.id!, guildId, emoji);
+				return new GuildEmoji(this.client, emoji, guildId);
+			},
+		}
 	}
 
 	get channels() {
@@ -61,7 +108,7 @@ export class GuildShorter extends BaseShorter {
 				}
 				channels = await this.client.proxy.guilds(guildId).channels.get();
 				await this.client.cache.channels?.set(
-					channels.map((x) => [x!.id, x]),
+					channels.map((x) => [x.id, x]),
 					guildId,
 				);
 				return channels.map((m) => channelFrom(m, this.client));
