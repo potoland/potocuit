@@ -24,7 +24,7 @@ import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 import { MessagesMethods } from './methods/channels';
 
-export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> {}
+export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> { }
 
 export class Webhook extends DiscordBase {
 	private readonly __methods__!: ReturnType<typeof Webhook.methods>;
@@ -92,7 +92,7 @@ export class Webhook extends DiscordBase {
 				return ctx.client.proxy
 					.webhooks(ctx.webhookId)(ctx.webhookToken)
 					.post({ ...payload, body: transformedBody })
-					.then((m) => (m?.id ? new WebhookMessage(ctx.client, m, ctx.webhookToken) : null));
+					.then((m) => (m?.id ? new WebhookMessage(ctx.client, m, ctx.webhookId, ctx.webhookToken) : null));
 			},
 			edit: async ({
 				messageId,
@@ -108,7 +108,7 @@ export class Webhook extends DiscordBase {
 					.webhooks(ctx.webhookId)(ctx.webhookToken)
 					.messages(messageId)
 					.patch({ ...json, auth: false, body: transformedBody })
-					.then((m) => new WebhookMessage(ctx.client, m, ctx.webhookToken));
+					.then((m) => new WebhookMessage(ctx.client, m, ctx.webhookId, ctx.webhookToken));
 			},
 			delete: async (messageId: string, reason?: string) => {
 				return ctx.client.proxy.webhooks(ctx.webhookId)(ctx.webhookToken).messages(messageId).delete({ reason });
