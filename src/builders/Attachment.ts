@@ -18,7 +18,7 @@ export interface AttachmentData {
 }
 
 export class Attachment {
-	constructor(public data: Partial<AttachmentData> = { name: `${randomBytes(8).toString('base64url')}.jpg` }) { }
+	constructor(public data: Partial<AttachmentData> = { name: `${randomBytes(8).toString('base64url')}.jpg` }) {}
 
 	setName(name: string) {
 		this.data.name = name;
@@ -33,11 +33,12 @@ export class Attachment {
 	setFile<T extends AttachmentDataType = AttachmentDataType>(type: T, data: AttachmentResolvableMap[T]) {
 		this.data.type = type;
 		this.data.resolvable = data;
+		return this;
 	}
 
 	setSpoiler(spoiler: boolean) {
 		if (spoiler === this.spoiler) return this;
-		if (spoiler) {
+		if (!spoiler) {
 			this.data.name = this.data.name!.slice('SPOILER_'.length);
 			return this;
 		}
