@@ -39,8 +39,8 @@ export class BaseClient {
 	messages = new MessageShorter(this).messages;
 	members = new MemberShorter(this).members;
 	webhooks = new WebhookShorter(this).webhooks;
-	templates = new TemplateShorter(this).templates
-	roles = new RoleShorter(this).roles
+	templates = new TemplateShorter(this).templates;
+	roles = new RoleShorter(this).roles;
 
 	debugger = new Logger({
 		name: '[Debug]',

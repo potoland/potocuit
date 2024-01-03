@@ -19,7 +19,7 @@ import { AnonymousGuild } from './AnonymousGuild';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> { }
+export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> {}
 
 export class Webhook extends DiscordBase {
 	user?: User;
@@ -86,7 +86,8 @@ export class Webhook extends DiscordBase {
 		const methods = client.webhooks;
 		return {
 			delete: (reason?: string) => methods.delete(webhookId, { reason, token: webhookToken }),
-			edit: (body: RESTPatchAPIWebhookWithTokenJSONBody | RESTPatchAPIWebhookJSONBody, reason?: string) => methods.edit(webhookId, body, { token: webhookToken, reason }),
+			edit: (body: RESTPatchAPIWebhookWithTokenJSONBody | RESTPatchAPIWebhookJSONBody, reason?: string) =>
+				methods.edit(webhookId, body, { token: webhookToken, reason }),
 			fetch: () => methods.fetch(webhookId, webhookToken),
 		};
 	}

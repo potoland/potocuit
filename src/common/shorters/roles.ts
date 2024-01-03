@@ -1,6 +1,11 @@
-import { APIRole, RESTPatchAPIGuildRoleJSONBody, RESTPatchAPIGuildRolePositionsJSONBody, RESTPostAPIGuildRoleJSONBody } from "discord-api-types/v10";
-import { GuildRole } from "../../structures";
-import { BaseShorter } from "./base";
+import {
+	APIRole,
+	RESTPatchAPIGuildRoleJSONBody,
+	RESTPatchAPIGuildRolePositionsJSONBody,
+	RESTPostAPIGuildRoleJSONBody,
+} from 'discord-api-types/v10';
+import { GuildRole } from '../../structures';
+import { BaseShorter } from './base';
 
 export class RoleShorter extends BaseShorter {
 	get roles() {

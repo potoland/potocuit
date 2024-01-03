@@ -47,7 +47,7 @@ export class GuildShorter extends BaseShorter {
 			channels: this.channels,
 			moderation: this.moderation,
 			stickers: this.stickers,
-			emojis: this.emojis
+			emojis: this.emojis,
 		};
 	}
 
@@ -68,10 +68,13 @@ export class GuildShorter extends BaseShorter {
 				);
 				return emojis.map((m) => new GuildEmoji(this.client, m, guildId));
 			},
-			create: async (guildId: string, body: OmitInsert<RESTPostAPIGuildEmojiJSONBody, 'image', { image: ImageResolvable }>) => {
-				const bodyResolved = { ...body, image: (await resolveImage(body.image)) }
+			create: async (
+				guildId: string,
+				body: OmitInsert<RESTPostAPIGuildEmojiJSONBody, 'image', { image: ImageResolvable }>,
+			) => {
+				const bodyResolved = { ...body, image: await resolveImage(body.image) };
 				const emoji = await this.client.proxy.guilds(guildId).emojis.post({
-					body: bodyResolved
+					body: bodyResolved,
 				});
 				await this.client.cache.channels?.setIfNI('GuildEmojisAndStickers', emoji.id!, guildId, emoji);
 			},
@@ -93,7 +96,7 @@ export class GuildShorter extends BaseShorter {
 				await this.client.cache.channels?.setIfNI('GuildEmojisAndStickers', emoji.id!, guildId, emoji);
 				return new GuildEmoji(this.client, emoji, guildId);
 			},
-		}
+		};
 	}
 
 	get channels() {

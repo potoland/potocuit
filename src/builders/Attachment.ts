@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto';
-import { readFile, stat } from 'fs/promises';
 import path from 'node:path';
+import { readFile, stat } from 'fs/promises';
 import { RESTAPIAttachment, RawFile, throwError } from '..';
 
 export interface AttachmentResolvableMap {
@@ -18,7 +18,7 @@ export interface AttachmentData {
 }
 
 export class Attachment {
-	constructor(public data: Partial<AttachmentData> = { name: `${randomBytes(8).toString('base64url')}.jpg` }) { }
+	constructor(public data: Partial<AttachmentData> = { name: `${randomBytes(8).toString('base64url')}.jpg` }) {}
 
 	setName(name: string) {
 		this.data.name = name;
@@ -81,12 +81,10 @@ export async function resolveFiles(resources: Attachment[]): Promise<RawFile[]> 
 }
 
 export async function resolveAttachmentData(data: AttachmentResolvable, type: AttachmentDataType) {
-
 	if (data instanceof Attachment) {
-		if (!data.data.resolvable) return throwError(
-			"The attachment type has been expressed as attachment but cannot be resolved as one.",
-		);
-		return { data: data.data.resolvable! }
+		if (!data.data.resolvable)
+			return throwError('The attachment type has been expressed as attachment but cannot be resolved as one.');
+		return { data: data.data.resolvable! };
 	}
 
 	switch (type) {
@@ -130,14 +128,18 @@ export function resolveBase64(data: string | Buffer) {
 	return data;
 }
 
-export type ImageResolvable = { data: AttachmentResolvable, type: AttachmentDataType } | Attachment;
+export type ImageResolvable = { data: AttachmentResolvable; type: AttachmentDataType } | Attachment;
 
 export async function resolveImage(image: ImageResolvable): Promise<string> {
 	if (image instanceof Attachment) {
-		const { data: { type, resolvable } } = image;
+		const {
+			data: { type, resolvable },
+		} = image;
 		if (type && resolvable) return resolveBase64((await resolveAttachmentData(resolvable, type)).data as Buffer);
 		return throwError(
-			`The attachment type has been expressed as ${(type ?? 'Attachment').toUpperCase()} but cannot be resolved as one.`,
+			`The attachment type has been expressed as ${(
+				type ?? 'Attachment'
+			).toUpperCase()} but cannot be resolved as one.`,
 		);
 	}
 

@@ -22,7 +22,7 @@ export type MessageData = APIMessage | GatewayMessageCreateDispatchData;
 
 export interface BaseMessage
 	extends DiscordBase,
-	ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> { }
+		ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> {}
 export class BaseMessage extends DiscordBase {
 	guildId: string | undefined;
 	timestamp?: number;
@@ -92,17 +92,17 @@ export class BaseMessage extends DiscordBase {
 		if (data.mentions?.length) {
 			this.mentions.users = this.guildId
 				? data.mentions.map(
-					(m) =>
-						new GuildMember(
-							this.client,
-							{
-								...(m as APIUser & { member?: Omit<APIGuildMember, 'user'> }).member!,
-								user: m,
-							},
-							m,
-							this.guildId!,
-						),
-				)
+						(m) =>
+							new GuildMember(
+								this.client,
+								{
+									...(m as APIUser & { member?: Omit<APIGuildMember, 'user'> }).member!,
+									user: m,
+								},
+								m,
+								this.guildId!,
+							),
+				  )
 				: data.mentions.map((u) => new User(this.client, u));
 		}
 	}
@@ -110,7 +110,7 @@ export class BaseMessage extends DiscordBase {
 
 export interface Message
 	extends BaseMessage,
-	ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> { }
+		ObjectToLower<Omit<MessageData, 'timestamp' | 'author' | 'mentions' | 'components'>> {}
 
 export class Message extends BaseMessage {
 	constructor(client: BaseClient, data: MessageData) {

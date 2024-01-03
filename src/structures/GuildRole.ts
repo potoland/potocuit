@@ -10,7 +10,7 @@ import type {
 import { Guild } from './Guild';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface GuildRole extends DiscordBase, ObjectToLower<APIRole> { }
+export interface GuildRole extends DiscordBase, ObjectToLower<APIRole> {}
 
 export class GuildRole extends DiscordBase {
 	private readonly __methods__!: ReturnType<typeof GuildRole.methods>;
@@ -40,9 +40,11 @@ export class GuildRole extends DiscordBase {
 		return {
 			create: (body: RESTPostAPIGuildRoleJSONBody) => ctx.client.roles.create(ctx.guildId, body),
 			list: async (force = false) => ctx.client.roles.list(ctx.guildId, force),
-			edit: (roleId: string, body: RESTPatchAPIGuildRoleJSONBody, reason?: string) => ctx.client.roles.edit(ctx.guildId, roleId, body, reason),
+			edit: (roleId: string, body: RESTPatchAPIGuildRoleJSONBody, reason?: string) =>
+				ctx.client.roles.edit(ctx.guildId, roleId, body, reason),
 			delete: (roleId: string, reason?: string) => ctx.client.roles.delete(ctx.guildId, roleId, reason),
-			editPositions: async (body: RESTPatchAPIGuildRolePositionsJSONBody) => ctx.client.roles.editPositions(ctx.guildId, body),
+			editPositions: async (body: RESTPatchAPIGuildRolePositionsJSONBody) =>
+				ctx.client.roles.editPositions(ctx.guildId, body),
 		};
 	}
 }
