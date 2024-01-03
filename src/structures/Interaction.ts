@@ -33,6 +33,7 @@ import type {
 	APIUserApplicationCommandInteraction,
 	APIUserApplicationCommandInteractionData,
 	GatewayInteractionCreateDispatchData,
+	If,
 	MessageFlags,
 	ObjectToLower,
 	RESTPostAPIInteractionCallbackJSONBody,
@@ -599,13 +600,11 @@ export class ModalSubmitInteraction<FromGuild extends boolean = boolean> extends
 		return this.data.components;
 	}
 
-	getInputValue(customId: string, required?: boolean): string | undefined;
-	getInputValue(customId: string, required?: true): string;
-	getInputValue(customId: string) {
+	getInputValue<Required extends boolean>(customId: string, _required?: Required): If<Required, string> {
 		for (const { components } of this.components) {
 			const get = components.find((x) => x.customId === customId);
 			if (get) return get.value;
 		}
-		return undefined;
+		return null as never;
 	}
 }
