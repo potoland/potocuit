@@ -1,6 +1,6 @@
 import { inflateSync } from 'node:zlib';
 import type WS from 'ws';
-import { type CloseEvent, WebSocket } from 'ws';
+import { WebSocket, type CloseEvent } from 'ws';
 import type { GatewayReceivePayload, GatewaySendPayload, Logger } from '../../common';
 import { GatewayCloseCodes, GatewayDispatchEvents, GatewayOpcodes } from '../../common';
 import { properties } from '../constants';
@@ -184,7 +184,7 @@ export class Shard {
 				}
 				await this.identify();
 			}
-			break;
+				break;
 			case GatewayOpcodes.HeartbeatAck:
 				this.heart.ack = true;
 				this.heart.lastAck = Date.now();
@@ -224,13 +224,13 @@ export class Shard {
 						break;
 				}
 			}
-			break;
+				break;
 		}
 	}
 
 	protected async handleClosed(close: CloseEvent) {
 		clearInterval(this.heart.nodeInterval);
-		this.logger.warn(`[Shard #${this.id}] ${GatewayCloseCodes[close.code] ?? close.code}`);
+		this.logger.warn(`[Shard #${this.id}] ${GatewayCloseCodes[close.code] ?? ShardSocketCloseCodes[close.code] ?? close.code}`);
 
 		switch (close.code) {
 			case ShardSocketCloseCodes.Shutdown:
@@ -269,9 +269,9 @@ export class Shard {
 
 	async close(code: number, reason: string) {
 		if (this.websocket?.readyState !== WebSocket.OPEN) {
-			return this.logger.warn(`${new Error('418').stack} [Shard #${this.id}] Is not open`);
+			return this.logger.warn(`[Shard #${this.id}] Is not open`);
 		}
-		this.logger.warn(`${new Error('418').stack} [Shard #${this.id}] Called close`);
+		this.logger.warn(`[Shard #${this.id}] Called close`);
 		this.websocket?.close(code, reason);
 	}
 
