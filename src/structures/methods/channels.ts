@@ -7,19 +7,18 @@ import {
 	ForumChannel,
 	Guild,
 	MediaChannel,
-	Message,
 	NewsChannel,
 	PotocuitChannels,
+	RESTPatchAPIGuildChannelPositionsJSONBody,
+	RESTPostAPIGuildChannelJSONBody,
 	StageChannel,
 	TextGuildChannel,
 	ThreadChannel,
 	VoiceChannel,
 	Webhook,
 	channelLink,
-	encodeEmoji,
-	resolveEmoji,
 } from '../..';
-import { Attachment, MessageEmbed, resolveAttachment, resolveFiles } from '../../builders';
+import { MessageEmbed, resolveAttachment } from '../../builders';
 import { BaseClient } from '../../client/base';
 import {
 	APIChannelBase,
@@ -34,29 +33,20 @@ import {
 	ObjectToLower,
 	RESTGetAPIChannelMessageReactionUsersQuery,
 	RESTPatchAPIChannelJSONBody,
-	RESTPatchAPIChannelMessageJSONBody,
-	RESTPatchAPIGuildChannelPositionsJSONBody,
-	RESTPostAPIChannelMessageJSONBody,
 	RESTPostAPIChannelWebhookJSONBody,
-	RESTPostAPIGuildChannelJSONBody,
 	SortOrderType,
 	ThreadAutoArchiveDuration,
 	VideoQualityMode,
 } from '../../common';
-import { User } from '../User';
 import { DiscordBase } from '../extra/DiscordBase';
 
 export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBase<ChannelType>> {
 	declare type: T;
-	private readonly __methods__!: ReturnType<typeof BaseChannel.allMethods>;
 
 	constructor(client: BaseClient, data: APIChannelBase<ChannelType>) {
 		super(client, data);
-		Object.assign(this, {
-			__methods__: BaseChannel.allMethods({ client, guildId: this.__guildId__ }),
-		});
 	}
-
+	// @ts-ignore
 	private get __guildId__() {
 		return 'guildId' in this ? (this.guildId as string) : '@me';
 	}
@@ -73,86 +63,31 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 	}
 
 	fetch(force = false) {
-		return this.__methods__.fetch(this.id, force);
+		return this.client.channels.fetch(this.id, force);
 	}
 
 	delete(reason?: string) {
-		return this.__methods__.delete(this.id, reason);
+		return this.client.channels.delete(this.id, { reason });
 	}
 
 	edit(body: RESTPatchAPIChannelJSONBody, reason?: string) {
-		return this.__methods__.edit(this.id, body, reason);
+		return this.client.channels.edit(this.id, body, { reason });
 	}
 
 	toString() {
 		return `<#${this.id}>`;
 	}
 
-	static globalMethods(ctx: MethodContext) {
-		return {
-			fetch: async (id: string, force?: boolean) => {
-				let channel;
-				if (!force) {
-					channel = await ctx.client.cache.channels?.get(id);
-					if (channel) return channel;
-				}
-
-				channel = await ctx.client.proxy.channels(id).get();
-				await ctx.client.cache.channels?.patch(id, undefined, channel);
-				return channelFrom(channel, ctx.client);
-			},
-			messages: (channelId: string) => MessagesMethods.messages({ client: ctx.client, channelId }),
-		};
-	}
-
 	static allMethods(ctx: MethodContext<{ guildId: string }>) {
+		const methods = ctx.client.guilds.channels;
 		return {
-			list: async (force = false) => {
-				let channels;
-				if (!force) {
-					channels = (await ctx.client.cache.channels?.values(ctx.guildId)) ?? [];
-					if (channels.length) {
-						return channels;
-					}
-				}
-				channels = await ctx.client.proxy.guilds(ctx.guildId).channels.get();
-				await ctx.client.cache.channels?.set(
-					channels.map((x) => [x!.id, x]),
-					ctx.guildId,
-				);
-				return channels.map((m) => channelFrom(m, ctx.client));
-			},
-			fetch: async (id: string, force?: boolean) => {
-				let channel;
-				if (!force) {
-					channel = await ctx.client.cache.channels?.get(id);
-					if (channel) return channel;
-				}
-
-				channel = await ctx.client.proxy.channels(id).get();
-				await ctx.client.cache.channels?.patch(id, ctx.guildId, channel);
-				return channelFrom(channel, ctx.client);
-			},
-			create: async (body: RESTPostAPIGuildChannelJSONBody) => {
-				const res = await ctx.client.proxy.guilds(ctx.guildId).channels.post({ body });
-				await ctx.client.cache.channels?.setIfNI(BaseChannel.__intent__(ctx.guildId), res.id, ctx.guildId, res);
-				return channelFrom(res, ctx.client);
-			},
-			delete: async (id: string, reason?: string) => {
-				if (!id) {
-					throw new Error('No channelId');
-				}
-				const res = await ctx.client.proxy.channels(id).delete({ reason });
-				await ctx.client.cache.channels?.removeIfNI(BaseChannel.__intent__(ctx.guildId), res.id, ctx.guildId);
-				return channelFrom(res, ctx.client);
-			},
-			edit: async (id: string, body: RESTPatchAPIChannelJSONBody, reason?: string) => {
-				const res = await ctx.client.proxy.channels(id).patch({ body, reason });
-				await ctx.client.cache.channels?.setIfNI(BaseChannel.__intent__(ctx.guildId), res.id, ctx.guildId, res);
-				return channelFrom(res, ctx.client);
-			},
-			editPositions: (body: RESTPatchAPIGuildChannelPositionsJSONBody) =>
-				ctx.client.proxy.guilds(ctx.guildId).channels.patch({ body }),
+			list: (force = false) => methods.list(ctx.guildId, force),
+			fetch: (id: string, force = false) => methods.fetch(ctx.guildId, id, force),
+			create: (body: RESTPostAPIGuildChannelJSONBody) => methods.create(ctx.guildId, body),
+			delete: (id: string, reason?: string) => methods.delete(ctx.guildId, id, reason),
+			edit: (id: string, body: RESTPatchAPIChannelJSONBody, reason?: string) =>
+				methods.edit(ctx.guildId, id, body, reason),
+			editPositions: (body: RESTPatchAPIGuildChannelPositionsJSONBody) => methods.editPositions(ctx.guildId, body),
 		};
 	}
 }
@@ -184,77 +119,43 @@ export class MessagesMethods extends DiscordBase {
 		return this.api.channels(this.id).typing.post();
 	}
 
-	messages = MessagesMethods.messages({ client: this.client, channelId: this.id });
-	pins = MessagesMethods.pins({ client: this.client, channelId: this.id });
-	reactions = MessagesMethods.reactions({ client: this.client, channelId: this.id });
-	static reactions(ctx: MethodContext<{ channelId: string }>) {
+	messages = MessagesMethods.messages({ client: this.client, id: this.id });
+	pins = MessagesMethods.pins({ client: this.client, id: this.id });
+	reactions = MessagesMethods.reactions({ client: this.client, id: this.id });
+
+	static messages(ctx: MethodContext<{ id: string }>) {
+		const methods = ctx.client.messages;
 		return {
-			add: async (messageId: string, emoji: EmojiResolvable) => {
-				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
-
-				if (!rawEmoji) {
-					throw new Error('Emoji no resolvable');
-				}
-
-				return ctx.client.proxy
-					.channels(ctx.channelId)
-					.messages(messageId)
-					.reactions(encodeEmoji(rawEmoji))('@me')
-					.put({});
-			},
-			delete: async (messageId: string, emoji: EmojiResolvable, userId = '@me') => {
-				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
-
-				if (!rawEmoji) {
-					throw new Error('Emoji no resolvable');
-				}
-
-				return ctx.client.proxy
-					.channels(ctx.channelId)
-					.messages(messageId)
-					.reactions(encodeEmoji(rawEmoji))(userId)
-					.delete();
-			},
-			fetch: async (messageId: string, emoji: EmojiResolvable, query?: RESTGetAPIChannelMessageReactionUsersQuery) => {
-				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
-
-				if (!rawEmoji) {
-					throw new Error('Emoji no resolvable');
-				}
-
-				return ctx.client.proxy
-					.channels(ctx.channelId)
-					.messages(messageId)
-					.reactions(encodeEmoji(rawEmoji))
-					.get({ query })
-					.then((u) => u.map((user) => new User(ctx.client, user)));
-			},
-			purge: async (messageId: string, emoji?: EmojiResolvable) => {
-				if (!emoji) {
-					return ctx.client.proxy.channels(ctx.channelId).messages(messageId).reactions.delete();
-				}
-				const rawEmoji = await resolveEmoji(emoji, ctx.client.cache);
-
-				if (!rawEmoji) {
-					throw new Error('Emoji no resolvable');
-				}
-
-				return ctx.client.proxy.channels(ctx.channelId).messages(messageId).reactions(encodeEmoji(rawEmoji)).delete();
-			},
+			write: (body: MessageCreateBodyRequest) => methods.write(ctx.id, body),
+			edit: (messageId: string, body: MessageUpdateBodyRequest) => methods.edit(messageId, ctx.id, body),
+			crosspost: (messageId: string, reason?: string) => methods.crosspost(messageId, ctx.id, reason),
+			delete: (messageId: string, reason?: string) => methods.delete(messageId, ctx.id, reason),
+			fetch: (messageId: string) => methods.fetch(messageId, ctx.id),
+			purge: (messages: string[], reason?: string) => methods.purge(messages, ctx.id, reason),
 		};
 	}
 
-	static pins(ctx: MethodContext<{ channelId: string }>) {
+	static reactions(ctx: MethodContext<{ id: string }>) {
+		const methods = ctx.client.messages.reactions;
 		return {
-			fetch: () =>
-				ctx.client.proxy
-					.channels(ctx.channelId)
-					.pins.get()
-					.then((messages) => messages.map((message) => new Message(ctx.client, message))),
-			set: (messageId: string, reason?: string) =>
-				ctx.client.proxy.channels(ctx.channelId).pins(messageId).put({ reason }),
-			delete: (messageId: string, reason?: string) =>
-				ctx.client.proxy.channels(ctx.channelId).pins(messageId).delete({ reason }),
+			add: (messageId: string, emoji: EmojiResolvable) => methods.add(messageId, ctx.id, emoji),
+			delete: (messageId: string, emoji: EmojiResolvable, userId = '@me') =>
+				methods.delete(messageId, ctx.id, emoji, userId),
+			fetch: (
+				messageId: string,
+
+				emoji: EmojiResolvable,
+				query?: RESTGetAPIChannelMessageReactionUsersQuery,
+			) => methods.fetch(messageId, ctx.id, emoji, query),
+			purge: (messageId: string, emoji?: EmojiResolvable) => methods.purge(messageId, ctx.id, emoji),
+		};
+	}
+	static pins(ctx: MethodContext<{ id: string }>) {
+		const methods = ctx.client.channels.pins;
+		return {
+			fetch: () => methods.fetch(ctx.id),
+			set: (messageId: string, reason?: string) => methods.set(messageId, ctx.id, reason),
+			delete: (messageId: string, reason?: string) => methods.delete(messageId, ctx.id, reason),
 		};
 	}
 
@@ -265,66 +166,6 @@ export class MessagesMethods extends DiscordBase {
 			embeds: body.embeds?.map((x) => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? [],
 			attachments: body.attachments?.map((x, i) => ({ id: i, ...resolveAttachment(x) })) ?? [],
 		} as T;
-	}
-
-	static messages(ctx: MethodContext<{ channelId: string }>) {
-		return {
-			write: async (body: MessageCreateBodyRequest) => {
-				const files = body.files ?? body.attachments ? await resolveFiles(body.attachments as Attachment[]) : [];
-
-				const transformedBody = MessagesMethods.transformMessageBody<RESTPostAPIChannelMessageJSONBody>(body);
-				return ctx.client.proxy
-					.channels(ctx.channelId)
-					.messages.post({
-						body: transformedBody,
-						files,
-					})
-					.then((message) => {
-						ctx.client.components.onRequestMessage(body, message);
-						return new Message(ctx.client, message);
-					});
-			},
-			edit: async (messageId: string, body: MessageUpdateBodyRequest) => {
-				const files = body.files ?? body.attachments ? await resolveFiles(body.attachments as Attachment[]) : [];
-				return ctx.client.proxy
-					.channels(ctx.channelId)
-					.messages(messageId)
-					.patch({
-						body: MessagesMethods.transformMessageBody<RESTPatchAPIChannelMessageJSONBody>(body),
-						files,
-					})
-					.then((message) => {
-						ctx.client.components.onRequestUpdateMessage(body, message);
-						return new Message(ctx.client, message);
-					});
-			},
-			crosspost: (messageId: string, reason?: string) => {
-				return ctx.client.proxy
-					.channels(ctx.channelId)
-					.messages(messageId)
-					.crosspost.post({ reason })
-					.then((m) => new Message(ctx.client, m));
-			},
-			delete: (messageId: string, reason?: string) => {
-				return ctx.client.proxy
-					.channels(ctx.channelId)
-					.messages(messageId)
-					.delete({ reason })
-					.then(() => {
-						return ctx.client.components.onMessageDelete(messageId);
-					});
-			},
-			fetch: async (messageId: string) => {
-				return ctx.client.proxy
-					.channels(ctx.channelId)
-					.messages(messageId)
-					.get()
-					.then((x) => new Message(ctx.client, x));
-			},
-			purge: (messages: string[], reason?: string) => {
-				return ctx.client.proxy.channels(ctx.channelId).messages['bulk-delete'].post({ body: { messages }, reason });
-			},
-		};
 	}
 }
 

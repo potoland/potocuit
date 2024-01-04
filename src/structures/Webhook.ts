@@ -1,5 +1,4 @@
 import type {
-	Attachment,
 	Guild,
 	ImageOptions,
 	MessageWebhookCreateBodyRequest,
@@ -7,7 +6,6 @@ import type {
 	MessageWebhookUpdateBodyRequest,
 	MethodContext,
 } from '..';
-import { hasProps, resolveFiles } from '..';
 import type { BaseClient } from '../client/base';
 import type {
 	APIWebhook,
@@ -15,20 +13,15 @@ import type {
 	RESTGetAPIWebhookWithTokenMessageQuery,
 	RESTPatchAPIWebhookJSONBody,
 	RESTPatchAPIWebhookWithTokenJSONBody,
-	RESTPatchAPIWebhookWithTokenMessageJSONBody,
-	RESTPostAPIWebhookWithTokenJSONBody,
 	RESTPostAPIWebhookWithTokenQuery,
 } from '../common';
 import { AnonymousGuild } from './AnonymousGuild';
-import { WebhookMessage } from './Message';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
-import { MessagesMethods } from './methods/channels';
 
 export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> {}
 
 export class Webhook extends DiscordBase {
-	private readonly __methods__!: ReturnType<typeof Webhook.methods>;
 	user?: User;
 	sourceGuild?: Partial<AnonymousGuild>;
 	messages!: ReturnType<typeof Webhook.messages>;
@@ -43,9 +36,6 @@ export class Webhook extends DiscordBase {
 			this.sourceGuild = new AnonymousGuild(this.client, data.source_guild);
 		}
 
-		Object.assign(this, {
-			__methods__: Webhook.methods({ client, webhookId: this.id, webhookToken: this.token }),
-		});
 		Object.assign(this, {
 			messages: Webhook.messages({ client, webhookId: this.id, webhookToken: this.token! }),
 		});
@@ -72,72 +62,34 @@ export class Webhook extends DiscordBase {
 	}
 
 	async fetch() {
-		return this.__methods__.fetch();
+		return this.client.webhooks.fetch(this.id, this.token);
 	}
 
 	async edit(body: RESTPatchAPIWebhookJSONBody | RESTPatchAPIWebhookWithTokenJSONBody, reason?: string) {
-		return this.__methods__.edit(body, reason);
+		return this.client.webhooks.edit(this.id, body, { reason, token: this.token });
 	}
 
 	delete(reason?: string) {
-		return this.__methods__.delete(reason);
+		return this.client.webhooks.delete(this.id, { token: this.token, reason });
 	}
 
-	static messages(ctx: MethodContext<{ webhookId: string; webhookToken: string }>) {
+	static messages({ client, webhookId, webhookToken }: MethodContext<{ webhookId: string; webhookToken: string }>) {
+		const methods = client.webhooks.messages;
 		return {
-			write: async ({ body, files, ...payload }: MessageWebhookMethodWriteParams) => {
-				const transformedBody = MessagesMethods.transformMessageBody<RESTPostAPIWebhookWithTokenJSONBody>(body);
-				files ??= body.attachments ? await resolveFiles(body.attachments as Attachment[]) : [];
-				return ctx.client.proxy
-					.webhooks(ctx.webhookId)(ctx.webhookToken)
-					.post({ ...payload, files, body: transformedBody })
-					.then((m) => (m?.id ? new WebhookMessage(ctx.client, m, ctx.webhookId, ctx.webhookToken) : null));
-			},
-			edit: async ({ messageId, body, files, ...json }: MessageWebhookMethodEditParams) => {
-				const transformedBody = MessagesMethods.transformMessageBody<RESTPatchAPIWebhookWithTokenMessageJSONBody>(body);
-				files ??= body.attachments ? await resolveFiles(body.attachments as Attachment[]) : [];
-				return ctx.client.proxy
-					.webhooks(ctx.webhookId)(ctx.webhookToken)
-					.messages(messageId)
-					.patch({ ...json, auth: false, files, body: transformedBody })
-					.then((m) => new WebhookMessage(ctx.client, m, ctx.webhookId, ctx.webhookToken));
-			},
-			delete: async (messageId: string, reason?: string) => {
-				return ctx.client.proxy.webhooks(ctx.webhookId)(ctx.webhookToken).messages(messageId).delete({ reason });
-			},
+			write: (payload: MessageWebhookMethodWriteParams) => methods.write(webhookId, webhookToken, payload),
+			edit: (payload: MessageWebhookMethodEditParams) => methods.edit(webhookId, webhookToken, payload),
+			delete: async (messageId: string, reason?: string) => methods.delete(webhookId, webhookToken, messageId, reason),
 		};
 	}
 
-	static methods(ctx: MethodContext<{ webhookId: string; webhookToken?: string }>) {
+	static methods({ client, webhookId, webhookToken }: MethodContext<{ webhookId: string; webhookToken?: string }>) {
+		const methods = client.webhooks;
 		return {
-			delete: (reason?: string) => {
-				if (ctx.webhookToken) {
-					return ctx.client.proxy.webhooks(ctx.webhookId)(ctx.webhookToken).delete({ reason, auth: false });
-				}
-				return ctx.client.proxy.webhooks(ctx.webhookId).delete({ reason });
-			},
-			edit: (body: RESTPatchAPIWebhookWithTokenJSONBody | RESTPatchAPIWebhookJSONBody, reason?: string) => {
-				if (ctx.webhookToken) {
-					return ctx.client.proxy.webhooks(ctx.webhookId)(ctx.webhookToken).patch({ body, reason, auth: false });
-				}
-				return ctx.client.proxy.webhooks(ctx.webhookId).patch({ body, reason });
-			},
-			fetch: async () => {
-				let webhook;
-				if (ctx.webhookToken) {
-					webhook = await ctx.client.proxy.webhooks(ctx.webhookId)(ctx.webhookToken).get({ auth: false });
-				} else {
-					webhook = await ctx.client.proxy.webhooks(ctx.webhookId).get();
-				}
-				return new Webhook(ctx.client, webhook);
-			},
+			delete: (reason?: string) => methods.delete(webhookId, { reason, token: webhookToken }),
+			edit: (body: RESTPatchAPIWebhookWithTokenJSONBody | RESTPatchAPIWebhookJSONBody, reason?: string) =>
+				methods.edit(webhookId, body, { token: webhookToken, reason }),
+			fetch: () => methods.fetch(webhookId, webhookToken),
 		};
-	}
-
-	protected static _hasToken(ctx: { token?: string }): asserts ctx is { token: string } {
-		if (!hasProps(ctx, 'token')) {
-			throw new Error('Unavailable webhook token');
-		}
 	}
 }
 

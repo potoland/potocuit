@@ -46,24 +46,13 @@ export class GuildTemplate extends Base {
 
 	static methods(ctx: MethodContext<{ guildId: string }>) {
 		return {
-			fetch: (code: string) => {
-				return ctx.client.proxy.guilds.templates(code).get();
-			},
-			list: () => {
-				return ctx.client.proxy.guilds(ctx.guildId).templates.get();
-			},
-			create: (body: RESTPostAPIGuildTemplatesJSONBody) => {
-				return ctx.client.proxy.guilds(ctx.guildId).templates.post({ body });
-			},
-			sync: (code: string) => {
-				return ctx.client.proxy.guilds(ctx.guildId).templates(code).put({});
-			},
-			edit: (code: string, body: RESTPatchAPIGuildTemplateJSONBody) => {
-				return ctx.client.proxy.guilds(ctx.guildId).templates(code).patch({ body });
-			},
-			delete: (code: string) => {
-				return ctx.client.proxy.guilds(ctx.guildId).templates(code).delete();
-			},
+			fetch: (code: string) => ctx.client.templates.fetch(code),
+			list: () => ctx.client.templates.list(ctx.guildId),
+			create: (body: RESTPostAPIGuildTemplatesJSONBody) => ctx.client.templates.create(ctx.guildId, body),
+			sync: (code: string) => ctx.client.templates.sync(ctx.guildId, code),
+			edit: (code: string, body: RESTPatchAPIGuildTemplateJSONBody) =>
+				ctx.client.templates.edit(ctx.guildId, code, body),
+			delete: (code: string) => ctx.client.templates.delete(ctx.guildId, code),
 		};
 	}
 }

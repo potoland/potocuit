@@ -4,19 +4,25 @@ import type { Adapter } from '../cache';
 import { Cache, DefaultMemoryAdapter } from '../cache';
 import { MiddlewareContext } from '../commands/applications/shared';
 import { PotoCommandHandler } from '../commands/handler';
-import type { LocaleString, MakeRequired } from '../common';
-import { LogLevels, Logger, filterSplit } from '../common';
-import { CodeShorter } from '../common/it/codeshorter';
+import {
+	ChannelShorter,
+	GuildShorter,
+	LocaleString,
+	LogLevels,
+	Logger,
+	MakeRequired,
+	UsersShorter,
+	filterSplit,
+} from '../common';
+import { MemberShorter } from '../common/shorters/members';
+import { MessageShorter } from '../common/shorters/messages';
+import { RoleShorter } from '../common/shorters/roles';
+import { TemplateShorter } from '../common/shorters/templates';
+import { WebhookShorter } from '../common/shorters/webhook';
 import type { DeepPartial, IntentStrings, OmitInsert } from '../common/types/util';
 import { ComponentHandler } from '../components/handler';
 import { PotoLangsHandler } from '../langs/handler';
-import {
-	ChatInputCommandInteraction,
-	GuildMember,
-	MessageCommandInteraction,
-	UserCommandInteraction,
-} from '../structures';
-import { BaseChannel } from '../structures/methods/channels';
+import { ChatInputCommandInteraction, MessageCommandInteraction, UserCommandInteraction } from '../structures';
 import type { PotoClient } from './client';
 import type { PotoHttpClient } from './httpclient';
 import type { WorkerClient } from './workerclient';
@@ -26,6 +32,15 @@ export class BaseClient {
 	handleGuilds = new Set<string>();
 	rest!: REST;
 	cache!: Cache;
+
+	users = new UsersShorter(this).users;
+	channels = new ChannelShorter(this).channels;
+	guilds = new GuildShorter(this).guilds;
+	messages = new MessageShorter(this).messages;
+	members = new MemberShorter(this).members;
+	webhooks = new WebhookShorter(this).webhooks;
+	templates = new TemplateShorter(this).templates;
+	roles = new RoleShorter(this).roles;
 
 	debugger = new Logger({
 		name: '[Debug]',
@@ -216,11 +231,6 @@ export class BaseClient {
 			commands: join(process.cwd(), locations.output, locations.commands),
 		};
 	}
-
-	users = (userId: string) => CodeShorter.users({ client: this, userId });
-	channels = BaseChannel.globalMethods({ client: this });
-	guilds = CodeShorter.guilds({ client: this });
-	members = (guildId: string) => GuildMember.methods({ guildId: guildId, client: this });
 }
 
 export interface BaseClientOptions {

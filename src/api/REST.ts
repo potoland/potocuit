@@ -514,20 +514,30 @@ export class REST {
 	}
 }
 
-export type RequestOptions = Pick<RequestData, 'passThroughBody' | 'reason' | 'auth'>;
+export type RequestOptions = Pick<RequestData, 'passThroughBody' | 'reason' | 'auth' | 'appendToFormData'>;
 
-export type RequestObject<M extends ProxyRequestMethod, B = Record<string, any>, Q = Record<string, any>> = {
+export type RequestObject<
+	M extends ProxyRequestMethod,
+	B = Record<string, any>,
+	Q = Record<string, any>,
+	F extends RawFile[] = RawFile[],
+> = {
 	query?: Q;
 } & RequestOptions &
 	(M extends `${ProxyRequestMethod.Get}`
 		? unknown
 		: {
 				body?: B;
-				files?: RawFile[];
+				files?: F;
 		  });
 
 export type RestArguments<
 	M extends ProxyRequestMethod,
 	B = any,
 	Q extends never | Record<string, any> = any,
-> = M extends ProxyRequestMethod.Get ? (Q extends never ? RequestObject<M, never, B> : never) : RequestObject<M, B, Q>;
+	F extends RawFile[] = RawFile[],
+> = M extends ProxyRequestMethod.Get
+	? Q extends never
+		? RequestObject<M, never, B, never>
+		: never
+	: RequestObject<M, B, Q, F>;

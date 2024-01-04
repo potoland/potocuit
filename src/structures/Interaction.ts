@@ -303,11 +303,7 @@ export class Interaction<
 	Type extends APIInteraction = APIInteraction,
 > extends BaseInteraction<FromGuild, Type> {
 	fetchMessage(messageId: string) {
-		return this.api
-			.webhooks(this.applicationId)(this.token)
-			.messages(messageId)
-			.get()
-			.then((data) => new Message(this.client, data));
+		this.client.webhooks.messages.fetch(this.applicationId, this.token, messageId);
 	}
 
 	fetchResponse() {
