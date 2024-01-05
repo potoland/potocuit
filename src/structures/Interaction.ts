@@ -53,7 +53,7 @@ import type {
 import { ActionRow, Attachment, MessageEmbed, Modal, resolveAttachment, resolveFiles } from '../builders';
 import { GuildMember, InteractionGuildMember } from './';
 import { GuildRole } from './GuildRole';
-import { Message } from './Message';
+import { Message, WebhookMessage } from './Message';
 import { User } from './User';
 import type { PotocuitChannels } from './channels';
 import { DiscordBase } from './extra/DiscordBase';
@@ -117,9 +117,9 @@ export class BaseInteraction<
 					data: {
 						...(body.data ?? {}),
 						// @ts-expect-error
-						components: body.data?.components?.map((x) => (x instanceof ActionRow ? x.toJSON() : x)) ?? [],
-						embeds: body.data?.embeds?.map((x) => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? [],
-						attachments: body.data?.attachments?.map((x, i) => ({ id: i, ...resolveAttachment(x) })) ?? [],
+						components: body.data?.components?.map((x) => (x instanceof ActionRow ? x.toJSON() : x)) ?? undefined,
+						embeds: body.data?.embeds?.map((x) => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? undefined,
+						attachments: body.data?.attachments?.map((x, i) => ({ id: i, ...resolveAttachment(x) })) ?? undefined,
 					},
 				};
 			case InteractionResponseType.Modal:
@@ -153,9 +153,9 @@ export class BaseInteraction<
 	) {
 		return {
 			...body,
-			components: body?.components?.map((x) => (x instanceof ActionRow ? x.toJSON() : x)) ?? [],
-			embeds: body?.embeds?.map((x) => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? [],
-			attachments: body.attachments?.map((x, i) => ({ id: i, ...resolveAttachment(x) })) ?? [],
+			components: body?.components?.map((x) => (x instanceof ActionRow ? x.toJSON() : x)) ?? undefined,
+			embeds: body?.embeds?.map((x) => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? undefined,
+			attachments: body.attachments?.map((x, i) => ({ id: i, ...resolveAttachment(x) })) ?? undefined,
 		} as T;
 	}
 
@@ -303,18 +303,24 @@ export class Interaction<
 	Type extends APIInteraction = APIInteraction,
 > extends BaseInteraction<FromGuild, Type> {
 	fetchMessage(messageId: string) {
-		this.client.webhooks.messages.fetch(this.applicationId, this.token, messageId);
+		return this.client.webhooks.messages.fetch(this.applicationId, this.token, messageId);
 	}
 
 	fetchResponse() {
 		return this.fetchMessage('@original');
 	}
 
-	write(body: InteractionCreateBodyRequest) {
-		return this.reply({
-			type: InteractionResponseType.ChannelMessageWithSource,
-			data: body,
-		});
+	async write<FR extends boolean = false>(
+		body: InteractionCreateBodyRequest,
+		fetchReply?: FR,
+	): Promise<When<FR, WebhookMessage, void>> {
+		if (!fetchReply)
+			return this.reply({
+				type: InteractionResponseType.ChannelMessageWithSource,
+				data: body,
+			}) as never;
+
+		return this.fetchResponse() as never;
 	}
 
 	modal(body: ModalCreateBodyRequest) {
@@ -324,18 +330,20 @@ export class Interaction<
 		});
 	}
 
-	async editOrReply(body: InteractionMessageUpdateBodyRequest) {
+	async editOrReply<FR extends boolean = false>(
+		body: InteractionCreateBodyRequest,
+		fetchReply?: FR,
+	): Promise<When<FR, WebhookMessage, void>>;
+	async editOrReply<FR extends true = true>(body: InteractionMessageUpdateBodyRequest, fetchReply?: FR) {
 		if (await this.replied) {
-			return this.editResponse(body);
+			const { content, embeds, allowed_mentions, components, files, attachments } = body;
+			return this.editResponse({ content, embeds, allowed_mentions, components, files, attachments });
 		}
-		return this.reply({
-			type: InteractionResponseType.ChannelMessageWithSource,
-			data: body,
-		});
+		return this.write(body as InteractionCreateBodyRequest, fetchReply);
 	}
 
 	async editMessage(messageId: string, body: InteractionMessageUpdateBodyRequest) {
-		body.files ??= body.attachments ? await resolveFiles(body.attachments as Attachment[]) : [];
+		body.files ??= body.files ? await resolveFiles(body.files as Attachment[]) : [];
 		const apiMessage = await this.api
 			.webhooks(this.applicationId)(this.token)
 			.messages(messageId)
@@ -348,7 +356,7 @@ export class Interaction<
 	}
 
 	async editResponse(body: InteractionMessageUpdateBodyRequest) {
-		body.files ??= body.attachments ? await resolveFiles(body.attachments as Attachment[]) : [];
+		body.files ??= body.files ? await resolveFiles(body.files as Attachment[]) : [];
 		return this.editMessage('@original', body);
 	}
 
@@ -365,15 +373,16 @@ export class Interaction<
 	}
 
 	async createResponse({ files, ...body }: MessageWebhookCreateBodyRequest) {
-		files ??= body.attachments ? await resolveFiles(body.attachments as Attachment[]) : [];
+		files ??= files ? await resolveFiles(files as Attachment[]) : undefined;
 		const apiMessage = await this.api
 			.webhooks(this.applicationId)(this.token)
 			.post({
 				body: BaseInteraction.transformBody(body),
-				files,
+				files: files as RawFile[] | undefined,
 			});
 
 		this.client.components.onRequestMessage(body, apiMessage);
+		return new Message(this.client, apiMessage);
 	}
 }
 

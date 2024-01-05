@@ -15,7 +15,7 @@ export class MessageShorter extends BaseShorter {
 	get messages() {
 		return {
 			write: async (channelId: string, body: MessageCreateBodyRequest) => {
-				const files = body.files ?? body.attachments ? await resolveFiles(body.attachments as Attachment[]) : [];
+				const files = body.files ? await resolveFiles(body.files as Attachment[]) : [];
 
 				const transformedBody = MessagesMethods.transformMessageBody<RESTPostAPIChannelMessageJSONBody>(body);
 				return this.client.proxy
@@ -30,7 +30,7 @@ export class MessageShorter extends BaseShorter {
 					});
 			},
 			edit: async (messageId: string, channelId: string, body: MessageUpdateBodyRequest) => {
-				const files = body.files ?? body.attachments ? await resolveFiles(body.attachments as Attachment[]) : [];
+				const files = body.files ? await resolveFiles(body.files as Attachment[]) : [];
 				return this.client.proxy
 					.channels(channelId)
 					.messages(messageId)

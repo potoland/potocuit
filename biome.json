@@ -9,7 +9,8 @@
 				"noAssignInExpressions": "off",
 				"noUnsafeDeclarationMerging": "off",
 				"noRedeclare": "off",
-				"noEmptyInterface": "off"
+				"noEmptyInterface": "off",
+				"noConfusingVoidType": "off"
 			},
 			"style": {
 				"noNonNullAssertion": "off",

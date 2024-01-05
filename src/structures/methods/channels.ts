@@ -162,9 +162,9 @@ export class MessagesMethods extends DiscordBase {
 	static transformMessageBody<T>(body: MessageCreateBodyRequest | MessageUpdateBodyRequest) {
 		return {
 			...body,
-			components: body.components ? body.components.map((x) => x.toJSON()) : [],
-			embeds: body.embeds?.map((x) => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? [],
-			attachments: body.attachments?.map((x, i) => ({ id: i, ...resolveAttachment(x) })) ?? [],
+			components: body.components ? body.components.map((x) => x.toJSON()) : undefined,
+			embeds: body.embeds?.map((x) => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? undefined,
+			attachments: body.attachments?.map((x, i) => ({ id: i, ...resolveAttachment(x) })) ?? undefined,
 		} as T;
 	}
 }
