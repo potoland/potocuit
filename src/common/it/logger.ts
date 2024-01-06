@@ -59,7 +59,7 @@ export class Logger {
 		const memoryData = process.memoryUsage();
 		const date = new Date();
 		const log = [
-			bgBrightWhite(formatMemoryUsage(memoryData.rss)),
+			black(formatMemoryUsage(memoryData.rss)),
 			bgBrightWhite(black(`[${date.toLocaleDateString()} ${date.toLocaleTimeString()}]`)),
 			color(Logger.prefixes.get(level) ?? 'DEBUG'),
 			this.name ? `${this.name} >` : '>',
@@ -130,5 +130,5 @@ export class Logger {
 }
 
 function formatMemoryUsage(data: number) {
-	return `${Math.round((data / 1024 / 1024) * 100) / 100} MB`;
+	return `[RAM Usage ${Math.round((data / 1024 / 1024) * 100) / 100} MB]`;
 }
