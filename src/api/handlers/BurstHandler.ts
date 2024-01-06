@@ -1,4 +1,4 @@
-import type { RequestInit } from 'undici';
+import type { RequestInit } from 'undici-types';
 import type { REST } from '../REST.js';
 import type { IHandler } from '../interfaces/Handler.js';
 import type { HandlerRequestData, RateLimitData, ResponseLike, RouteData } from '../utils/types.js';

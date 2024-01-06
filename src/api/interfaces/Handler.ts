@@ -1,4 +1,4 @@
-import type { RequestInit } from 'undici';
+import type { RequestInit } from 'undici-types';
 import type { HandlerRequestData, ResponseLike, RouteData } from '../utils/types.js';
 
 export interface IHandler {
