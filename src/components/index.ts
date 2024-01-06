@@ -22,6 +22,7 @@ export type BiscuitComponents =
 export type BiscuitActionRowMessageComponents = Exclude<BiscuitComponents, TextInputComponent>;
 
 export * from './command';
+export * from './listener';
 
 /**
  * Return a new component instance based on the component type.
