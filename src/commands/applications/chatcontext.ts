@@ -23,7 +23,7 @@ export class CommandContext<
 		public metadata: CommandMetadata<M>,
 		public resolver: OptionResolver,
 		readonly shardId: number,
-	) {}
+	) { }
 
 	get proxy() {
 		return this.client.proxy;
@@ -53,8 +53,8 @@ export class CommandContext<
 		return this.interaction.deleteResponse();
 	}
 
-	editOrReply(body: InteractionMessageUpdateBodyRequest) {
-		return this.interaction.editOrReply(body);
+	editOrReply(body: InteractionCreateBodyRequest | InteractionMessageUpdateBodyRequest) {
+		return this.interaction.editOrReply(body as InteractionCreateBodyRequest);
 	}
 
 	fetchResponse() {

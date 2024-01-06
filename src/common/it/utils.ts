@@ -1,6 +1,6 @@
+import { readdir } from 'fs/promises';
 import { basename, join } from 'node:path';
 import { setTimeout } from 'node:timers/promises';
-import { readdir } from 'fs/promises';
 import { Logger, ObjectToLower, ObjectToSnake } from '..';
 
 /**
@@ -32,7 +32,7 @@ export function toSnakeCase<Obj extends Record<string, any>>(target: Obj): Objec
 				}
 				if (isObject(value)) {
 					// @ts-expect-error
-					result[ReplaceRegex.snake(key)] = toSnakeCase({ ...value });
+					result[ReplaceRegex.snake(key)] = toSnakeCase(value);
 					break;
 				}
 				if (!Number.isNaN(value)) {
@@ -41,7 +41,7 @@ export function toSnakeCase<Obj extends Record<string, any>>(target: Obj): Objec
 					break;
 				}
 				// @ts-expect-error
-				result[ReplaceRegex.snake(key)] = toSnakeCase({ ...value });
+				result[ReplaceRegex.snake(key)] = toSnakeCase(value);
 				break;
 		}
 	}
@@ -77,7 +77,7 @@ export function toCamelCase<Obj extends Record<string, any>>(target: Obj): Objec
 				}
 				if (isObject(value)) {
 					// @ts-expect-error
-					result[ReplaceRegex.camel(key)] = toCamelCase({ ...value });
+					result[ReplaceRegex.camel(key)] = toCamelCase(value);
 					break;
 				}
 				if (!Number.isNaN(value)) {
@@ -86,7 +86,7 @@ export function toCamelCase<Obj extends Record<string, any>>(target: Obj): Objec
 					break;
 				}
 				// @ts-expect-error
-				result[ReplaceRegex.camel(key)] = toCamelCase({ ...value });
+				result[ReplaceRegex.camel(key)] = toCamelCase(value);
 				break;
 		}
 	}
@@ -604,7 +604,7 @@ export function MergeOptions<T>(defaults: any, ...options: any[]): T {
 }
 
 export class PotoHandler {
-	constructor(protected logger: Logger) {}
+	constructor(protected logger: Logger) { }
 
 	protected filter = (path: string) => !!path;
 

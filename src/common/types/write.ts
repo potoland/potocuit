@@ -10,6 +10,7 @@ import type {
 } from '..';
 import { RawFile } from '../..';
 import { ActionRow, Attachment, MessageEmbed, Modal, PotoComponents, TextInput } from '../../builders';
+import { ComponentsListener } from '../../components/listener';
 
 import type { OmitInsert } from './util';
 
@@ -19,7 +20,7 @@ export type PotoModalComponentProper = {
 
 export interface ResolverProps {
 	embeds?: MessageEmbed[] | APIEmbed[] | undefined;
-	components?: ActionRow<PotoComponents>[] | undefined;
+	components?: ComponentsListener<PotoComponents> | ActionRow<PotoComponents>[] | undefined;
 	files?: Attachment[] | RawFile[] | undefined;
 }
 

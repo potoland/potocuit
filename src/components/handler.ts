@@ -1,13 +1,12 @@
 import {
-	APIActionRowComponent,
 	APIMessage,
-	APIMessageActionRowComponent,
 	APIModalInteractionResponseCallbackData,
+	Button,
 	InteractionResponseType,
-	LimitedCollection,
+	LimitedCollection
 } from '..';
-import type { ActionRow } from '../builders';
-import { ComponentCallback, ModalSubmitCallback, PotoComponents } from '../builders/types';
+import type { ListenerOptions, PotoComponents } from '../builders';
+import { ComponentCallback, ModalSubmitCallback } from '../builders/types';
 import type { BaseClient } from '../client/base';
 import { Logger, PotoHandler } from '../common';
 import type {
@@ -19,9 +18,19 @@ import type {
 import type { ComponentInteraction, ModalSubmitInteraction, ReplyInteractionBody } from '../structures';
 import type { ModalCommand } from './command';
 import { ComponentCommand, InteractionCommandType } from './command';
+import { ComponentsListener } from './listener';
+
+type COMPONENTS = {
+	options: ListenerOptions | undefined
+	buttons: Partial<Record<string, {
+		callback: ComponentCallback,
+	}>>
+	idle?: NodeJS.Timeout
+	timeout?: NodeJS.Timeout
+}
 
 export class ComponentHandler extends PotoHandler {
-	readonly values = new Map<string, Partial<Record<string, ComponentCallback>>>();
+	readonly values = new Map<string, COMPONENTS>();
 	// 10 minutes timeout, because discord dont send an event when the user cancel the modal
 	readonly modals = new LimitedCollection<string, ModalSubmitCallback>({ expire: 60e3 * 10 });
 	readonly commands: (ComponentCommand | ModalCommand)[] = [];
@@ -32,13 +41,30 @@ export class ComponentHandler extends PotoHandler {
 	}
 
 	hasComponent(id: string, customId: string) {
-		return !!this.values.get(id)?.[customId];
+		return !!this.values.get(id)?.buttons?.[customId];
 	}
 
-	onComponent(id: string, interaction: ComponentInteraction) {
-		return this.values.get(id)?.[interaction.customId]?.(interaction, () => {
-			this.values.delete(id);
+	async onComponent(id: string, interaction: ComponentInteraction) {
+		const row = this.values.get(id)
+		const component = row?.buttons?.[interaction.customId]
+		if (!component) return;
+		if (row.options?.filter) {
+			if (!await row.options.filter(interaction)) return;
+		}
+		row.idle?.refresh()
+		await component.callback(interaction, (reason) => {
+			row.options?.onStop?.(reason ?? 'stop')
+			this.deleteValue(id)
+		}, () => {
+			this.resetTimeouts(id);
 		});
+	}
+
+	resetTimeouts(id: string) {
+		const listener = this.values.get(id);
+		if (!listener) return;
+		listener.timeout?.refresh();
+		listener.idle?.refresh();
 	}
 
 	hasModal(interaction: ModalSubmitInteraction) {
@@ -52,19 +78,46 @@ export class ComponentHandler extends PotoHandler {
 
 	__setComponents(
 		id: string,
-		record: ActionRow<PotoComponents>[] | APIActionRowComponent<APIMessageActionRowComponent>[],
+		record: ComponentsListener<PotoComponents>,
 	) {
-		const components: Record<string, ComponentCallback> = {};
+		const components: COMPONENTS = {
+			buttons: {},
+			options: record.options
+		};
 
-		for (const actionRow of record) {
+		if (!record.options) return;
+
+		for (const actionRow of record.components) {
 			for (const child of actionRow.components) {
-				if ('data' in child && 'custom_id' in child.data && '__exec' in child) {
-					components[child.data.custom_id!] = child.__exec as ComponentCallback;
+				if (child instanceof Button && 'custom_id' in child.data) {
+					if ((record.options.idle ?? -1) > 0) {
+						components.idle = setTimeout(() => {
+							clearTimeout(components.timeout)
+							clearTimeout(components.idle)
+							record.options?.onStop?.('idle', () => {
+								this.__setComponents(id, record)
+							})
+							this.values.delete(id)
+						}, record.options.idle)
+					}
+					if ((record.options.timeout ?? -1) > 0) {
+						components.timeout = setTimeout(() => {
+							clearTimeout(components.timeout)
+							clearTimeout(components.idle)
+							record.options?.onStop?.('timeout', () => {
+								this.__setComponents(id, record)
+							})
+							this.values.delete(id)
+						}, record.options.timeout)
+					}
+					components.buttons[child.data.custom_id!] = {
+						callback: child.__exec as ComponentCallback,
+					}
 				}
 			}
 		}
 
-		if (Object.entries(components).length) {
+		if (Object.entries(components.buttons).length) {
 			this.values.set(id, components);
 		}
 	}
@@ -77,13 +130,13 @@ export class ComponentHandler extends PotoHandler {
 
 	onRequestInteraction(interactionId: string, interaction: ReplyInteractionBody) {
 		// @ts-expect-error
-		if (!interaction.data) {
+		if (!interaction.data || !(interaction.data.components instanceof ComponentsListener)) {
 			return;
 		}
 		switch (interaction.type) {
 			case InteractionResponseType.ChannelMessageWithSource:
 			case InteractionResponseType.UpdateMessage:
-				if (!interaction.data.components?.length) {
+				if (!interaction.data.components.components?.length) {
 					return;
 				}
 				this.__setComponents(interactionId, interaction.data.components ?? []);
@@ -94,30 +147,39 @@ export class ComponentHandler extends PotoHandler {
 		}
 	}
 
+	deleteValue(id: string) {
+		const component = this.values.get(id)
+		if (component) {
+			clearTimeout(component.timeout)
+			clearTimeout(component.idle)
+			this.values.delete(id);
+		}
+	}
+
 	onMessageDelete(id: string) {
-		this.values.delete(id);
+		this.deleteValue(id)
 	}
 
 	onRequestInteractionUpdate(body: InteractionMessageUpdateBodyRequest, message: APIMessage) {
-		if (!body.components?.length) {
+		if (!(body.components instanceof ComponentsListener) || !body.components.components?.length) {
 			return;
 		}
 		if (message.interaction?.id) {
-			this.values.delete(message.interaction.id);
+			this.deleteValue(message.interaction.id)
 		}
 		this.__setComponents(message.id, body.components);
 	}
 
 	onRequestMessage(body: MessageCreateBodyRequest, message: APIMessage) {
-		if (!body.components?.length) {
+		if (!(body.components instanceof ComponentsListener) || !body.components.components?.length) {
 			return;
 		}
 		this.__setComponents(message.id, body.components);
 	}
 
 	onRequestUpdateMessage(body: MessageUpdateBodyRequest, message: APIMessage) {
-		if (!body.components) return;
-		this.values.delete(message.id);
+		if (!(body.components instanceof ComponentsListener) || !body.components.components.length) return;
+		this.deleteValue(message.id)
 		this.__setComponents(message.id, body.components);
 	}
 

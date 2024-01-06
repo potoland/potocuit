@@ -22,7 +22,7 @@ export class MenuCommandContext<
 		readonly interaction: T,
 		public metadata: CommandMetadata<M>,
 		readonly shardId: number,
-	) {}
+	) { }
 
 	get proxy() {
 		return this.client.proxy;
@@ -66,8 +66,8 @@ export class MenuCommandContext<
 		return this.interaction.deleteResponse();
 	}
 
-	editOrReply(body: InteractionMessageUpdateBodyRequest) {
-		return this.interaction.editOrReply(body);
+	editOrReply(body: InteractionCreateBodyRequest | InteractionMessageUpdateBodyRequest) {
+		return this.interaction.editOrReply(body as InteractionCreateBodyRequest);
 	}
 
 	fetchResponse() {
