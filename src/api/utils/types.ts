@@ -14,7 +14,7 @@ export interface RestEvents {
 	restDebug: [info: string];
 }
 
-export interface RestEventsMap extends RestEvents { }
+export interface RestEventsMap extends RestEvents {}
 
 /**
  * Options to be passed when creating the REST instance
