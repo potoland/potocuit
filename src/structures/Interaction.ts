@@ -118,7 +118,11 @@ export class BaseInteraction<
 					data: {
 						...(body.data ?? {}),
 						// @ts-expect-error
-						components: (body.data?.components instanceof ComponentsListener ? body.data.components.components : body.data.components)?.map((x) => (x instanceof ActionRow ? x.toJSON() : x)) ?? undefined,
+						components:
+							(body.data?.components instanceof ComponentsListener
+								? body.data.components.components
+								: body.data!.components
+							)?.map((x) => (x instanceof ActionRow ? x.toJSON() : x)) ?? undefined,
 						embeds: body.data?.embeds?.map((x) => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? undefined,
 						attachments: body.data?.attachments?.map((x, i) => ({ id: i, ...resolveAttachment(x) })) ?? undefined,
 					},
@@ -154,7 +158,10 @@ export class BaseInteraction<
 	) {
 		return {
 			...body,
-			components: (body?.components instanceof ComponentsListener ? body.components.components : body.components)?.map((x) => (x instanceof ActionRow ? x.toJSON() : x)) ?? undefined,
+			components:
+				(body?.components instanceof ComponentsListener ? body.components.components : body.components)?.map((x) =>
+					x instanceof ActionRow ? x.toJSON() : x,
+				) ?? undefined,
 			embeds: body?.embeds?.map((x) => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? undefined,
 			// attachments: body.attachments?.map((x, i) => ({ id: i, ...resolveAttachment(x) })) ?? undefined,
 		} as T;
@@ -315,11 +322,10 @@ export class Interaction<
 		body: InteractionCreateBodyRequest,
 		fetchReply?: FR,
 	): Promise<When<FR, WebhookMessage, void>> {
-
-		await this.reply({
+		(await this.reply({
 			type: InteractionResponseType.ChannelMessageWithSource,
 			data: body,
-		}) as never;
+		})) as never;
 		if (fetchReply) return this.fetchResponse() as never;
 		return undefined as never;
 	}
@@ -350,7 +356,7 @@ export class Interaction<
 			.messages(messageId)
 			.patch({
 				body: BaseInteraction.transformBody(data),
-				files: body.files ? await resolveFiles(body.files as Attachment[]) : undefined
+				files: body.files ? await resolveFiles(body.files as Attachment[]) : undefined,
 			});
 
 		this.client.components.onRequestInteractionUpdate(body, apiMessage);

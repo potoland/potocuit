@@ -1,14 +1,16 @@
-import { APIApplicationCommandOptionChoice, ApplicationCommandOptionType, ChannelType } from "discord-api-types/v10";
-import { AutocompleteCallback, OnAutocompleteErrorCallback, ReturnOptionsTypes, __TypesWrapper } from "..";
-import { CommandContext } from "./chatcontext";
-import { MiddlewareContext } from "./shared";
+import { APIApplicationCommandOptionChoice, ApplicationCommandOptionType, ChannelType } from 'discord-api-types/v10';
+import { AutocompleteCallback, OnAutocompleteErrorCallback, ReturnOptionsTypes, __TypesWrapper } from '..';
+import { CommandContext } from './chatcontext';
+import { MiddlewareContext } from './shared';
 
 type BiscuitBasicOption<T extends keyof __TypesWrapper, D = {}> = __TypesWrapper[T] & D;
 
 type BiscuitStringOption = BiscuitBasicOption<'String'> & {
 	autocomplete?: AutocompleteCallback;
 	onAutocompleteError?: OnAutocompleteErrorCallback;
-	choices?: readonly { readonly name: string, readonly value: string }[] | APIApplicationCommandOptionChoice<ReturnOptionsTypes[ApplicationCommandOptionType.String]>[];
+	choices?:
+		| readonly { readonly name: string; readonly value: string }[]
+		| APIApplicationCommandOptionChoice<ReturnOptionsTypes[ApplicationCommandOptionType.String]>[];
 	min_length?: number;
 	max_length?: number;
 };

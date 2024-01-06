@@ -13,17 +13,19 @@ export class Members extends GuildBasedResource {
 
 	override async get(id: string, guild: string): Promise<GuildMember | undefined> {
 		const rawMember = (await super.get(id, guild)) as APIGuildMember;
-		const user = await this.client.cache.users?.get(id)
+		const user = await this.client.cache.users?.get(id);
 		return rawMember && user ? new GuildMember(this.client, rawMember, user, guild) : undefined;
 	}
 
 	override async values(guild: string) {
 		const members = await super.values(guild);
-		const users = await this.client.cache.users?.values() ?? []
-		return members.map((rawMember) => {
-			const user = users.find(x => x.id === rawMember.id)
-			return user ? new GuildMember(this.client, rawMember, user, guild) : undefined
-		}).filter(Boolean) as GuildMember[];
+		const users = (await this.client.cache.users?.values()) ?? [];
+		return members
+			.map((rawMember) => {
+				const user = users.find((x) => x.id === rawMember.id);
+				return user ? new GuildMember(this.client, rawMember, user, guild) : undefined;
+			})
+			.filter(Boolean) as GuildMember[];
 	}
 
 	override async set(memberId: string, guildId: string, data: any): Promise<void>;

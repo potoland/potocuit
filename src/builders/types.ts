@@ -3,7 +3,11 @@ import { Button } from './Button';
 import { TextInput } from './Modal';
 import { PotoSelectMenus } from './SelectMenu';
 
-export type ComponentCallback<T = ComponentInteraction> = (interaction: T, stop: ComponentStopCallback, refresh: ComponentRefreshCallback) => any;
+export type ComponentCallback<T = ComponentInteraction> = (
+	interaction: T,
+	stop: ComponentStopCallback,
+	refresh: ComponentRefreshCallback,
+) => any;
 export type ComponentFilterCallback<T = ComponentInteraction> = (interaction: T) => any;
 export type ComponentStopCallback = (reason?: string, refresh?: ComponentRefreshCallback) => any;
 export type ComponentRefreshCallback = () => any;
@@ -18,6 +22,6 @@ export type FixedComponents<T = Button> = T extends Button ? ButtonLink | Button
 export interface ListenerOptions {
 	timeout?: number;
 	idle?: number;
-	filter?: ComponentFilterCallback
-	onStop?: ComponentStopCallback
+	filter?: ComponentFilterCallback;
+	onStop?: ComponentStopCallback;
 }

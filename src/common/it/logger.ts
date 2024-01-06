@@ -55,7 +55,7 @@ export class Logger {
 		if (level < this.level) return;
 
 		const color = Logger.colorFunctions.get(level) ?? Logger.noColor;
-		const formatMemoryUsage = (data: number) => `${Math.round(data / 1024 / 1024 * 100) / 100} MB`;
+		const formatMemoryUsage = (data: number) => `${Math.round((data / 1024 / 1024) * 100) / 100} MB`;
 
 		const memoryData = process.memoryUsage();
 
