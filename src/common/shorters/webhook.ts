@@ -6,7 +6,7 @@ import {
 	RESTPostAPIWebhookWithTokenJSONBody,
 	Webhook,
 	WebhookMessage,
-	resolveFiles
+	resolveFiles,
 } from '../..';
 import { MessagesMethods } from '../../structures/methods/channels';
 import { BaseShorter } from './base';
@@ -46,7 +46,7 @@ export class WebhookShorter extends BaseShorter {
 	get messages() {
 		return {
 			write: async (webhookId: string, token: string, { body: data, ...payload }: MessageWebhookMethodWriteParams) => {
-				const { files, ...body } = data
+				const { files, ...body } = data;
 				const transformedBody = MessagesMethods.transformMessageBody<RESTPostAPIWebhookWithTokenJSONBody>(body);
 				const parsedFiles = files ? await resolveFiles(files as Attachment[]) : [];
 				return this.client.proxy
@@ -59,7 +59,7 @@ export class WebhookShorter extends BaseShorter {
 				token: string,
 				{ messageId, body: data, ...json }: MessageWebhookMethodEditParams,
 			) => {
-				const { files, ...body } = data
+				const { files, ...body } = data;
 				const transformedBody = MessagesMethods.transformMessageBody<RESTPostAPIWebhookWithTokenJSONBody>(body);
 				const parsedFiles = files ? await resolveFiles(files as Attachment[]) : [];
 				return this.client.proxy
