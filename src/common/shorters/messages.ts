@@ -14,29 +14,29 @@ import { BaseShorter } from './base';
 export class MessageShorter extends BaseShorter {
 	get messages() {
 		return {
-			write: async (channelId: string, body: MessageCreateBodyRequest) => {
-				const files = body.files ? await resolveFiles(body.files as Attachment[]) : [];
+			write: async (channelId: string, { files, ...body }: MessageCreateBodyRequest) => {
+				const parsedFiles = files ? await resolveFiles(files as Attachment[]) : [];
 
 				const transformedBody = MessagesMethods.transformMessageBody<RESTPostAPIChannelMessageJSONBody>(body);
 				return this.client.proxy
 					.channels(channelId)
 					.messages.post({
 						body: transformedBody,
-						files,
+						files: parsedFiles,
 					})
 					.then((message) => {
 						this.client.components.onRequestMessage(body, message);
 						return new Message(this.client, message);
 					});
 			},
-			edit: async (messageId: string, channelId: string, body: MessageUpdateBodyRequest) => {
-				const files = body.files ? await resolveFiles(body.files as Attachment[]) : [];
+			edit: async (messageId: string, channelId: string, { files, ...body }: MessageUpdateBodyRequest) => {
+				const parsedFiles = files ? await resolveFiles(files as Attachment[]) : [];
 				return this.client.proxy
 					.channels(channelId)
 					.messages(messageId)
 					.patch({
 						body: MessagesMethods.transformMessageBody<RESTPatchAPIChannelMessageJSONBody>(body),
-						files,
+						files: parsedFiles,
 					})
 					.then((message) => {
 						this.client.components.onRequestUpdateMessage(body, message);

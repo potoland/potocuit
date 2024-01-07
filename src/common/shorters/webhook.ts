@@ -3,11 +3,10 @@ import {
 	Attachment,
 	MessageWebhookMethodEditParams,
 	MessageWebhookMethodWriteParams,
-	RESTPatchAPIWebhookWithTokenMessageJSONBody,
 	RESTPostAPIWebhookWithTokenJSONBody,
 	Webhook,
 	WebhookMessage,
-	resolveFiles,
+	resolveFiles
 } from '../..';
 import { MessagesMethods } from '../../structures/methods/channels';
 import { BaseShorter } from './base';
@@ -46,25 +45,27 @@ export class WebhookShorter extends BaseShorter {
 
 	get messages() {
 		return {
-			write: async (webhookId: string, token: string, { body, files, ...payload }: MessageWebhookMethodWriteParams) => {
+			write: async (webhookId: string, token: string, { body: data, ...payload }: MessageWebhookMethodWriteParams) => {
+				const { files, ...body } = data
 				const transformedBody = MessagesMethods.transformMessageBody<RESTPostAPIWebhookWithTokenJSONBody>(body);
-				files ??= body.files ? await resolveFiles(body.files as Attachment[]) : [];
+				const parsedFiles = files ? await resolveFiles(files as Attachment[]) : [];
 				return this.client.proxy
 					.webhooks(webhookId)(token)
-					.post({ ...payload, files, body: transformedBody })
+					.post({ ...payload, files: parsedFiles, body: transformedBody })
 					.then((m) => (m?.id ? new WebhookMessage(this.client, m, webhookId, token) : null));
 			},
 			edit: async (
 				webhookId: string,
 				token: string,
-				{ messageId, body, files, ...json }: MessageWebhookMethodEditParams,
+				{ messageId, body: data, ...json }: MessageWebhookMethodEditParams,
 			) => {
-				const transformedBody = MessagesMethods.transformMessageBody<RESTPatchAPIWebhookWithTokenMessageJSONBody>(body);
-				files ??= body.files ? await resolveFiles(body.files as Attachment[]) : [];
+				const { files, ...body } = data
+				const transformedBody = MessagesMethods.transformMessageBody<RESTPostAPIWebhookWithTokenJSONBody>(body);
+				const parsedFiles = files ? await resolveFiles(files as Attachment[]) : [];
 				return this.client.proxy
 					.webhooks(webhookId)(token)
 					.messages(messageId)
-					.patch({ ...json, auth: false, files, body: transformedBody })
+					.patch({ ...json, auth: false, files: parsedFiles, body: transformedBody })
 					.then((m) => new WebhookMessage(this.client, m, webhookId, token));
 			},
 			delete: async (webhookId: string, token: string, messageId: string, reason?: string) => {
