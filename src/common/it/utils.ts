@@ -1,24 +1,24 @@
-import { readdir } from 'fs/promises';
 import { basename, join } from 'node:path';
 import { setTimeout } from 'node:timers/promises';
+import { readdir } from 'fs/promises';
 import { ColorResolvable, EmbedColors, Logger, ObjectToLower, ObjectToSnake } from '..';
 
 export function resolveColor(color: ColorResolvable) {
 	switch (typeof color) {
 		case 'string':
-			if (color === "Random") return Math.floor(Math.random() * (0xffffff + 1));
+			if (color === 'Random') return Math.floor(Math.random() * (0xffffff + 1));
 			if (color.startsWith('#')) return Number.parseInt(color.slice(1), 16);
-			if (color in EmbedColors) return EmbedColors[color as keyof typeof EmbedColors]
-			return EmbedColors.Default
+			if (color in EmbedColors) return EmbedColors[color as keyof typeof EmbedColors];
+			return EmbedColors.Default;
 		case 'number':
-			return color
+			return color;
 		case 'object':
-			if (Array.isArray(color)) return (color[0] << 16) + (color[1] << 8) + color[2]
-			break
+			if (Array.isArray(color)) return (color[0] << 16) + (color[1] << 8) + color[2];
+			break;
 		default:
-			return color
+			return color;
 	}
-	return color
+	return color;
 }
 
 /**
@@ -612,7 +612,7 @@ export function MergeOptions<T>(defaults: any, ...options: any[]): T {
 }
 
 export class PotoHandler {
-	constructor(protected logger: Logger) { }
+	constructor(protected logger: Logger) {}
 
 	protected filter = (path: string) => !!path;
 

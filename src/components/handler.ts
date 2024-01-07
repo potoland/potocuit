@@ -4,7 +4,7 @@ import {
 	Button,
 	InteractionResponseType,
 	LimitedCollection,
-	SelectMenu
+	SelectMenu,
 } from '..';
 import type { ListenerOptions, PotoComponents } from '../builders';
 import { ComponentCallback, ModalSubmitCallback } from '../builders/types';
@@ -188,28 +188,30 @@ export class ComponentHandler extends PotoHandler {
 	}
 
 	async load(commandsDir: string) {
-		const paths = await this.loadFilesK<{ new(): ModalCommand | ComponentCommand }>(await this.getFiles(commandsDir))
+		const paths = await this.loadFilesK<{ new (): ModalCommand | ComponentCommand }>(await this.getFiles(commandsDir));
 
 		for (let i = 0; i < paths.length; i++) {
-			const command = new paths[i].file()
+			const command = new paths[i].file();
 			if (!(command instanceof ModalCommand) && !(command instanceof ComponentCommand)) continue;
-			command.__filePath = paths[i].path
+			command.__filePath = paths[i].path;
 			this.commands.push(command);
 		}
 	}
 
 	async reload(path: string) {
-		const component = this.client.components.commands.find(x => x.__filePath?.endsWith(`${path}.js`) ?? x.__filePath?.endsWith(path))
-		if (!component || !component.__filePath) return null
-		delete require.cache[component.__filePath]
-		const index = this.client.components.commands.findIndex(x => x.__filePath === component.__filePath!)
+		const component = this.client.components.commands.find(
+			(x) => x.__filePath?.endsWith(`${path}.js`) ?? x.__filePath?.endsWith(path),
+		);
+		if (!component || !component.__filePath) return null;
+		delete require.cache[component.__filePath];
+		const index = this.client.components.commands.findIndex((x) => x.__filePath === component.__filePath!);
 		if (index === -1) return null;
-		this.client.components.commands.splice(index, 1)
-		const imported = await import(component.__filePath).then(x => x.default);
+		this.client.components.commands.splice(index, 1);
+		const imported = await import(component.__filePath).then((x) => x.default);
 		const command = new imported();
-		command.__filePath = component.__filePath
-		this.client.components.commands.push(command)
-		return imported
+		command.__filePath = component.__filePath;
+		this.client.components.commands.push(command);
+		return imported;
 	}
 
 	async executeComponent(interaction: ComponentInteraction) {

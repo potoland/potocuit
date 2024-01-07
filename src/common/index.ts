@@ -9,4 +9,3 @@ export * from './types/options';
 export * from './types/resolvables';
 export * from './types/util';
 export * from './types/write';
-
