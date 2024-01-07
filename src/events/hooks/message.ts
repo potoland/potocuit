@@ -18,13 +18,11 @@ export const MESSAGE_CREATE = (self: BaseClient, data: GatewayMessageCreateDispa
 	return new Message(self, data);
 };
 
-export const MESSAGE_DELETE = (self: BaseClient, data: GatewayMessageDeleteDispatchData) => {
-	self.components.onMessageDelete(data.id);
+export const MESSAGE_DELETE = (_self: BaseClient, data: GatewayMessageDeleteDispatchData) => {
 	return toCamelCase(data);
 };
 
-export const MESSAGE_DELETE_BULK = (self: BaseClient, data: GatewayMessageDeleteBulkDispatchData) => {
-	data.ids.forEach((id) => self.components.onMessageDelete(id));
+export const MESSAGE_DELETE_BULK = (_self: BaseClient, data: GatewayMessageDeleteBulkDispatchData) => {
 	return toCamelCase(data);
 };
 

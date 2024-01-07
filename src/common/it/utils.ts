@@ -1,7 +1,25 @@
+import { readdir } from 'fs/promises';
 import { basename, join } from 'node:path';
 import { setTimeout } from 'node:timers/promises';
-import { readdir } from 'fs/promises';
-import { Logger, ObjectToLower, ObjectToSnake } from '..';
+import { ColorResolvable, EmbedColors, Logger, ObjectToLower, ObjectToSnake } from '..';
+
+export function resolveColor(color: ColorResolvable) {
+	switch (typeof color) {
+		case 'string':
+			if (color === "Random") return Math.floor(Math.random() * (0xffffff + 1));
+			if (color.startsWith('#')) return Number.parseInt(color.slice(1), 16);
+			if (color in EmbedColors) return EmbedColors[color as keyof typeof EmbedColors]
+			return EmbedColors.Default
+		case 'number':
+			return color
+		case 'object':
+			if (Array.isArray(color)) return (color[0] << 16) + (color[1] << 8) + color[2]
+			break
+		default:
+			return color
+	}
+	return color
+}
 
 /**
  * Convert a camelCase object to snake_case.
@@ -9,7 +27,7 @@ import { Logger, ObjectToLower, ObjectToSnake } from '..';
  * @returns The converted object.
  */
 export function toSnakeCase<Obj extends Record<string, any>>(target: Obj): ObjectToSnake<Obj> {
-	const result = {};
+	const result: Record<string, any> = {};
 	for (const [key, value] of Object.entries(target)) {
 		switch (typeof value) {
 			case 'string':
@@ -19,28 +37,23 @@ export function toSnakeCase<Obj extends Record<string, any>>(target: Obj): Objec
 			case 'number':
 			case 'symbol':
 			case 'undefined':
-				// @ts-expect-error
 				result[ReplaceRegex.snake(key)] = value;
 				break;
 			case 'object':
 				if (Array.isArray(value)) {
-					// @ts-expect-error
 					result[ReplaceRegex.snake(key)] = value.map((prop) =>
 						typeof prop === 'object' && prop ? toSnakeCase(prop) : prop,
 					);
 					break;
 				}
 				if (isObject(value)) {
-					// @ts-expect-error
 					result[ReplaceRegex.snake(key)] = toSnakeCase(value);
 					break;
 				}
 				if (!Number.isNaN(value)) {
-					// @ts-expect-error
 					result[ReplaceRegex.snake(key)] = null;
 					break;
 				}
-				// @ts-expect-error
 				result[ReplaceRegex.snake(key)] = toSnakeCase(value);
 				break;
 		}
@@ -54,7 +67,7 @@ export function toSnakeCase<Obj extends Record<string, any>>(target: Obj): Objec
  * @returns The converted object.
  */
 export function toCamelCase<Obj extends Record<string, any>>(target: Obj): ObjectToLower<Obj> {
-	const result = {};
+	const result: Record<string, any> = {};
 	for (const [key, value] of Object.entries(target)) {
 		switch (typeof value) {
 			case 'string':
@@ -64,28 +77,23 @@ export function toCamelCase<Obj extends Record<string, any>>(target: Obj): Objec
 			case 'symbol':
 			case 'number':
 			case 'undefined':
-				// @ts-expect-error
 				result[ReplaceRegex.camel(key)] = value;
 				break;
 			case 'object':
 				if (Array.isArray(value)) {
-					// @ts-expect-error
 					result[ReplaceRegex.camel(key)] = value.map((prop) =>
 						typeof prop === 'object' && prop ? toCamelCase(prop) : prop,
 					);
 					break;
 				}
 				if (isObject(value)) {
-					// @ts-expect-error
 					result[ReplaceRegex.camel(key)] = toCamelCase(value);
 					break;
 				}
 				if (!Number.isNaN(value)) {
-					// @ts-expect-error
 					result[ReplaceRegex.camel(key)] = null;
 					break;
 				}
-				// @ts-expect-error
 				result[ReplaceRegex.camel(key)] = toCamelCase(value);
 				break;
 		}
@@ -604,7 +612,7 @@ export function MergeOptions<T>(defaults: any, ...options: any[]): T {
 }
 
 export class PotoHandler {
-	constructor(protected logger: Logger) {}
+	constructor(protected logger: Logger) { }
 
 	protected filter = (path: string) => !!path;
 
@@ -655,9 +663,3 @@ export function filterSplit<Element, Predicate extends (value: Element) => boole
 
 	return { expect, never };
 }
-
-export const DiscordEpoch = 14200704e5;
-
-export const BASE_HOST = 'https://discord.com';
-export const BASE_URL = `${BASE_HOST}/api`;
-export const CDN_URL = 'https://cdn.discordapp.com';

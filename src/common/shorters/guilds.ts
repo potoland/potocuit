@@ -10,11 +10,10 @@ import {
 	RESTPostAPIGuildsJSONBody,
 	Routes,
 } from 'discord-api-types/v10';
-import { ObjectToLower, OmitInsert } from '..';
+import { BASE_URL, ObjectToLower, OmitInsert } from '..';
 import { ImageResolvable, resolveFiles, resolveImage } from '../../builders';
 import { CreateStickerBodyRequest, Guild, GuildEmoji, Sticker } from '../../structures';
 import channelFrom, { BaseChannel } from '../../structures/methods/channels';
-import { BASE_URL } from '../it/utils';
 import { BaseShorter } from './base';
 
 export class GuildShorter extends BaseShorter {

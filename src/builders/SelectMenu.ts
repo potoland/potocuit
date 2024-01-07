@@ -4,12 +4,14 @@ import {
 	APIMessageComponentEmoji,
 	APIRoleSelectComponent,
 	APISelectMenuComponent,
+	APISelectMenuDefaultValue,
 	APISelectMenuOption,
 	APIStringSelectComponent,
 	APIUserSelectComponent,
 	ChannelType,
 	ComponentType,
 	RestOrArray,
+	SelectMenuDefaultValueType,
 } from '../common';
 import {
 	ChannelSelectMenuInteraction,
@@ -29,9 +31,10 @@ export type PotoSelectMenus =
 	| ChannelSelectMenu
 	| StringSelectMenu;
 
-/**
- * @internal
- */
+function mappedDefault<T extends SelectMenuDefaultValueType>(ids: string[], type: T) {
+	return ids.map((id) => ({ id, type })) as APISelectMenuDefaultValue<T>[];
+}
+
 export class SelectMenu<
 	Select extends APISelectMenuComponent = APISelectMenuComponent,
 	Interaction = ComponentInteraction,
@@ -70,11 +73,35 @@ export class UserSelectMenu extends SelectMenu<APIUserSelectComponent, UserSelec
 	constructor(data: Partial<APIUserSelectComponent> = {}) {
 		super({ ...data, type: ComponentType.UserSelect });
 	}
+
+	addDefaultUsers(...users: RestOrArray<string>): this {
+		this.data.default_values = (this.data.default_values ?? []).concat(
+			mappedDefault(users.flat(), SelectMenuDefaultValueType.User),
+		);
+		return this;
+	}
+
+	setDefaultUsers(...users: RestOrArray<string>): this {
+		this.data.default_values = mappedDefault(users.flat(), SelectMenuDefaultValueType.User);
+		return this;
+	}
 }
 
 export class RoleSelectMenu extends SelectMenu<APIRoleSelectComponent, RoleSelectMenuInteraction> {
 	constructor(data: Partial<APIRoleSelectComponent> = {}) {
 		super({ ...data, type: ComponentType.RoleSelect });
+	}
+
+	addDefaultRoles(...roles: RestOrArray<string>): this {
+		this.data.default_values = (this.data.default_values ?? []).concat(
+			mappedDefault(roles.flat(), SelectMenuDefaultValueType.Role),
+		);
+		return this;
+	}
+
+	setDefaultRoles(...roles: RestOrArray<string>): this {
+		this.data.default_values = mappedDefault(roles.flat(), SelectMenuDefaultValueType.Role);
+		return this;
 	}
 }
 
@@ -87,6 +114,18 @@ export class MentionableSelectMenu extends SelectMenu<APIMentionableSelectCompon
 export class ChannelSelectMenu extends SelectMenu<APIChannelSelectComponent, ChannelSelectMenuInteraction> {
 	constructor(data: Partial<APIChannelSelectComponent> = {}) {
 		super({ ...data, type: ComponentType.ChannelSelect });
+	}
+
+	addDefaultChannels(...channels: RestOrArray<string>): this {
+		this.data.default_values = (this.data.default_values ?? []).concat(
+			mappedDefault(channels.flat(), SelectMenuDefaultValueType.Channel),
+		);
+		return this;
+	}
+
+	setDefaultChannels(...channels: RestOrArray<string>): this {
+		this.data.default_values = mappedDefault(channels.flat(), SelectMenuDefaultValueType.Channel);
+		return this;
 	}
 
 	setChannelTypes(types: ChannelType[]): this {
@@ -113,7 +152,7 @@ export class StringSelectMenu extends SelectMenu<APIStringSelectComponent, Strin
 }
 
 export class StringSelectOption {
-	constructor(public data: Partial<APISelectMenuOption> = {}) {}
+	constructor(public data: Partial<APISelectMenuOption> = {}) { }
 
 	setLabel(label: string): this {
 		this.data.label = label;

@@ -1,6 +1,6 @@
 import { inflateSync } from 'node:zlib';
 import type WS from 'ws';
-import { type CloseEvent, WebSocket } from 'ws';
+import { WebSocket, type CloseEvent } from 'ws';
 import type { GatewayReceivePayload, GatewaySendPayload, Logger } from '../../common';
 import { GatewayCloseCodes, GatewayDispatchEvents, GatewayOpcodes } from '../../common';
 import { properties } from '../constants';
@@ -67,7 +67,9 @@ export class Shard {
 	}
 
 	get currentGatewayURL() {
-		return this.resumeGatewayURL ?? this.options.info.url;
+		const url = new URL(this.resumeGatewayURL ?? this.options.info.url);
+		url.searchParams.set('v', '10');
+		return url.href;
 	}
 
 	async connect() {
@@ -75,10 +77,7 @@ export class Shard {
 
 		this.logger.debug(`[Shard #${this.id}] Connecting to ${this.currentGatewayURL}`);
 
-		const url = new URL(this.currentGatewayURL);
-		url.searchParams.set('v', '10');
-
-		this.websocket = new BaseSocket('ws', url.href);
+		this.websocket = new BaseSocket('ws', this.currentGatewayURL);
 
 		this.websocket!.onmessage = (event) => this.handleMessage(event);
 
@@ -184,7 +183,7 @@ export class Shard {
 				}
 				await this.identify();
 			}
-			break;
+				break;
 			case GatewayOpcodes.HeartbeatAck:
 				this.heart.ack = true;
 				this.heart.lastAck = Date.now();
@@ -224,7 +223,7 @@ export class Shard {
 						break;
 				}
 			}
-			break;
+				break;
 		}
 	}
 
