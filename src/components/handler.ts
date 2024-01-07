@@ -195,7 +195,7 @@ export class ComponentHandler extends PotoHandler {
 	}
 
 	async load(commandsDir: string) {
-		const paths = await this.loadFilesK<{ new(): ModalCommand | ComponentCommand }>(await this.getFiles(commandsDir));
+		const paths = await this.loadFilesK<{ new (): ModalCommand | ComponentCommand }>(await this.getFiles(commandsDir));
 
 		for (let i = 0; i < paths.length; i++) {
 			const command = new paths[i].file();
@@ -223,7 +223,7 @@ export class ComponentHandler extends PotoHandler {
 
 	async reloadAll() {
 		for (const i of this.client.components.commands) {
-			if (!i.__filePath) return this.logger.warn("Unknown command dont have __filePath property", i)
+			if (!i.__filePath) return this.logger.warn('Unknown command dont have __filePath property', i);
 			await this.reload(i.__filePath);
 		}
 	}
