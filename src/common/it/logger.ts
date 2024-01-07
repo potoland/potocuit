@@ -8,19 +8,21 @@ export enum LogLevels {
 	Fatal = 4,
 }
 
-export enum LogDepth {
-	Minimal = 0,
-	Full = 1,
-}
-
 export type LoggerOptions = {
 	logLevel?: LogLevels;
 	name?: string;
 	active?: boolean;
 };
 
+export type CustomCallback = (self: Logger, level: LogLevels, args: unknown[]) => unknown[]
+
 export class Logger {
 	readonly options: Required<LoggerOptions>;
+	private static __callback?: CustomCallback;
+
+	static customize(cb: CustomCallback) {
+		Logger.__callback = cb
+	}
 
 	constructor(options: LoggerOptions) {
 		this.options = MergeOptions(Logger.DEFAULT_OPTIONS, options);
@@ -54,32 +56,24 @@ export class Logger {
 		if (!this.active) return;
 		if (level < this.level) return;
 
-		const color = Logger.colorFunctions.get(level) ?? Logger.noColor;
+		let log;
 
-		const memoryData = process.memoryUsage();
-		const date = new Date();
-		const log = [
-			black(formatMemoryUsage(memoryData.rss)),
-			bgBrightWhite(black(`[${date.toLocaleDateString()} ${date.toLocaleTimeString()}]`)),
-			color(Logger.prefixes.get(level) ?? 'DEBUG'),
-			this.name ? `${this.name} >` : '>',
-			...args,
-		];
-
-		switch (level) {
-			case LogLevels.Debug:
-				return console.log(...log);
-			case LogLevels.Info:
-				return console.log(...log);
-			case LogLevels.Warn:
-				return console.log(...log);
-			case LogLevels.Error:
-				return console.log(...log);
-			case LogLevels.Fatal:
-				return console.log(...log);
-			default:
-				return console.log(...log);
+		if (!Logger.__callback) {
+			const color = Logger.colorFunctions.get(level) ?? Logger.noColor;
+			const memoryData = process.memoryUsage();
+			const date = new Date();
+			log = [
+				black(formatMemoryUsage(memoryData.rss)),
+				bgBrightWhite(black(`[${date.toLocaleDateString()} ${date.toLocaleTimeString()}]`)),
+				color(Logger.prefixes.get(level) ?? 'DEBUG'),
+				this.name ? `${this.name} >` : '>',
+				...args,
+			];
+		} else {
+			log = Logger.__callback(this, level, args)
 		}
+
+		return console.log(...log);
 	}
 
 	debug(...args: any[]) {
@@ -116,7 +110,7 @@ export class Logger {
 		[LogLevels.Debug, gray],
 		[LogLevels.Info, cyan],
 		[LogLevels.Warn, yellow],
-		[LogLevels.Error, (str: string) => red(str)],
+		[LogLevels.Error, red],
 		[LogLevels.Fatal, (str: string) => red(bold(italic(str)))],
 	]);
 
