@@ -195,7 +195,7 @@ export class ComponentHandler extends PotoHandler {
 	}
 
 	async load(componentsDir: string) {
-		const paths = await this.loadFilesK<{ new(): ModalCommand | ComponentCommand }>(
+		const paths = await this.loadFilesK<{ new (): ModalCommand | ComponentCommand }>(
 			await this.getFiles(componentsDir),
 		);
 
@@ -205,7 +205,12 @@ export class ComponentHandler extends PotoHandler {
 				component = new paths[i].file();
 			} catch (e) {
 				if (e instanceof Error && e.message === 'paths[i].file is not a constructor') {
-					this.logger.warn(`${paths[i].path.split(process.cwd()).slice(1).join(process.cwd())} doesn't export the class by \`export default <ComponentCommand>\``)
+					this.logger.warn(
+						`${paths[i].path
+							.split(process.cwd())
+							.slice(1)
+							.join(process.cwd())} doesn't export the class by \`export default <ComponentCommand>\``,
+					);
 				} else this.logger.warn(e, paths[i]);
 				continue;
 			}

@@ -1,12 +1,12 @@
 import type { PotoClient, WorkerClient } from '../client';
 import {
+	type GatewayDispatchEvents,
+	type GatewayDispatchPayload,
 	GatewayMessageCreateDispatch,
 	GatewayMessageDeleteBulkDispatch,
 	GatewayMessageDeleteDispatch,
 	PotoHandler,
 	ReplaceRegex,
-	type GatewayDispatchEvents,
-	type GatewayDispatchPayload,
 } from '../common';
 import * as RawEvents from '../events/hooks';
 import type { PotoNameEvents, PotocuitEvent } from './event';
@@ -29,7 +29,10 @@ export class PotoEventHandler extends PotoHandler {
 		for (const i of await this.loadFilesK<PotocuitEvent>(await this.getFiles(eventsDir))) {
 			const instance = i.file;
 			if (typeof instance?.run !== 'function') {
-				this.logger.warn(i.path.split(process.cwd()).slice(1).join(process.cwd()), 'Missing run function, use `export default {...}` syntax');
+				this.logger.warn(
+					i.path.split(process.cwd()).slice(1).join(process.cwd()),
+					'Missing run function, use `export default {...}` syntax',
+				);
 				continue;
 			}
 			//@ts-expect-error
@@ -49,17 +52,17 @@ export class PotoEventHandler extends PotoHandler {
 					args[1].components.values.set(data.id, value);
 				}
 			}
-				break;
+			break;
 			case 'MESSAGE_DELETE': {
 				const { d: data } = args[0] as unknown as GatewayMessageDeleteDispatch;
 				args[1].components.onMessageDelete(data.id);
 			}
-				break;
+			break;
 			case 'MESSAGE_DELETE_BULK': {
 				const { d: data } = args[0] as unknown as GatewayMessageDeleteBulkDispatch;
 				data.ids.forEach((id) => args[1].components.onMessageDelete(id));
 			}
-				break;
+			break;
 		}
 
 		const Event = this.values[name];
