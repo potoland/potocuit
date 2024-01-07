@@ -37,7 +37,14 @@ export class PotoCommandHandler extends PotoHandler {
 		this.values = [];
 
 		for (const command of result) {
-			const commandInstance = new command.file();
+			let commandInstance
+			try {
+				commandInstance = new command.file();
+			}
+			catch (e) {
+				this.logger.fatal(e)
+				continue;
+			}
 			if (commandInstance instanceof ContextMenuCommand) {
 				this.values.push(commandInstance);
 				commandInstance.__filePath = command.path;

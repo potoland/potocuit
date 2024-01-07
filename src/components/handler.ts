@@ -194,14 +194,20 @@ export class ComponentHandler extends PotoHandler {
 		this.__setComponents(message.id, body.components);
 	}
 
-	async load(commandsDir: string) {
-		const paths = await this.loadFilesK<{ new (): ModalCommand | ComponentCommand }>(await this.getFiles(commandsDir));
+	async load(componentsDir: string) {
+		const paths = await this.loadFilesK<{ new(): ModalCommand | ComponentCommand }>(await this.getFiles(componentsDir));
 
 		for (let i = 0; i < paths.length; i++) {
-			const command = new paths[i].file();
-			if (!(command instanceof ModalCommand) && !(command instanceof ComponentCommand)) continue;
-			command.__filePath = paths[i].path;
-			this.commands.push(command);
+			let component
+			try {
+				component = new paths[i].file();
+			} catch (e) {
+				this.logger.fatal(e);
+				continue;
+			}
+			if (!(component instanceof ModalCommand) && !(component instanceof ComponentCommand)) continue;
+			component.__filePath = paths[i].path;
+			this.commands.push(component);
 		}
 	}
 
