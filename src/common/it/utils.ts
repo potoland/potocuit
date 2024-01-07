@@ -1,6 +1,6 @@
+import { readdir } from 'fs/promises';
 import { basename, join } from 'node:path';
 import { setTimeout } from 'node:timers/promises';
-import { readdir } from 'fs/promises';
 import { ColorResolvable, EmbedColors, Logger, ObjectToLower, ObjectToSnake } from '..';
 
 export function resolveColor(color: ColorResolvable) {
@@ -103,7 +103,7 @@ export function toCamelCase<Obj extends Record<string, any>>(target: Obj): Objec
 
 export const ReplaceRegex = {
 	camel: (s: string) => {
-		return s.replace(/(_\S)/gi, (a) => a[1].toUpperCase());
+		return s.toLowerCase().replace(/(_\S)/gi, (a) => a[1].toUpperCase());
 	},
 	snake: (s: string) => {
 		return s.replace(/[A-Z]/g, (a) => `_${a.toLowerCase()}`);
@@ -612,7 +612,7 @@ export function MergeOptions<T>(defaults: any, ...options: any[]): T {
 }
 
 export class PotoHandler {
-	constructor(protected logger: Logger) {}
+	constructor(protected logger: Logger) { }
 
 	protected filter = (path: string) => !!path;
 

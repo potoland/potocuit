@@ -40,11 +40,13 @@ export class PotoCommandHandler extends PotoHandler {
 			const commandInstance = new command.file();
 			if (commandInstance instanceof ContextMenuCommand) {
 				this.values.push(commandInstance);
+				commandInstance.__filePath = command.path;
 				continue;
 			}
 			if (!(commandInstance instanceof Command)) {
 				continue;
 			}
+			commandInstance.__filePath = command.path;
 			commandInstance.options ??= [] as NonNullable<Command['options']>;
 			if (commandInstance.__d) {
 				const options = await this.getFiles(dirname(command.path));
@@ -76,7 +78,6 @@ export class PotoCommandHandler extends PotoHandler {
 				}
 			}
 
-			commandInstance.__filePath = command.path;
 			this.values.push(commandInstance);
 			if (commandInstance.__t) {
 				commandInstance.name_localizations = {};
