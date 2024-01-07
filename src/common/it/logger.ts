@@ -14,14 +14,14 @@ export type LoggerOptions = {
 	active?: boolean;
 };
 
-export type CustomCallback = (self: Logger, level: LogLevels, args: unknown[]) => unknown[]
+export type CustomCallback = (self: Logger, level: LogLevels, args: unknown[]) => unknown[];
 
 export class Logger {
 	readonly options: Required<LoggerOptions>;
 	private static __callback?: CustomCallback;
 
 	static customize(cb: CustomCallback) {
-		Logger.__callback = cb
+		Logger.__callback = cb;
 	}
 
 	constructor(options: LoggerOptions) {
@@ -70,7 +70,7 @@ export class Logger {
 				...args,
 			];
 		} else {
-			log = Logger.__callback(this, level, args)
+			log = Logger.__callback(this, level, args);
 		}
 
 		return console.log(...log);
