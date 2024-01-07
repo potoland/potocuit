@@ -1,4 +1,4 @@
-import { MergeOptions, bgBrightWhite, black, bold, cyan, gray, italic, red, yellow } from './utils';
+import { MergeOptions, bgBrightWhite, black, bold, brightBlack, cyan, gray, italic, red, yellow } from './utils';
 
 export enum LogLevels {
 	Debug = 0,
@@ -63,7 +63,7 @@ export class Logger {
 			const memoryData = process.memoryUsage();
 			const date = new Date();
 			log = [
-				black(formatMemoryUsage(memoryData.rss)),
+				brightBlack(formatMemoryUsage(memoryData.rss)),
 				bgBrightWhite(black(`[${date.toLocaleDateString()} ${date.toLocaleTimeString()}]`)),
 				color(Logger.prefixes.get(level) ?? 'DEBUG'),
 				this.name ? `${this.name} >` : '>',

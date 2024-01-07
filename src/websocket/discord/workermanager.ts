@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 import { join } from 'path';
 import { Worker } from 'worker_threads';
-import { DefaultMemoryAdapter, type Adapter } from '../../cache';
+import { type Adapter, DefaultMemoryAdapter } from '../../cache';
 import { GatewayPresenceUpdateData, GatewaySendPayload, Logger, MergeOptions, delay } from '../../common';
 import { WorkerManagerDefaults } from '../constants';
 import { SequentialBucket } from '../structures';
@@ -177,11 +177,11 @@ export class WorkersManger extends Map<number, Worker> {
 					result,
 				} as ManagerSendCacheResult);
 			}
-				break;
+			break;
 			case 'RECEIVE_PAYLOAD': {
 				this.options.handlePayload(message.shardId, message.workerId, message.payload);
 			}
-				break;
+			break;
 			case 'RESULT_PAYLOAD': {
 				const resolve = this.promises.get(message.nonce);
 				if (!resolve) {
@@ -190,7 +190,7 @@ export class WorkersManger extends Map<number, Worker> {
 				this.promises.delete(message.nonce);
 				resolve(true);
 			}
-				break;
+			break;
 			case 'SHARD_INFO': {
 				const { nonce, type, ...data } = message;
 				const resolve = this.promises.get(nonce);
@@ -200,7 +200,7 @@ export class WorkersManger extends Map<number, Worker> {
 				this.promises.delete(nonce);
 				resolve(data);
 			}
-				break;
+			break;
 			case 'WORKER_INFO': {
 				const { nonce, type, ...data } = message;
 				const resolve = this.promises.get(nonce);
