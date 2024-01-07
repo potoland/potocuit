@@ -195,7 +195,7 @@ export class ComponentHandler extends PotoHandler {
 	}
 
 	async load(commandsDir: string) {
-		const paths = await this.loadFilesK<{ new(): ModalCommand | ComponentCommand }>(await this.getFiles(commandsDir));
+		const paths = await this.loadFilesK<{ new (): ModalCommand | ComponentCommand }>(await this.getFiles(commandsDir));
 
 		for (let i = 0; i < paths.length; i++) {
 			const command = new paths[i].file();
@@ -238,7 +238,7 @@ export class ComponentHandler extends PotoHandler {
 					break;
 				}
 			} catch (e) {
-				await this.onFail?.(e)
+				await this.onFail?.(e);
 			}
 		}
 	}

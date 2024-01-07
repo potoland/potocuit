@@ -84,7 +84,7 @@ export class GuildBasedResource<T = any> {
 	}
 
 	async keys(guild: string): Promise<string[]> {
-		return await this.adapter.scan(this.hashGuildId(guild, '*'), true)
+		return await this.adapter.scan(this.hashGuildId(guild, '*'), true);
 	}
 
 	async values(guild: string): Promise<(T & { guild_id: string })[]> {

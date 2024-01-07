@@ -1,12 +1,12 @@
 import type { PotoClient, WorkerClient } from '../client';
 import {
+	type GatewayDispatchEvents,
+	type GatewayDispatchPayload,
 	GatewayMessageCreateDispatch,
 	GatewayMessageDeleteBulkDispatch,
 	GatewayMessageDeleteDispatch,
 	PotoHandler,
 	ReplaceRegex,
-	type GatewayDispatchEvents,
-	type GatewayDispatchPayload,
 } from '../common';
 import * as RawEvents from '../events/hooks';
 import type { PotoNameEvents, PotocuitEvent } from './event';
@@ -45,17 +45,17 @@ export class PotoEventHandler extends PotoHandler {
 					args[1].components.values.set(data.id, value);
 				}
 			}
-				break;
+			break;
 			case 'MESSAGE_DELETE': {
 				const { d: data } = args[0] as unknown as GatewayMessageDeleteDispatch;
 				args[1].components.onMessageDelete(data.id);
 			}
-				break;
+			break;
 			case 'MESSAGE_DELETE_BULK': {
 				const { d: data } = args[0] as unknown as GatewayMessageDeleteBulkDispatch;
 				data.ids.forEach((id) => args[1].components.onMessageDelete(id));
 			}
-				break;
+			break;
 		}
 
 		const Event = this.values[name];
@@ -80,7 +80,7 @@ export class PotoEventHandler extends PotoHandler {
 		if (!event) return null;
 		delete require.cache[event.__filePath];
 		const imported = await import(event.__filePath).then((x) => x.default);
-		imported.__filePath = event.__filePath
+		imported.__filePath = event.__filePath;
 		this.values[eventName] = imported;
 		return imported;
 	}
