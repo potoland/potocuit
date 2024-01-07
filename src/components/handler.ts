@@ -20,6 +20,8 @@ import type { ComponentInteraction, ModalSubmitInteraction, ReplyInteractionBody
 import { ComponentCommand, InteractionCommandType, ModalCommand } from './command';
 import { ComponentsListener } from './listener';
 
+type OnFailCallback = (error: unknown) => Promise<any>;
+
 type COMPONENTS = {
 	options: ListenerOptions | undefined;
 	buttons: Partial<
@@ -35,6 +37,7 @@ type COMPONENTS = {
 };
 
 export class ComponentHandler extends PotoHandler {
+	protected onFail?: OnFailCallback;
 	readonly values = new Map<string, COMPONENTS>();
 	// 10 minutes timeout, because discord dont send an event when the user cancel the modal
 	readonly modals = new LimitedCollection<string, ModalSubmitCallback>({ expire: 60e3 * 10 });
@@ -43,6 +46,10 @@ export class ComponentHandler extends PotoHandler {
 
 	constructor(logger: Logger, protected client: BaseClient) {
 		super(logger);
+	}
+
+	set OnFail(cb: OnFailCallback) {
+		this.onFail = cb;
 	}
 
 	hasComponent(id: string, customId: string) {
@@ -188,7 +195,7 @@ export class ComponentHandler extends PotoHandler {
 	}
 
 	async load(commandsDir: string) {
-		const paths = await this.loadFilesK<{ new (): ModalCommand | ComponentCommand }>(await this.getFiles(commandsDir));
+		const paths = await this.loadFilesK<{ new(): ModalCommand | ComponentCommand }>(await this.getFiles(commandsDir));
 
 		for (let i = 0; i < paths.length; i++) {
 			const command = new paths[i].file();
@@ -225,9 +232,13 @@ export class ComponentHandler extends PotoHandler {
 
 	async executeModal(interaction: ModalSubmitInteraction) {
 		for (const i of this.commands) {
-			if (i.type === InteractionCommandType.MODAL && (await i.filter(interaction))) {
-				await i.run(interaction);
-				break;
+			try {
+				if (i.type === InteractionCommandType.MODAL && (await i.filter(interaction))) {
+					await i.run(interaction);
+					break;
+				}
+			} catch (e) {
+				await this.onFail?.(e)
 			}
 		}
 	}

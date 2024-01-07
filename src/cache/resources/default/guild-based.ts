@@ -84,15 +84,15 @@ export class GuildBasedResource<T = any> {
 	}
 
 	async keys(guild: string): Promise<string[]> {
-		return await this.adapter.keys(this.hashId(guild));
+		return await this.adapter.scan(this.hashGuildId(guild, '*'), true)
 	}
 
 	async values(guild: string): Promise<(T & { guild_id: string })[]> {
-		return await this.adapter.values(this.hashId(guild));
+		return await this.adapter.scan(this.hashGuildId(guild, '*'));
 	}
 
-	async count(to: string) {
-		return await this.adapter.count(this.hashId(to));
+	async count(guild: string) {
+		return (await this.adapter.scan(this.hashGuildId(guild, '*'), true)).length;
 	}
 
 	async contains(id: string, guild: string) {
@@ -119,11 +119,7 @@ export class GuildBasedResource<T = any> {
 		return `${this.namespace}.${id}`;
 	}
 
-	hashGuildId(id: string, guild?: string): string {
-		if (!guild) {
-			return this.hashId(id);
-		}
-
+	hashGuildId(guild: string, id: string) {
 		return `${this.namespace}.${guild}.${id}`;
 	}
 }
