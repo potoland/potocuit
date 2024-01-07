@@ -37,12 +37,13 @@ export class PotoCommandHandler extends PotoHandler {
 		this.values = [];
 
 		for (const command of result) {
-			let commandInstance
+			let commandInstance;
 			try {
 				commandInstance = new command.file();
-			}
-			catch (e) {
-				this.logger.fatal(e)
+			} catch (e) {
+				if (e instanceof Error && e.message === 'command.file is not a constructor') {
+					this.logger.warn(`${command.path.split(process.cwd()).slice(1).join(process.cwd())} doesn't export the class by \`export default <Command>\``)
+				} else this.logger.warn(e, command);
 				continue;
 			}
 			if (commandInstance instanceof ContextMenuCommand) {

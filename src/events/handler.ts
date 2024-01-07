@@ -29,7 +29,7 @@ export class PotoEventHandler extends PotoHandler {
 		for (const i of await this.loadFilesK<PotocuitEvent>(await this.getFiles(eventsDir))) {
 			const instance = i.file;
 			if (typeof instance?.run !== 'function') {
-				this.logger.fatal("Missing run function", i);
+				this.logger.warn(i.path.split(process.cwd()).slice(1).join(process.cwd()), 'Missing run function, use `export default {...}` syntax');
 				continue;
 			}
 			//@ts-expect-error
