@@ -9,7 +9,7 @@ import { StringSelectMenuComponent } from './StringSelectMenuComponent';
 import type { TextInputComponent } from './TextInputComponent';
 import { UserSelectMenuComponent } from './UserSelectMenuComponent';
 
-export type BiscuitComponents =
+export type MessageComponents =
 	| ButtonComponent
 	| LinkButtonComponent
 	| RoleSelectMenuComponent
@@ -19,7 +19,7 @@ export type BiscuitComponents =
 	| MentionableSelectMenuComponent
 	| TextInputComponent;
 
-export type BiscuitActionRowMessageComponents = Exclude<BiscuitComponents, TextInputComponent>;
+export type ActionRowMessageComponents = Exclude<MessageComponents, TextInputComponent>;
 
 export * from './command';
 export * from './listener';
@@ -32,7 +32,7 @@ export * from './listener';
  */
 export function componentFactory(
 	component: APIMessageActionRowComponent,
-): BiscuitActionRowMessageComponents | BaseComponent<BiscuitActionRowMessageComponents['type']> {
+): ActionRowMessageComponents | BaseComponent<ActionRowMessageComponents['type']> {
 	switch (component.type) {
 		case ComponentType.Button:
 			if (component.style === ButtonStyle.Link) {
@@ -50,6 +50,6 @@ export function componentFactory(
 		case ComponentType.MentionableSelect:
 			return new MentionableSelectMenuComponent(component);
 		default:
-			return new BaseComponent<BiscuitActionRowMessageComponents['type']>(component);
+			return new BaseComponent<ActionRowMessageComponents['type']>(component);
 	}
 }

@@ -1,4 +1,5 @@
 import {
+	ChannelFlags,
 	type APIDMChannel,
 	type APIGuildCategoryChannel,
 	type APIGuildForumChannel,
@@ -8,7 +9,6 @@ import {
 	type APINewsChannel,
 	type APITextChannel,
 	type APIThreadChannel,
-	ChannelFlags,
 	type ChannelType,
 	type ThreadAutoArchiveDuration,
 } from 'discord-api-types/v10';
@@ -142,7 +142,7 @@ export class NewsChannel extends BaseChannel<ChannelType.GuildAnnouncement> {
 
 export class DirectoryChannel extends BaseChannel<ChannelType.GuildDirectory> {}
 
-export type PotocuitChannels =
+export type AllChannels =
 	| BaseChannel<ChannelType>
 	| BaseGuildChannel
 	| TextGuildChannel

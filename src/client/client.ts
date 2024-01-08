@@ -1,19 +1,18 @@
 import type { REST } from '../api';
 import type { Adapter, Cache } from '../cache';
-import type { GatewayPresenceUpdateData, LocaleString } from '../common';
-import type { DeepPartial, GatewayDispatchPayload } from '../common';
-import { PotoEventHandler } from '../events';
+import type { DeepPartial, GatewayDispatchPayload, GatewayPresenceUpdateData, LocaleString } from '../common';
+import { EventHandler } from '../events';
 import { ShardManager } from '../websocket';
 import type { BaseClientOptions, InternalRuntimeConfig, StartOptions } from './base';
 import { BaseClient } from './base';
 import { onInteraction } from './oninteraction';
 
-export class PotoClient extends BaseClient {
+export class Client extends BaseClient {
 	gateway!: ShardManager;
-	events = new PotoEventHandler(this.logger);
-	declare options: PotoClientOptions | undefined;
+	events = new EventHandler(this.logger);
+	declare options: ClientOptions | undefined;
 
-	constructor(options?: PotoClientOptions) {
+	constructor(options?: ClientOptions) {
 		super(options);
 	}
 
@@ -44,7 +43,7 @@ export class PotoClient extends BaseClient {
 		dir ??= await this.getRC().then(x => x.events);
 		if (dir) {
 			await this.events.load(dir);
-			this.logger.info('PotoEventHandler loaded');
+			this.logger.info('EventHandler loaded');
 		}
 	}
 
@@ -125,6 +124,6 @@ export class PotoClient extends BaseClient {
 	}
 }
 
-export interface PotoClientOptions extends BaseClientOptions {
+export interface ClientOptions extends BaseClientOptions {
 	presence?: (shardId: number) => GatewayPresenceUpdateData;
 }

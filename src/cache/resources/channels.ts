@@ -1,11 +1,11 @@
-import type { PotocuitChannels } from '../../structures';
+import type { AllChannels } from '../../structures';
 import channelFrom from '../../structures/methods/channels';
 import { GuildRelatedResource } from './default/guild-related';
 
 export class Channels extends GuildRelatedResource {
 	namespace = 'channel';
 
-	override async get(id: string): Promise<PotocuitChannels | undefined> {
+	override async get(id: string): Promise<AllChannels | undefined> {
 		const rawChannel = await super.get(id);
 		return rawChannel ? channelFrom(rawChannel, this.client) : undefined;
 	}

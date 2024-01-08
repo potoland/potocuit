@@ -1,4 +1,4 @@
-import { type APIActionRowComponent, type APIActionRowComponentTypes, ComponentType } from '../common';
+import { ComponentType, type APIActionRowComponent, type APIActionRowComponentTypes } from '../common';
 import { ActionRow } from './ActionRow';
 import { Button } from './Button';
 import { TextInput } from './Modal';
@@ -9,7 +9,7 @@ import {
 	StringSelectMenu,
 	UserSelectMenu,
 } from './SelectMenu';
-import type { PotoComponents } from './types';
+import type { BuilderComponents } from './types';
 
 export * from './ActionRow';
 export * from './Attachment';
@@ -22,11 +22,11 @@ export * from './types';
 
 export function fromComponent(
 	data:
-		| PotoComponents
+		| BuilderComponents
 		| APIActionRowComponentTypes
 		| APIActionRowComponent<APIActionRowComponentTypes>
-		| ActionRow<PotoComponents>,
-): PotoComponents | ActionRow<PotoComponents> {
+		| ActionRow<BuilderComponents>,
+): BuilderComponents | ActionRow<BuilderComponents> {
 	if ('toJSON' in data) {
 		return data;
 	}

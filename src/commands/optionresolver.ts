@@ -6,10 +6,10 @@ import type {
 	MakeRequired,
 } from '../common';
 import { ApplicationCommandOptionType } from '../common';
-import type { PotocuitChannels } from '../structures';
+import type { AllChannels } from '../structures';
 import { GuildRole, InteractionGuildMember, User } from '../structures';
 import channelFrom from '../structures/methods/channels';
-import type { Command, PotoCommandAutocompleteOption, PotoCommandOption, SubCommand } from './applications/chat';
+import type { Command, CommandAutocompleteOption, CommandOption, SubCommand } from './applications/chat';
 
 export class OptionResolver {
 	readonly options: OptionResolved[];
@@ -56,9 +56,9 @@ export class OptionResolver {
 	}
 
 	getAutocomplete() {
-		return (this.getCommand()?.options as PotoCommandOption[]).find(
+		return (this.getCommand()?.options as CommandOption[]).find(
 			option => option.name === this.hoistedOptions.find(x => x.focused)?.name,
-		) as PotoCommandAutocompleteOption | undefined;
+		) as CommandAutocompleteOption | undefined;
 	}
 
 	getParent() {
@@ -121,8 +121,8 @@ export class OptionResolver {
 		return option;
 	}
 
-	getChannel(name: string, required?: true): PotocuitChannels;
-	getChannel(name: string): PotocuitChannels | undefined {
+	getChannel(name: string, required?: true): AllChannels;
+	getChannel(name: string): AllChannels | undefined {
 		const option = this.getTypedOption(name, [ApplicationCommandOptionType.Channel]);
 		return option.channel;
 	}
@@ -185,7 +185,7 @@ export interface OptionResolved {
 	user?: User;
 	member?: InteractionGuildMember;
 	attachment?: APIAttachment;
-	channel?: PotocuitChannels;
+	channel?: AllChannels;
 	role?: GuildRole;
 	focused?: boolean;
 }

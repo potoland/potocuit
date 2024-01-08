@@ -19,7 +19,7 @@ export * from './webhook';
 import type { CamelCase } from '../../common';
 import type * as RawEvents from './index';
 
-export type PotocuitEvents = {
+export type ClientEvents = {
 	[X in keyof typeof RawEvents as CamelCase<X>]: ReturnType<(typeof RawEvents)[X]>;
 };
 export type DropT<T, R> = {

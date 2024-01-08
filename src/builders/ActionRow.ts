@@ -1,15 +1,15 @@
 import { fromComponent } from '.';
 import {
+	ComponentType,
 	type APIActionRowComponent,
 	type APIActionRowComponentTypes,
 	type APIMessageActionRowComponent,
-	ComponentType,
 	type RestOrArray,
 } from '../common';
 import { BaseComponentBuilder } from './Base';
-import type { FixedComponents, PotoComponents } from './types';
+import type { BuilderComponents, FixedComponents } from './types';
 
-export class ActionRow<T extends PotoComponents> extends BaseComponentBuilder<
+export class ActionRow<T extends BuilderComponents> extends BaseComponentBuilder<
 	APIActionRowComponent<APIActionRowComponentTypes>
 > {
 	constructor({ components, ...data }: Partial<APIActionRowComponent<APIActionRowComponentTypes>> = {}) {

@@ -50,13 +50,12 @@ import type {
 	ModalCreateBodyRequest,
 } from '../common/types/write';
 
-import { ActionRow, type Attachment, MessageEmbed, Modal, resolveAttachment, resolveFiles } from '../builders';
+import { ActionRow, MessageEmbed, Modal, resolveAttachment, resolveFiles, type Attachment } from '../builders';
 import { ComponentsListener } from '../components/listener';
-import { GuildMember, InteractionGuildMember } from './';
+import { GuildMember, InteractionGuildMember, type AllChannels } from './';
 import { GuildRole } from './GuildRole';
 import { Message, type WebhookMessage } from './Message';
 import { User } from './User';
-import type { PotocuitChannels } from './channels';
 import { DiscordBase } from './extra/DiscordBase';
 import channelFrom from './methods/channels';
 
@@ -82,7 +81,7 @@ export class BaseInteraction<
 > extends DiscordBase<Type> {
 	user: User;
 	member!: When<FromGuild, GuildMember, undefined>;
-	channel?: PotocuitChannels;
+	channel?: AllChannels;
 	message?: Message;
 	replied?: Promise<boolean> | boolean;
 
@@ -429,7 +428,7 @@ export class ComponentInteraction<
 	declare data: ObjectToLower<APIMessageComponentInteraction['data']>;
 	declare channelId: string;
 	declare appPermissions: string;
-	declare channel: PotocuitChannels;
+	declare channel: AllChannels;
 	declare type: InteractionType.MessageComponent;
 
 	update(data: ComponentInteractionMessageUpdate) {
@@ -503,7 +502,7 @@ export class StringSelectMenuInteraction extends SelectMenuInteraction {
 }
 
 export class ChannelSelectMenuInteraction extends SelectMenuInteraction {
-	channels: PotocuitChannels[];
+	channels: AllChannels[];
 	constructor(
 		client: BaseClient,
 		interaction: APIMessageComponentSelectMenuInteraction,

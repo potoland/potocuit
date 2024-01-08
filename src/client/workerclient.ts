@@ -1,9 +1,9 @@
-import { parentPort as manager, workerData as __workerData__ } from 'node:worker_threads';
+import { workerData as __workerData__, parentPort as manager } from 'node:worker_threads';
 import type { Cache } from '../cache';
 import { WorkerAdapter } from '../cache';
 import type { GatewayDispatchPayload } from '../common';
-import { type DeepPartial, LogLevels, Logger } from '../common';
-import { PotoEventHandler } from '../events';
+import { LogLevels, Logger, type DeepPartial } from '../common';
+import { EventHandler } from '../events';
 import type { Shard, WorkerData } from '../websocket';
 import { handleManagerMessages } from '../websocket/discord/handlemessage';
 import type { ManagerMessages } from '../websocket/discord/workermanager';
@@ -20,7 +20,7 @@ export class WorkerClient extends BaseClient {
 		logLevel: LogLevels.Debug,
 	});
 
-	events = new PotoEventHandler(this.logger);
+	events = new EventHandler(this.logger);
 
 	shards = new Map<number, Shard>();
 	declare options: WorkerClientOptions | undefined;
@@ -61,7 +61,7 @@ export class WorkerClient extends BaseClient {
 		dir ??= await this.getRC().then(x => x.events);
 		if (dir) {
 			await this.events.load(dir);
-			this.logger.info('PotoEventHandler loaded');
+			this.logger.info('EventHandler loaded');
 		}
 	}
 

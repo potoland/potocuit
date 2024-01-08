@@ -7,13 +7,7 @@ import type {
 	LocaleString,
 } from '../../common';
 import { ApplicationCommandOptionType, ApplicationCommandType } from '../../common';
-import type {
-	AutocompleteInteraction,
-	GuildRole,
-	InteractionGuildMember,
-	PotocuitChannels,
-	User,
-} from '../../structures';
+import type { AllChannels, AutocompleteInteraction, GuildRole, InteractionGuildMember, User } from '../../structures';
 import type { Groups } from '../decorators';
 import type { OptionResolver } from '../optionresolver';
 import type { CommandContext } from './chatcontext';
@@ -34,9 +28,9 @@ export interface ReturnOptionsTypes {
 	4: number; // integer
 	5: boolean;
 	6: InteractionGuildMember | User;
-	7: PotocuitChannels;
+	7: AllChannels;
 	8: GuildRole;
-	9: GuildRole | PotocuitChannels | User;
+	9: GuildRole | AllChannels | User;
 	10: number; // number
 	11: APIAttachment;
 }
@@ -79,15 +73,15 @@ export type __TypesWrapper = {
 
 export type AutocompleteCallback = (interaction: AutocompleteInteraction) => any;
 export type OnAutocompleteErrorCallback = (interaction: AutocompleteInteraction, error: unknown) => any;
-export type PotoCommandBaseOption = __TypesWrapper[keyof __TypesWrapper];
-export type PotoCommandBaseAutocompleteOption = __TypesWrapper[keyof __TypesWrapper] & {
+export type CommandBaseOption = __TypesWrapper[keyof __TypesWrapper];
+export type CommandBaseAutocompleteOption = __TypesWrapper[keyof __TypesWrapper] & {
 	autocomplete: AutocompleteCallback;
 	onAutocompleteError?: OnAutocompleteErrorCallback;
 };
-export type PotoCommandAutocompleteOption = PotoCommandBaseAutocompleteOption & { name: string };
-export type __PotoCommandOption = PotoCommandBaseOption; //| PotoCommandBaseAutocompleteOption;
-export type PotoCommandOption = __PotoCommandOption & { name: string };
-export type OptionsRecord = Record<string, __PotoCommandOption & { type: ApplicationCommandOptionType }>;
+export type CommandAutocompleteOption = CommandBaseAutocompleteOption & { name: string };
+export type __CommandOption = CommandBaseOption; //| CommandBaseAutocompleteOption;
+export type CommandOption = __CommandOption & { name: string };
+export type OptionsRecord = Record<string, __CommandOption & { type: ApplicationCommandOptionType }>;
 
 export type ContextOptions<T extends OptionsRecord> = {
 	[K in keyof T]: T[K]['value'] extends (...args: any) => any
@@ -125,7 +119,7 @@ class BaseCommand {
 	name_localizations?: Partial<Record<LocaleString, string>>;
 	description_localizations?: Partial<Record<LocaleString, string>>;
 
-	options?: PotoCommandOption[] | SubCommand[];
+	options?: CommandOption[] | SubCommand[];
 
 	/** @internal */
 	async __runOptions(
@@ -139,7 +133,7 @@ class BaseCommand {
 		const data: OnOptionsReturnObject = {};
 		let errored = false;
 		for (const i of resolver.hoistedOptions) {
-			const option = command.options!.find(x => x.name === i.name) as __PotoCommandOption;
+			const option = command.options!.find(x => x.name === i.name) as __CommandOption;
 			const value = (await new Promise(
 				resolve =>
 					option.value?.({ context: ctx, value: resolver.getValue(i.name) } as never, resolve, resolve) ||
@@ -300,7 +294,7 @@ export class Command extends BaseCommand {
 export abstract class SubCommand extends BaseCommand {
 	type = ApplicationCommandOptionType.Subcommand;
 	group?: string;
-	declare options?: PotoCommandOption[];
+	declare options?: CommandOption[];
 
 	toJSON() {
 		return {

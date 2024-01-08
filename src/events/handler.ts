@@ -1,21 +1,21 @@
-import type { PotoClient, WorkerClient } from '../client';
+import type { Client, WorkerClient } from '../client';
 import {
+	BaseHandler,
+	ReplaceRegex,
 	type GatewayDispatchEvents,
 	type GatewayDispatchPayload,
 	type GatewayMessageCreateDispatch,
 	type GatewayMessageDeleteBulkDispatch,
 	type GatewayMessageDeleteDispatch,
-	PotoHandler,
-	ReplaceRegex,
 } from '../common';
 import * as RawEvents from '../events/hooks';
-import type { PotoNameEvents, PotocuitEvent } from './event';
+import type { ClientEvent, ClientNameEvents } from './event';
 
 type OnFailCallback = (error: unknown) => Promise<any>;
 
-type EventValue = PotocuitEvent & { fired?: boolean; __filePath: string };
+type EventValue = ClientEvent & { fired?: boolean; __filePath: string };
 
-export class PotoEventHandler extends PotoHandler {
+export class EventHandler extends BaseHandler {
 	protected onFail?: OnFailCallback;
 	protected filter = (path: string) => path.endsWith('.js');
 
@@ -26,7 +26,7 @@ export class PotoEventHandler extends PotoHandler {
 	}
 
 	async load(eventsDir: string) {
-		for (const i of await this.loadFilesK<PotocuitEvent>(await this.getFiles(eventsDir))) {
+		for (const i of await this.loadFilesK<ClientEvent>(await this.getFiles(eventsDir))) {
 			const instance = i.file;
 			if (typeof instance?.run !== 'function') {
 				this.logger.warn(
@@ -42,7 +42,7 @@ export class PotoEventHandler extends PotoHandler {
 		}
 	}
 
-	async execute(name: GatewayDispatchEvents, ...args: [GatewayDispatchPayload, PotoClient | WorkerClient, number]) {
+	async execute(name: GatewayDispatchEvents, ...args: [GatewayDispatchPayload, Client | WorkerClient, number]) {
 		switch (name) {
 			case 'MESSAGE_CREATE':
 				{
@@ -84,7 +84,7 @@ export class PotoEventHandler extends PotoHandler {
 		}
 	}
 
-	async reload(name: PotoNameEvents) {
+	async reload(name: ClientNameEvents) {
 		const eventName = ReplaceRegex.snake(name).toUpperCase() as GatewayDispatchEvents;
 		const event = this.values[eventName];
 		if (!event) return null;
@@ -97,7 +97,7 @@ export class PotoEventHandler extends PotoHandler {
 
 	async reloadAll() {
 		for (const i in this.values) {
-			await this.reload(ReplaceRegex.camel(i) as PotoNameEvents);
+			await this.reload(ReplaceRegex.camel(i) as ClientNameEvents);
 		}
 	}
 }

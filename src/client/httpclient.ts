@@ -21,7 +21,7 @@ try {
 	// I always cum
 }
 
-export class PotoHttpClient extends BaseClient {
+export class HttpClient extends BaseClient {
 	app!: ReturnType<typeof UWS.App>;
 	publicKey!: string;
 	publicKeyHex!: Buffer;
@@ -98,7 +98,7 @@ export class PotoHttpClient extends BaseClient {
 
 	// https://discord.com/developers/docs/interactions/receiving-and-responding#security-and-authorization
 	protected async verifySignature(res: HttpResponse, req: HttpRequest) {
-		const body = await PotoHttpClient.readJson<APIInteraction>(res);
+		const body = await HttpClient.readJson<APIInteraction>(res);
 		const timestamp = req.getHeader('x-signature-timestamp');
 		const ed25519 = req.getHeader('x-signature-ed25519');
 		if (

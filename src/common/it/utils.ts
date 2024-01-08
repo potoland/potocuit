@@ -1,7 +1,7 @@
 import { readdir } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import { setTimeout } from 'node:timers/promises';
-import { type ColorResolvable, EmbedColors, type Logger, type ObjectToLower, type ObjectToSnake } from '..';
+import { EmbedColors, type ColorResolvable, type Logger, type ObjectToLower, type ObjectToSnake } from '..';
 
 export function resolveColor(color: ColorResolvable) {
 	switch (typeof color) {
@@ -611,7 +611,7 @@ export function MergeOptions<T>(defaults: any, ...options: any[]): T {
 	);
 }
 
-export class PotoHandler {
+export class BaseHandler {
 	constructor(protected logger: Logger) {}
 
 	protected filter = (path: string) => !!path;
