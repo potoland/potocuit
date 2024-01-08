@@ -1,4 +1,4 @@
-import { MessageWebhookMethodEditParams, MessageWebhookMethodWriteParams } from '..';
+import type { MessageWebhookMethodEditParams, MessageWebhookMethodWriteParams } from '..';
 import type { BaseClient } from '../client/base';
 import type {
 	APIChannelMention,
@@ -12,7 +12,7 @@ import type { EmojiResolvable } from '../common/types/resolvables';
 import type { MessageCreateBodyRequest, MessageUpdateBodyRequest } from '../common/types/write';
 import type { BiscuitActionRowMessageComponents } from '../components';
 import { MessageActionRowComponent } from '../components/ActionRow';
-import { Guild } from './Guild';
+import type { Guild } from './Guild';
 import { GuildMember } from './GuildMember';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
@@ -42,7 +42,7 @@ export class BaseMessage extends DiscordBase {
 			channels: data.mention_channels ?? [],
 			users: [],
 		};
-		this.components = data.components?.map((x) => new MessageActionRowComponent(x)) ?? [];
+		this.components = data.components?.map(x => new MessageActionRowComponent(x)) ?? [];
 		this.patch(data);
 	}
 
@@ -92,7 +92,7 @@ export class BaseMessage extends DiscordBase {
 		if (data.mentions?.length) {
 			this.mentions.users = this.guildId
 				? data.mentions.map(
-						(m) =>
+						m =>
 							new GuildMember(
 								this.client,
 								{
@@ -103,7 +103,7 @@ export class BaseMessage extends DiscordBase {
 								this.guildId!,
 							),
 				  )
-				: data.mentions.map((u) => new User(this.client, u));
+				: data.mentions.map(u => new User(this.client, u));
 		}
 	}
 }
@@ -154,7 +154,12 @@ export type EditMessageWebhook = Omit<MessageWebhookMethodEditParams, 'messageId
 export type WriteMessageWebhook = MessageWebhookMethodWriteParams;
 
 export class WebhookMessage extends BaseMessage {
-	constructor(client: BaseClient, data: MessageData, readonly webhookId: string, readonly webhookToken: string) {
+	constructor(
+		client: BaseClient,
+		data: MessageData,
+		readonly webhookId: string,
+		readonly webhookToken: string,
+	) {
 		super(client, data);
 	}
 

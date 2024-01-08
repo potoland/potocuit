@@ -1,7 +1,11 @@
-import { APIApplicationCommandOptionChoice, ApplicationCommandOptionType, ChannelType } from 'discord-api-types/v10';
-import { AutocompleteCallback, OnAutocompleteErrorCallback, ReturnOptionsTypes, __TypesWrapper } from '..';
-import { CommandContext } from './chatcontext';
-import { MiddlewareContext } from './shared';
+import {
+	type APIApplicationCommandOptionChoice,
+	ApplicationCommandOptionType,
+	type ChannelType,
+} from 'discord-api-types/v10';
+import type { AutocompleteCallback, OnAutocompleteErrorCallback, ReturnOptionsTypes, __TypesWrapper } from '..';
+import type { CommandContext } from './chatcontext';
+import type { MiddlewareContext } from './shared';
 
 type BiscuitBasicOption<T extends keyof __TypesWrapper, D = {}> = __TypesWrapper[T] & D;
 

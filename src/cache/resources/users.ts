@@ -1,4 +1,4 @@
-import { APIUser } from '../../common';
+import type { APIUser } from '../../common';
 import { User } from '../../structures';
 import { BaseResource } from './default/base';
 
@@ -12,6 +12,6 @@ export class Users extends BaseResource {
 
 	override async values() {
 		const members = (await super.values()) as APIUser[];
-		return members.map((rawUser) => new User(this.client, rawUser));
+		return members.map(rawUser => new User(this.client, rawUser));
 	}
 }

@@ -1,7 +1,7 @@
-import { ComponentInteraction, ModalSubmitInteraction } from '../structures/Interaction';
-import { Button } from './Button';
-import { TextInput } from './Modal';
-import { PotoSelectMenus } from './SelectMenu';
+import type { ComponentInteraction, ModalSubmitInteraction } from '../structures/Interaction';
+import type { Button } from './Button';
+import type { TextInput } from './Modal';
+import type { PotoSelectMenus } from './SelectMenu';
 
 export type ComponentCallback<T = ComponentInteraction> = (
 	interaction: T,

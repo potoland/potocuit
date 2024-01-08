@@ -1,7 +1,7 @@
 import type { InternalRuntimeConfig, InternalRuntimeConfigHTTP, RuntimeConfig, RuntimeConfigHTTP } from './client/base';
 import { GatewayIntentBits } from './common';
 import type { EventContext, IClientEvents, PotoNameEvents } from './events';
-import { ChatInputCommandInteraction, MessageCommandInteraction, UserCommandInteraction } from './structures';
+import type { ChatInputCommandInteraction, MessageCommandInteraction, UserCommandInteraction } from './structures';
 
 export * from './api';
 export * from './builders';

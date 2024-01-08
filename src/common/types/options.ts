@@ -1,6 +1,6 @@
 import type { Identify } from '..';
 import type { ImageURLOptions } from '../../api';
-import { BaseClient } from '../../client/base';
+import type { BaseClient } from '../../client/base';
 
 export type ImageOptions = ImageURLOptions;
 

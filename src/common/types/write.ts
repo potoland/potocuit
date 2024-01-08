@@ -8,9 +8,9 @@ import type {
 	RESTPostAPIChannelMessageJSONBody,
 	RESTPostAPIWebhookWithTokenJSONBody,
 } from '..';
-import { RawFile } from '../..';
-import { ActionRow, Attachment, MessageEmbed, Modal, PotoComponents, TextInput } from '../../builders';
-import { ComponentsListener } from '../../components/listener';
+import type { RawFile } from '../..';
+import type { ActionRow, Attachment, MessageEmbed, Modal, PotoComponents, TextInput } from '../../builders';
+import type { ComponentsListener } from '../../components/listener';
 
 import type { OmitInsert } from './util';
 

@@ -1,9 +1,9 @@
-import { RESTPatchAPIWebhookJSONBody, RESTPatchAPIWebhookWithTokenJSONBody } from '..';
+import type { RESTPatchAPIWebhookJSONBody, RESTPatchAPIWebhookWithTokenJSONBody } from '..';
 import {
-	Attachment,
-	MessageWebhookMethodEditParams,
-	MessageWebhookMethodWriteParams,
-	RESTPostAPIWebhookWithTokenJSONBody,
+	type Attachment,
+	type MessageWebhookMethodEditParams,
+	type MessageWebhookMethodWriteParams,
+	type RESTPostAPIWebhookWithTokenJSONBody,
 	Webhook,
 	WebhookMessage,
 	resolveFiles,
@@ -52,7 +52,7 @@ export class WebhookShorter extends BaseShorter {
 				return this.client.proxy
 					.webhooks(webhookId)(token)
 					.post({ ...payload, files: parsedFiles, body: transformedBody })
-					.then((m) => (m?.id ? new WebhookMessage(this.client, m, webhookId, token) : null));
+					.then(m => (m?.id ? new WebhookMessage(this.client, m, webhookId, token) : null));
 			},
 			edit: async (
 				webhookId: string,
@@ -66,7 +66,7 @@ export class WebhookShorter extends BaseShorter {
 					.webhooks(webhookId)(token)
 					.messages(messageId)
 					.patch({ ...json, auth: false, files: parsedFiles, body: transformedBody })
-					.then((m) => new WebhookMessage(this.client, m, webhookId, token));
+					.then(m => new WebhookMessage(this.client, m, webhookId, token));
 			},
 			delete: async (webhookId: string, token: string, messageId: string, reason?: string) => {
 				return this.client.proxy.webhooks(webhookId)(token).messages(messageId).delete({ reason });

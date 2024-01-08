@@ -1,4 +1,4 @@
-import { DMChannel, MessageCreateBodyRequest, User } from '../..';
+import { DMChannel, type MessageCreateBodyRequest, User } from '../..';
 import { BaseChannel } from '../../structures/methods/channels';
 import { BaseShorter } from './base';
 

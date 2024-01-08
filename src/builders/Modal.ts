@@ -1,15 +1,15 @@
 import { fromComponent } from '.';
 import {
-	APIActionRowComponent,
-	APIModalInteractionResponseCallbackData,
-	APITextInputComponent,
+	type APIActionRowComponent,
+	type APIModalInteractionResponseCallbackData,
+	type APITextInputComponent,
 	ComponentType,
-	RestOrArray,
-	TextInputStyle,
+	type RestOrArray,
+	type TextInputStyle,
 } from '../common';
-import { ActionRow } from './ActionRow';
-import { BaseComponentBuilder, OptionValuesLength } from './Base';
-import { ModalSubmitCallback, PotoModalComponents } from './types';
+import type { ActionRow } from './ActionRow';
+import { BaseComponentBuilder, type OptionValuesLength } from './Base';
+import type { ModalSubmitCallback, PotoModalComponents } from './types';
 
 export class Modal<T extends PotoModalComponents = TextInput> {
 	/** @internal */
@@ -44,7 +44,7 @@ export class Modal<T extends PotoModalComponents = TextInput> {
 		return {
 			custom_id: this.data.custom_id,
 			title: this.data.title,
-			components: this.components.map((x) => x.toJSON() as unknown as APIActionRowComponent<APITextInputComponent>),
+			components: this.components.map(x => x.toJSON() as unknown as APIActionRowComponent<APITextInputComponent>),
 		} as APIModalInteractionResponseCallbackData;
 	}
 }

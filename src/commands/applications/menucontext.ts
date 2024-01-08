@@ -2,13 +2,13 @@ import type { __LangType } from '../../__generated';
 import type { IClients } from '../../client/base';
 import {
 	ApplicationCommandType,
-	InteractionCreateBodyRequest,
-	InteractionMessageUpdateBodyRequest,
+	type InteractionCreateBodyRequest,
+	type InteractionMessageUpdateBodyRequest,
 	MessageFlags,
-	ModalCreateBodyRequest,
+	type ModalCreateBodyRequest,
 	toSnakeCase,
 } from '../../common';
-import { Message, MessageCommandInteraction, User, UserCommandInteraction } from '../../structures';
+import { Message, type MessageCommandInteraction, User, type UserCommandInteraction } from '../../structures';
 import type { CommandMetadata, MiddlewareContext } from './shared';
 
 export type InteractionTarget<T> = T extends MessageCommandInteraction ? Message : User;

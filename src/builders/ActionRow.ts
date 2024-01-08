@@ -1,13 +1,13 @@
 import { fromComponent } from '.';
 import {
-	APIActionRowComponent,
-	APIActionRowComponentTypes,
-	APIMessageActionRowComponent,
+	type APIActionRowComponent,
+	type APIActionRowComponentTypes,
+	type APIMessageActionRowComponent,
 	ComponentType,
-	RestOrArray,
+	type RestOrArray,
 } from '../common';
 import { BaseComponentBuilder } from './Base';
-import { FixedComponents, PotoComponents } from './types';
+import type { FixedComponents, PotoComponents } from './types';
 
 export class ActionRow<T extends PotoComponents> extends BaseComponentBuilder<
 	APIActionRowComponent<APIActionRowComponentTypes>
@@ -30,7 +30,7 @@ export class ActionRow<T extends PotoComponents> extends BaseComponentBuilder<
 	}
 
 	toJSON(): APIActionRowComponent<APIMessageActionRowComponent> {
-		const components = this.components.map((c) => {
+		const components = this.components.map(c => {
 			return c.toJSON();
 		}) as APIMessageActionRowComponent[];
 		return { type: ComponentType.ActionRow, components };

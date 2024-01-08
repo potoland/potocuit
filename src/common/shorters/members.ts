@@ -1,11 +1,11 @@
 import {
 	FormattingPatterns,
-	GuildMemberResolvable,
-	RESTGetAPIGuildMembersQuery,
-	RESTGetAPIGuildMembersSearchQuery,
-	RESTPatchAPIGuildMemberJSONBody,
-	RESTPutAPIGuildBanJSONBody,
-	RESTPutAPIGuildMemberJSONBody,
+	type GuildMemberResolvable,
+	type RESTGetAPIGuildMembersQuery,
+	type RESTGetAPIGuildMembersSearchQuery,
+	type RESTPatchAPIGuildMemberJSONBody,
+	type RESTPutAPIGuildBanJSONBody,
+	type RESTPutAPIGuildMemberJSONBody,
 } from '..';
 import { GuildMember } from '../../structures';
 import { BaseShorter } from './base';
@@ -23,7 +23,7 @@ export class MemberShorter extends BaseShorter {
 						return this.members.fetch(guildId, resolve);
 					}
 
-					return this.members.search(guildId, { query: resolve, limit: 1 }).then((x) => x[0]);
+					return this.members.search(guildId, { query: resolve, limit: 1 }).then(x => x[0]);
 				}
 
 				const { id, displayName } = resolve;
@@ -33,7 +33,7 @@ export class MemberShorter extends BaseShorter {
 				}
 
 				return displayName
-					? await this.members.search(guildId, { query: displayName, limit: 1 }).then((x) => x[0])
+					? await this.members.search(guildId, { query: displayName, limit: 1 }).then(x => x[0])
 					: undefined;
 			},
 			search: async (guildId: string, query?: RESTGetAPIGuildMembersSearchQuery) => {
@@ -41,10 +41,10 @@ export class MemberShorter extends BaseShorter {
 					query,
 				});
 				await this.client.cache.members?.set(
-					members.map((x) => [x.user!.id, x]),
+					members.map(x => [x.user!.id, x]),
 					guildId,
 				);
-				return members.map((m) => new GuildMember(this.client, m, m.user!, guildId));
+				return members.map(m => new GuildMember(this.client, m, m.user!, guildId));
 			},
 			unban: async (guildId: string, memberId: string, body?: RESTPutAPIGuildBanJSONBody, reason?: string) => {
 				await this.client.proxy.guilds(guildId).bans(memberId).delete({ reason, body });
@@ -98,10 +98,10 @@ export class MemberShorter extends BaseShorter {
 					query,
 				});
 				await this.client.cache.members?.set(
-					members.map((x) => [x.user!.id, x]),
+					members.map(x => [x.user!.id, x]),
 					guildId,
 				);
-				return members.map((m) => new GuildMember(this.client, m, m.user!, guildId));
+				return members.map(m => new GuildMember(this.client, m, m.user!, guildId));
 			},
 			roles: this.roles,
 		};

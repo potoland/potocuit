@@ -2,15 +2,15 @@ import { join } from 'node:path';
 import { REST, Router } from '../api';
 import type { Adapter } from '../cache';
 import { Cache, DefaultMemoryAdapter } from '../cache';
-import { MiddlewareContext } from '../commands/applications/shared';
+import type { MiddlewareContext } from '../commands/applications/shared';
 import { PotoCommandHandler } from '../commands/handler';
 import {
 	ChannelShorter,
 	GuildShorter,
-	LocaleString,
+	type LocaleString,
 	LogLevels,
 	Logger,
-	MakeRequired,
+	type MakeRequired,
 	UsersShorter,
 	filterSplit,
 } from '../common';
@@ -22,7 +22,7 @@ import { WebhookShorter } from '../common/shorters/webhook';
 import type { DeepPartial, IntentStrings, OmitInsert } from '../common/types/util';
 import { ComponentHandler } from '../components/handler';
 import { PotoLangsHandler } from '../langs/handler';
-import { ChatInputCommandInteraction, MessageCommandInteraction, UserCommandInteraction } from '../structures';
+import type { ChatInputCommandInteraction, MessageCommandInteraction, UserCommandInteraction } from '../structures';
 import type { PotoClient } from './client';
 import type { PotoHttpClient } from './httpclient';
 import type { WorkerClient } from './workerclient';
@@ -160,11 +160,11 @@ export class BaseClient {
 	}
 
 	async uploadCommands(applicationId?: string) {
-		applicationId ??= await this.getRC().then((x) => x.applicationId ?? this.applicationId);
+		applicationId ??= await this.getRC().then(x => x.applicationId ?? this.applicationId);
 		BaseClient.assertString(applicationId, 'applicationId is not a string');
 
-		const commands = this.commands.values.map((x) => x.toJSON());
-		const filter = filterSplit(commands, (command) => !command.guild_id);
+		const commands = this.commands.values.map(x => x.toJSON());
+		const filter = filterSplit(commands, command => !command.guild_id);
 
 		await this.proxy.applications(applicationId).commands.put({
 			body: filter.expect,
@@ -183,20 +183,20 @@ export class BaseClient {
 				.applications(applicationId)
 				.guilds(guild)
 				.commands.put({
-					body: filter.never.filter((x) => x.guild_id?.includes(guild)),
+					body: filter.never.filter(x => x.guild_id?.includes(guild)),
 				});
 		}
 	}
 
 	async loadCommands(dir?: string) {
-		dir ??= await this.getRC().then((x) => x.commands);
+		dir ??= await this.getRC().then(x => x.commands);
 		BaseClient.assertString(dir);
 		await this.commands.load(dir, this);
 		this.logger.info('PotoCommandHandler loaded');
 	}
 
 	async loadComponents(dir?: string) {
-		dir ??= await this.getRC().then((x) => x.components);
+		dir ??= await this.getRC().then(x => x.components);
 		if (dir) {
 			await this.components.load(dir);
 			this.logger.info('PotoComponentHandler loaded');
@@ -204,7 +204,7 @@ export class BaseClient {
 	}
 
 	async loadLangs(dir?: string) {
-		dir ??= await this.getRC().then((x) => x.langs);
+		dir ??= await this.getRC().then(x => x.langs);
 		if (dir) {
 			await this.langs.load(dir);
 			this.logger.info('PotoLangsHandler loaded');
@@ -215,7 +215,7 @@ export class BaseClient {
 		T extends InternalRuntimeConfigHTTP | InternalRuntimeConfig = InternalRuntimeConfigHTTP | InternalRuntimeConfig,
 	>() {
 		const { locations, debug, ...env } = (await import(join(process.cwd(), 'poto.config.js')).then(
-			(x) => x.default,
+			x => x.default,
 		)) as T;
 
 		return {

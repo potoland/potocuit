@@ -1,16 +1,16 @@
 import { mix } from 'ts-mixer';
 import {
-	APIGuildChannel,
+	type APIGuildChannel,
 	CategoryChannel,
 	DMChannel,
 	DirectoryChannel,
 	ForumChannel,
-	Guild,
+	type Guild,
 	MediaChannel,
 	NewsChannel,
-	PotocuitChannels,
-	RESTPatchAPIGuildChannelPositionsJSONBody,
-	RESTPostAPIGuildChannelJSONBody,
+	type PotocuitChannels,
+	type RESTPatchAPIGuildChannelPositionsJSONBody,
+	type RESTPostAPIGuildChannelJSONBody,
 	StageChannel,
 	TextGuildChannel,
 	ThreadChannel,
@@ -19,23 +19,23 @@ import {
 	channelLink,
 } from '../..';
 import { MessageEmbed, resolveAttachment } from '../../builders';
-import { BaseClient } from '../../client/base';
+import type { BaseClient } from '../../client/base';
 import {
-	APIChannelBase,
-	APIGuildForumDefaultReactionEmoji,
-	APIGuildForumTag,
-	APITextChannel,
+	type APIChannelBase,
+	type APIGuildForumDefaultReactionEmoji,
+	type APIGuildForumTag,
+	type APITextChannel,
 	ChannelType,
-	EmojiResolvable,
-	MessageCreateBodyRequest,
-	MessageUpdateBodyRequest,
-	MethodContext,
-	ObjectToLower,
-	RESTGetAPIChannelMessageReactionUsersQuery,
-	RESTPatchAPIChannelJSONBody,
-	RESTPostAPIChannelWebhookJSONBody,
-	SortOrderType,
-	ThreadAutoArchiveDuration,
+	type EmojiResolvable,
+	type MessageCreateBodyRequest,
+	type MessageUpdateBodyRequest,
+	type MethodContext,
+	type ObjectToLower,
+	type RESTGetAPIChannelMessageReactionUsersQuery,
+	type RESTPatchAPIChannelJSONBody,
+	type RESTPostAPIChannelWebhookJSONBody,
+	type SortOrderType,
+	type ThreadAutoArchiveDuration,
 	VideoQualityMode,
 } from '../../common';
 import { ComponentsListener } from '../../components/listener';
@@ -164,11 +164,11 @@ export class MessagesMethods extends DiscordBase {
 		return {
 			...body,
 			components: body.components
-				? (body?.components instanceof ComponentsListener ? body.components.components : body.components).map((x) =>
+				? (body?.components instanceof ComponentsListener ? body.components.components : body.components).map(x =>
 						x.toJSON(),
 				  )
 				: undefined,
-			embeds: body.embeds?.map((x) => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? undefined,
+			embeds: body.embeds?.map(x => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? undefined,
 			//?
 			attachments: body.attachments?.map((x, i) => ({ id: i, ...resolveAttachment(x) })) ?? undefined,
 		} as T;
@@ -267,7 +267,7 @@ export class WebhookGuildMethods extends DiscordBase {
 		return {
 			list: async () => {
 				const webhooks = await ctx.client.proxy.guilds(ctx.guildId).webhooks.get();
-				return webhooks.map((webhook) => new Webhook(ctx.client, webhook));
+				return webhooks.map(webhook => new Webhook(ctx.client, webhook));
 			},
 		};
 	}
@@ -280,7 +280,7 @@ export class WebhookChannelMethods extends DiscordBase {
 		return {
 			list: async () => {
 				const webhooks = await ctx.client.proxy.channels(ctx.channelId).webhooks.get();
-				return webhooks.map((webhook) => new Webhook(ctx.client, webhook));
+				return webhooks.map(webhook => new Webhook(ctx.client, webhook));
 			},
 			create: async (body: RESTPostAPIChannelWebhookJSONBody) => {
 				const webhook = await ctx.client.proxy.channels(ctx.channelId).webhooks.post({

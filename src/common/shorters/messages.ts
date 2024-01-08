@@ -1,14 +1,14 @@
-import {
+import type {
 	RESTGetAPIChannelMessageReactionUsersQuery,
 	RESTPatchAPIChannelMessageJSONBody,
 	RESTPostAPIChannelMessageJSONBody,
 } from 'discord-api-types/v10';
-import { Attachment, resolveFiles } from '../../builders';
+import { type Attachment, resolveFiles } from '../../builders';
 import { Message, User } from '../../structures';
 import { encodeEmoji, resolveEmoji } from '../../structures/extra/functions';
 import { MessagesMethods } from '../../structures/methods/channels';
-import { EmojiResolvable } from '../types/resolvables';
-import { MessageCreateBodyRequest, MessageUpdateBodyRequest } from '../types/write';
+import type { EmojiResolvable } from '../types/resolvables';
+import type { MessageCreateBodyRequest, MessageUpdateBodyRequest } from '../types/write';
 import { BaseShorter } from './base';
 
 export class MessageShorter extends BaseShorter {
@@ -24,7 +24,7 @@ export class MessageShorter extends BaseShorter {
 						body: transformedBody,
 						files: parsedFiles,
 					})
-					.then((message) => {
+					.then(message => {
 						this.client.components.onRequestMessage(body, message);
 						return new Message(this.client, message);
 					});
@@ -38,7 +38,7 @@ export class MessageShorter extends BaseShorter {
 						body: MessagesMethods.transformMessageBody<RESTPatchAPIChannelMessageJSONBody>(body),
 						files: parsedFiles,
 					})
-					.then((message) => {
+					.then(message => {
 						this.client.components.onRequestUpdateMessage(body, message);
 						return new Message(this.client, message);
 					});
@@ -48,7 +48,7 @@ export class MessageShorter extends BaseShorter {
 					.channels(channelId)
 					.messages(messageId)
 					.crosspost.post({ reason })
-					.then((m) => new Message(this.client, m));
+					.then(m => new Message(this.client, m));
 			},
 			delete: (messageId: string, channelId: string, reason?: string) => {
 				return this.client.proxy
@@ -64,7 +64,7 @@ export class MessageShorter extends BaseShorter {
 					.channels(channelId)
 					.messages(messageId)
 					.get()
-					.then((x) => new Message(this.client, x));
+					.then(x => new Message(this.client, x));
 			},
 			purge: (messages: string[], channelId: string, reason?: string) => {
 				return this.client.proxy.channels(channelId).messages['bulk-delete'].post({ body: { messages }, reason });
@@ -118,7 +118,7 @@ export class MessageShorter extends BaseShorter {
 					.messages(messageId)
 					.reactions(encodeEmoji(rawEmoji))
 					.get({ query })
-					.then((u) => u.map((user) => new User(this.client, user)));
+					.then(u => u.map(user => new User(this.client, user)));
 			},
 			purge: async (messageId: string, channelId: string, emoji?: EmojiResolvable) => {
 				if (!emoji) {

@@ -1,15 +1,15 @@
 import {
-	APIMessage,
-	APIModalInteractionResponseCallbackData,
+	type APIMessage,
+	type APIModalInteractionResponseCallbackData,
 	Button,
 	InteractionResponseType,
 	LimitedCollection,
 	SelectMenu,
 } from '..';
 import type { ListenerOptions, PotoComponents } from '../builders';
-import { ComponentCallback, ModalSubmitCallback } from '../builders/types';
+import type { ComponentCallback, ModalSubmitCallback } from '../builders/types';
 import type { BaseClient } from '../client/base';
-import { Logger, PotoHandler } from '../common';
+import { type Logger, PotoHandler } from '../common';
 import type {
 	InteractionMessageUpdateBodyRequest,
 	MessageCreateBodyRequest,
@@ -44,7 +44,10 @@ export class ComponentHandler extends PotoHandler {
 	readonly commands: (ComponentCommand | ModalCommand)[] = [];
 	protected filter = (path: string) => path.endsWith('.js');
 
-	constructor(logger: Logger, protected client: BaseClient) {
+	constructor(
+		logger: Logger,
+		protected client: BaseClient,
+	) {
 		super(logger);
 	}
 
@@ -66,7 +69,7 @@ export class ComponentHandler extends PotoHandler {
 		row.idle?.refresh();
 		await component.callback(
 			interaction,
-			(reason) => {
+			reason => {
 				row.options?.onStop?.(reason ?? 'stop');
 				this.deleteValue(id);
 			},
@@ -222,14 +225,14 @@ export class ComponentHandler extends PotoHandler {
 
 	async reload(path: string) {
 		const component = this.client.components.commands.find(
-			(x) => x.__filePath?.endsWith(`${path}.js`) || x.__filePath?.endsWith(path) || x.__filePath === path,
+			x => x.__filePath?.endsWith(`${path}.js`) || x.__filePath?.endsWith(path) || x.__filePath === path,
 		);
 		if (!component || !component.__filePath) return null;
 		delete require.cache[component.__filePath];
-		const index = this.client.components.commands.findIndex((x) => x.__filePath === component.__filePath!);
+		const index = this.client.components.commands.findIndex(x => x.__filePath === component.__filePath!);
 		if (index === -1) return null;
 		this.client.components.commands.splice(index, 1);
-		const imported = await import(component.__filePath).then((x) => x.default);
+		const imported = await import(component.__filePath).then(x => x.default);
 		const command = new imported();
 		command.__filePath = component.__filePath;
 		this.client.components.commands.push(command);

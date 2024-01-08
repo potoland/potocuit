@@ -1,8 +1,8 @@
-import { parentPort as manager, workerData as __workerData__ } from 'worker_threads';
+import { parentPort as manager, workerData as __workerData__ } from 'node:worker_threads';
 import type { Cache } from '../cache';
 import { WorkerAdapter } from '../cache';
 import type { GatewayDispatchPayload } from '../common';
-import { DeepPartial, LogLevels, Logger } from '../common';
+import { type DeepPartial, LogLevels, Logger } from '../common';
 import { PotoEventHandler } from '../events';
 import type { Shard, WorkerData } from '../websocket';
 import { handleManagerMessages } from '../websocket/discord/handlemessage';
@@ -32,7 +32,7 @@ export class WorkerClient extends BaseClient {
 			throw new Error('WorkerClient cannot spawn without manager');
 		}
 		const onPacket = this.onPacket.bind(this);
-		manager!.on('message', (data) =>
+		manager!.on('message', data =>
 			handleManagerMessages(data, manager!, this.shards, this.cache, this.logger, onPacket),
 		);
 		this.setServices({
@@ -58,7 +58,7 @@ export class WorkerClient extends BaseClient {
 	}
 
 	async loadEvents(dir?: string) {
-		dir ??= await this.getRC().then((x) => x.events);
+		dir ??= await this.getRC().then(x => x.events);
 		if (dir) {
 			await this.events.load(dir);
 			this.logger.info('PotoEventHandler loaded');

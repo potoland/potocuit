@@ -26,11 +26,11 @@ export class DefaultMemoryAdapter implements Adapter {
 			return data ? JSON.parse(data) : null;
 		}
 		return keys
-			.map((x) => {
+			.map(x => {
 				const data = this.storage.get(x);
 				return data ? JSON.parse(data) : null;
 			})
-			.filter((x) => x);
+			.filter(x => x);
 	}
 
 	set(keys: string, data: any): void;
@@ -81,7 +81,7 @@ export class DefaultMemoryAdapter implements Adapter {
 	}
 
 	keys(to: string) {
-		return this.getToRelationship(to).map((id) => `${to}.${id}`);
+		return this.getToRelationship(to).map(id => `${to}.${id}`);
 	}
 
 	count(to: string) {

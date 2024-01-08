@@ -1,4 +1,4 @@
-import {
+import type {
 	RESTGetAPIApplicationCommandResult,
 	RESTGetAPIApplicationCommandsQuery,
 	RESTGetAPIApplicationCommandsResult,
@@ -24,14 +24,18 @@ import {
 	RESTPutAPIApplicationRoleConnectionMetadataResult,
 	RESTPutAPIGuildApplicationCommandsPermissionsResult,
 } from '../../common';
-import { RestArguments } from '../REST';
-import { ProxyRequestMethod } from '../Router';
+import type { RestArguments } from '../REST';
+import type { ProxyRequestMethod } from '../Router';
 
 export interface ApplicationRoutes {
 	applications: {
-		(id: string): {
+		(
+			id: string,
+		): {
 			guilds: {
-				(id: string): {
+				(
+					id: string,
+				): {
 					commands: {
 						get(
 							args?: RestArguments<ProxyRequestMethod.Get, RESTGetAPIApplicationGuildCommandsQuery>,
@@ -48,7 +52,9 @@ export interface ApplicationRoutes {
 							): Promise<RESTGetAPIGuildApplicationCommandsPermissionsResult>;
 							// put(args?: RestArguments<ProxyRequestMethod.Put, RESTPutAPIGuildApplicationCommandsPermissionsJSONBody>): Promise<RESTPutAPIGuildApplicationCommandsPermissionsResult>
 						};
-						(id: string): {
+						(
+							id: string,
+						): {
 							get(args?: RestArguments<ProxyRequestMethod.Get>): Promise<RESTGetAPIApplicationGuildCommandResult>;
 							patch(
 								args: RestArguments<ProxyRequestMethod.Patch, RESTPatchAPIApplicationGuildCommandJSONBody>,
@@ -76,7 +82,9 @@ export interface ApplicationRoutes {
 				put(
 					args?: RestArguments<ProxyRequestMethod.Put, RESTPutAPIApplicationCommandsJSONBody>,
 				): Promise<RESTPutAPIApplicationCommandsResult>;
-				(id: string): {
+				(
+					id: string,
+				): {
 					get(args?: RestArguments<ProxyRequestMethod.Get>): Promise<RESTGetAPIApplicationCommandResult>;
 					patch(
 						args: RestArguments<ProxyRequestMethod.Patch, RESTPatchAPIApplicationCommandJSONBody>,

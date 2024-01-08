@@ -1,5 +1,5 @@
-import { randomUUID } from 'crypto';
-import { type MessagePort, parentPort, workerData } from 'worker_threads';
+import { randomUUID } from 'node:crypto';
+import { type MessagePort, parentPort, workerData } from 'node:worker_threads';
 import type { WorkerData } from '../../websocket';
 import type { WorkerSendCacheRequest } from '../../websocket/discord/worker';
 import type { Adapter } from './types';

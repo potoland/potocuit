@@ -1,4 +1,4 @@
-import { parentPort as manager, workerData as __workerData__ } from 'worker_threads';
+import { parentPort as manager, workerData as __workerData__ } from 'node:worker_threads';
 import { Cache, WorkerAdapter } from '../../cache';
 import type { GatewayDispatchPayload } from '../../common';
 import { Logger } from '../../common';
@@ -20,7 +20,7 @@ const logger = new Logger({
 const shards = new Map<number, Shard>();
 const cache = new Cache(workerData.intents, new WorkerAdapter(manager));
 
-manager!.on('message', (data) => handleManagerMessages(data, manager!, shards, cache, logger));
+manager!.on('message', data => handleManagerMessages(data, manager!, shards, cache, logger));
 
 export interface WorkerShardInfo {
 	open: boolean;

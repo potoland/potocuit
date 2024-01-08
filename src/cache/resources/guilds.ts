@@ -13,7 +13,7 @@ export class Guilds extends BaseResource {
 
 	override async values() {
 		const guilds = (await super.values()) as APIGuild[];
-		return guilds.map((x) => new Guild<'cached'>(this.client, x));
+		return guilds.map(x => new Guild<'cached'>(this.client, x));
 	}
 
 	override async remove(id: string) {

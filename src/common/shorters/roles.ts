@@ -1,4 +1,4 @@
-import {
+import type {
 	APIRole,
 	RESTPatchAPIGuildRoleJSONBody,
 	RESTPatchAPIGuildRolePositionsJSONBody,
@@ -14,28 +14,28 @@ export class RoleShorter extends BaseShorter {
 				this.client.proxy
 					.guilds(guildId)
 					.roles.post({ body })
-					.then((res) => this.client.cache.roles?.setIfNI('Guilds', res.id, guildId, res)),
+					.then(res => this.client.cache.roles?.setIfNI('Guilds', res.id, guildId, res)),
 			list: async (guildId: string, force = false) => {
 				let roles: APIRole[] = [];
 				if (!force) {
 					roles = (await this.client.cache.roles?.values(guildId)) ?? [];
 					if (roles.length) {
-						return roles.map((r) => new GuildRole(this.client, r, guildId));
+						return roles.map(r => new GuildRole(this.client, r, guildId));
 					}
 				}
 				roles = await this.client.proxy.guilds(guildId).roles.get();
 				await this.client.cache.roles?.set(
-					roles.map((r) => [r.id, r]),
+					roles.map(r => [r.id, r]),
 					guildId,
 				);
-				return roles.map((r) => new GuildRole(this.client, r, guildId));
+				return roles.map(r => new GuildRole(this.client, r, guildId));
 			},
 			edit: (guildId: string, roleId: string, body: RESTPatchAPIGuildRoleJSONBody, reason?: string) => {
 				return this.client.proxy
 					.guilds(guildId)
 					.roles(roleId)
 					.patch({ body, reason })
-					.then((res) => this.client.cache.roles?.setIfNI('Guilds', roleId, guildId, res));
+					.then(res => this.client.cache.roles?.setIfNI('Guilds', roleId, guildId, res));
 			},
 			delete: (guildId: string, roleId: string, reason?: string) => {
 				return this.client.proxy
@@ -50,11 +50,11 @@ export class RoleShorter extends BaseShorter {
 				});
 				if (!this.client.cache.hasRolesIntent) {
 					await this.client.cache.roles?.set(
-						roles.map((x) => [x.id, x]),
+						roles.map(x => [x.id, x]),
 						guildId,
 					);
 				}
-				return roles.map((x) => new GuildRole(this.client, x, guildId));
+				return roles.map(x => new GuildRole(this.client, x, guildId));
 			},
 		};
 	}

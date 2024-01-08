@@ -75,7 +75,7 @@ export function hasSublimit(bucketRoute: string, body?: unknown, method?: string
 		// This should never be a POST body, but just in case
 		if (method !== RequestMethod.Patch) return false;
 		const castedBody = body as RESTPatchAPIChannelJSONBody;
-		return ['name', 'topic'].some((key) => Reflect.has(castedBody, key));
+		return ['name', 'topic'].some(key => Reflect.has(castedBody, key));
 	}
 
 	// If we are checking if a request has a sublimit on a route not checked above, sublimit all requests to avoid a flood of 429s
@@ -107,7 +107,7 @@ export async function onRateLimit(manager: REST, rateLimitData: RateLimitData) {
 	const shouldThrow =
 		typeof options.rejectOnRateLimit === 'function'
 			? await options.rejectOnRateLimit(rateLimitData)
-			: options.rejectOnRateLimit.some((route) => rateLimitData.route.startsWith(route.toLowerCase()));
+			: options.rejectOnRateLimit.some(route => rateLimitData.route.startsWith(route.toLowerCase()));
 	if (shouldThrow) {
 		throw new RateLimitError(rateLimitData);
 	}
@@ -128,7 +128,7 @@ export function calculateUserDefaultAvatarIndex(userId: Snowflake) {
  * @param ms - The amount of time (in milliseconds) to sleep for
  */
 export async function sleep(ms: number): Promise<void> {
-	return new Promise<void>((resolve) => {
+	return new Promise<void>(resolve => {
 		setTimeout(() => resolve(), ms);
 	});
 }

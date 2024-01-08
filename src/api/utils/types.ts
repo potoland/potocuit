@@ -2,7 +2,7 @@ import type { Readable } from 'node:stream';
 import type { ReadableStream } from 'node:stream/web';
 import type { Agent, BodyInit, Dispatcher, RequestInit, Response } from 'undici-types';
 import type { Collection } from '../../collection';
-import { MakeRequired } from '../../common';
+import type { MakeRequired } from '../../common';
 import type { IHandler } from '../interfaces/Handler';
 
 export interface RestEvents {

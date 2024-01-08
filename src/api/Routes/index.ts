@@ -1,14 +1,14 @@
-import { ApplicationRoutes } from './applications';
-import { ChannelRoutes } from './channels';
-import { GatewayRoutes } from './gateway';
-import { GuildRoutes } from './guilds';
-import { InteractionRoutes } from './interactions';
-import { InviteRoutes } from './invites';
-import { StageInstanceRoutes } from './stage-instances';
-import { StickerRoutes } from './stickers';
-import { UserRoutes } from './users';
-import { VoiceRoutes } from './voice';
-import { WebhookRoutes } from './webhooks';
+import type { ApplicationRoutes } from './applications';
+import type { ChannelRoutes } from './channels';
+import type { GatewayRoutes } from './gateway';
+import type { GuildRoutes } from './guilds';
+import type { InteractionRoutes } from './interactions';
+import type { InviteRoutes } from './invites';
+import type { StageInstanceRoutes } from './stage-instances';
+import type { StickerRoutes } from './stickers';
+import type { UserRoutes } from './users';
+import type { VoiceRoutes } from './voice';
+import type { WebhookRoutes } from './webhooks';
 
 export * from './cdn';
 

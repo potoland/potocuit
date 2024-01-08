@@ -1,7 +1,7 @@
+import { readdir } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import { setTimeout } from 'node:timers/promises';
-import { readdir } from 'fs/promises';
-import { ColorResolvable, EmbedColors, Logger, ObjectToLower, ObjectToSnake } from '..';
+import { type ColorResolvable, EmbedColors, type Logger, type ObjectToLower, type ObjectToSnake } from '..';
 
 export function resolveColor(color: ColorResolvable) {
 	switch (typeof color) {
@@ -41,7 +41,7 @@ export function toSnakeCase<Obj extends Record<string, any>>(target: Obj): Objec
 				break;
 			case 'object':
 				if (Array.isArray(value)) {
-					result[ReplaceRegex.snake(key)] = value.map((prop) =>
+					result[ReplaceRegex.snake(key)] = value.map(prop =>
 						typeof prop === 'object' && prop ? toSnakeCase(prop) : prop,
 					);
 					break;
@@ -81,7 +81,7 @@ export function toCamelCase<Obj extends Record<string, any>>(target: Obj): Objec
 				break;
 			case 'object':
 				if (Array.isArray(value)) {
-					result[ReplaceRegex.camel(key)] = value.map((prop) =>
+					result[ReplaceRegex.camel(key)] = value.map(prop =>
 						typeof prop === 'object' && prop ? toCamelCase(prop) : prop,
 					);
 					break;
@@ -103,10 +103,10 @@ export function toCamelCase<Obj extends Record<string, any>>(target: Obj): Objec
 
 export const ReplaceRegex = {
 	camel: (s: string) => {
-		return s.toLowerCase().replace(/(_\S)/gi, (a) => a[1].toUpperCase());
+		return s.toLowerCase().replace(/(_\S)/gi, a => a[1].toUpperCase());
 	},
 	snake: (s: string) => {
-		return s.replace(/[A-Z]/g, (a) => `_${a.toLowerCase()}`);
+		return s.replace(/[A-Z]/g, a => `_${a.toLowerCase()}`);
 	},
 };
 
@@ -633,13 +633,13 @@ export class PotoHandler {
 	}
 
 	protected async loadFiles<T extends NonNullable<unknown>>(paths: string[]): Promise<T[]> {
-		return await Promise.all(paths.map((path) => import(path).then((file) => file.default ?? file)));
+		return await Promise.all(paths.map(path => import(path).then(file => file.default ?? file)));
 	}
 
 	protected async loadFilesK<T>(paths: string[]): Promise<{ name: string; file: T; path: string }[]> {
 		return await Promise.all(
-			paths.map((path) =>
-				import(path).then((file) => {
+			paths.map(path =>
+				import(path).then(file => {
 					return {
 						name: basename(path), // .split('.')[0],
 						file: file.default ?? file,

@@ -7,7 +7,7 @@ export class ConnectTimeout {
 		let resolve = (_x: boolean) => {
 			//
 		};
-		const promise = new Promise<boolean>((r) => (resolve = r));
+		const promise = new Promise<boolean>(r => (resolve = r));
 		if (!this.promises.length) {
 			this.interval = setInterval(() => {
 				this.shift();

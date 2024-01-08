@@ -1,4 +1,4 @@
-import { APIActionRowComponent, APIActionRowComponentTypes, ComponentType } from '../common';
+import { type APIActionRowComponent, type APIActionRowComponentTypes, ComponentType } from '../common';
 import { ActionRow } from './ActionRow';
 import { Button } from './Button';
 import { TextInput } from './Modal';
@@ -9,7 +9,7 @@ import {
 	StringSelectMenu,
 	UserSelectMenu,
 } from './SelectMenu';
-import { PotoComponents } from './types';
+import type { PotoComponents } from './types';
 
 export * from './ActionRow';
 export * from './Attachment';

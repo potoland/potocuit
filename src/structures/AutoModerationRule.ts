@@ -6,7 +6,7 @@ import type {
 	RESTPatchAPIAutoModerationRuleJSONBody,
 	RESTPostAPIAutoModerationRuleJSONBody,
 } from '../common';
-import { Guild } from './Guild';
+import type { Guild } from './Guild';
 import { DiscordBase } from './extra/DiscordBase';
 
 export interface AutoModerationRule extends ObjectToLower<APIAutoModerationRule> {}

@@ -213,13 +213,14 @@ export class Cache {
 		const allData: Partial<Record<NonGuildBased | GuildBased | GuildRelated, string[][]>> = {};
 		for (const [type, id, guildId] of keys) {
 			switch (type) {
-				case 'members': {
-					if (!allData[type]) {
-						allData[type] = [];
+				case 'members':
+					{
+						if (!allData[type]) {
+							allData[type] = [];
+						}
+						allData[type]!.push([id, guildId]);
 					}
-					allData[type]!.push([id, guildId]);
-				}
-				break;
+					break;
 				case 'roles':
 				case 'threads':
 				case 'stickers':
@@ -229,13 +230,14 @@ export class Cache {
 				case 'stageInstances':
 				case 'emojis':
 				case 'users':
-				case 'guilds': {
-					if (!allData[type]) {
-						allData[type] = [];
+				case 'guilds':
+					{
+						if (!allData[type]) {
+							allData[type] = [];
+						}
+						allData[type]!.push([id]);
 					}
-					allData[type]!.push([id]);
-				}
-				break;
+					break;
 				default:
 					throw new Error(`Invalid type ${type}`);
 			}
@@ -294,45 +296,48 @@ export class Cache {
 				case 'presences':
 				case 'voiceStates':
 				case 'stageInstances':
-				case 'emojis': {
-					const hashId = this[type]?.hashId(guildId!);
-					if (!hashId) {
-						continue;
+				case 'emojis':
+					{
+						const hashId = this[type]?.hashId(guildId!);
+						if (!hashId) {
+							continue;
+						}
+						if (!(hashId in relationshipsData)) {
+							relationshipsData[hashId] = [];
+						}
+						relationshipsData[hashId].push(id);
+						data.guild_id = guildId;
+						allData.push([this[type]!.hashId(id), this[type]!.parse(data, id, guildId!)]);
 					}
-					if (!(hashId in relationshipsData)) {
-						relationshipsData[hashId] = [];
+					break;
+				case 'members':
+					{
+						const hashId = this[type]?.hashId(guildId!);
+						if (!hashId) {
+							continue;
+						}
+						if (!(hashId in relationshipsData)) {
+							relationshipsData[hashId] = [];
+						}
+						relationshipsData[hashId].push(id);
+						data.guild_id = guildId;
+						allData.push([this[type]!.hashGuildId(id, guildId), this[type]!.parse(data, id, guildId!)]);
 					}
-					relationshipsData[hashId].push(id);
-					data.guild_id = guildId;
-					allData.push([this[type]!.hashId(id), this[type]!.parse(data, id, guildId!)]);
-				}
-				break;
-				case 'members': {
-					const hashId = this[type]?.hashId(guildId!);
-					if (!hashId) {
-						continue;
-					}
-					if (!(hashId in relationshipsData)) {
-						relationshipsData[hashId] = [];
-					}
-					relationshipsData[hashId].push(id);
-					data.guild_id = guildId;
-					allData.push([this[type]!.hashGuildId(id, guildId), this[type]!.parse(data, id, guildId!)]);
-				}
-				break;
+					break;
 				case 'users':
-				case 'guilds': {
-					const hashId = this[type]?.namespace;
-					if (!hashId) {
-						continue;
+				case 'guilds':
+					{
+						const hashId = this[type]?.namespace;
+						if (!hashId) {
+							continue;
+						}
+						if (!(hashId in relationshipsData)) {
+							relationshipsData[hashId] = [];
+						}
+						relationshipsData[hashId].push(id);
+						allData.push([this[type]!.hashId(id), data]);
 					}
-					if (!(hashId in relationshipsData)) {
-						relationshipsData[hashId] = [];
-					}
-					relationshipsData[hashId].push(id);
-					allData.push([this[type]!.hashId(id), data]);
-				}
-				break;
+					break;
 				default:
 					throw new Error(`Invalid type ${type}`);
 			}
@@ -344,11 +349,12 @@ export class Cache {
 
 	async onPacket(event: GatewayDispatchPayload) {
 		switch (event.t) {
-			case 'READY': {
-				const data = event.d as GatewayReadyDispatchData;
-				await this.users?.set(data.user.id, data.user);
-			}
-			break;
+			case 'READY':
+				{
+					const data = event.d as GatewayReadyDispatchData;
+					await this.users?.set(data.user.id, data.user);
+				}
+				break;
 			case 'GUILD_CREATE':
 			case 'GUILD_UPDATE':
 				await this.guilds?.set(event.d.id, event.d);
@@ -384,14 +390,14 @@ export class Cache {
 			case 'GUILD_EMOJIS_UPDATE':
 				await this.emojis?.remove(await this.emojis?.keys(event.d.guild_id), event.d.guild_id);
 				await this.emojis?.set(
-					(event.d.emojis as APIEmoji[]).map((x) => [x.id!, x]),
+					(event.d.emojis as APIEmoji[]).map(x => [x.id!, x]),
 					event.d.guild_id,
 				);
 				break;
 			case 'GUILD_STICKERS_UPDATE':
 				await this.stickers?.remove(await this.stickers?.keys(event.d.guild_id), event.d.guild_id);
 				await this.stickers?.set(
-					(event.d.stickers as APISticker[]).map((x) => [x.id, x]),
+					(event.d.stickers as APISticker[]).map(x => [x.id, x]),
 					event.d.guild_id,
 				);
 				break;

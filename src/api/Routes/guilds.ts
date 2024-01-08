@@ -1,5 +1,5 @@
-import { OmitInsert, RawFile } from '../..';
-import {
+import type { OmitInsert, RawFile } from '../..';
+import type {
 	APIThreadChannel,
 	Identify,
 	RESTDeleteAPIAutoModerationRuleResult,
@@ -113,8 +113,8 @@ import {
 	RESTPutAPIGuildMemberRoleResult,
 	RESTPutAPIGuildTemplateSyncResult,
 } from '../../common';
-import { RestArguments } from '../REST';
-import { ProxyRequestMethod } from '../Router';
+import type { RestArguments } from '../REST';
+import type { ProxyRequestMethod } from '../Router';
 
 export interface GuildRoutes {
 	guilds: {
@@ -128,7 +128,9 @@ export interface GuildRoutes {
 				args: RestArguments<ProxyRequestMethod.Post, RESTPostAPITemplateCreateGuildJSONBody>,
 			): Promise<RESTPostAPITemplateCreateGuildResult>;
 		};
-		(id: string): {
+		(
+			id: string,
+		): {
 			//.
 			get(args?: RestArguments<ProxyRequestMethod.Get, RESTGetAPIGuildQuery>): Promise<RESTGetAPIGuildResult>;
 			//.
@@ -155,7 +157,9 @@ export interface GuildRoutes {
 					post(
 						args: RestArguments<ProxyRequestMethod.Post, RESTPostAPIAutoModerationRuleJSONBody>,
 					): Promise<RESTPostAPIAutoModerationRuleResult>;
-					(id: string): {
+					(
+						id: string,
+					): {
 						//.
 						get(args?: RestArguments<ProxyRequestMethod.Get>): Promise<RESTGetAPIAutoModerationRuleResult>;
 						//.
@@ -196,7 +200,9 @@ export interface GuildRoutes {
 						args: RestArguments<ProxyRequestMethod.Patch, RESTPatchAPICurrentGuildMemberJSONBody>,
 					): Promise<RESTGetAPIGuildMemberResult>;
 				};
-				(id: string): {
+				(
+					id: string,
+				): {
 					//.
 					get(args?: RestArguments<ProxyRequestMethod.Get>): Promise<RESTGetAPIGuildMemberResult>;
 					//.
@@ -237,7 +243,9 @@ export interface GuildRoutes {
 				patch(
 					args: RestArguments<ProxyRequestMethod.Patch, RESTPatchAPIGuildRolePositionsJSONBody>,
 				): Promise<RESTPatchAPIGuildRolePositionsResult>;
-				(id: string): {
+				(
+					id: string,
+				): {
 					//.
 					patch(
 						args: RestArguments<ProxyRequestMethod.Patch, RESTPatchAPIGuildRoleJSONBody>,
@@ -249,7 +257,9 @@ export interface GuildRoutes {
 			bans: {
 				//.
 				get(args?: RestArguments<ProxyRequestMethod.Get, RESTGetAPIGuildBansQuery>): Promise<RESTGetAPIGuildBansResult>;
-				(userId: string): {
+				(
+					userId: string,
+				): {
 					//.
 					get(args?: RestArguments<ProxyRequestMethod.Get>): Promise<RESTGetAPIGuildBanResult>;
 					//.
@@ -305,7 +315,9 @@ export interface GuildRoutes {
 			integrations: {
 				//.
 				get(args?: RestArguments<ProxyRequestMethod.Get>): Promise<RESTGetAPIGuildIntegrationsResult>;
-				(id: string): {
+				(
+					id: string,
+				): {
 					//.
 					delete(args?: RestArguments<ProxyRequestMethod.Delete>): Promise<RESTDeleteAPIGuildIntegrationResult>;
 				};
@@ -332,7 +344,9 @@ export interface GuildRoutes {
 				post(
 					args: RestArguments<ProxyRequestMethod.Post, RESTPostAPIGuildEmojiJSONBody>,
 				): Promise<RESTPostAPIGuildEmojiResult>;
-				(id: string): {
+				(
+					id: string,
+				): {
 					//.
 					get(args?: RestArguments<ProxyRequestMethod.Get>): Promise<RESTGetAPIGuildEmojiResult>;
 					//.
@@ -350,7 +364,9 @@ export interface GuildRoutes {
 						args: RestArguments<ProxyRequestMethod.Patch, RESTPatchAPIGuildVoiceStateCurrentMemberJSONBody>,
 					): Promise<RESTPatchAPIGuildVoiceStateCurrentMemberResult>;
 				};
-				(id: string): {
+				(
+					id: string,
+				): {
 					//.
 					patch(
 						args: RestArguments<ProxyRequestMethod.Patch, RESTPatchAPIGuildVoiceStateUserJSONBody>,
@@ -369,7 +385,9 @@ export interface GuildRoutes {
 						OmitInsert<RawFile, 'key', { key: 'file' }>[]
 					>,
 				): Promise<RESTPostAPIGuildStickerResult>;
-				(id: string): {
+				(
+					id: string,
+				): {
 					//.
 					get(args?: RestArguments<ProxyRequestMethod.Get>): Promise<RESTGetAPIGuildStickerResult>;
 					//.
@@ -389,7 +407,9 @@ export interface GuildRoutes {
 				post(
 					args: RestArguments<ProxyRequestMethod.Post, RESTPostAPIGuildScheduledEventJSONBody>,
 				): Promise<RESTPostAPIGuildScheduledEventResult>;
-				(id: string): {
+				(
+					id: string,
+				): {
 					//.
 					get(
 						args?: RestArguments<ProxyRequestMethod.Get, RESTGetAPIGuildScheduledEventQuery>,
@@ -415,7 +435,9 @@ export interface GuildRoutes {
 				post(
 					args: RestArguments<ProxyRequestMethod.Post, RESTPostAPIGuildTemplatesJSONBody>,
 				): Promise<RESTPostAPIGuildTemplatesResult>;
-				(code: string): {
+				(
+					code: string,
+				): {
 					//.
 					put(args?: RestArguments<ProxyRequestMethod.Put>): Promise<RESTPutAPIGuildTemplateSyncResult>;
 					//.

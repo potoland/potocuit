@@ -1,4 +1,4 @@
-import { APIGuildMember } from '../../common';
+import type { APIGuildMember } from '../../common';
 import { GuildMember } from '../../structures';
 import { GuildBasedResource } from './default/guild-based';
 export class Members extends GuildBasedResource {
@@ -21,8 +21,8 @@ export class Members extends GuildBasedResource {
 		const members = await super.values(guild);
 		const users = (await this.client.cache.users?.values()) ?? [];
 		return members
-			.map((rawMember) => {
-				const user = users.find((x) => x.id === rawMember.id);
+			.map(rawMember => {
+				const user = users.find(x => x.id === rawMember.id);
 				return user ? new GuildMember(this.client, rawMember, user, guild) : undefined;
 			})
 			.filter(Boolean) as GuildMember[];

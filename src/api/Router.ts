@@ -27,7 +27,7 @@ export class Router {
 				return this.createProxy([...route, key]);
 			},
 			apply: (...[, _, args]) => {
-				return this.createProxy([...route, ...args.filter((x) => x != null)]);
+				return this.createProxy([...route, ...args.filter(x => x != null)]);
 			},
 		}) as unknown as APIRoutes;
 	}
@@ -55,7 +55,7 @@ export const CDNRouter = {
 				return this.createProxy([...route, key]);
 			},
 			apply: (...[, _, args]) => {
-				return this.createProxy([...route, ...args.filter((x) => x != null)]);
+				return this.createProxy([...route, ...args.filter(x => x != null)]);
 			},
 		}) as unknown as CDNRoute;
 	},

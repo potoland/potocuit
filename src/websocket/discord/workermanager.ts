@@ -1,8 +1,8 @@
-import { randomUUID } from 'crypto';
-import { join } from 'path';
-import { Worker } from 'worker_threads';
+import { randomUUID } from 'node:crypto';
+import { join } from 'node:path';
+import { Worker } from 'node:worker_threads';
 import { type Adapter, DefaultMemoryAdapter } from '../../cache';
-import { GatewayPresenceUpdateData, GatewaySendPayload, Logger, MergeOptions, delay } from '../../common';
+import { type GatewayPresenceUpdateData, type GatewaySendPayload, Logger, MergeOptions, delay } from '../../common';
 import { WorkerManagerDefaults } from '../constants';
 import { SequentialBucket } from '../structures';
 import type { ShardOptions, WorkerData, WorkerManagerOptions } from './shared';
@@ -138,7 +138,7 @@ export class WorkersManger extends Map<number, Worker> {
 	createWorker(workerData: WorkerData) {
 		const worker = new Worker(workerData.path, { workerData });
 
-		worker.on('message', (data) => this.handleWorkerMessage(data));
+		worker.on('message', data => this.handleWorkerMessage(data));
 
 		return worker;
 	}
@@ -164,43 +164,47 @@ export class WorkersManger extends Map<number, Worker> {
 			case 'CONNECT_QUEUE':
 				this.spawn(message.workerId, message.shardId);
 				break;
-			case 'CACHE_REQUEST': {
-				const worker = this.get(message.workerId);
-				if (!worker) {
-					throw new Error('Invalid request from unavailable worker');
+			case 'CACHE_REQUEST':
+				{
+					const worker = this.get(message.workerId);
+					if (!worker) {
+						throw new Error('Invalid request from unavailable worker');
+					}
+					// @ts-expect-error
+					const result = await this.cacheAdapter[message.method](...message.args);
+					worker.postMessage({
+						type: 'CACHE_RESULT',
+						nonce: message.nonce,
+						result,
+					} as ManagerSendCacheResult);
 				}
-				// @ts-expect-error
-				const result = await this.cacheAdapter[message.method](...message.args);
-				worker.postMessage({
-					type: 'CACHE_RESULT',
-					nonce: message.nonce,
-					result,
-				} as ManagerSendCacheResult);
-			}
-			break;
-			case 'RECEIVE_PAYLOAD': {
-				this.options.handlePayload(message.shardId, message.workerId, message.payload);
-			}
-			break;
-			case 'RESULT_PAYLOAD': {
-				const resolve = this.promises.get(message.nonce);
-				if (!resolve) {
-					return;
+				break;
+			case 'RECEIVE_PAYLOAD':
+				{
+					this.options.handlePayload(message.shardId, message.workerId, message.payload);
 				}
-				this.promises.delete(message.nonce);
-				resolve(true);
-			}
-			break;
-			case 'SHARD_INFO': {
-				const { nonce, type, ...data } = message;
-				const resolve = this.promises.get(nonce);
-				if (!resolve) {
-					return;
+				break;
+			case 'RESULT_PAYLOAD':
+				{
+					const resolve = this.promises.get(message.nonce);
+					if (!resolve) {
+						return;
+					}
+					this.promises.delete(message.nonce);
+					resolve(true);
 				}
-				this.promises.delete(nonce);
-				resolve(data);
-			}
-			break;
+				break;
+			case 'SHARD_INFO':
+				{
+					const { nonce, type, ...data } = message;
+					const resolve = this.promises.get(nonce);
+					if (!resolve) {
+						return;
+					}
+					this.promises.delete(nonce);
+					resolve(data);
+				}
+				break;
 			case 'WORKER_INFO': {
 				const { nonce, type, ...data } = message;
 				const resolve = this.promises.get(nonce);

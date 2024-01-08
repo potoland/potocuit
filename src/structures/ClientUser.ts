@@ -39,7 +39,7 @@ export class ClientUser extends User {
 				return ctx.client.proxy
 					.users('@me')
 					.guilds.get({ query })
-					.then((guilds) => guilds.map((guild) => new AnonymousGuild(ctx.client, { ...guild, splash: null })));
+					.then(guilds => guilds.map(guild => new AnonymousGuild(ctx.client, { ...guild, splash: null })));
 			},
 			fetch: async (id: string) => {
 				const guild = await ctx.client.proxy.guilds(id).get();

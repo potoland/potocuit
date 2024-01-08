@@ -1,6 +1,6 @@
-import { RESTGetAPIVoiceRegionsResult } from '../../common';
-import { RestArguments } from '../REST';
-import { ProxyRequestMethod } from '../Router';
+import type { RESTGetAPIVoiceRegionsResult } from '../../common';
+import type { RestArguments } from '../REST';
+import type { ProxyRequestMethod } from '../Router';
 
 export interface VoiceRoutes {
 	voice: {

@@ -1,8 +1,8 @@
 import type { BaseClient } from '../../client/base';
 import type { LocaleString } from '../../common';
-import { ApplicationCommandType } from '../../common';
-import { MenuCommandContext } from './menucontext';
-import { MiddlewareContext, NextFunction, PassFunction, StopFunction } from './shared';
+import type { ApplicationCommandType } from '../../common';
+import type { MenuCommandContext } from './menucontext';
+import type { MiddlewareContext, NextFunction, PassFunction, StopFunction } from './shared';
 
 export class ContextMenuCommand {
 	middlewares: MiddlewareContext[] = [];
@@ -33,7 +33,7 @@ export class ContextMenuCommand {
 		const metadata: Record<string, any> = {};
 		let index = 0;
 
-		return new Promise((res) => {
+		return new Promise(res => {
 			let running = true;
 			const pass: PassFunction = () => {
 				if (!running) {
@@ -42,7 +42,7 @@ export class ContextMenuCommand {
 				running = false;
 				return res('pass');
 			};
-			const next: NextFunction<any> = (obj) => {
+			const next: NextFunction<any> = obj => {
 				if (!running) {
 					return;
 				}
@@ -55,7 +55,7 @@ export class ContextMenuCommand {
 				}
 				middlewares[index]({ context, next, stop, pass });
 			};
-			const stop: StopFunction = (err) => {
+			const stop: StopFunction = err => {
 				if (!running) {
 					return;
 				}
@@ -92,7 +92,7 @@ export class ContextMenuCommand {
 
 	async reload() {
 		delete require.cache[this.__filePath!];
-		const __tempCommand = await import(this.__filePath!).then((x) => x.default ?? x);
+		const __tempCommand = await import(this.__filePath!).then(x => x.default ?? x);
 
 		Object.setPrototypeOf(this, __tempCommand.prototype);
 	}

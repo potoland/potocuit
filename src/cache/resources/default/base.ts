@@ -6,7 +6,10 @@ export class BaseResource<T = any> {
 	client!: BaseClient;
 	namespace = 'base';
 
-	constructor(protected cache: Cache, client?: BaseClient) {
+	constructor(
+		protected cache: Cache,
+		client?: BaseClient,
+	) {
 		if (client) {
 			this.client = client;
 		}

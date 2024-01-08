@@ -1,7 +1,7 @@
 import { basename, dirname } from 'node:path';
 import type { BaseClient } from '../client/base';
 import type { Logger } from '../common';
-import { LocaleString, PotoHandler } from '../common';
+import { type LocaleString, PotoHandler } from '../common';
 import { Command, SubCommand } from './applications/chat';
 import { ContextMenuCommand } from './applications/menu';
 
@@ -15,7 +15,7 @@ export class PotoCommandHandler extends PotoHandler {
 
 	async reload(resolve: string | Command) {
 		if (typeof resolve === 'string') {
-			return this.values.find((x) => x.name === resolve)?.reload();
+			return this.values.find(x => x.name === resolve)?.reload();
 		}
 		return resolve.reload();
 	}
@@ -33,7 +33,7 @@ export class PotoCommandHandler extends PotoHandler {
 	}
 
 	async load(commandsDir: string, client: BaseClient) {
-		const result = (await this.loadFilesK<typeof Command>(await this.getFiles(commandsDir))).filter((x) => x.file);
+		const result = (await this.loadFilesK<typeof Command>(await this.getFiles(commandsDir))).filter(x => x.file);
 		this.values = [];
 
 		for (const command of result) {
@@ -68,7 +68,7 @@ export class PotoCommandHandler extends PotoHandler {
 						continue;
 					}
 					try {
-						const subCommand = new (result.find((x) => x.path === option)!.file)();
+						const subCommand = new (result.find(x => x.path === option)!.file)();
 						if (subCommand instanceof SubCommand) {
 							commandInstance.options.push(subCommand);
 						}

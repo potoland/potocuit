@@ -1,5 +1,5 @@
 {
-	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+	"$schema": "https://biomejs.dev/schemas/1.5.0/schema.json",
 	"linter": {
 		"enabled": true,
 		"rules": {
@@ -10,7 +10,8 @@
 				"noUnsafeDeclarationMerging": "off",
 				"noRedeclare": "off",
 				"noEmptyInterface": "off",
-				"noConfusingVoidType": "off"
+				"noConfusingVoidType": "off",
+				"noImplicitAnyLet": "off"
 			},
 			"style": {
 				"noNonNullAssertion": "off",
@@ -20,6 +21,11 @@
 				"noUnusedVariables": "off"
 			},
 			"nursery": {
+				"useExportType": "error",
+				"useImportType": "error",
+				"useNodejsImportProtocol": "error",
+				"noUselessLoneBlockStatements": "warn",
+				"noUselessTernary": "error",
 				"noEmptyBlockStatements": "off"
 			},
 			"complexity": {
@@ -54,14 +60,21 @@
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "single",
-			"arrowParentheses": "always",
-			"bracketSameLine": true
+			"arrowParentheses": "asNeeded",
+			"bracketSameLine": true,
+			"semicolons": "always"
 		}
 	},
 	"files": {
+		"ignoreUnknown": true,
 		"ignore": ["node_modules/", "build", "dist", "__test__"]
 	},
 	"organizeImports": {
 		"enabled": true
+	},
+	"vcs": {
+		"clientKind": "git",
+		"enabled": true,
+		"defaultBranch": "master"
 	}
 }

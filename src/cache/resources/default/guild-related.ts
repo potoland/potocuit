@@ -6,7 +6,10 @@ export class GuildRelatedResource<T = any> {
 	client!: BaseClient;
 	namespace = 'base';
 
-	constructor(protected cache: Cache, client?: BaseClient) {
+	constructor(
+		protected cache: Cache,
+		client?: BaseClient,
+	) {
 		if (client) {
 			this.client = client;
 		}
@@ -49,7 +52,7 @@ export class GuildRelatedResource<T = any> {
 		const keys: [string, any][] = Array.isArray(__keys) ? __keys : [[__keys, data]];
 
 		await this.addToRelationship(
-			keys.map((x) => x[0]),
+			keys.map(x => x[0]),
 			guild,
 		);
 		await this.adapter.set(
@@ -84,14 +87,14 @@ export class GuildRelatedResource<T = any> {
 	async remove(id: string | string[], guild: string) {
 		const ids = Array.isArray(id) ? id : [id];
 		await this.removeToRelationship(ids, guild);
-		await this.adapter.remove(ids.map((x) => this.hashId(x)));
+		await this.adapter.remove(ids.map(x => this.hashId(x)));
 	}
 
 	async keys(guild: string): Promise<string[]> {
 		return guild === '*'
 			? await this.adapter.scan(this.hashId(guild), true)
 			: (async () => {
-					return (await this.adapter.getToRelationship(this.hashId(guild))).map((x) => `${this.namespace}.${x}`);
+					return (await this.adapter.getToRelationship(this.hashId(guild))).map(x => `${this.namespace}.${x}`);
 			  })();
 	}
 
@@ -99,7 +102,7 @@ export class GuildRelatedResource<T = any> {
 		return guild === '*'
 			? await this.adapter.scan(this.hashId(guild))
 			: (async () => {
-					const keys = (await this.adapter.getToRelationship(this.hashId(guild))).map((x) => `${this.namespace}.${x}`);
+					const keys = (await this.adapter.getToRelationship(this.hashId(guild))).map(x => `${this.namespace}.${x}`);
 					return await this.adapter.get(keys);
 			  })();
 	}
@@ -125,7 +128,7 @@ export class GuildRelatedResource<T = any> {
 	}
 
 	async removeRelationship(id: string | string[]) {
-		await this.adapter.removeRelationship((Array.isArray(id) ? id : [id]).map((x) => this.hashId(x)));
+		await this.adapter.removeRelationship((Array.isArray(id) ? id : [id]).map(x => this.hashId(x)));
 	}
 
 	hashId(id: string) {

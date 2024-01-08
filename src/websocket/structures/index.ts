@@ -122,7 +122,7 @@ export class DynamicBucket {
 
 	/** Pauses the execution until the request is available to be made. */
 	async acquire(priority: number): Promise<void> {
-		return await new Promise((resolve) => {
+		return await new Promise(resolve => {
 			this.queue.push(resolve, priority);
 			void this.processQueue();
 		});

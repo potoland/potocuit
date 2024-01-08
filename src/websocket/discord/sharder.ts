@@ -1,11 +1,11 @@
 import {
 	GatewayOpcodes,
-	GatewayUpdatePresence,
-	GatewayVoiceStateUpdate,
+	type GatewayUpdatePresence,
+	type GatewayVoiceStateUpdate,
 	LogLevels,
 	Logger,
 	MergeOptions,
-	ObjectToLower,
+	type ObjectToLower,
 	toSnakeCase,
 } from '../../common';
 import { ShardManagerDefaults } from '../constants';
@@ -42,7 +42,7 @@ export class ShardManager extends Map<number, Shard> {
 	get latency() {
 		let acc = 0;
 
-		this.forEach((s) => (acc += s.latency));
+		this.forEach(s => (acc += s.latency));
 
 		return acc / this.size;
 	}
@@ -115,8 +115,8 @@ export class ShardManager extends Map<number, Shard> {
 
 	disconnectAll() {
 		this.logger.info('Disconnect all shards');
-		return new Promise((resolve) => {
-			this.forEach((shard) => shard.disconnect());
+		return new Promise(resolve => {
+			this.forEach(shard => shard.disconnect());
 			resolve(null);
 		});
 	}
@@ -130,8 +130,8 @@ export class ShardManager extends Map<number, Shard> {
 	}
 
 	setPresence(payload: GatewayUpdatePresence['d']): Promise<void> | undefined {
-		return new Promise((resolve) => {
-			this.forEach((shard) => {
+		return new Promise(resolve => {
+			this.forEach(shard => {
 				this.setShardPresence(shard.id, payload);
 			}, this);
 			resolve();

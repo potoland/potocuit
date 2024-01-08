@@ -34,7 +34,10 @@ export class Shard {
 	bucket: DynamicBucket;
 	offlineSendQueue = new PriorityQueue<(_?: unknown) => void>();
 
-	constructor(public id: number, public options: ShardOptions) {
+	constructor(
+		public id: number,
+		public options: ShardOptions,
+	) {
 		this.options.ratelimitOptions ??= {
 			rateLimitResetInterval: 60_000,
 			maxRequestsPerRateLimitTick: 120,
@@ -79,11 +82,11 @@ export class Shard {
 
 		this.websocket = new BaseSocket('ws', this.currentGatewayURL);
 
-		this.websocket!.onmessage = (event) => this.handleMessage(event);
+		this.websocket!.onmessage = event => this.handleMessage(event);
 
-		this.websocket!.onclose = (event) => this.handleClosed(event);
+		this.websocket!.onclose = event => this.handleClosed(event);
 
-		this.websocket!.onerror = (event) => this.logger.error(event);
+		this.websocket!.onerror = event => this.logger.error(event);
 
 		this.websocket!.onopen = () => {
 			this.heart.ack = true;
@@ -170,20 +173,21 @@ export class Shard {
 		this.logger.debug(`[Shard #${this.id}]`, packet.t ? packet.t : GatewayOpcodes[packet.op], this.data.resumeSeq);
 
 		switch (packet.op) {
-			case GatewayOpcodes.Hello: {
-				clearInterval(this.heart.nodeInterval);
+			case GatewayOpcodes.Hello:
+				{
+					clearInterval(this.heart.nodeInterval);
 
-				this.heart.interval = packet.d.heartbeat_interval;
+					this.heart.interval = packet.d.heartbeat_interval;
 
-				await this.heartbeat(false);
-				this.heart.nodeInterval = setInterval(() => this.heartbeat(false), this.heart.interval);
+					await this.heartbeat(false);
+					this.heart.nodeInterval = setInterval(() => this.heartbeat(false), this.heart.interval);
 
-				if (this.resumable) {
-					return this.resume();
+					if (this.resumable) {
+						return this.resume();
+					}
+					await this.identify();
 				}
-				await this.identify();
-			}
-			break;
+				break;
 			case GatewayOpcodes.HeartbeatAck:
 				this.heart.ack = true;
 				this.heart.lastAck = Date.now();
@@ -206,24 +210,25 @@ export class Shard {
 					await this.identify();
 				}
 				break;
-			case GatewayOpcodes.Dispatch: {
-				switch (packet.t) {
-					case GatewayDispatchEvents.Resumed:
-						this.offlineSendQueue.toArray().map((resolve: () => any) => resolve());
-						break;
-					case GatewayDispatchEvents.Ready: {
-						this.data.resume_gateway_url = packet.d.resume_gateway_url;
-						this.data.session_id = packet.d.session_id;
-						this.offlineSendQueue.toArray().map((resolve: () => any) => resolve());
-						this.options.handlePayload(this.id, packet);
-						break;
+			case GatewayOpcodes.Dispatch:
+				{
+					switch (packet.t) {
+						case GatewayDispatchEvents.Resumed:
+							this.offlineSendQueue.toArray().map((resolve: () => any) => resolve());
+							break;
+						case GatewayDispatchEvents.Ready: {
+							this.data.resume_gateway_url = packet.d.resume_gateway_url;
+							this.data.session_id = packet.d.session_id;
+							this.offlineSendQueue.toArray().map((resolve: () => any) => resolve());
+							this.options.handlePayload(this.id, packet);
+							break;
+						}
+						default:
+							this.options.handlePayload(this.id, packet);
+							break;
 					}
-					default:
-						this.options.handlePayload(this.id, packet);
-						break;
 				}
-			}
-			break;
+				break;
 		}
 	}
 
@@ -298,7 +303,7 @@ export class Shard {
 
 	checkOffline(priority: number) {
 		if (!this.isOpen) {
-			return new Promise((resolve) => this.offlineSendQueue.push(resolve, priority));
+			return new Promise(resolve => this.offlineSendQueue.push(resolve, priority));
 		}
 		return Promise.resolve();
 	}

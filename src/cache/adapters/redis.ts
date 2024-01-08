@@ -27,9 +27,9 @@ export class RedisAdapter implements Adapter {
 			});
 			const keys: string[] = [];
 			stream
-				.on('data', (resultKeys) => keys.push(...resultKeys))
-				.on('end', () => (returnKeys ? r(keys.map((x) => this.buildKey(x))) : r(this.get(keys))))
-				.on('error', (err) => j(err));
+				.on('data', resultKeys => keys.push(...resultKeys))
+				.on('end', () => (returnKeys ? r(keys.map(x => this.buildKey(x))) : r(this.get(keys))))
+				.on('error', err => j(err));
 		});
 	}
 
@@ -50,7 +50,7 @@ export class RedisAdapter implements Adapter {
 			pipeline.hgetall(this.buildKey(key));
 		}
 
-		return (await pipeline.exec())?.filter((x) => !!x[1]).map((x) => toNormal(x[1] as Record<string, any>)) ?? [];
+		return (await pipeline.exec())?.filter(x => !!x[1]).map(x => toNormal(x[1] as Record<string, any>)) ?? [];
 	}
 
 	async set(id: [string, any][]): Promise<void>;
@@ -128,7 +128,7 @@ export class RedisAdapter implements Adapter {
 
 	async keys(to: string): Promise<string[]> {
 		const data = await this.getToRelationship(to);
-		return data.map((id) => this.buildKey(`${to}.${id}`));
+		return data.map(id => this.buildKey(`${to}.${id}`));
 	}
 
 	async count(to: string): Promise<number> {
@@ -141,7 +141,7 @@ export class RedisAdapter implements Adapter {
 			return;
 		}
 
-		await this.client.del(...keys.map((x) => this.buildKey(x)));
+		await this.client.del(...keys.map(x => this.buildKey(x)));
 	}
 
 	async contains(to: string, keys: string): Promise<boolean> {
@@ -172,7 +172,7 @@ export class RedisAdapter implements Adapter {
 
 	async removeRelationship(to: string | string[]): Promise<void> {
 		await this.client.del(
-			...(Array.isArray(to) ? to.map((x) => `${this.buildKey(x)}:set`) : [`${this.buildKey(to)}:set`]),
+			...(Array.isArray(to) ? to.map(x => `${this.buildKey(x)}:set`) : [`${this.buildKey(to)}:set`]),
 		);
 	}
 

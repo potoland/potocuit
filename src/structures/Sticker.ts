@@ -1,4 +1,4 @@
-import { Attachment } from '../builders';
+import type { Attachment } from '../builders';
 import type { BaseClient } from '../client/base';
 import type {
 	APISticker,
@@ -7,7 +7,7 @@ import type {
 	RESTPatchAPIGuildStickerJSONBody,
 	RESTPostAPIGuildStickerFormDataBody,
 } from '../common';
-import { Guild } from './Guild';
+import type { Guild } from './Guild';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 

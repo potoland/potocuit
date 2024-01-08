@@ -1,15 +1,15 @@
-import type { MessagePort } from 'worker_threads';
-import { workerData } from 'worker_threads';
+import type { MessagePort } from 'node:worker_threads';
+import { workerData } from 'node:worker_threads';
 import { Shard } from '.';
 import type { Cache, WorkerAdapter } from '../../cache';
 import type { GatewayDispatchPayload, GatewaySendPayload, Logger } from '../../common';
 import type { WorkerShardInfo } from './worker';
-import {
-	type WorkerReceivePayload,
-	type WorkerRequestConnect,
-	type WorkerSendInfo,
-	type WorkerSendResultPayload,
-	type WorkerSendShardInfo,
+import type {
+	WorkerReceivePayload,
+	WorkerRequestConnect,
+	WorkerSendInfo,
+	WorkerSendResultPayload,
+	WorkerSendShardInfo,
 } from './worker';
 import type { ManagerMessages } from './workermanager';
 
@@ -28,80 +28,84 @@ export async function handleManagerMessages(
 				(cache.adapter as WorkerAdapter).promises.delete(data.nonce);
 			}
 			break;
-		case 'SEND_PAYLOAD': {
-			const shard = shards.get(data.shardId);
-			if (!shard) {
-				logger.fatal('Worker trying send payload by non-existent shard');
-				return;
-			}
-
-			await shard.send(0, {
-				...data,
-			} satisfies GatewaySendPayload);
-
-			manager!.postMessage({
-				type: 'RESULT_PAYLOAD',
-				nonce: data.nonce,
-			} satisfies WorkerSendResultPayload);
-		}
-		break;
-		case 'ALLOW_CONNECT': {
-			const shard = shards.get(data.shardId);
-			if (!shard) {
-				logger.fatal('Worker trying connect non-existent shard');
-				return;
-			}
-			shard.options.presence = data.presence;
-			await shard.connect();
-		}
-		break;
-		case 'SPAWN_SHARDS': {
-			for (const id of workerData.shards) {
-				let shard = shards.get(id);
-
+		case 'SEND_PAYLOAD':
+			{
+				const shard = shards.get(data.shardId);
 				if (!shard) {
-					shard = new Shard(id, {
-						token: workerData.token,
-						intents: workerData.intents,
-						info: data.info,
-						compress: data.compress,
-						logger,
-						async handlePayload(shardId, payload) {
-							await cache.onPacket(payload);
-							await onPacket?.(payload, shardId);
-							manager!.postMessage({
-								workerId: workerData.workerId,
-								shardId,
-								type: 'RECEIVE_PAYLOAD',
-								payload,
-							} satisfies WorkerReceivePayload);
-						},
-					});
-					shards.set(id, shard);
+					logger.fatal('Worker trying send payload by non-existent shard');
+					return;
+				}
+
+				await shard.send(0, {
+					...data,
+				} satisfies GatewaySendPayload);
+
+				manager!.postMessage({
+					type: 'RESULT_PAYLOAD',
+					nonce: data.nonce,
+				} satisfies WorkerSendResultPayload);
+			}
+			break;
+		case 'ALLOW_CONNECT':
+			{
+				const shard = shards.get(data.shardId);
+				if (!shard) {
+					logger.fatal('Worker trying connect non-existent shard');
+					return;
+				}
+				shard.options.presence = data.presence;
+				await shard.connect();
+			}
+			break;
+		case 'SPAWN_SHARDS':
+			{
+				for (const id of workerData.shards) {
+					let shard = shards.get(id);
+
+					if (!shard) {
+						shard = new Shard(id, {
+							token: workerData.token,
+							intents: workerData.intents,
+							info: data.info,
+							compress: data.compress,
+							logger,
+							async handlePayload(shardId, payload) {
+								await cache.onPacket(payload);
+								await onPacket?.(payload, shardId);
+								manager!.postMessage({
+									workerId: workerData.workerId,
+									shardId,
+									type: 'RECEIVE_PAYLOAD',
+									payload,
+								} satisfies WorkerReceivePayload);
+							},
+						});
+						shards.set(id, shard);
+					}
+
+					manager!.postMessage({
+						type: 'CONNECT_QUEUE',
+						shardId: id,
+						workerId: workerData.workerId,
+					} satisfies WorkerRequestConnect);
+				}
+			}
+			break;
+		case 'SHARD_INFO':
+			{
+				const shard = shards.get(data.shardId);
+				if (!shard) {
+					logger.fatal('Worker trying get non-existent shard');
+					return;
 				}
 
 				manager!.postMessage({
-					type: 'CONNECT_QUEUE',
-					shardId: id,
-					workerId: workerData.workerId,
-				} satisfies WorkerRequestConnect);
+					...generateShardInfo(shard),
+					nonce: data.nonce,
+					type: 'SHARD_INFO',
+				} satisfies WorkerSendShardInfo);
 			}
-		}
-		break;
-		case 'SHARD_INFO': {
-			const shard = shards.get(data.shardId);
-			if (!shard) {
-				logger.fatal('Worker trying get non-existent shard');
-				return;
-			}
-
-			manager!.postMessage({
-				...generateShardInfo(shard),
-				nonce: data.nonce,
-				type: 'SHARD_INFO',
-			} satisfies WorkerSendShardInfo);
-		}
-		break;
+			break;
 		case 'WORKER_INFO': {
 			manager!.postMessage({
 				shards: [...shards.values()].map(generateShardInfo),

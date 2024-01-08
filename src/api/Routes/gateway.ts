@@ -1,6 +1,6 @@
-import { RESTGetAPIGatewayBotResult, RESTGetAPIGatewayResult } from '../../common';
-import { RestArguments } from '../REST';
-import { ProxyRequestMethod } from '../Router';
+import type { RESTGetAPIGatewayBotResult, RESTGetAPIGatewayResult } from '../../common';
+import type { RestArguments } from '../REST';
+import type { ProxyRequestMethod } from '../Router';
 
 export interface GatewayRoutes {
 	gateway: {

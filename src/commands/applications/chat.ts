@@ -17,8 +17,8 @@ import type {
 import type { Groups } from '../decorators';
 import type { OptionResolver } from '../optionresolver';
 import type { CommandContext } from './chatcontext';
-import { MenuCommandContext } from './menucontext';
-import {
+import type { MenuCommandContext } from './menucontext';
+import type {
 	MiddlewareContext,
 	NextFunction,
 	OKFunction,
@@ -139,9 +139,9 @@ class BaseCommand {
 		const data: OnOptionsReturnObject = {};
 		let errored = false;
 		for (const i of resolver.hoistedOptions) {
-			const option = command.options!.find((x) => x.name === i.name) as __PotoCommandOption;
+			const option = command.options!.find(x => x.name === i.name) as __PotoCommandOption;
 			const value = (await new Promise(
-				(resolve) =>
+				resolve =>
 					option.value?.({ context: ctx, value: resolver.getValue(i.name) } as never, resolve, resolve) ||
 					resolve(resolver.getValue(i.name)),
 			)) as any | Error;
@@ -186,7 +186,7 @@ class BaseCommand {
 		const metadata: Record<string, any> = {};
 		let index = 0;
 
-		return new Promise((res) => {
+		return new Promise(res => {
 			let running = true;
 			const pass: PassFunction = () => {
 				if (!running) {
@@ -195,7 +195,7 @@ class BaseCommand {
 				running = false;
 				return res('pass');
 			};
-			const next: NextFunction<any> = (obj) => {
+			const next: NextFunction<any> = obj => {
 				if (!running) {
 					return;
 				}
@@ -208,7 +208,7 @@ class BaseCommand {
 				}
 				middlewares[index]({ context, next, stop, pass });
 			};
-			const stop: StopFunction = (err) => {
+			const stop: StopFunction = err => {
 				if (!running) {
 					return;
 				}
@@ -245,7 +245,7 @@ class BaseCommand {
 
 	async reload() {
 		delete require.cache[this.__filePath!];
-		const __tempCommand = await import(this.__filePath!).then((x) => x.default ?? x);
+		const __tempCommand = await import(this.__filePath!).then(x => x.default ?? x);
 
 		Object.setPrototypeOf(this, __tempCommand.prototype);
 	}
@@ -273,7 +273,7 @@ export class Command extends BaseCommand {
 				continue;
 			}
 			if (i.group) {
-				if (!options.find((x) => x.name === i.group)) {
+				if (!options.find(x => x.name === i.group)) {
 					options.push({
 						type: ApplicationCommandOptionType.SubcommandGroup,
 						name: i.group,
@@ -283,7 +283,7 @@ export class Command extends BaseCommand {
 						options: [],
 					});
 				}
-				const group = options.find((x) => x.name === i.group) as APIApplicationCommandSubcommandGroupOption;
+				const group = options.find(x => x.name === i.group) as APIApplicationCommandSubcommandGroupOption;
 				group.options?.push(i.toJSON());
 				continue;
 			}
@@ -306,7 +306,7 @@ export abstract class SubCommand extends BaseCommand {
 		return {
 			...super.toJSON(),
 			options: (this.options ?? []).map(
-				(x) => ({ ...x, autocomplete: 'autocomplete' in x }) as APIApplicationCommandBasicOption,
+				x => ({ ...x, autocomplete: 'autocomplete' in x }) as APIApplicationCommandBasicOption,
 			),
 		};
 	}

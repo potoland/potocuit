@@ -1,18 +1,18 @@
 import {
-	GuildWidgetStyle,
-	RESTPatchAPIAutoModerationRuleJSONBody,
-	RESTPatchAPIChannelJSONBody,
-	RESTPatchAPIGuildChannelPositionsJSONBody,
-	RESTPatchAPIGuildStickerJSONBody,
-	RESTPostAPIAutoModerationRuleJSONBody,
-	RESTPostAPIGuildChannelJSONBody,
-	RESTPostAPIGuildEmojiJSONBody,
-	RESTPostAPIGuildsJSONBody,
+	type GuildWidgetStyle,
+	type RESTPatchAPIAutoModerationRuleJSONBody,
+	type RESTPatchAPIChannelJSONBody,
+	type RESTPatchAPIGuildChannelPositionsJSONBody,
+	type RESTPatchAPIGuildStickerJSONBody,
+	type RESTPostAPIAutoModerationRuleJSONBody,
+	type RESTPostAPIGuildChannelJSONBody,
+	type RESTPostAPIGuildEmojiJSONBody,
+	type RESTPostAPIGuildsJSONBody,
 	Routes,
 } from 'discord-api-types/v10';
-import { BASE_URL, ObjectToLower, OmitInsert } from '..';
-import { ImageResolvable, resolveFiles, resolveImage } from '../../builders';
-import { CreateStickerBodyRequest, Guild, GuildEmoji, Sticker } from '../../structures';
+import { BASE_URL, type ObjectToLower, type OmitInsert } from '..';
+import { type ImageResolvable, resolveFiles, resolveImage } from '../../builders';
+import { type CreateStickerBodyRequest, Guild, GuildEmoji, Sticker } from '../../structures';
 import channelFrom, { BaseChannel } from '../../structures/methods/channels';
 import { BaseShorter } from './base';
 
@@ -62,10 +62,10 @@ export class GuildShorter extends BaseShorter {
 				}
 				emojis = await this.client.proxy.guilds(guildId).emojis.get();
 				await this.client.cache.emojis?.set(
-					emojis.map((x) => [x.id!, x]),
+					emojis.map(x => [x.id!, x]),
 					guildId,
 				);
-				return emojis.map((m) => new GuildEmoji(this.client, m, guildId));
+				return emojis.map(m => new GuildEmoji(this.client, m, guildId));
 			},
 			create: async (
 				guildId: string,
@@ -110,10 +110,10 @@ export class GuildShorter extends BaseShorter {
 				}
 				channels = await this.client.proxy.guilds(guildId).channels.get();
 				await this.client.cache.channels?.set(
-					channels.map((x) => [x.id, x]),
+					channels.map(x => [x.id, x]),
 					guildId,
 				);
-				return channels.map((m) => channelFrom(m, this.client));
+				return channels.map(m => channelFrom(m, this.client));
 			},
 			fetch: async (guildId: string, channelId: string, force?: boolean) => {
 				let channel;
@@ -173,10 +173,10 @@ export class GuildShorter extends BaseShorter {
 			list: async (guildId: string) => {
 				const stickers = await this.client.proxy.guilds(guildId).stickers.get();
 				await this.client.cache.stickers?.set(
-					stickers.map((st) => [st.id, st]),
+					stickers.map(st => [st.id, st]),
 					guildId,
 				);
-				return stickers.map((st) => new Sticker(this.client, st));
+				return stickers.map(st => new Sticker(this.client, st));
 			},
 			create: async (guildId: string, { file, ...json }: CreateStickerBodyRequest, reason?: string) => {
 				const fileResolve = await resolveFiles([file]);

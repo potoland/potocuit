@@ -50,11 +50,11 @@ import type {
 	ModalCreateBodyRequest,
 } from '../common/types/write';
 
-import { ActionRow, Attachment, MessageEmbed, Modal, resolveAttachment, resolveFiles } from '../builders';
+import { ActionRow, type Attachment, MessageEmbed, Modal, resolveAttachment, resolveFiles } from '../builders';
 import { ComponentsListener } from '../components/listener';
 import { GuildMember, InteractionGuildMember } from './';
 import { GuildRole } from './GuildRole';
-import { Message, WebhookMessage } from './Message';
+import { Message, type WebhookMessage } from './Message';
 import { User } from './User';
 import type { PotocuitChannels } from './channels';
 import { DiscordBase } from './extra/DiscordBase';
@@ -86,7 +86,11 @@ export class BaseInteraction<
 	message?: Message;
 	replied?: Promise<boolean> | boolean;
 
-	constructor(readonly client: BaseClient, interaction: Type, protected __reply?: __InternalReplyFunction) {
+	constructor(
+		readonly client: BaseClient,
+		interaction: Type,
+		protected __reply?: __InternalReplyFunction,
+	) {
 		super(client, interaction);
 		if (interaction.member) {
 			this.member = new GuildMember(
@@ -122,8 +126,8 @@ export class BaseInteraction<
 							(body.data?.components instanceof ComponentsListener
 								? body.data.components.components
 								: body.data!.components
-							)?.map((x) => (x instanceof ActionRow ? x.toJSON() : x)) ?? undefined,
-						embeds: body.data?.embeds?.map((x) => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? undefined,
+							)?.map(x => (x instanceof ActionRow ? x.toJSON() : x)) ?? undefined,
+						embeds: body.data?.embeds?.map(x => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? undefined,
 						attachments: body.data?.attachments?.map((x, i) => ({ id: i, ...resolveAttachment(x) })) ?? undefined,
 					},
 				};
@@ -136,7 +140,7 @@ export class BaseInteraction<
 							: {
 									...body.data,
 									components: body.data?.components
-										? body.data.components.map((x) =>
+										? body.data.components.map(x =>
 												x instanceof ActionRow
 													? (x.toJSON() as unknown as APIActionRowComponent<APITextInputComponent>)
 													: x,
@@ -159,10 +163,10 @@ export class BaseInteraction<
 		return {
 			...body,
 			components:
-				(body?.components instanceof ComponentsListener ? body.components.components : body.components)?.map((x) =>
+				(body?.components instanceof ComponentsListener ? body.components.components : body.components)?.map(x =>
 					x instanceof ActionRow ? x.toJSON() : x,
 				) ?? undefined,
-			embeds: body?.embeds?.map((x) => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? undefined,
+			embeds: body?.embeds?.map(x => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? undefined,
 			// attachments: body.attachments?.map((x, i) => ({ id: i, ...resolveAttachment(x) })) ?? undefined,
 		} as T;
 	}
@@ -507,7 +511,7 @@ export class ChannelSelectMenuInteraction extends SelectMenuInteraction {
 	) {
 		super(client, interaction);
 		const resolved = (interaction.data as APIMessageChannelSelectInteractionData).resolved;
-		this.channels = this.values.map((x) => channelFrom(resolved.channels[x], this.client));
+		this.channels = this.values.map(x => channelFrom(resolved.channels[x], this.client));
 	}
 }
 
@@ -523,20 +527,20 @@ export class MentionableSelectMenuInteraction extends SelectMenuInteraction {
 		super(client, interaction);
 		const resolved = (interaction.data as APIMessageMentionableSelectInteractionData).resolved;
 		this.roles = resolved.roles
-			? this.values.map((x) => new GuildRole(this.client, resolved.roles![x], this.guildId!))
+			? this.values.map(x => new GuildRole(this.client, resolved.roles![x], this.guildId!))
 			: [];
 		this.members = resolved.members
 			? this.values.map(
-					(x) =>
+					x =>
 						new InteractionGuildMember(
 							this.client,
 							resolved.members![x],
-							this.users!.find((u) => u.id === x)!,
+							this.users!.find(u => u.id === x)!,
 							this.guildId!,
 						),
 			  )
 			: [];
-		this.users = resolved.users ? this.values.map((x) => new User(this.client, resolved.users![x])) : [];
+		this.users = resolved.users ? this.values.map(x => new User(this.client, resolved.users![x])) : [];
 	}
 }
 
@@ -549,7 +553,7 @@ export class RoleSelectMenuInteraction extends SelectMenuInteraction {
 	) {
 		super(client, interaction);
 		const resolved = (interaction.data as APIMessageRoleSelectInteractionData).resolved;
-		this.roles = this.values.map((x) => new GuildRole(this.client, resolved.roles[x], this.guildId!));
+		this.roles = this.values.map(x => new GuildRole(this.client, resolved.roles[x], this.guildId!));
 	}
 }
 
@@ -563,14 +567,14 @@ export class UserSelectMenuInteraction extends SelectMenuInteraction {
 	) {
 		super(client, interaction);
 		const resolved = (interaction.data as APIMessageUserSelectInteractionData).resolved;
-		this.users = this.values.map((x) => new User(this.client, resolved.users[x]));
+		this.users = this.values.map(x => new User(this.client, resolved.users[x]));
 		this.members = resolved.members
 			? this.values.map(
-					(x) =>
+					x =>
 						new InteractionGuildMember(
 							this.client,
 							resolved.members![x],
-							this.users!.find((u) => u.id === x)!,
+							this.users!.find(u => u.id === x)!,
 							this.guildId!,
 						),
 			  )
@@ -616,7 +620,7 @@ export class ModalSubmitInteraction<FromGuild extends boolean = boolean> extends
 
 	getInputValue<Required extends boolean>(customId: string, _required?: Required): If<Required, string> {
 		for (const { components } of this.components) {
-			const get = components.find((x) => x.customId === customId);
+			const get = components.find(x => x.customId === customId);
 			if (get) return get.value;
 		}
 		return null as never;

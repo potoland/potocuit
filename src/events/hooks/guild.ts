@@ -47,7 +47,7 @@ export const GUILD_DELETE = (self: BaseClient, data: GatewayGuildCreateDispatchD
 export const GUILD_EMOJIS_UPDATE = (self: BaseClient, data: GatewayGuildEmojisUpdateDispatchData) => {
 	return {
 		...toCamelCase(data),
-		emojis: data.emojis.map((x) => new GuildEmoji(self, x as any, data.guild_id)),
+		emojis: data.emojis.map(x => new GuildEmoji(self, x as any, data.guild_id)),
 	};
 };
 
@@ -66,7 +66,7 @@ export const GUILD_MEMBER_REMOVE = (self: BaseClient, data: GatewayGuildMemberRe
 export const GUILD_MEMBERS_CHUNK = (self: BaseClient, data: GatewayGuildMembersChunkDispatchData) => {
 	return {
 		...toCamelCase(data),
-		members: data.members.map((x) => new GuildMember(self, x, x.user!, data.guild_id)),
+		members: data.members.map(x => new GuildMember(self, x, x.user!, data.guild_id)),
 	};
 };
 
@@ -119,7 +119,7 @@ export const GUILD_ROLE_UPDATE = (self: BaseClient, data: GatewayGuildRoleUpdate
 export const GUILD_STICKERS_UPDATE = (self: BaseClient, data: GatewayGuildStickersUpdateDispatchData) => {
 	return {
 		...toCamelCase(data),
-		stickers: data.stickers.map((x) => new Sticker(self, x)),
+		stickers: data.stickers.map(x => new Sticker(self, x)),
 	};
 };
 

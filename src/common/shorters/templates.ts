@@ -1,4 +1,4 @@
-import { RESTPatchAPIGuildTemplateJSONBody, RESTPostAPIGuildTemplatesJSONBody } from 'discord-api-types/v10';
+import type { RESTPatchAPIGuildTemplateJSONBody, RESTPostAPIGuildTemplatesJSONBody } from 'discord-api-types/v10';
 import { BaseShorter } from './base';
 
 export class TemplateShorter extends BaseShorter {

@@ -1,5 +1,5 @@
 import type { APIPartialEmoji, EmbedColors } from '..';
-import { GuildMember } from '../../structures';
+import type { GuildMember } from '../../structures';
 
 export type EmojiResolvable = string | Partial<APIPartialEmoji> | `<${string | undefined}:${string}:${string}>`;
 export type GuildMemberResolvable = string | Partial<GuildMember>;

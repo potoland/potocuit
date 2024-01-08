@@ -23,7 +23,7 @@ export class OptionResolver {
 		public guildId?: string,
 		public resolved?: APIInteractionDataResolved,
 	) {
-		this.hoistedOptions = this.options = options.map((option) => this.transformOption(option, resolved));
+		this.hoistedOptions = this.options = options.map(option => this.transformOption(option, resolved));
 
 		if (this.hoistedOptions[0]?.type === ApplicationCommandOptionType.Subcommand) {
 			this.subCommand = this.hoistedOptions[0].name;
@@ -45,19 +45,19 @@ export class OptionResolver {
 	getCommand() {
 		if (this.subCommand) {
 			return (this.parent?.options as SubCommand[]).find(
-				(x) => (this.group ? x.group === this.group : true) && x.name === this.subCommand,
+				x => (this.group ? x.group === this.group : true) && x.name === this.subCommand,
 			);
 		}
 		return this.parent;
 	}
 
 	getAutocompleteValue(): string | undefined {
-		return this.hoistedOptions.find((option) => option.focused)?.value as string;
+		return this.hoistedOptions.find(option => option.focused)?.value as string;
 	}
 
 	getAutocomplete() {
 		return (this.getCommand()?.options as PotoCommandOption[]).find(
-			(option) => option.name === this.hoistedOptions.find((x) => x.focused)?.name,
+			option => option.name === this.hoistedOptions.find(x => x.focused)?.name,
 		) as PotoCommandAutocompleteOption | undefined;
 	}
 
@@ -74,11 +74,11 @@ export class OptionResolver {
 	}
 
 	get(name: string) {
-		return this.options.find((opt) => opt.name === name);
+		return this.options.find(opt => opt.name === name);
 	}
 
 	getHoisted(name: string) {
-		return this.hoistedOptions.find((x) => x.name === name);
+		return this.hoistedOptions.find(x => x.name === name);
 	}
 
 	getValue(name: string) {
@@ -142,7 +142,7 @@ export class OptionResolver {
 			resolve.value = option.value;
 		}
 		if ('options' in option) {
-			resolve.options = option.options?.map((x) => this.transformOption(x, resolved));
+			resolve.options = option.options?.map(x => this.transformOption(x, resolved));
 		}
 		if (resolved) {
 			const value = resolve.value as string;

@@ -6,9 +6,9 @@ import type {
 	InteractionMessageUpdateBodyRequest,
 	ModalCreateBodyRequest,
 } from '../../common/types/write';
-import { type ChatInputCommandInteraction } from '../../structures';
+import type { ChatInputCommandInteraction } from '../../structures';
 import type { OptionResolver } from '../optionresolver';
-import { ContextOptions, OptionsRecord } from './chat';
+import type { ContextOptions, OptionsRecord } from './chat';
 import type { CommandMetadata, MiddlewareContext } from './shared';
 
 export class CommandContext<

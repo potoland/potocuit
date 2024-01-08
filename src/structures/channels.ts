@@ -1,19 +1,19 @@
 import {
-	APIDMChannel,
-	APIGuildCategoryChannel,
-	APIGuildForumChannel,
-	APIGuildMediaChannel,
-	APIGuildStageVoiceChannel,
-	APIGuildVoiceChannel,
-	APINewsChannel,
-	APITextChannel,
-	APIThreadChannel,
+	type APIDMChannel,
+	type APIGuildCategoryChannel,
+	type APIGuildForumChannel,
+	type APIGuildMediaChannel,
+	type APIGuildStageVoiceChannel,
+	type APIGuildVoiceChannel,
+	type APINewsChannel,
+	type APITextChannel,
+	type APIThreadChannel,
 	ChannelFlags,
-	ChannelType,
-	ThreadAutoArchiveDuration,
+	type ChannelType,
+	type ThreadAutoArchiveDuration,
 } from 'discord-api-types/v10';
 import { mix } from 'ts-mixer';
-import { ObjectToLower, StringToNumber, ToClass } from '../common';
+import type { ObjectToLower, StringToNumber, ToClass } from '../common';
 import { DiscordBase } from './extra/DiscordBase';
 import {
 	BaseChannel,

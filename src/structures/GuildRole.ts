@@ -7,14 +7,18 @@ import type {
 	RESTPatchAPIGuildRolePositionsJSONBody,
 	RESTPostAPIGuildRoleJSONBody,
 } from '../common';
-import { Guild } from './Guild';
+import type { Guild } from './Guild';
 import { DiscordBase } from './extra/DiscordBase';
 
 export interface GuildRole extends DiscordBase, ObjectToLower<APIRole> {}
 
 export class GuildRole extends DiscordBase {
 	private readonly __methods__!: ReturnType<typeof GuildRole.methods>;
-	constructor(client: BaseClient, data: APIRole, readonly guildId: string) {
+	constructor(
+		client: BaseClient,
+		data: APIRole,
+		readonly guildId: string,
+	) {
 		super(client, data);
 
 		Object.assign(this, {

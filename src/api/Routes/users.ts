@@ -1,4 +1,4 @@
-import {
+import type {
 	APIDMChannel,
 	RESTDeleteAPIGuildResult,
 	RESTGetAPICurrentUserApplicationRoleConnectionResult,
@@ -14,15 +14,19 @@ import {
 	RESTPutAPICurrentUserApplicationRoleConnectionJSONBody,
 	RESTPutAPICurrentUserApplicationRoleConnectionResult,
 } from '../../common';
-import { RestArguments } from '../REST';
-import { ProxyRequestMethod } from '../Router';
+import type { RestArguments } from '../REST';
+import type { ProxyRequestMethod } from '../Router';
 
 export interface UserRoutes {
 	users: {
-		(id: string): {
+		(
+			id: string,
+		): {
 			get(args?: RestArguments<ProxyRequestMethod.Get>): Promise<RESTGetAPIUserResult>;
 		};
-		(id: '@me'): {
+		(
+			id: '@me',
+		): {
 			get(args?: RestArguments<ProxyRequestMethod.Get>): Promise<RESTGetAPICurrentUserResult>;
 			patch(
 				args: RestArguments<ProxyRequestMethod.Patch, RESTPatchAPICurrentUserJSONBody>,
@@ -31,7 +35,9 @@ export interface UserRoutes {
 				get(
 					args?: RestArguments<ProxyRequestMethod.Get, RESTGetAPICurrentUserGuildsQuery>,
 				): Promise<RESTGetAPICurrentUserGuildsResult>;
-				(id: string): {
+				(
+					id: string,
+				): {
 					member: {
 						get(args?: RestArguments<ProxyRequestMethod.Get>): Promise<RESTGetCurrentUserGuildMemberResult>;
 					};

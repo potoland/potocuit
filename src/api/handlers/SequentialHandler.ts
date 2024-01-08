@@ -396,7 +396,7 @@ export class SequentialHandler implements IHandler {
 				await sleep(sublimitTimeout);
 				let resolve: () => void;
 				// eslint-disable-next-line promise/param-names, no-promise-executor-return
-				const promise = new Promise<void>((res) => (resolve = res));
+				const promise = new Promise<void>(res => (resolve = res));
 				this.#sublimitPromise = { promise, resolve: resolve! };
 				if (firstSublimit) {
 					// Re-queue this request so it can be shifted by the finally

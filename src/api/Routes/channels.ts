@@ -1,4 +1,4 @@
-import {
+import type {
 	RESTDeleteAPIChannelAllMessageReactionsResult,
 	RESTDeleteAPIChannelMessageReactionResult,
 	RESTDeleteAPIChannelMessageResult,
@@ -53,8 +53,8 @@ import {
 	RESTPutAPIChannelRecipientResult,
 	RESTPutAPIChannelThreadMembersResult,
 } from '../../common';
-import { RestArguments } from '../REST';
-import { ProxyRequestMethod } from '../Router';
+import type { RestArguments } from '../REST';
+import type { ProxyRequestMethod } from '../Router';
 
 export interface ChannelRoutes {
 	channels(id: string): {
@@ -67,7 +67,9 @@ export interface ChannelRoutes {
 		//.
 		delete(args?: RestArguments<ProxyRequestMethod.Delete>): Promise<RESTDeleteAPIChannelResult>;
 		users: {
-			(id: '@me'): {
+			(
+				id: '@me',
+			): {
 				threads: {
 					archived: {
 						private: {
@@ -85,13 +87,17 @@ export interface ChannelRoutes {
 			get(
 				args?: RestArguments<ProxyRequestMethod.Get, RESTGetAPIChannelThreadMembersQuery>,
 			): Promise<RESTGetAPIChannelThreadMembersResult>;
-			(id: '@me'): {
+			(
+				id: '@me',
+			): {
 				//.
 				put(args?: RestArguments<ProxyRequestMethod.Put>): Promise<RESTPutAPIChannelThreadMembersResult>;
 				//.
 				delete(args?: RestArguments<ProxyRequestMethod.Delete>): Promise<RESTDeleteAPIChannelThreadMembersResult>;
 			};
-			(id: string): {
+			(
+				id: string,
+			): {
 				//.
 				get(
 					args?: RestArguments<ProxyRequestMethod.Get, RESTGetAPIChannelThreadMemberQuery>,
@@ -126,7 +132,9 @@ export interface ChannelRoutes {
 			};
 		};
 		recipients: {
-			(id: string): {
+			(
+				id: string,
+			): {
 				//.
 				put(
 					args?: RestArguments<ProxyRequestMethod.Put, RESTPutAPIChannelRecipientJSONBody>,
@@ -138,7 +146,9 @@ export interface ChannelRoutes {
 		pins: {
 			//.
 			get(args?: RestArguments<ProxyRequestMethod.Get>): Promise<RESTGetAPIChannelPinsResult>;
-			(id: string): {
+			(
+				id: string,
+			): {
 				//.
 				put(args?: RestArguments<ProxyRequestMethod.Put>): Promise<RESTPutAPIChannelPinResult>;
 				//.
@@ -152,7 +162,9 @@ export interface ChannelRoutes {
 			): Promise<RESTPostAPIChannelFollowersResult>;
 		};
 		permissions: {
-			(id: string): {
+			(
+				id: string,
+			): {
 				//.
 				put(
 					args?: RestArguments<ProxyRequestMethod.Put, RESTPutAPIChannelPermissionJSONBody>,
@@ -184,7 +196,9 @@ export interface ChannelRoutes {
 					args: RestArguments<ProxyRequestMethod.Post, RESTPostAPIChannelMessagesBulkDeleteJSONBody>,
 				): Promise<RESTPostAPIChannelMessagesBulkDeleteResult>;
 			};
-			(id: string): {
+			(
+				id: string,
+			): {
 				//.
 				get(args?: RestArguments<ProxyRequestMethod.Get>): Promise<RESTGetAPIChannelMessageResult>;
 				//.
@@ -208,14 +222,18 @@ export interface ChannelRoutes {
 					delete(
 						args?: RestArguments<ProxyRequestMethod.Delete>,
 					): Promise<RESTDeleteAPIChannelAllMessageReactionsResult>;
-					(emoji: string): {
+					(
+						emoji: string,
+					): {
 						//.
 						get(
 							args?: RestArguments<ProxyRequestMethod.Get, RESTGetAPIChannelMessageReactionUsersQuery>,
 						): Promise<RESTGetAPIChannelMessageReactionUsersResult>;
 						//.
 						delete(args?: RestArguments<ProxyRequestMethod.Delete>): Promise<RESTDeleteAPIChannelMessageReactionResult>;
-						(id: '@me'): {
+						(
+							id: '@me',
+						): {
 							//.
 							put(args?: RestArguments<ProxyRequestMethod.Put>): Promise<RESTPutAPIChannelMessageReactionResult>;
 							//.
@@ -223,7 +241,9 @@ export interface ChannelRoutes {
 								args?: RestArguments<ProxyRequestMethod.Delete>,
 							): Promise<RESTDeleteAPIChannelMessageReactionResult>;
 						};
-						(id: string): {
+						(
+							id: string,
+						): {
 							//.
 							delete(
 								args?: RestArguments<ProxyRequestMethod.Delete>,

@@ -1,10 +1,10 @@
 import {
-	APIEmbed,
-	APIEmbedAuthor,
-	APIEmbedField,
-	APIEmbedFooter,
-	ObjectToLower,
-	RestOrArray,
+	type APIEmbed,
+	type APIEmbedAuthor,
+	type APIEmbedField,
+	type APIEmbedFooter,
+	type ObjectToLower,
+	type RestOrArray,
 	toSnakeCase,
 } from '../common';
 

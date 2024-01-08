@@ -1,4 +1,4 @@
-import {
+import type {
 	RESTDeleteAPIWebhookResult,
 	RESTDeleteAPIWebhookWithTokenMessageResult,
 	RESTDeleteAPIWebhookWithTokenResult,
@@ -22,8 +22,8 @@ import {
 	RESTPostAPIWebhookWithTokenSlackWaitResult,
 	RESTPostAPIWebhookWithTokenWaitResult,
 } from '../../common';
-import { RestArguments } from '../REST';
-import { ProxyRequestMethod } from '../Router';
+import type { RestArguments } from '../REST';
+import type { ProxyRequestMethod } from '../Router';
 
 export interface WebhookRoutes {
 	webhooks(id: string): {
@@ -32,7 +32,9 @@ export interface WebhookRoutes {
 			args: RestArguments<ProxyRequestMethod.Patch, RESTPatchAPIWebhookJSONBody>,
 		): Promise<RESTPatchAPIWebhookResult>;
 		delete(args?: RestArguments<ProxyRequestMethod.Delete>): Promise<RESTDeleteAPIWebhookResult>;
-		(token: string): {
+		(
+			token: string,
+		): {
 			get(args?: RestArguments<ProxyRequestMethod.Get>): Promise<RESTGetAPIWebhookWithTokenResult>;
 			patch(
 				args: RestArguments<ProxyRequestMethod.Patch, RESTPatchAPIWebhookWithTokenJSONBody>,
@@ -64,7 +66,9 @@ export interface WebhookRoutes {
 				): Promise<RESTPostAPIWebhookWithTokenGitHubResult | RESTPostAPIWebhookWithTokenGitHubWaitResult>;
 			};
 			messages: {
-				(id: string | '@original'): {
+				(
+					id: string | '@original',
+				): {
 					get(args?: RestArguments<ProxyRequestMethod.Get>): Promise<RESTGetAPIWebhookWithTokenMessageResult>;
 					patch(
 						args: RestArguments<ProxyRequestMethod.Patch, RESTPatchAPIWebhookWithTokenMessageJSONBody>,

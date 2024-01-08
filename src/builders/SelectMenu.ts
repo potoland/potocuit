@@ -1,19 +1,19 @@
 import {
-	APIChannelSelectComponent,
-	APIMentionableSelectComponent,
-	APIMessageComponentEmoji,
-	APIRoleSelectComponent,
-	APISelectMenuComponent,
-	APISelectMenuDefaultValue,
-	APISelectMenuOption,
-	APIStringSelectComponent,
-	APIUserSelectComponent,
-	ChannelType,
+	type APIChannelSelectComponent,
+	type APIMentionableSelectComponent,
+	type APIMessageComponentEmoji,
+	type APIRoleSelectComponent,
+	type APISelectMenuComponent,
+	type APISelectMenuDefaultValue,
+	type APISelectMenuOption,
+	type APIStringSelectComponent,
+	type APIUserSelectComponent,
+	type ChannelType,
 	ComponentType,
-	RestOrArray,
+	type RestOrArray,
 	SelectMenuDefaultValueType,
 } from '../common';
-import {
+import type {
 	ChannelSelectMenuInteraction,
 	ComponentInteraction,
 	MentionableSelectMenuInteraction,
@@ -21,8 +21,8 @@ import {
 	StringSelectMenuInteraction,
 	UserSelectMenuInteraction,
 } from '../structures';
-import { BaseComponentBuilder, OptionValuesLength } from './Base';
-import { ComponentCallback } from './types';
+import { BaseComponentBuilder, type OptionValuesLength } from './Base';
+import type { ComponentCallback } from './types';
 
 export type PotoSelectMenus =
 	| RoleSelectMenu
@@ -32,7 +32,7 @@ export type PotoSelectMenus =
 	| StringSelectMenu;
 
 function mappedDefault<T extends SelectMenuDefaultValueType>(ids: string[], type: T) {
-	return ids.map((id) => ({ id, type })) as APISelectMenuDefaultValue<T>[];
+	return ids.map(id => ({ id, type })) as APISelectMenuDefaultValue<T>[];
 }
 
 export class SelectMenu<

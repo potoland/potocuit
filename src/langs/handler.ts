@@ -24,7 +24,7 @@ export class PotoLangsHandler extends PotoHandler {
 
 	parse(str: string, metadata: Record<string, any>) {
 		const regex = /{{(.*?)}}/g;
-		return str.replace(regex, (match) => metadata[match.slice(2, -2)] ?? match);
+		return str.replace(regex, match => metadata[match.slice(2, -2)] ?? match);
 	}
 
 	get<K extends keyof __LangType>(lang: LocaleString, message: K, metadata: __LangType[K]): string {

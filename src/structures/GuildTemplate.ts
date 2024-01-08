@@ -6,7 +6,7 @@ import type {
 	RESTPatchAPIGuildTemplateJSONBody,
 	RESTPostAPIGuildTemplatesJSONBody,
 } from '../common';
-import { Guild } from './Guild';
+import type { Guild } from './Guild';
 import { Base } from './extra/Base';
 
 export interface GuildTemplate extends Base, ObjectToLower<APITemplate> {}

@@ -2,9 +2,9 @@ import type { PotoClient, WorkerClient } from '../client';
 import {
 	type GatewayDispatchEvents,
 	type GatewayDispatchPayload,
-	GatewayMessageCreateDispatch,
-	GatewayMessageDeleteBulkDispatch,
-	GatewayMessageDeleteDispatch,
+	type GatewayMessageCreateDispatch,
+	type GatewayMessageDeleteBulkDispatch,
+	type GatewayMessageDeleteDispatch,
 	PotoHandler,
 	ReplaceRegex,
 } from '../common';
@@ -44,25 +44,28 @@ export class PotoEventHandler extends PotoHandler {
 
 	async execute(name: GatewayDispatchEvents, ...args: [GatewayDispatchPayload, PotoClient | WorkerClient, number]) {
 		switch (name) {
-			case 'MESSAGE_CREATE': {
-				const { d: data } = args[0] as unknown as GatewayMessageCreateDispatch;
-				if (args[1].components.values.has(data.interaction?.id ?? '')) {
-					const value = args[1].components.values.get(data.interaction!.id)!;
-					args[1].components.values.delete(data.interaction!.id);
-					args[1].components.values.set(data.id, value);
+			case 'MESSAGE_CREATE':
+				{
+					const { d: data } = args[0] as unknown as GatewayMessageCreateDispatch;
+					if (args[1].components.values.has(data.interaction?.id ?? '')) {
+						const value = args[1].components.values.get(data.interaction!.id)!;
+						args[1].components.values.delete(data.interaction!.id);
+						args[1].components.values.set(data.id, value);
+					}
 				}
-			}
-			break;
-			case 'MESSAGE_DELETE': {
-				const { d: data } = args[0] as unknown as GatewayMessageDeleteDispatch;
-				args[1].components.onMessageDelete(data.id);
-			}
-			break;
-			case 'MESSAGE_DELETE_BULK': {
-				const { d: data } = args[0] as unknown as GatewayMessageDeleteBulkDispatch;
-				data.ids.forEach((id) => args[1].components.onMessageDelete(id));
-			}
-			break;
+				break;
+			case 'MESSAGE_DELETE':
+				{
+					const { d: data } = args[0] as unknown as GatewayMessageDeleteDispatch;
+					args[1].components.onMessageDelete(data.id);
+				}
+				break;
+			case 'MESSAGE_DELETE_BULK':
+				{
+					const { d: data } = args[0] as unknown as GatewayMessageDeleteBulkDispatch;
+					data.ids.forEach(id => args[1].components.onMessageDelete(id));
+				}
+				break;
 		}
 
 		const Event = this.values[name];
@@ -86,7 +89,7 @@ export class PotoEventHandler extends PotoHandler {
 		const event = this.values[eventName];
 		if (!event) return null;
 		delete require.cache[event.__filePath];
-		const imported = await import(event.__filePath).then((x) => x.default);
+		const imported = await import(event.__filePath).then(x => x.default);
 		imported.__filePath = event.__filePath;
 		this.values[eventName] = imported;
 		return imported;

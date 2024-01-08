@@ -3,15 +3,15 @@ import type {
 	RESTGetAPIGuildMembersSearchQuery,
 	RESTPutAPIGuildMemberJSONBody,
 } from '../common';
-import {
-	type APIGuildMember,
-	type APIInteractionDataResolvedGuildMember,
-	type APIUser,
-	type GatewayGuildMemberAddDispatchData,
-	type GatewayGuildMemberUpdateDispatchData,
-	type ObjectToLower,
-	type RESTPatchAPIGuildMemberJSONBody,
-	type RESTPutAPIGuildBanJSONBody,
+import type {
+	APIGuildMember,
+	APIInteractionDataResolvedGuildMember,
+	APIUser,
+	GatewayGuildMemberAddDispatchData,
+	GatewayGuildMemberUpdateDispatchData,
+	ObjectToLower,
+	RESTPatchAPIGuildMemberJSONBody,
+	RESTPutAPIGuildBanJSONBody,
 } from '../common';
 import { DiscordBase } from './extra/DiscordBase';
 
@@ -24,7 +24,7 @@ export type GuildMemberData =
 import type { BaseClient } from '../client/base';
 import type { ImageOptions, MethodContext } from '../common/types/options';
 import type { GuildMemberResolvable } from '../common/types/resolvables';
-import { Guild } from './Guild';
+import type { Guild } from './Guild';
 import { User } from './User';
 
 export interface GuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> {}

@@ -1,4 +1,4 @@
-import { ActionRow, ListenerOptions, PotoComponents } from '../builders';
+import type { ActionRow, ListenerOptions, PotoComponents } from '../builders';
 
 export class ComponentsListener<T extends PotoComponents> {
 	components: ActionRow<T>[] = [];

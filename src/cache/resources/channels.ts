@@ -1,4 +1,4 @@
-import { PotocuitChannels } from '../../structures';
+import type { PotocuitChannels } from '../../structures';
 import channelFrom from '../../structures/methods/channels';
 import { GuildRelatedResource } from './default/guild-related';
 
@@ -12,6 +12,6 @@ export class Channels extends GuildRelatedResource {
 
 	override async values(guild: string) {
 		const channels = await super.values(guild);
-		return channels.map((rawChannel) => channelFrom(rawChannel, this.client));
+		return channels.map(rawChannel => channelFrom(rawChannel, this.client));
 	}
 }

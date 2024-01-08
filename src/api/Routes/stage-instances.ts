@@ -1,4 +1,4 @@
-import {
+import type {
 	RESTDeleteAPIStageInstanceResult,
 	RESTGetAPIStageInstanceResult,
 	RESTPatchAPIStageInstanceJSONBody,
@@ -6,15 +6,17 @@ import {
 	RESTPostAPIStageInstanceJSONBody,
 	RESTPostAPIStageInstanceResult,
 } from '../../common';
-import { RestArguments } from '../REST';
-import { ProxyRequestMethod } from '../Router';
+import type { RestArguments } from '../REST';
+import type { ProxyRequestMethod } from '../Router';
 
 export interface StageInstanceRoutes {
 	'stage-instances': {
 		post(
 			args: RestArguments<ProxyRequestMethod.Post, RESTPostAPIStageInstanceJSONBody>,
 		): Promise<RESTPostAPIStageInstanceResult>;
-		(id: string): {
+		(
+			id: string,
+		): {
 			get(args?: RestArguments<ProxyRequestMethod.Get>): Promise<RESTGetAPIStageInstanceResult>;
 			patch(
 				args: RestArguments<ProxyRequestMethod.Patch, RESTPatchAPIStageInstanceJSONBody>,

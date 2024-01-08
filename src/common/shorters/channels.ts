@@ -1,4 +1,4 @@
-import { RESTPatchAPIChannelJSONBody } from '..';
+import type { RESTPatchAPIChannelJSONBody } from '..';
 import { Message } from '../../structures';
 import channelFrom, { BaseChannel } from '../../structures/methods/channels';
 import { BaseShorter } from './base';
@@ -50,7 +50,7 @@ export class ChannelShorter extends BaseShorter {
 				this.client.proxy
 					.channels(channelId)
 					.pins.get()
-					.then((messages) => messages.map((message) => new Message(this.client, message))),
+					.then(messages => messages.map(message => new Message(this.client, message))),
 			set: (messageId: string, channelId: string, reason?: string) =>
 				this.client.proxy.channels(channelId).pins(messageId).put({ reason }),
 			delete: (messageId: string, channelId: string, reason?: string) =>

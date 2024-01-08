@@ -12,6 +12,6 @@ export class Emojis extends GuildRelatedResource {
 
 	override async values(guild: string) {
 		const emojis = (await super.values(guild)) as (APIEmoji & { id: string; guild_id: string })[];
-		return emojis.map((rawEmoji) => new GuildEmoji(this.client, rawEmoji, rawEmoji.guild_id));
+		return emojis.map(rawEmoji => new GuildEmoji(this.client, rawEmoji, rawEmoji.guild_id));
 	}
 }

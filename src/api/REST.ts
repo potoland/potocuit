@@ -5,7 +5,7 @@ import { MergeOptions } from '../common';
 import { Logger } from '../common/it/logger';
 import { snowflakeToTimestamp } from '../structures/extra/functions';
 import { CDN } from './CDN';
-import { ProxyRequestMethod } from './Router';
+import type { ProxyRequestMethod } from './Router';
 import { BurstHandler } from './handlers/BurstHandler';
 import { SequentialHandler } from './handlers/SequentialHandler';
 import type { IHandler } from './interfaces/Handler';

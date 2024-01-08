@@ -1,7 +1,7 @@
 import type { REST } from '../api';
 import type { Adapter, Cache } from '../cache';
 import type { GatewayPresenceUpdateData, LocaleString } from '../common';
-import { DeepPartial, type GatewayDispatchPayload } from '../common';
+import type { DeepPartial, GatewayDispatchPayload } from '../common';
 import { PotoEventHandler } from '../events';
 import { ShardManager } from '../websocket';
 import type { BaseClientOptions, InternalRuntimeConfig, StartOptions } from './base';
@@ -41,7 +41,7 @@ export class PotoClient extends BaseClient {
 	}
 
 	async loadEvents(dir?: string) {
-		dir ??= await this.getRC().then((x) => x.events);
+		dir ??= await this.getRC().then(x => x.events);
 		if (dir) {
 			await this.events.load(dir);
 			this.logger.info('PotoEventHandler loaded');
@@ -87,11 +87,12 @@ export class PotoClient extends BaseClient {
 	protected async onPacket(shardId: number, packet: GatewayDispatchPayload) {
 		switch (packet.t) {
 			//// Cases where we must obtain the old data before upgrading
-			case 'GUILD_MEMBER_UPDATE': {
-				await this.events.execute(packet.t, packet, this, shardId);
-				await this.cache.onPacket(packet);
-			}
-			break;
+			case 'GUILD_MEMBER_UPDATE':
+				{
+					await this.events.execute(packet.t, packet, this, shardId);
+					await this.cache.onPacket(packet);
+				}
+				break;
 			//rest of the events
 			default: {
 				await this.cache.onPacket(packet);
@@ -109,13 +110,14 @@ export class PotoClient extends BaseClient {
 						await onInteraction(shardId, packet.d, this);
 						break;
 					}
-					case 'GUILD_CREATE': {
-						if (this.handleGuilds.has(packet.d.id)) {
-							this.handleGuilds.delete(packet.d.id);
-							return;
+					case 'GUILD_CREATE':
+						{
+							if (this.handleGuilds.has(packet.d.id)) {
+								this.handleGuilds.delete(packet.d.id);
+								return;
+							}
 						}
-					}
-					break;
+						break;
 				}
 				break;
 			}
