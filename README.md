@@ -29,7 +29,7 @@ Biscuitjs has a good scalability, strict types, smooth developing experience...
 > [!NOTE]
 > You **NEED** Node.js 18>= for this to work, also we recomended Node.js 20 LTS and Bun latest
 ```sh
-bun add biscuitjs
+pnmp add biscuit.js
 ```
 
 > You may use your preferred package manager, for this example I am using PNPM since is more efficient.
