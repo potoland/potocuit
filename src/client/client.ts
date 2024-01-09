@@ -103,7 +103,7 @@ export class Client extends BaseClient {
 						}
 						this.botId = packet.d.user.id;
 						this.applicationId = packet.d.application.id;
-						this.debugger.debug(`#${shardId}[ ${packet.d.user.username}](${this.botId}) is online...`);
+						this.debugger?.debug(`#${shardId}[ ${packet.d.user.username}](${this.botId}) is online...`);
 						break;
 					case 'INTERACTION_CREATE': {
 						await onInteraction(shardId, packet.d, this);

@@ -42,11 +42,7 @@ export class BaseClient {
 	templates = new TemplateShorter(this).templates;
 	roles = new RoleShorter(this).roles;
 
-	debugger = new Logger({
-		name: '[Debug]',
-		active: false,
-		logLevel: LogLevels.Debug,
-	});
+	debugger?: Logger
 
 	logger = new Logger({
 		name: 'Biscuitjs',
@@ -121,7 +117,13 @@ export class BaseClient {
 	}
 
 	protected async execute(..._options: unknown[]) {
-		this.debugger.active = (await this.getRC()).debug;
+		if ((await this.getRC()).debug) {
+			this.debugger = new Logger({
+				name: '[Debug]',
+				active: true,
+				logLevel: LogLevels.Debug,
+			});
+		}
 	}
 
 	async start(

@@ -116,13 +116,13 @@ export class HttpClient extends BaseClient {
 	async onPacket(res: HttpResponse, req: HttpRequest) {
 		const rawBody = await this.verifySignature(res, req);
 		if (!rawBody) {
-			this.debugger.debug('Invalid request/No info, returning 418 status.');
+			this.debugger?.debug('Invalid request/No info, returning 418 status.');
 			// I'm a teapot
 			res.writeStatus('418').end();
 		} else {
 			switch (rawBody.type) {
 				case InteractionType.Ping:
-					this.debugger.debug('Ping interaction received, responding.');
+					this.debugger?.debug('Ping interaction received, responding.');
 					res
 						.writeHeader('Content-Type', 'application/json')
 						.end(JSON.stringify({ type: InteractionResponseType.Pong }));
