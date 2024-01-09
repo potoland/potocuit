@@ -15,7 +15,7 @@ const workerData = __workerData__ as WorkerData;
 
 export class WorkerClient extends BaseClient {
 	logger = new Logger({
-		active: workerData.debug,
+		active: true,
 		name: `[Worker #${workerData.workerId}]`,
 		logLevel: LogLevels.Debug,
 	});
