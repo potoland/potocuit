@@ -61,5 +61,11 @@
 	"keywords": ["api", "discord", "bots", "typescript", "botdev"],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"contributors": [
+		{
+			"name": "socram03",
+			"url": "https://github.com/socram03"
+		}
+	]
 }

@@ -262,7 +262,7 @@ export class BaseInteraction<
 	}
 }
 
-export type PotoInteraction =
+export type AllInteractions =
 	| AutocompleteInteraction
 	| ChatInputCommandInteraction
 	| UserCommandInteraction

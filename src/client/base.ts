@@ -49,7 +49,7 @@ export class BaseClient {
 	});
 
 	logger = new Logger({
-		name: '@potoland/core',
+		name: 'Biscuitjs',
 		active: true,
 		logLevel: LogLevels.Info,
 	});
@@ -199,7 +199,7 @@ export class BaseClient {
 		dir ??= await this.getRC().then(x => x.components);
 		if (dir) {
 			await this.components.load(dir);
-			this.logger.info('PotoComponentHandler loaded');
+			this.logger.info('ComponentHandler loaded');
 		}
 	}
 
@@ -214,7 +214,7 @@ export class BaseClient {
 	async getRC<
 		T extends InternalRuntimeConfigHTTP | InternalRuntimeConfig = InternalRuntimeConfigHTTP | InternalRuntimeConfig,
 	>() {
-		const { locations, debug, ...env } = (await import(join(process.cwd(), 'poto.config.js')).then(
+		const { locations, debug, ...env } = (await import(join(process.cwd(), 'biscuit.config.js')).then(
 			x => x.default,
 		)) as T;
 

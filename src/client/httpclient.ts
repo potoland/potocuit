@@ -71,10 +71,10 @@ export class HttpClient extends BaseClient {
 		const port = options?.port ?? portRC;
 
 		if (!publicKey) {
-			throw new Error('Expected a publicKey, check your .potorc.json');
+			throw new Error('Expected a publicKey, check your config file');
 		}
 		if (!port) {
-			throw new Error('Expected a port, check your .potorc.json');
+			throw new Error('Expected a port, check your config file');
 		}
 		if (applicationIdRC) {
 			this.applicationId = applicationIdRC;
