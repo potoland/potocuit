@@ -1,6 +1,6 @@
 import type { InternalRuntimeConfig, InternalRuntimeConfigHTTP, RuntimeConfig, RuntimeConfigHTTP } from './client/base';
 import { GatewayIntentBits } from './common';
-import type { EventContext, IClientEvents, ClientNameEvents } from './events';
+import type { ClientNameEvents, EventContext, IClientEvents } from './events';
 import type { ChatInputCommandInteraction, MessageCommandInteraction, UserCommandInteraction } from './structures';
 
 export * from './api';
@@ -14,7 +14,7 @@ export * from './components';
 export * from './events';
 export * from './structures';
 export * from './structures/extra/functions';
-export * from './websocket/discord/workermanager';
+export { ShardManager, WorkerManager } from './websocket/discord';
 
 export function throwError(msg: string): never {
 	throw new Error(msg);

@@ -1,14 +1,14 @@
 import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
 import { Worker } from 'node:worker_threads';
-import { type Adapter, DefaultMemoryAdapter } from '../../cache';
-import { type GatewayPresenceUpdateData, type GatewaySendPayload, Logger, MergeOptions, delay } from '../../common';
+import { DefaultMemoryAdapter, type Adapter } from '../../cache';
+import { Logger, MergeOptions, delay, type GatewayPresenceUpdateData, type GatewaySendPayload } from '../../common';
 import { WorkerManagerDefaults } from '../constants';
 import { SequentialBucket } from '../structures';
 import type { ShardOptions, WorkerData, WorkerManagerOptions } from './shared';
 import type { WorkerInfo, WorkerMessage, WorkerShardInfo } from './worker';
 
-export class WorkersManger extends Map<number, Worker> {
+export class WorkerManager extends Map<number, Worker> {
 	options: Required<WorkerManagerOptions>;
 	logger: Logger;
 	connectQueue: SequentialBucket;
