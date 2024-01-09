@@ -1,6 +1,6 @@
 <div align='center'>
 
-  # **biscuitjs**
+  # **Biscuitjs**
 
   <img src="https://github.com/potoland/potocuit/raw/main/assets/icon.png" alt="biscuitjs" width="100px" />
 
@@ -17,10 +17,10 @@
 
 # FAQ
 ## So, what is `biscuitjs`?
-biscuitjs is the ultimate Discord framework! With its highly efficient interaction with the Discord API, you can achieve anything you set your mind to.
+Biscuitjs is the ultimate Discord framework! With its highly efficient interaction with the Discord API, you can achieve anything you set your mind to.
 
 ## Why I should use it?
-biscuitjs has a good scalability, strict types, smooth developing experience...
+Biscuitjs has a good scalability, strict types, smooth developing experience...
 
 > more questions soon...
 
@@ -29,7 +29,7 @@ biscuitjs has a good scalability, strict types, smooth developing experience...
 > [!NOTE]
 > You **NEED** Node.js 18>= for this to work, also we recomended Node.js 20 LTS and Bun latest
 ```sh
-pnmp add biscuitjs
+pnpm add biscuitjs
 ```
 
 > You may use your preferred package manager, for this example I am using PNPM since is more efficient.
