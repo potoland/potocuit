@@ -1,9 +1,9 @@
 import type { __LangType } from '../__generated';
-import { Locale, type LocaleString, PotoHandler } from '../common';
+import { BaseHandler, Locale, type LocaleString } from '../common';
 
 const values = Object.values(Locale);
 
-export class PotoLangsHandler extends PotoHandler {
+export class LangsHandler extends BaseHandler {
 	record: Partial<Record<LocaleString, any>> = {};
 	protected filter = (path: string) => path.endsWith('.json');
 	defaultLang?: LocaleString;

@@ -1,5 +1,5 @@
 import { ApplicationCommandType, type LocaleString, PermissionFlagsBits, type PermissionStrings } from '../common';
-import type { OptionsRecord, PotoCommandOption, SubCommand } from './applications/chat';
+import type { OptionsRecord, CommandOption, SubCommand } from './applications/chat';
 import type { MiddlewareContext } from './applications/shared';
 
 type DeclareOptions =
@@ -90,13 +90,13 @@ export function Group(groupName: string) {
 export function Options(options: (new () => SubCommand)[] | OptionsRecord) {
 	return <T extends { new (...args: any[]): {} }>(target: T) =>
 		class extends target {
-			options: SubCommand[] | PotoCommandOption[] = Array.isArray(options)
+			options: SubCommand[] | CommandOption[] = Array.isArray(options)
 				? options.map(x => new x())
 				: Object.entries(options).map(([name, option]) => {
 						return {
 							name,
 							...option,
-						} as PotoCommandOption;
+						} as CommandOption;
 				  });
 		};
 }

@@ -1,15 +1,15 @@
 import {
-	type APIMessage,
-	type APIModalInteractionResponseCallbackData,
 	Button,
 	InteractionResponseType,
 	LimitedCollection,
 	SelectMenu,
+	type APIMessage,
+	type APIModalInteractionResponseCallbackData,
 } from '..';
-import type { ListenerOptions, PotoComponents } from '../builders';
+import type { BuilderComponents, ListenerOptions } from '../builders';
 import type { ComponentCallback, ModalSubmitCallback } from '../builders/types';
 import type { BaseClient } from '../client/base';
-import { type Logger, PotoHandler } from '../common';
+import { BaseHandler, type Logger } from '../common';
 import type {
 	InteractionMessageUpdateBodyRequest,
 	MessageCreateBodyRequest,
@@ -36,7 +36,7 @@ type COMPONENTS = {
 	timeout?: NodeJS.Timeout;
 };
 
-export class ComponentHandler extends PotoHandler {
+export class ComponentHandler extends BaseHandler {
 	protected onFail?: OnFailCallback;
 	readonly values = new Map<string, COMPONENTS>();
 	// 10 minutes timeout, because discord dont send an event when the user cancel the modal
@@ -95,7 +95,7 @@ export class ComponentHandler extends PotoHandler {
 		return this.modals.get(interaction.user.id)?.(interaction);
 	}
 
-	__setComponents(id: string, record: ComponentsListener<PotoComponents>) {
+	__setComponents(id: string, record: ComponentsListener<BuilderComponents>) {
 		const components: COMPONENTS = {
 			buttons: {},
 			options: record.options,

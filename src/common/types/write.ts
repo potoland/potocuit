@@ -9,18 +9,18 @@ import type {
 	RESTPostAPIWebhookWithTokenJSONBody,
 } from '..';
 import type { RawFile } from '../..';
-import type { ActionRow, Attachment, MessageEmbed, Modal, PotoComponents, TextInput } from '../../builders';
+import type { ActionRow, Attachment, BuilderComponents, MessageEmbed, Modal, TextInput } from '../../builders';
 import type { ComponentsListener } from '../../components/listener';
 
 import type { OmitInsert } from './util';
 
-export type PotoModalComponentProper = {
+export type BodyModalComponentProper = {
 	components?: ActionRow<TextInput>[] | undefined;
 };
 
 export interface ResolverProps {
 	embeds?: MessageEmbed[] | APIEmbed[] | undefined;
-	components?: ComponentsListener<PotoComponents> | ActionRow<PotoComponents>[] | undefined;
+	components?: ComponentsListener<BuilderComponents> | ActionRow<BuilderComponents>[] | undefined;
 	files?: Attachment[] | RawFile[] | undefined;
 }
 

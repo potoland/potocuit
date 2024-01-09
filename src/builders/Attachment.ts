@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
-import { type RESTAPIAttachment, type RawFile, throwError } from '..';
+import { throwError, type RESTAPIAttachment, type RawFile } from '..';
 
 export interface AttachmentResolvableMap {
 	url: string;

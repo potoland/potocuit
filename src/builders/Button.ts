@@ -1,10 +1,10 @@
-import { type APIMessageComponentEmoji, resolvePartialEmoji, throwError } from '..';
+import { resolvePartialEmoji, throwError, type APIMessageComponentEmoji } from '..';
 import {
+	ComponentType,
 	type APIButtonComponent,
 	type APIButtonComponentWithCustomId,
 	type APIButtonComponentWithURL,
 	type ButtonStyle,
-	ComponentType,
 	type EmojiResolvable,
 	type When,
 } from '../common';

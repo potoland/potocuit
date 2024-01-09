@@ -1,5 +1,5 @@
-import { type APIInteraction, ApplicationCommandType, InteractionType } from 'discord-api-types/v10';
-import { type Command, CommandContext, type ContextMenuCommand, MenuCommandContext, OptionResolver } from '../commands';
+import { ApplicationCommandType, InteractionType, type APIInteraction } from 'discord-api-types/v10';
+import { CommandContext, MenuCommandContext, OptionResolver, type Command, type ContextMenuCommand } from '../commands';
 import type {
 	ChatInputCommandInteraction,
 	ComponentInteraction,

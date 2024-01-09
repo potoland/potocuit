@@ -1,6 +1,6 @@
 import type { InternalRuntimeConfig, InternalRuntimeConfigHTTP, RuntimeConfig, RuntimeConfigHTTP } from './client/base';
 import { GatewayIntentBits } from './common';
-import type { EventContext, IClientEvents, PotoNameEvents } from './events';
+import type { EventContext, IClientEvents, ClientNameEvents } from './events';
 import type { ChatInputCommandInteraction, MessageCommandInteraction, UserCommandInteraction } from './structures';
 
 export * from './api';
@@ -20,7 +20,7 @@ export function throwError(msg: string): never {
 	throw new Error(msg);
 }
 
-export function createEvent<K extends keyof IClientEvents, E extends PotoNameEvents>(data: {
+export function createEvent<K extends keyof IClientEvents, E extends ClientNameEvents>(data: {
 	data: { name: E; once?: boolean };
 	run: (...args: EventContext<K, { data: { name: E } }>) => any;
 }) {

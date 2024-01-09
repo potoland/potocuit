@@ -1,4 +1,6 @@
 import {
+	ComponentType,
+	SelectMenuDefaultValueType,
 	type APIChannelSelectComponent,
 	type APIMentionableSelectComponent,
 	type APIMessageComponentEmoji,
@@ -9,9 +11,7 @@ import {
 	type APIStringSelectComponent,
 	type APIUserSelectComponent,
 	type ChannelType,
-	ComponentType,
 	type RestOrArray,
-	SelectMenuDefaultValueType,
 } from '../common';
 import type {
 	ChannelSelectMenuInteraction,
@@ -24,7 +24,7 @@ import type {
 import { BaseComponentBuilder, type OptionValuesLength } from './Base';
 import type { ComponentCallback } from './types';
 
-export type PotoSelectMenus =
+export type BuilderSelectMenus =
 	| RoleSelectMenu
 	| UserSelectMenu
 	| MentionableSelectMenu

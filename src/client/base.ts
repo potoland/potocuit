@@ -3,16 +3,16 @@ import { REST, Router } from '../api';
 import type { Adapter } from '../cache';
 import { Cache, DefaultMemoryAdapter } from '../cache';
 import type { MiddlewareContext } from '../commands/applications/shared';
-import { PotoCommandHandler } from '../commands/handler';
+import { CommandHandler } from '../commands/handler';
 import {
 	ChannelShorter,
 	GuildShorter,
-	type LocaleString,
 	LogLevels,
 	Logger,
-	type MakeRequired,
 	UsersShorter,
 	filterSplit,
+	type LocaleString,
+	type MakeRequired,
 } from '../common';
 import { MemberShorter } from '../common/shorters/members';
 import { MessageShorter } from '../common/shorters/messages';
@@ -21,10 +21,10 @@ import { TemplateShorter } from '../common/shorters/templates';
 import { WebhookShorter } from '../common/shorters/webhook';
 import type { DeepPartial, IntentStrings, OmitInsert } from '../common/types/util';
 import { ComponentHandler } from '../components/handler';
-import { PotoLangsHandler } from '../langs/handler';
+import { LangsHandler } from '../langs/handler';
 import type { ChatInputCommandInteraction, MessageCommandInteraction, UserCommandInteraction } from '../structures';
-import type { PotoClient } from './client';
-import type { PotoHttpClient } from './httpclient';
+import type { Client } from './client';
+import type { HttpClient } from './httpclient';
 import type { WorkerClient } from './workerclient';
 
 export class BaseClient {
@@ -49,13 +49,13 @@ export class BaseClient {
 	});
 
 	logger = new Logger({
-		name: '@potoland/core',
+		name: 'Biscuitjs',
 		active: true,
 		logLevel: LogLevels.Info,
 	});
 
-	commands = new PotoCommandHandler(this.logger);
-	langs = new PotoLangsHandler(this.logger);
+	commands = new CommandHandler(this.logger);
+	langs = new LangsHandler(this.logger);
 	components = new ComponentHandler(this.logger, this);
 
 	private _applicationId?: string;
@@ -192,14 +192,14 @@ export class BaseClient {
 		dir ??= await this.getRC().then(x => x.commands);
 		BaseClient.assertString(dir);
 		await this.commands.load(dir, this);
-		this.logger.info('PotoCommandHandler loaded');
+		this.logger.info('CommandHandlerloaded');
 	}
 
 	async loadComponents(dir?: string) {
 		dir ??= await this.getRC().then(x => x.components);
 		if (dir) {
 			await this.components.load(dir);
-			this.logger.info('PotoComponentHandler loaded');
+			this.logger.info('ComponentHandler loaded');
 		}
 	}
 
@@ -207,14 +207,14 @@ export class BaseClient {
 		dir ??= await this.getRC().then(x => x.langs);
 		if (dir) {
 			await this.langs.load(dir);
-			this.logger.info('PotoLangsHandler loaded');
+			this.logger.info('LangsHandler loaded');
 		}
 	}
 
 	async getRC<
 		T extends InternalRuntimeConfigHTTP | InternalRuntimeConfig = InternalRuntimeConfigHTTP | InternalRuntimeConfig,
 	>() {
-		const { locations, debug, ...env } = (await import(join(process.cwd(), 'poto.config.js')).then(
+		const { locations, debug, ...env } = (await import(join(process.cwd(), 'biscuit.config.js')).then(
 			x => x.default,
 		)) as T;
 
@@ -287,7 +287,7 @@ export type RuntimeConfig = OmitInsert<InternalRuntimeConfig, 'intents', { inten
 
 export interface IClients {
 	base: BaseClient;
-	http: PotoHttpClient;
-	client: PotoClient;
+	http: HttpClient;
+	client: Client;
 	worker: WorkerClient;
 }

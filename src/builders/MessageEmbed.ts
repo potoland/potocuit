@@ -1,11 +1,13 @@
 import {
+	resolveColor,
+	toSnakeCase,
 	type APIEmbed,
 	type APIEmbedAuthor,
 	type APIEmbedField,
 	type APIEmbedFooter,
+	type ColorResolvable,
 	type ObjectToLower,
 	type RestOrArray,
-	toSnakeCase,
 } from '../common';
 
 export class MessageEmbed {
@@ -18,9 +20,8 @@ export class MessageEmbed {
 		return this;
 	}
 
-	// TODO: Color resolve
-	setColor(color: number): this {
-		this.data.color = color;
+	setColor(color: ColorResolvable): this {
+		this.data.color = resolveColor(color);
 		return this;
 	}
 

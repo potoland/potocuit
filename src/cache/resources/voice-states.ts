@@ -1,14 +1,14 @@
 import type { GatewayVoiceState } from '../../common';
 import { GuildRelatedResource } from './default/guild-related';
 
-export class VoiceStates extends GuildRelatedResource<PotoVoiceState> {
+export class VoiceStates extends GuildRelatedResource<VoiceStateResource> {
 	namespace = 'voice-state';
 
-	override parse(data: any, _id: string, guild_id: string): PotoVoiceState {
+	override parse(data: any, _id: string, guild_id: string): VoiceStateResource {
 		data.guild_id = guild_id;
 		delete data.member;
 		return data;
 	}
 }
 
-export type PotoVoiceState = Omit<GatewayVoiceState, 'member'> & { guild_id: string };
+export type VoiceStateResource = Omit<GatewayVoiceState, 'member'> & { guild_id: string };

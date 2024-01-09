@@ -10,7 +10,7 @@ import type {
 } from '../common';
 import type { EmojiResolvable } from '../common/types/resolvables';
 import type { MessageCreateBodyRequest, MessageUpdateBodyRequest } from '../common/types/write';
-import type { BiscuitActionRowMessageComponents } from '../components';
+import type { ActionRowMessageComponents } from '../components';
 import { MessageActionRowComponent } from '../components/ActionRow';
 import type { Guild } from './Guild';
 import { GuildMember } from './GuildMember';
@@ -28,7 +28,7 @@ export class BaseMessage extends DiscordBase {
 	timestamp?: number;
 	author!: User;
 	member?: GuildMember;
-	components: MessageActionRowComponent<BiscuitActionRowMessageComponents>[];
+	components: MessageActionRowComponent<ActionRowMessageComponents>[];
 	mentions: {
 		roles: string[];
 		channels: APIChannelMention[];

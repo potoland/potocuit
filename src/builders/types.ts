@@ -1,7 +1,7 @@
 import type { ComponentInteraction, ModalSubmitInteraction } from '../structures/Interaction';
 import type { Button } from './Button';
 import type { TextInput } from './Modal';
-import type { PotoSelectMenus } from './SelectMenu';
+import type { BuilderSelectMenus } from './SelectMenu';
 
 export type ComponentCallback<T = ComponentInteraction> = (
 	interaction: T,
@@ -15,9 +15,9 @@ export type ModalSubmitCallback<T = ModalSubmitInteraction> = (interaction: T) =
 export type ButtonLink = Omit<Button, 'setCustomId'>;
 export type ButtonID = Omit<Button, 'setURL'>;
 
-export type PotoMessageComponents = FixedComponents<Button> | PotoSelectMenus;
-export type PotoModalComponents = TextInput;
-export type PotoComponents = PotoMessageComponents | TextInput;
+export type MessageBuilderComponents = FixedComponents<Button> | BuilderSelectMenus;
+export type ModalBuilderComponents = TextInput;
+export type BuilderComponents = MessageBuilderComponents | TextInput;
 export type FixedComponents<T = Button> = T extends Button ? ButtonLink | ButtonID : T;
 export interface ListenerOptions {
 	timeout?: number;

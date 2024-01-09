@@ -1,6 +1,6 @@
 {
-	"name": "@potoland/core",
-	"version": "0.0.1",
+	"name": "biscuitjs",
+	"version": "0.1.0",
 	"main": "./dist/index.js",
 	"module": "./dist/index.js",
 	"types": "./dist/index.d.ts",
@@ -13,10 +13,7 @@
 		"lint": "biome lint --apply ./src",
 		"format": "biome format --write ./src",
 		"check-h": "biome check --apply ./src",
-		"check": "biome check --apply --changed --no-errors-on-unmatched ./src",
-		"test:run": "cd __test__ && node ./dist/bot.js",
-		"test:build": "cd __test__ && nodemon --ext ts --watch ./src --exec \"swc ./src --config-file ../.swcrc -d ./dist\"",
-		"test": "cd __test__ && nodemon --ext ts --watch ./src --exec \"swc ./src --config-file ../.swcrc -d ./dist && node ./dist/bot.js\""
+		"check": "biome check --apply --changed --no-errors-on-unmatched ./src"
 	},
 	"author": "MARCROCK22",
 	"license": "ISC",
@@ -64,5 +61,11 @@
 	"keywords": ["api", "discord", "bots", "typescript", "botdev"],
 	"publishConfig": {
 		"access": "public"
-	}
+	},
+	"contributors": [
+		{
+			"name": "socram03",
+			"url": "https://github.com/socram03"
+		}
+	]
 }

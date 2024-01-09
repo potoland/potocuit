@@ -70,7 +70,7 @@
 		"ignore": ["node_modules/", "build", "dist", "__test__"]
 	},
 	"organizeImports": {
-		"enabled": true
+		"enabled": false
 	},
 	"vcs": {
 		"clientKind": "git",

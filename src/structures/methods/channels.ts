@@ -1,31 +1,32 @@
 import { mix } from 'ts-mixer';
 import {
-	type APIGuildChannel,
 	CategoryChannel,
 	DMChannel,
 	DirectoryChannel,
 	ForumChannel,
-	type Guild,
 	MediaChannel,
 	NewsChannel,
-	type PotocuitChannels,
-	type RESTPatchAPIGuildChannelPositionsJSONBody,
-	type RESTPostAPIGuildChannelJSONBody,
 	StageChannel,
 	TextGuildChannel,
 	ThreadChannel,
 	VoiceChannel,
 	Webhook,
 	channelLink,
+	type APIGuildChannel,
+	type AllChannels,
+	type Guild,
+	type RESTPatchAPIGuildChannelPositionsJSONBody,
+	type RESTPostAPIGuildChannelJSONBody,
 } from '../..';
 import { MessageEmbed, resolveAttachment } from '../../builders';
 import type { BaseClient } from '../../client/base';
 import {
+	ChannelType,
+	VideoQualityMode,
 	type APIChannelBase,
 	type APIGuildForumDefaultReactionEmoji,
 	type APIGuildForumTag,
 	type APITextChannel,
-	ChannelType,
 	type EmojiResolvable,
 	type MessageCreateBodyRequest,
 	type MessageUpdateBodyRequest,
@@ -36,7 +37,6 @@ import {
 	type RESTPostAPIChannelWebhookJSONBody,
 	type SortOrderType,
 	type ThreadAutoArchiveDuration,
-	VideoQualityMode,
 } from '../../common';
 import { ComponentsListener } from '../../components/listener';
 import { DiscordBase } from '../extra/DiscordBase';
@@ -179,7 +179,7 @@ export interface TextBaseChannel extends ObjectToLower<APITextChannel>, Messages
 @mix(MessagesMethods)
 export class TextBaseChannel extends BaseGuildChannel {}
 
-export default function channelFrom(data: APIChannelBase<ChannelType>, client: BaseClient): PotocuitChannels {
+export default function channelFrom(data: APIChannelBase<ChannelType>, client: BaseClient): AllChannels {
 	switch (data.type) {
 		case ChannelType.GuildStageVoice:
 			return new StageChannel(client, data);

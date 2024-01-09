@@ -1,6 +1,6 @@
-import type { ActionRow, ListenerOptions, PotoComponents } from '../builders';
+import type { ActionRow, BuilderComponents, ListenerOptions } from '../builders';
 
-export class ComponentsListener<T extends PotoComponents> {
+export class ComponentsListener<T extends BuilderComponents> {
 	components: ActionRow<T>[] = [];
 	idle?: NodeJS.Timeout;
 	timeout?: NodeJS.Timeout;

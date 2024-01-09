@@ -1,17 +1,17 @@
 import { fromComponent } from '.';
 import {
+	ComponentType,
 	type APIActionRowComponent,
 	type APIModalInteractionResponseCallbackData,
 	type APITextInputComponent,
-	ComponentType,
 	type RestOrArray,
 	type TextInputStyle,
 } from '../common';
 import type { ActionRow } from './ActionRow';
 import { BaseComponentBuilder, type OptionValuesLength } from './Base';
-import type { ModalSubmitCallback, PotoModalComponents } from './types';
+import type { ModalBuilderComponents, ModalSubmitCallback } from './types';
 
-export class Modal<T extends PotoModalComponents = TextInput> {
+export class Modal<T extends ModalBuilderComponents = TextInput> {
 	/** @internal */
 	__exec?: ModalSubmitCallback;
 	components: ActionRow<T>[] = [];

@@ -1,11 +1,11 @@
 import { basename, dirname } from 'node:path';
 import type { BaseClient } from '../client/base';
 import type { Logger } from '../common';
-import { type LocaleString, PotoHandler } from '../common';
+import { BaseHandler, type LocaleString } from '../common';
 import { Command, SubCommand } from './applications/chat';
 import { ContextMenuCommand } from './applications/menu';
 
-export class PotoCommandHandler extends PotoHandler {
+export class CommandHandler extends BaseHandler {
 	values: (Command | ContextMenuCommand)[] = [];
 	protected filter = (path: string) => path.endsWith('.js');
 

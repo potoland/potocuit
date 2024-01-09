@@ -1,8 +1,8 @@
 <div align='center'>
 
-  # **potocuit**
+  # **Biscuitjs**
 
-  <img src="https://github.com/potoland/potocuit/raw/main/assets/icon.png" alt="potocuit" width="100px" />
+  <img src="https://github.com/potoland/potocuit/raw/main/assets/icon.png" alt="biscuitjs" width="100px" />
 
   **A brand new bleeding edge non bloated Discord framework**
 
@@ -16,20 +16,20 @@
 > This readme is work in progress!
 
 # FAQ
-## So, what is `Potocuit`?
-Potocuit is a Biscuit framework, Biscuit is a library to interact with the Discord API in a memory-efficient way.
+## So, what is `biscuitjs`?
+Biscuitjs is the ultimate Discord framework! With its highly efficient interaction with the Discord API, you can achieve anything you set your mind to.
 
 ## Why I should use it?
-Potocuit has a good scalability, strict types, smooth developing experience...
+Biscuitjs has a good scalability, strict types, smooth developing experience...
 
 > more questions soon...
 
 # User guide
 ## Installation
 > [!NOTE]
-> You **NEED** Node.js 18>= for this to work.
+> You **NEED** Node.js 18>= for this to work, also we recomended Node.js 20 LTS and Bun latest
 ```sh
-pnpm add @potoland/core
+pnpm add biscuitjs
 ```
 
 > You may use your preferred package manager, for this example I am using PNPM since is more efficient.
@@ -37,7 +37,9 @@ pnpm add @potoland/core
 ## Basic bot example
 
 ```ts
-const client = new PotoClient();
+import { Client } from 'biscuitjs'; 
+
+const client = new Client();
 
 (async () => {
     await client.start();
