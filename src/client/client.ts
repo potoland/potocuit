@@ -99,7 +99,7 @@ export class Client extends BaseClient {
 				switch (packet.t) {
 					case 'READY':
 						for (const { id } of packet.d.guilds) {
-							this.handleGuilds.add(id);
+							this.__handleGuilds.add(id);
 						}
 						this.botId = packet.d.user.id;
 						this.applicationId = packet.d.application.id;
@@ -111,8 +111,8 @@ export class Client extends BaseClient {
 					}
 					case 'GUILD_CREATE':
 						{
-							if (this.handleGuilds.has(packet.d.id)) {
-								this.handleGuilds.delete(packet.d.id);
+							if (this.__handleGuilds.has(packet.d.id)) {
+								this.__handleGuilds.delete(packet.d.id);
 								return;
 							}
 						}

@@ -43,8 +43,10 @@ export async function onInteraction(
 							await command.autocomplete(interaction);
 						} catch (error) {
 							self.logger.error(
-								`${command?.name ?? (parentCommand?.name ? `${parentCommand.name} option` : undefined) ?? 'Unknown'
-								} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+								`${
+									command?.name ?? (parentCommand?.name ? `${parentCommand.name} option` : undefined) ?? 'Unknown'
+								} just threw an error, ${
+									error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 								}`,
 							);
 							await command.onAutocompleteError?.(interaction, error);
@@ -60,7 +62,8 @@ export async function onInteraction(
 				}
 				// idc, is a YOU problem
 				self.debugger?.debug(
-					`${command?.name ?? (parentCommand?.name ? `${parentCommand.name} option` : undefined) ?? 'Unknown'
+					`${
+						command?.name ?? (parentCommand?.name ? `${parentCommand.name} option` : undefined) ?? 'Unknown'
 					} command does not have 'autocomplete' callback`,
 				);
 			}
@@ -108,7 +111,8 @@ export async function onInteraction(
 										await command.run(context);
 									} catch (error) {
 										self.logger.error(
-											`${command.name} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+											`${command.name} just threw an error, ${
+												error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 											}`,
 										);
 										await command.onRunError?.(context, error);
@@ -175,7 +179,8 @@ export async function onInteraction(
 										await command.run(context);
 									} catch (error) {
 										self.logger.error(
-											`${command.name} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+											`${command.name} just threw an error, ${
+												error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 											}`,
 										);
 										await command.onRunError?.(context, error);

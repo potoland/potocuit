@@ -29,7 +29,7 @@ import type { WorkerClient } from './workerclient';
 
 export class BaseClient {
 	/** @internal */
-	handleGuilds = new Set<string>();
+	__handleGuilds = new Set<string>();
 	rest!: REST;
 	cache!: Cache;
 
@@ -42,7 +42,7 @@ export class BaseClient {
 	templates = new TemplateShorter(this).templates;
 	roles = new RoleShorter(this).roles;
 
-	debugger?: Logger
+	debugger?: Logger;
 
 	logger = new Logger({
 		name: 'Biscuitjs',
