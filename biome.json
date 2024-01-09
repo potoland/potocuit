@@ -67,7 +67,12 @@
 	},
 	"files": {
 		"ignoreUnknown": true,
-		"ignore": ["node_modules/", "build", "dist", "__test__"]
+		"ignore": [
+			"node_modules/",
+			"build",
+			"dist",
+			"__test__"
+		]
 	},
 	"organizeImports": {
 		"enabled": false
