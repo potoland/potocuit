@@ -1,5 +1,5 @@
-import { MergeOptions, bgBrightWhite, black, bold, brightBlack, cyan, gray, italic, red, yellow } from './utils';
-
+import { bgBrightWhite, black, bold, brightBlack, cyan, gray, italic, red, yellow } from './colors';
+import { MergeOptions } from './utils';
 export enum LogLevels {
 	Debug = 0,
 	Info = 1,

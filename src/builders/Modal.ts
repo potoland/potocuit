@@ -8,7 +8,7 @@ import {
 	type RestOrArray,
 	type TextInputStyle,
 } from '../common';
-import type { ActionRow } from './ActionRow.1';
+import type { ActionRow } from './ActionRow';
 import { BaseComponentBuilder, type OptionValuesLength } from './Base';
 import type { ModalBuilderComponents, ModalSubmitCallback } from './types';
 
