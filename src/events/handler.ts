@@ -81,7 +81,7 @@ export class EventHandler extends BaseHandler {
 			}
 			Event.fired = true;
 			const hook = await RawEvents[args[0].t]?.(args[1], args[0].d as never);
-			await Event.run(...[...(Array.isArray(hook) ? hook : [hook]), args[1], args[2]]);
+			await Event.run(...[Array.isArray(hook) ? hook : [hook], args[1], args[2]]);
 		} catch (e) {
 			await this.onFail?.(e);
 		}
