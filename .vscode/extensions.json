@@ -2,6 +2,7 @@
     "recommendations": [
         "biomejs.biome",
         "orta.vscode-twoslash-queries",
-        "eamodio.gitlens"
+        "eamodio.gitlens",
+        "yoavbls.pretty-ts-errors"
     ]
 }

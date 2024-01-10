@@ -12,6 +12,7 @@ export class ConnectTimeout {
 			this.interval = setInterval(() => {
 				this.shift();
 			}, this.intervalTime);
+			resolve(true);
 		}
 		this.promises.push({ resolve, promise });
 		return promise;

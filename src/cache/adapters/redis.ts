@@ -1,5 +1,6 @@
 import type { RedisOptions } from 'ioredis';
 import { Redis } from 'ioredis';
+import { fastFlat } from '../../common';
 import type { Adapter } from './types';
 
 interface RedisAdapterOptions {
@@ -82,7 +83,7 @@ export class RedisAdapter implements Adapter {
 					)}) end`,
 					1,
 					this.buildKey(id),
-					...Object.entries(toDb(data)).flat(),
+					...fastFlat(Object.entries(toDb(data))),
 				);
 			} else {
 				await this.client.hset(this.buildKey(id), toDb(data));
@@ -101,7 +102,7 @@ export class RedisAdapter implements Adapter {
 					)}) end`,
 					1,
 					this.buildKey(k),
-					...Object.entries(toDb(v)).flat(),
+					...fastFlat(Object.entries(toDb(v))),
 				);
 			} else {
 				pipeline.hset(this.buildKey(k), toDb(v));

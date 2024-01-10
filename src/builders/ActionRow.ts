@@ -1,6 +1,7 @@
 import { fromComponent } from '.';
 import {
 	ComponentType,
+	fastFlat,
 	type APIActionRowComponent,
 	type APIActionRowComponentTypes,
 	type APIMessageActionRowComponent,
@@ -20,7 +21,7 @@ export class ActionRow<T extends BuilderComponents> extends BaseComponentBuilder
 	components: FixedComponents<T>[];
 
 	addComponents(...component: RestOrArray<FixedComponents<T>>): this {
-		this.components = this.components.concat(component.flat() as FixedComponents<T>[]);
+		this.components = this.components.concat(fastFlat(component) as FixedComponents<T>[]);
 		return this;
 	}
 

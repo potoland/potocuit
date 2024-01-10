@@ -40,6 +40,7 @@ export class ChannelShorter extends BaseShorter {
 				);
 				return channelFrom(res, this.client);
 			},
+			typing: (id: string) => this.client.proxy.channels(id).typing.post(),
 			pins: this.pins,
 		};
 	}

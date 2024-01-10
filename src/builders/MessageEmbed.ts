@@ -1,4 +1,5 @@
 import {
+	fastFlat,
 	resolveColor,
 	toSnakeCase,
 	type APIEmbed,
@@ -31,7 +32,7 @@ export class MessageEmbed {
 	}
 
 	addFields(...fields: RestOrArray<APIEmbedField>): this {
-		this.data.fields = this.data.fields!.concat(fields.flat());
+		this.data.fields = this.data.fields!.concat(fastFlat(fields));
 		return this;
 	}
 

@@ -1,6 +1,7 @@
 import {
 	ComponentType,
 	SelectMenuDefaultValueType,
+	fastFlat,
 	type APIChannelSelectComponent,
 	type APIMentionableSelectComponent,
 	type APIMessageComponentEmoji,
@@ -31,8 +32,8 @@ export type BuilderSelectMenus =
 	| ChannelSelectMenu
 	| StringSelectMenu;
 
-function mappedDefault<T extends SelectMenuDefaultValueType>(ids: string[], type: T) {
-	return ids.map(id => ({ id, type })) as APISelectMenuDefaultValue<T>[];
+function mappedDefault<T extends SelectMenuDefaultValueType>(ids: RestOrArray<string>, type: T) {
+	return fastFlat(ids).map(id => ({ id, type })) as APISelectMenuDefaultValue<T>[];
 }
 
 export class SelectMenu<
@@ -76,13 +77,13 @@ export class UserSelectMenu extends SelectMenu<APIUserSelectComponent, UserSelec
 
 	addDefaultUsers(...users: RestOrArray<string>): this {
 		this.data.default_values = (this.data.default_values ?? []).concat(
-			mappedDefault(users.flat(), SelectMenuDefaultValueType.User),
+			mappedDefault(users, SelectMenuDefaultValueType.User),
 		);
 		return this;
 	}
 
 	setDefaultUsers(...users: RestOrArray<string>): this {
-		this.data.default_values = mappedDefault(users.flat(), SelectMenuDefaultValueType.User);
+		this.data.default_values = mappedDefault(users, SelectMenuDefaultValueType.User);
 		return this;
 	}
 }
@@ -94,13 +95,13 @@ export class RoleSelectMenu extends SelectMenu<APIRoleSelectComponent, RoleSelec
 
 	addDefaultRoles(...roles: RestOrArray<string>): this {
 		this.data.default_values = (this.data.default_values ?? []).concat(
-			mappedDefault(roles.flat(), SelectMenuDefaultValueType.Role),
+			mappedDefault(roles, SelectMenuDefaultValueType.Role),
 		);
 		return this;
 	}
 
 	setDefaultRoles(...roles: RestOrArray<string>): this {
-		this.data.default_values = mappedDefault(roles.flat(), SelectMenuDefaultValueType.Role);
+		this.data.default_values = mappedDefault(roles, SelectMenuDefaultValueType.Role);
 		return this;
 	}
 }
@@ -118,13 +119,13 @@ export class ChannelSelectMenu extends SelectMenu<APIChannelSelectComponent, Cha
 
 	addDefaultChannels(...channels: RestOrArray<string>): this {
 		this.data.default_values = (this.data.default_values ?? []).concat(
-			mappedDefault(channels.flat(), SelectMenuDefaultValueType.Channel),
+			mappedDefault(channels, SelectMenuDefaultValueType.Channel),
 		);
 		return this;
 	}
 
 	setDefaultChannels(...channels: RestOrArray<string>): this {
-		this.data.default_values = mappedDefault(channels.flat(), SelectMenuDefaultValueType.Channel);
+		this.data.default_values = mappedDefault(channels, SelectMenuDefaultValueType.Channel);
 		return this;
 	}
 
@@ -141,7 +142,7 @@ export class StringSelectMenu extends SelectMenu<APIStringSelectComponent, Strin
 
 	addOption(...options: RestOrArray<APISelectMenuOption>): this {
 		this.data.options ??= [];
-		this.data.options = this.data.options.concat(options.flat());
+		this.data.options = this.data.options.concat(fastFlat(options));
 		return this;
 	}
 

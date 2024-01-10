@@ -1,5 +1,5 @@
 import { ComponentType, type APIActionRowComponent, type APIActionRowComponentTypes } from '../common';
-import { ActionRow } from './ActionRow';
+import { ActionRow } from './ActionRow.1';
 import { Button } from './Button';
 import { TextInput } from './Modal';
 import {

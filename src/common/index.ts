@@ -1,4 +1,5 @@
 export * from 'discord-api-types/v10';
+export * from './it/colors';
 export * from './it/constants';
 export * from './it/logger';
 export * from './it/utils';

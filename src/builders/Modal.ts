@@ -1,13 +1,14 @@
 import { fromComponent } from '.';
 import {
 	ComponentType,
+	fastFlat,
 	type APIActionRowComponent,
 	type APIModalInteractionResponseCallbackData,
 	type APITextInputComponent,
 	type RestOrArray,
 	type TextInputStyle,
 } from '../common';
-import type { ActionRow } from './ActionRow';
+import type { ActionRow } from './ActionRow.1';
 import { BaseComponentBuilder, type OptionValuesLength } from './Base';
 import type { ModalBuilderComponents, ModalSubmitCallback } from './types';
 
@@ -21,7 +22,7 @@ export class Modal<T extends ModalBuilderComponents = TextInput> {
 	}
 
 	addComponents(...components: RestOrArray<ActionRow<T>>) {
-		this.components = this.components.concat(components.flat());
+		this.components = this.components.concat(fastFlat(components));
 		return this;
 	}
 

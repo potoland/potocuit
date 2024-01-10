@@ -1,5 +1,5 @@
 import type { Cache } from '..';
-import type { APIGuild } from '../../common';
+import { fastFlat, type APIGuild } from '../../common';
 import { Guild } from '../../structures';
 import { BaseResource } from './default/base';
 
@@ -18,7 +18,7 @@ export class Guilds extends BaseResource {
 
 	override async remove(id: string) {
 		await this.cache.adapter.remove(
-			(
+			fastFlat(
 				await Promise.all([
 					this.cache.members?.keys(id) ?? [],
 					this.cache.roles?.keys(id) ?? [],
@@ -29,8 +29,8 @@ export class Guilds extends BaseResource {
 					this.cache.presences?.keys(id) ?? [],
 					this.cache.threads?.keys(id) ?? [],
 					this.cache.stageInstances?.keys(id) ?? [],
-				])
-			).flat(),
+				]),
+			),
 		);
 
 		await this.cache.adapter.removeRelationship(
