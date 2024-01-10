@@ -1,3 +1,4 @@
+import type { BaseImageURLOptions } from '..';
 import type { BaseClient } from '../client/base';
 import type { APIEmoji, ObjectToLower, RESTPatchAPIChannelJSONBody } from '../common';
 import type { Guild } from './Guild';
@@ -32,7 +33,19 @@ export class GuildEmoji extends DiscordBase {
 		return this.client.guilds.emojis.fetch(this.guildId, this.id, force);
 	}
 
+	url(options?: BaseImageURLOptions) {
+		return this.rest.cdn.emoji(this.id, options);
+	}
+
 	toString() {
 		return `<${this.animated ? 'a' : ''}:${this.name}:${this.id}>`;
+	}
+
+	toJSON() {
+		return {
+			id: this.id,
+			name: this.name,
+			animated: !!this.animated,
+		};
 	}
 }

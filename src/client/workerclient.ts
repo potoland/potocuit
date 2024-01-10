@@ -1,7 +1,8 @@
 import { workerData as __workerData__, parentPort as manager } from 'node:worker_threads';
+import { ClientUser } from '..';
 import type { Cache } from '../cache';
 import { WorkerAdapter } from '../cache';
-import type { GatewayDispatchPayload } from '../common';
+import type { GatewayDispatchPayload, When } from '../common';
 import { LogLevels, Logger, type DeepPartial } from '../common';
 import { EventHandler } from '../events';
 import type { Shard, WorkerData } from '../websocket';
@@ -13,7 +14,7 @@ import { onInteraction } from './oninteraction';
 
 const workerData = __workerData__ as WorkerData;
 
-export class WorkerClient extends BaseClient {
+export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 	logger = new Logger({
 		active: true,
 		name: `[Worker #${workerData.workerId}]`,
@@ -21,7 +22,7 @@ export class WorkerClient extends BaseClient {
 	});
 
 	events = new EventHandler(this.logger);
-
+	me!: When<Ready, ClientUser>;
 	shards = new Map<number, Shard>();
 	declare options: WorkerClientOptions | undefined;
 
@@ -73,6 +74,7 @@ export class WorkerClient extends BaseClient {
 				}
 				this.botId = packet.d.user.id;
 				this.applicationId = packet.d.application.id;
+				this.me = new ClientUser(this, packet.d.user, packet.d.application) as never;
 				this.debugger?.debug(`#${shardId} [${packet.d.user.username}](${this.botId}) is online...`);
 				break;
 			case 'INTERACTION_CREATE': {

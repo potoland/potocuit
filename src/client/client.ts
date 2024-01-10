@@ -1,3 +1,4 @@
+import { ClientUser, type When } from '..';
 import type { REST } from '../api';
 import type { Adapter, Cache } from '../cache';
 import type { DeepPartial, GatewayDispatchPayload, GatewayPresenceUpdateData, LocaleString } from '../common';
@@ -7,9 +8,10 @@ import type { BaseClientOptions, InternalRuntimeConfig, StartOptions } from './b
 import { BaseClient } from './base';
 import { onInteraction } from './oninteraction';
 
-export class Client extends BaseClient {
+export class Client<Ready extends boolean = boolean> extends BaseClient {
 	gateway!: ShardManager;
 	events = new EventHandler(this.logger);
+	me!: When<Ready, ClientUser>;
 	declare options: ClientOptions | undefined;
 
 	constructor(options?: ClientOptions) {
@@ -85,7 +87,7 @@ export class Client extends BaseClient {
 
 	protected async onPacket(shardId: number, packet: GatewayDispatchPayload) {
 		switch (packet.t) {
-			//// Cases where we must obtain the old data before upgrading
+			//// Cases where we must obtain the old data before updating
 			case 'GUILD_MEMBER_UPDATE':
 				{
 					await this.events.execute(packet.t, packet, this, shardId);
@@ -95,7 +97,6 @@ export class Client extends BaseClient {
 			//rest of the events
 			default: {
 				await this.cache.onPacket(packet);
-				await this.events.execute(packet.t, packet, this, shardId);
 				switch (packet.t) {
 					case 'READY':
 						for (const { id } of packet.d.guilds) {
@@ -103,6 +104,7 @@ export class Client extends BaseClient {
 						}
 						this.botId = packet.d.user.id;
 						this.applicationId = packet.d.application.id;
+						this.me = new ClientUser(this, packet.d.user, packet.d.application) as never;
 						this.debugger?.debug(`#${shardId}[ ${packet.d.user.username}](${this.botId}) is online...`);
 						break;
 					case 'INTERACTION_CREATE': {
@@ -118,6 +120,7 @@ export class Client extends BaseClient {
 						}
 						break;
 				}
+				await this.events.execute(packet.t, packet, this, shardId);
 				break;
 			}
 		}

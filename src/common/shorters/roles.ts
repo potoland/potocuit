@@ -10,10 +10,10 @@ import { BaseShorter } from './base';
 export class RoleShorter extends BaseShorter {
 	get roles() {
 		return {
-			create: (guildId: string, body: RESTPostAPIGuildRoleJSONBody) =>
+			create: (guildId: string, body: RESTPostAPIGuildRoleJSONBody, reason?: string) =>
 				this.client.proxy
 					.guilds(guildId)
-					.roles.post({ body })
+					.roles.post({ body, reason })
 					.then(res => this.client.cache.roles?.setIfNI('Guilds', res.id, guildId, res)),
 			list: async (guildId: string, force = false) => {
 				let roles: APIRole[] = [];

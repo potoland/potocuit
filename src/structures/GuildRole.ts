@@ -13,17 +13,12 @@ import { DiscordBase } from './extra/DiscordBase';
 export interface GuildRole extends DiscordBase, ObjectToLower<APIRole> {}
 
 export class GuildRole extends DiscordBase {
-	private readonly __methods__!: ReturnType<typeof GuildRole.methods>;
 	constructor(
 		client: BaseClient,
 		data: APIRole,
 		readonly guildId: string,
 	) {
 		super(client, data);
-
-		Object.assign(this, {
-			__methods__: GuildRole.methods({ guildId: this.guildId, client }),
-		});
 	}
 
 	async guild(force?: true): Promise<Guild<'api'>>;
@@ -33,11 +28,11 @@ export class GuildRole extends DiscordBase {
 	}
 
 	edit(body: RESTPatchAPIGuildRoleJSONBody, reason?: string) {
-		return this.__methods__.edit(this.id, body, reason);
+		return this.client.roles.create(this.guildId, body, reason);
 	}
 
 	delete(reason?: string) {
-		return this.__methods__.delete(this.id, reason);
+		return this.client.roles.delete(this.guildId, this.id, reason);
 	}
 
 	static methods(ctx: MethodContext<{ guildId: string }>) {

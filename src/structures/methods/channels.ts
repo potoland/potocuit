@@ -117,7 +117,7 @@ export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
 export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> {}
 export class MessagesMethods extends DiscordBase {
 	typing() {
-		return this.api.channels(this.id).typing.post();
+		return this.client.channels.typing(this.id);
 	}
 
 	messages = MessagesMethods.messages({ client: this.client, id: this.id });
