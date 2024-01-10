@@ -1,7 +1,7 @@
 export class ConnectTimeout {
 	promises: { promise: Promise<boolean>; resolve: (x: boolean) => any }[] = [];
 	interval?: NodeJS.Timeout = undefined;
-	constructor(readonly intervalTime = 5000) {}
+	constructor(readonly intervalTime = 5000) { }
 
 	wait() {
 		let resolve = (_x: boolean) => {
@@ -12,6 +12,7 @@ export class ConnectTimeout {
 			this.interval = setInterval(() => {
 				this.shift();
 			}, this.intervalTime);
+			resolve(true)
 		}
 		this.promises.push({ resolve, promise });
 		return promise;
