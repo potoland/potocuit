@@ -1,7 +1,7 @@
-import { ClientUser, type When } from '..';
+import { ClientUser } from '..';
 import type { REST } from '../api';
 import type { Adapter, Cache } from '../cache';
-import type { DeepPartial, GatewayDispatchPayload, GatewayPresenceUpdateData, LocaleString } from '../common';
+import type { DeepPartial, GatewayDispatchPayload, GatewayPresenceUpdateData, If, LocaleString } from '../common';
 import { EventHandler } from '../events';
 import { ShardManager } from '../websocket';
 import type { BaseClientOptions, InternalRuntimeConfig, StartOptions } from './base';
@@ -11,7 +11,7 @@ import { onInteraction } from './oninteraction';
 export class Client<Ready extends boolean = boolean> extends BaseClient {
 	gateway!: ShardManager;
 	events = new EventHandler(this.logger);
-	me!: When<Ready, ClientUser>;
+	me!: If<Ready, ClientUser>;
 	declare options: ClientOptions | undefined;
 
 	constructor(options?: ClientOptions) {
@@ -89,13 +89,13 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 		switch (packet.t) {
 			//// Cases where we must obtain the old data before updating
 			case 'GUILD_MEMBER_UPDATE': {
-				await this.events.execute(packet.t, packet, this, shardId);
+				await this.events.execute(packet.t, packet, this as Client<true>, shardId);
 				await this.cache.onPacket(packet);
 				break;
 			}
 
 			case 'CHANNEL_UPDATE': {
-				await this.events.execute(packet.t, packet, this, shardId);
+				await this.events.execute(packet.t, packet, this as Client<true>, shardId);
 				await this.cache.onPacket(packet);
 				break;
 			}
@@ -124,7 +124,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 						break;
 					}
 				}
-				await this.events.execute(packet.t, packet, this, shardId);
+				await this.events.execute(packet.t, packet, this as Client<true>, shardId);
 				break;
 			}
 		}

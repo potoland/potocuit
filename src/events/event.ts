@@ -18,7 +18,7 @@ export interface IClientEvents {
 }
 
 export type Handler<T extends Client | WorkerClient> = {
-	[K in keyof ClientEvents]: (...data: [Awaited<ClientEvents[K]>, T, number]) => unknown;
+	[K in keyof ClientEvents]: (...data: [...Awaited<ClientEvents[K]>, T, number]) => unknown;
 };
 export type EventContext<K extends keyof IClientEvents, T extends { data: { name: ClientNameEvents } }> = Parameters<
 	Handler<IClientEvents[K]>[T['data']['name']]

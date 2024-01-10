@@ -290,6 +290,6 @@ export type RuntimeConfig = OmitInsert<InternalRuntimeConfig, 'intents', { inten
 export interface IClients {
 	base: BaseClient;
 	http: HttpClient;
-	client: Client;
-	worker: WorkerClient;
+	client: Client<true>;
+	worker: WorkerClient<true>;
 }

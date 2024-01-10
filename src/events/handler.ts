@@ -42,7 +42,10 @@ export class EventHandler extends BaseHandler {
 		}
 	}
 
-	async execute(name: GatewayDispatchEvents, ...args: [GatewayDispatchPayload, Client | WorkerClient, number]) {
+	async execute(
+		name: GatewayDispatchEvents,
+		...args: [GatewayDispatchPayload, Client<true> | WorkerClient<true>, number]
+	) {
 		switch (name) {
 			case 'MESSAGE_CREATE':
 				{
