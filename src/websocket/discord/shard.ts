@@ -1,6 +1,6 @@
 import { inflateSync } from 'node:zlib';
 import type WS from 'ws';
-import { type CloseEvent, WebSocket } from 'ws';
+import { WebSocket, type CloseEvent } from 'ws';
 import type { GatewayReceivePayload, GatewaySendPayload, Logger } from '../../common';
 import { GatewayCloseCodes, GatewayDispatchEvents, GatewayOpcodes } from '../../common';
 import { properties } from '../constants';
@@ -77,16 +77,22 @@ export class Shard {
 
 	async connect() {
 		await this.connectTimeout.wait();
+		if (this.isOpen) {
+			this.logger.debug(`[Shard #${this.id}] attempted to connect while open`);
+			return;
+		}
 
 		this.logger.debug(`[Shard #${this.id}] Connecting to ${this.currentGatewayURL}`);
 
-		this.websocket = new BaseSocket('ws', this.currentGatewayURL);
+		// @ts-expect-error @types/bun cause erros in compile
+		this.websocket = new BaseSocket(typeof Bun === 'undefined' ? 'ws' : 'bun', this.currentGatewayURL);
 
-		this.websocket!.onmessage = event => this.handleMessage(event);
+		this.websocket!.onmessage = (event: WS.MessageEvent) => this.handleMessage(event);
 
-		this.websocket!.onclose = event => this.handleClosed(event);
+		this.websocket!.onclose = (event: WS.CloseEvent) => this.handleClosed(event);
 
-		this.websocket!.onerror = event => this.logger.error(event);
+		// @ts-expect-error
+		this.websocket!.onerror = (event: WS.CloseEvent) => this.logger.error(event);
 
 		this.websocket!.onopen = () => {
 			this.heart.ack = true;

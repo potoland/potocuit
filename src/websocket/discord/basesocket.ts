@@ -1,26 +1,26 @@
-import WebSocket from 'ws';
+import NodeWebSocket from 'ws';
 // import UWebSocket from 'uWebSockets.js';
 
 export class BaseSocket {
-	private internal: WebSocket;
+	private internal: NodeWebSocket | WebSocket;
 
-	constructor(kind: 'ws' | 'uws', url: string) {
-		this.internal = kind === 'ws' ? new WebSocket(url) : new WebSocket(url);
+	constructor(kind: 'ws' | 'bun', url: string) {
+		this.internal = kind === 'ws' ? new NodeWebSocket(url) : new WebSocket(url);
 	}
 
-	set onopen(callback: WebSocket['onopen']) {
+	set onopen(callback: NodeWebSocket['onopen']) {
 		this.internal.onopen = callback;
 	}
 
-	set onmessage(callback: WebSocket['onmessage']) {
+	set onmessage(callback: NodeWebSocket['onmessage']) {
 		this.internal.onmessage = callback;
 	}
 
-	set onclose(callback: WebSocket['onclose']) {
+	set onclose(callback: NodeWebSocket['onclose']) {
 		this.internal.onclose = callback;
 	}
 
-	set onerror(callback: WebSocket['onerror']) {
+	set onerror(callback: NodeWebSocket['onerror']) {
 		this.internal.onerror = callback;
 	}
 
@@ -28,7 +28,8 @@ export class BaseSocket {
 		return this.internal.send(data);
 	}
 
-	close(...args: Parameters<WebSocket['close']>) {
+	close(...args: Parameters<NodeWebSocket['close']>) {
+		// @ts-expect-error
 		return this.internal.close(...args);
 	}
 
