@@ -73,7 +73,7 @@ export const GUILD_MEMBERS_CHUNK = (self: BaseClient, data: GatewayGuildMembersC
 export const GUILD_MEMBER_UPDATE = async (
 	self: BaseClient,
 	data: GatewayGuildMemberUpdateDispatchData,
-): Promise<[member: GuildMember, old: GuildMember | undefined]> => {
+): Promise<[member: GuildMember, old?: GuildMember]> => {
 	const oldData = await self.cache.members?.get(data.user.id, data.guild_id);
 	return [new GuildMember(self, data, data.user, data.guild_id), oldData];
 };

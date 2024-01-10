@@ -88,12 +88,17 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 	protected async onPacket(shardId: number, packet: GatewayDispatchPayload) {
 		switch (packet.t) {
 			//// Cases where we must obtain the old data before updating
-			case 'GUILD_MEMBER_UPDATE':
-				{
-					await this.events.execute(packet.t, packet, this, shardId);
-					await this.cache.onPacket(packet);
-				}
+			case 'GUILD_MEMBER_UPDATE': {
+				await this.events.execute(packet.t, packet, this, shardId);
+				await this.cache.onPacket(packet);
 				break;
+			}
+
+			case 'CHANNEL_UPDATE': {
+				await this.events.execute(packet.t, packet, this, shardId);
+				await this.cache.onPacket(packet);
+				break;
+			}
 			//rest of the events
 			default: {
 				await this.cache.onPacket(packet);
@@ -111,14 +116,13 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 						await onInteraction(shardId, packet.d, this);
 						break;
 					}
-					case 'GUILD_CREATE':
-						{
-							if (this.__handleGuilds.has(packet.d.id)) {
-								this.__handleGuilds.delete(packet.d.id);
-								return;
-							}
+					case 'GUILD_CREATE': {
+						if (this.__handleGuilds.has(packet.d.id)) {
+							this.__handleGuilds.delete(packet.d.id);
+							return;
 						}
 						break;
+					}
 				}
 				await this.events.execute(packet.t, packet, this, shardId);
 				break;

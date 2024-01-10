@@ -142,6 +142,17 @@ export class NewsChannel extends BaseChannel<ChannelType.GuildAnnouncement> {
 
 export class DirectoryChannel extends BaseChannel<ChannelType.GuildDirectory> {}
 
+export type AllGuildChannels =
+	| TextGuildChannel
+	| VoiceChannel
+	| MediaChannel
+	| ForumChannel
+	| ThreadChannel
+	| CategoryChannel
+	| NewsChannel
+	| DirectoryChannel
+	| StageChannel;
+
 export type AllChannels =
 	| BaseChannel<ChannelType>
 	| BaseGuildChannel

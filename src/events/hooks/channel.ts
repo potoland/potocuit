@@ -1,11 +1,12 @@
 import {
+	toCamelCase,
 	type GatewayChannelCreateDispatchData,
 	type GatewayChannelDeleteDispatchData,
 	type GatewayChannelPinsUpdateDispatchData,
 	type GatewayChannelUpdateDispatchData,
-	toCamelCase,
 } from '../../common';
 
+import type { AllChannels } from '../..';
 import type { BaseClient } from '../../client/base';
 import channelFrom from '../../structures/methods/channels';
 
@@ -21,6 +22,9 @@ export const CHANNEL_PINS_UPDATE = (_self: BaseClient, data: GatewayChannelPinsU
 	return toCamelCase(data);
 };
 
-export const CHANNEL_UPDATE = (self: BaseClient, data: GatewayChannelUpdateDispatchData) => {
-	return channelFrom(data, self);
+export const CHANNEL_UPDATE = async (
+	self: BaseClient,
+	data: GatewayChannelUpdateDispatchData,
+): Promise<[channel: AllChannels, old?: AllChannels]> => {
+	return [channelFrom(data, self), await self.cache.channels?.get(data.id)];
 };
