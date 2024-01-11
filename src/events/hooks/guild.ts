@@ -22,7 +22,16 @@ import type {
 	GatewayGuildUpdateDispatchData,
 } from '../../common';
 import { toCamelCase } from '../../common';
-import { AnonymousGuild, Guild, GuildEmoji, GuildMember, GuildRole, Sticker, User } from '../../structures';
+import {
+	AnonymousGuild,
+	Guild,
+	GuildEmoji,
+	GuildMember,
+	GuildRole,
+	Sticker,
+	UnavailableMember,
+	User,
+} from '../../structures';
 
 export const GUILD_AUDIT_LOG_ENTRY_CREATE = (_self: BaseClient, data: GatewayGuildAuditLogEntryCreateDispatchData) => {
 	return toCamelCase(data);
@@ -56,7 +65,8 @@ export const GUILD_INTEGRATIONS_UPDATE = (_self: BaseClient, data: GatewayGuildI
 };
 
 export const GUILD_MEMBER_ADD = (self: BaseClient, data: GatewayGuildMemberAddDispatchData) => {
-	return new GuildMember(self, data, data.user!, data.guild_id);
+	if (!data.user) return new UnavailableMember(self, data);
+	return new GuildMember(self, data, data.user, data.guild_id);
 };
 
 export const GUILD_MEMBER_REMOVE = (self: BaseClient, data: GatewayGuildMemberRemoveDispatchData) => {

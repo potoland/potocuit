@@ -88,12 +88,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 	protected async onPacket(shardId: number, packet: GatewayDispatchPayload) {
 		switch (packet.t) {
 			//// Cases where we must obtain the old data before updating
-			case 'GUILD_MEMBER_UPDATE': {
-				await this.events.execute(packet.t, packet, this as Client<true>, shardId);
-				await this.cache.onPacket(packet);
-				break;
-			}
-
+			case 'GUILD_MEMBER_UPDATE':
 			case 'CHANNEL_UPDATE': {
 				await this.events.execute(packet.t, packet, this as Client<true>, shardId);
 				await this.cache.onPacket(packet);

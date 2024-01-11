@@ -1,17 +1,15 @@
 import type {
-	RESTGetAPIGuildMembersQuery,
-	RESTGetAPIGuildMembersSearchQuery,
-	RESTPutAPIGuildMemberJSONBody,
-} from '../common';
-import type {
 	APIGuildMember,
 	APIInteractionDataResolvedGuildMember,
 	APIUser,
 	GatewayGuildMemberAddDispatchData,
 	GatewayGuildMemberUpdateDispatchData,
 	ObjectToLower,
+	RESTGetAPIGuildMembersQuery,
+	RESTGetAPIGuildMembersSearchQuery,
 	RESTPatchAPIGuildMemberJSONBody,
 	RESTPutAPIGuildBanJSONBody,
+	RESTPutAPIGuildMemberJSONBody,
 } from '../common';
 import { DiscordBase } from './extra/DiscordBase';
 
@@ -26,6 +24,7 @@ import type { ImageOptions, MethodContext } from '../common/types/options';
 import type { GuildMemberResolvable } from '../common/types/resolvables';
 import type { Guild } from './Guild';
 import { User } from './User';
+import { Base } from './extra/Base';
 
 export interface GuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> {}
 /**
@@ -133,6 +132,20 @@ export class GuildMember extends DiscordBase {
 			fetch: async (memberId: string, force = false) => methods.fetch(guildId, memberId, force),
 			list: async (query?: RESTGetAPIGuildMembersQuery, force = false) => methods.list(guildId, query, force),
 		};
+	}
+}
+
+export interface UnavailableMember extends ObjectToLower<GatewayGuildMemberAddDispatchData> {}
+
+export class UnavailableMember extends Base {
+	constructor(client: BaseClient, data: GatewayGuildMemberAddDispatchData) {
+		super(client);
+		this.__patchThis(data);
+	}
+
+	fetch() {
+		if (!this.nick) return;
+		return this.client.members.search(this.guildId, { limit: 1, query: this.nick }).then(x => x[0]);
 	}
 }
 
