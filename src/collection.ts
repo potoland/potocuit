@@ -10,13 +10,14 @@ export class Collection<K, V> extends Map<K, V> {
 		return previous - this.size;
 	}
 
-	map<T>(fn: (value: V, key: K, collection: this) => T, thisArg?: unknown) {
-		if (thisArg !== undefined) fn = fn.bind(thisArg);
-		const results: T[] = [];
-		for (const [key, val] of this) {
-			results.push(fn(val, key, this));
+	map<T = any>(fn: (value: V, key: K, collection: this) => T) {
+		const result: T[] = []
+
+		for (const [key, value] of this.entries()) {
+			result.push(fn(value, key, this))
 		}
-		return results;
+
+		return result
 	}
 }
 
