@@ -170,22 +170,31 @@ export class BaseInteraction<
 		} as T;
 	}
 
+	private async matchReplied(
+		data: ReplyInteractionBody,
+		type: InteractionResponseType,
+		filesParsed: RawFile[] | undefined,
+	) {
+		this.replied = (this.__reply ?? this.api.interactions(this.id)(this.token).callback.post)({
+			// @ts-expect-error
+			body: BaseInteraction.transformBodyRequest({ data, type }),
+			files: filesParsed,
+		}).then(() => (this.replied = true));
+	}
+
 	async reply(body: ReplyInteractionBody) {
 		if (this.replied) {
 			throw new Error('Interaction already replied');
 		}
 
 		// @ts-expect-error
-		const { files, ...data } = body.data ?? {};
-		const filesParsed = files ? await resolveFiles(files as Attachment[]) : undefined;
+		if (body.data.files) {
+			// @ts-expect-error
+			const { files, ...rest } = body.data;
 
-		this.replied = (this.__reply ?? this.api.interactions(this.id)(this.token).callback.post)({
-			body: BaseInteraction.transformBodyRequest({
-				data: data,
-				type: body.type,
-			}),
-			files: filesParsed,
-		}).then(() => (this.replied = true));
+			this.matchReplied(rest, body.type, await resolveFiles(files));
+			// @ts-expect-error
+		} else this.matchReplied(body.data, body.type);
 
 		this.client.components.onRequestInteraction(
 			body.type === InteractionResponseType.Modal
