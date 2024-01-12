@@ -26,7 +26,7 @@ import type { Guild } from './Guild';
 import { User } from './User';
 import { Base } from './extra/Base';
 
-export interface GuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> { }
+export interface GuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> {}
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
@@ -135,10 +135,10 @@ export class GuildMember extends DiscordBase {
 	}
 }
 
-export interface UnavailableMember extends ObjectToLower<Omit<GatewayGuildMemberAddDispatchData, 'user'>> { }
+export interface UnavailableMember extends ObjectToLower<Omit<GatewayGuildMemberAddDispatchData, 'user'>> {}
 
 export class UnavailableMember extends Base {
-	declare user: undefined
+	declare user: undefined;
 	constructor(client: BaseClient, data: GatewayGuildMemberAddDispatchData) {
 		super(client);
 		this.__patchThis(data);
@@ -152,7 +152,7 @@ export class UnavailableMember extends Base {
 
 export interface InteractionGuildMember
 	extends GuildMember,
-	ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles'>> { }
+		ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles'>> {}
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object

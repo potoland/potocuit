@@ -11,13 +11,13 @@ export class Collection<K, V> extends Map<K, V> {
 	}
 
 	map<T = any>(fn: (value: V, key: K, collection: this) => T) {
-		const result: T[] = []
+		const result: T[] = [];
 
 		for (const [key, value] of this.entries()) {
-			result.push(fn(value, key, this))
+			result.push(fn(value, key, this));
 		}
 
-		return result
+		return result;
 	}
 }
 
