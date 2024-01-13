@@ -11,7 +11,7 @@ import {
 	Logger,
 	UsersShorter,
 	filterSplit,
-	type MakeRequired
+	type MakeRequired,
 } from '../common';
 import { MemberShorter } from '../common/shorters/members';
 import { MessageShorter } from '../common/shorters/messages';
