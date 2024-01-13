@@ -95,7 +95,7 @@ export class CommandHandler extends BaseHandler {
 			if (commandInstance.__t) {
 				commandInstance.name_localizations = {};
 				commandInstance.description_localizations = {};
-				for (const locale of Object.keys(client.langs.record)) {
+				for (const locale of Object.keys(client.langs.values)) {
 					const valueName = client.langs.getKey(locale, commandInstance.__t.name);
 					if (valueName) {
 						commandInstance.name_localizations[locale as LocaleString] = valueName;
@@ -109,7 +109,7 @@ export class CommandHandler extends BaseHandler {
 
 			if (commandInstance.__tGroups) {
 				commandInstance.groups = {};
-				for (const locale of Object.keys(client.langs.record)) {
+				for (const locale of Object.keys(client.langs.values)) {
 					for (const group in commandInstance.__tGroups) {
 						commandInstance.groups[group] ??= {
 							defaultDescription: commandInstance.__tGroups[group].defaultDescription,

@@ -223,8 +223,8 @@ export class BaseClient {
 		return {
 			debug: !!debug,
 			...env,
-			langs: locations.langs ? join(process.cwd(), locations.langs) : undefined,
 			templates: locations.templates ? join(process.cwd(), locations.base, locations.templates) : undefined,
+			langs: locations.langs ? join(process.cwd(), locations.output, locations.langs) : undefined,
 			events:
 				'events' in locations && locations.events ? join(process.cwd(), locations.output, locations.events) : undefined,
 			components: locations.components ? join(process.cwd(), locations.output, locations.components) : undefined,

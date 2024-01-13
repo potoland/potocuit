@@ -1,14 +1,13 @@
-import type { __LangType } from '../../__generated';
 import type { IClients } from '../../client/base';
 import {
 	ApplicationCommandType,
+	MessageFlags,
+	toSnakeCase,
 	type InteractionCreateBodyRequest,
 	type InteractionMessageUpdateBodyRequest,
-	MessageFlags,
 	type ModalCreateBodyRequest,
-	toSnakeCase,
 } from '../../common';
-import { Message, type MessageCommandInteraction, User, type UserCommandInteraction } from '../../structures';
+import { Message, User, type MessageCommandInteraction, type UserCommandInteraction } from '../../structures';
 import type { CommandMetadata, MiddlewareContext } from './shared';
 
 export type InteractionTarget<T> = T extends MessageCommandInteraction ? Message : User;
@@ -22,7 +21,7 @@ export class MenuCommandContext<
 		readonly interaction: T,
 		public metadata: CommandMetadata<M>,
 		readonly shardId: number,
-	) {}
+	) { }
 
 	get proxy() {
 		return this.client.proxy;
@@ -42,8 +41,9 @@ export class MenuCommandContext<
 		}
 	}
 
-	t<K extends keyof __LangType>(message: K, metadata: __LangType[K]) {
-		return this.client.langs.get(this.interaction.locale, message, metadata);
+	/**@internal */
+	get t() {
+		return this.client.langs.get(this.interaction.locale);
 	}
 
 	write(body: InteractionCreateBodyRequest) {

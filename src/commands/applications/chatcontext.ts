@@ -1,4 +1,3 @@
-import type { __LangType } from '../../__generated';
 import type { IClients } from '../../client/base';
 import { MessageFlags } from '../../common';
 import type {
@@ -23,14 +22,15 @@ export class CommandContext<
 		public metadata: CommandMetadata<M>,
 		public resolver: OptionResolver,
 		readonly shardId: number,
-	) {}
+	) { }
 
 	get proxy() {
 		return this.client.proxy;
 	}
 
-	t<K extends keyof __LangType>(message: K, metadata: __LangType[K]) {
-		return this.client.langs.get(this.interaction.locale, message, metadata);
+	/**@internal */
+	get t() {
+		return this.client.langs.get(this.interaction.locale);
 	}
 
 	write(body: InteractionCreateBodyRequest) {

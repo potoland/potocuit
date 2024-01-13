@@ -12,6 +12,7 @@ export * from './commands';
 export * from './common';
 export * from './components';
 export * from './events';
+export { ParseLocales } from './langs';
 export * from './structures';
 export * from './structures/extra/functions';
 export { ShardManager, WorkerManager } from './websocket/discord';
