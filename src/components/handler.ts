@@ -2,6 +2,7 @@ import {
 	Button,
 	InteractionResponseType,
 	LimitedCollection,
+	Modal,
 	SelectMenu,
 	type APIMessage,
 	type APIModalInteractionResponseCallbackData,
@@ -146,18 +147,20 @@ export class ComponentHandler extends BaseHandler {
 
 	onRequestInteraction(interactionId: string, interaction: ReplyInteractionBody) {
 		// @ts-expect-error dapi
-		if (!interaction.data || !(interaction.data.components instanceof ComponentsListener)) {
+		if (!interaction.data) {
 			return;
 		}
 		switch (interaction.type) {
 			case InteractionResponseType.ChannelMessageWithSource:
 			case InteractionResponseType.UpdateMessage:
+				if (!(interaction.data.components instanceof ComponentsListener)) return;
 				if (!interaction.data.components.components?.length) {
 					return;
 				}
 				this.__setComponents(interactionId, interaction.data.components ?? []);
 				break;
 			case InteractionResponseType.Modal:
+				if (!(interaction.data instanceof Modal)) return;
 				this.__setModal(interactionId, interaction.data);
 				break;
 		}
@@ -198,7 +201,7 @@ export class ComponentHandler extends BaseHandler {
 	}
 
 	async load(componentsDir: string) {
-		const paths = await this.loadFilesK<{ new (): ModalCommand | ComponentCommand }>(
+		const paths = await this.loadFilesK<{ new(): ModalCommand | ComponentCommand }>(
 			await this.getFiles(componentsDir),
 		);
 
