@@ -21,7 +21,7 @@ export class MenuCommandContext<
 		readonly interaction: T,
 		public metadata: CommandMetadata<M>,
 		readonly shardId: number,
-	) { }
+	) {}
 
 	get proxy() {
 		return this.client.proxy;

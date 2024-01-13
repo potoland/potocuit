@@ -22,7 +22,7 @@ export class CommandContext<
 		public metadata: CommandMetadata<M>,
 		public resolver: OptionResolver,
 		readonly shardId: number,
-	) { }
+	) {}
 
 	get proxy() {
 		return this.client.proxy;
