@@ -11,8 +11,7 @@ import {
 	Logger,
 	UsersShorter,
 	filterSplit,
-	type LocaleString,
-	type MakeRequired,
+	type MakeRequired
 } from '../common';
 import { MemberShorter } from '../common/shorters/members';
 import { MessageShorter } from '../common/shorters/messages';
@@ -100,7 +99,7 @@ export class BaseClient {
 	}: {
 		rest?: REST;
 		cache?: { adapter: Adapter; disabledCache?: Cache['disabledCache'] };
-		defaultLang?: LocaleString;
+		defaultLang?: string;
 	}) {
 		if (rest) {
 			this.rest = rest;

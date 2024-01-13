@@ -1,7 +1,7 @@
 import { ClientUser } from '..';
 import type { REST } from '../api';
 import type { Adapter, Cache } from '../cache';
-import type { DeepPartial, GatewayDispatchPayload, GatewayPresenceUpdateData, If, LocaleString } from '../common';
+import type { DeepPartial, GatewayDispatchPayload, GatewayPresenceUpdateData, If } from '../common';
 import { EventHandler } from '../events';
 import { ShardManager } from '../websocket';
 import type { BaseClientOptions, InternalRuntimeConfig, StartOptions } from './base';
@@ -27,7 +27,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 		rest?: REST;
 		gateway?: ShardManager;
 		cache?: { adapter: Adapter; disabledCache?: Cache['disabledCache'] };
-		defaultLang?: LocaleString;
+		defaultLang?: string;
 	}) {
 		super.setServices({ rest, cache, defaultLang });
 		if (gateway) {

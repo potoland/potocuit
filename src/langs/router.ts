@@ -1,6 +1,4 @@
-import type { LocaleString } from 'discord-api-types/v10';
-
-export const LangRouter = (defaultLang: LocaleString, langs: Partial<Record<LocaleString, any>>) => {
+export const LangRouter = (defaultLang: string, langs: Partial<Record<string, any>>) => {
 	function createProxy(route = [] as string[], args: any[] = []): unknown {
 		const noop = () => {
 			return;
@@ -8,12 +6,12 @@ export const LangRouter = (defaultLang: LocaleString, langs: Partial<Record<Loca
 		return new Proxy(noop, {
 			get: (_, key: string) => {
 				if (key === 'get') {
-					function getValue(locale: LocaleString) {
+					function getValue(locale: string) {
 						let value = langs[locale] as Record<string, any>;
 						for (const i of route) value = value[i];
 						return value;
 					}
-					return (locale?: LocaleString) => {
+					return (locale?: string) => {
 						let object;
 						try {
 							object = getValue(locale ?? defaultLang);
@@ -36,14 +34,14 @@ export const LangRouter = (defaultLang: LocaleString, langs: Partial<Record<Loca
 
 type ParseLocale<T extends Record<string, any>> = {
 	[K in keyof T]: T[K] extends (...args: any[]) => any
-		? (...args: Parameters<T[K]>) => { get(locale?: LocaleString): any }
-		: T[K] extends string
-		  ? { get(locale?: LocaleString): T[K] }
-		  : T[K] extends unknown[]
-			  ? { get(locale?: LocaleString): T[K] }
-			  : T[K] extends Record<string, any>
-				  ? ParseLocales<T[K]> & { get(locale?: LocaleString): T[K] }
-				  : never;
+	? (...args: Parameters<T[K]>) => { get(locale?: string): any }
+	: T[K] extends string
+	? { get(locale?: string): T[K] }
+	: T[K] extends unknown[]
+	? { get(locale?: string): T[K] }
+	: T[K] extends Record<string, any>
+	? ParseLocales<T[K]> & { get(locale?: string): T[K] }
+	: never;
 };
 
-export type ParseLocales<T extends Record<string, any>> = ParseLocale<T> & { get(locale?: LocaleString): T };
+export type ParseLocales<T extends Record<string, any>> = ParseLocale<T> & { get(locale?: string): T };

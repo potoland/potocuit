@@ -1,15 +1,13 @@
-import { BaseHandler, Locale, type LocaleString } from '../common';
+import { BaseHandler } from '../common';
 import { LangRouter } from './router';
 
-const values = Object.values(Locale);
-
 export class LangsHandler extends BaseHandler {
-	values: Partial<Record<LocaleString, any>> = {};
+	values: Partial<Record<string, any>> = {};
 	protected filter = (path: string) => path.endsWith('.js');
-	defaultLang?: LocaleString;
+	defaultLang?: string;
 
 	getKey(lang: string, message: string) {
-		let value: any = this.values[lang as LocaleString];
+		let value: any = this.values[lang as string];
 
 		for (const i of message.split('.')) {
 			value = value[i];
@@ -27,18 +25,14 @@ export class LangsHandler extends BaseHandler {
 		return str.replace(regex, match => metadata[match.slice(2, -2)] ?? match);
 	}
 
-	get(userLocale: LocaleString) {
+	get(userLocale: string) {
 		return LangRouter(this.defaultLang ?? userLocale, this.values)();
 	}
 
 	async load(dir: string) {
 		const files = await this.loadFilesK<Record<string, any>>(await this.getFiles(dir));
 		for (const i of files) {
-			if (!values.includes(i.name.slice(0, -3) as any)) {
-				this.logger.fatal(`Invalid lang [${i.name.slice(0, -3)}]`);
-				continue;
-			}
-			this.values[i.name.slice(0, -3) as LocaleString] = i.file;
+			this.values[i.name.slice(0, -3) as string] = i.file;
 		}
 	}
 }
