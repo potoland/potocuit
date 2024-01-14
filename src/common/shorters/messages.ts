@@ -3,7 +3,7 @@ import type {
 	RESTPatchAPIChannelMessageJSONBody,
 	RESTPostAPIChannelMessageJSONBody,
 } from 'discord-api-types/v10';
-import { type Attachment, resolveFiles } from '../../builders';
+import { resolveFiles } from '../../builders';
 import { Message, User } from '../../structures';
 import { encodeEmoji, resolveEmoji } from '../../structures/extra/functions';
 import { MessagesMethods } from '../../structures/methods/channels';
@@ -15,7 +15,7 @@ export class MessageShorter extends BaseShorter {
 	get messages() {
 		return {
 			write: async (channelId: string, { files, ...body }: MessageCreateBodyRequest) => {
-				const parsedFiles = files ? await resolveFiles(files as Attachment[]) : [];
+				const parsedFiles = files ? await resolveFiles(files) : [];
 
 				const transformedBody = MessagesMethods.transformMessageBody<RESTPostAPIChannelMessageJSONBody>(body);
 				return this.client.proxy
@@ -30,7 +30,7 @@ export class MessageShorter extends BaseShorter {
 					});
 			},
 			edit: async (messageId: string, channelId: string, { files, ...body }: MessageUpdateBodyRequest) => {
-				const parsedFiles = files ? await resolveFiles(files as Attachment[]) : [];
+				const parsedFiles = files ? await resolveFiles(files) : [];
 				return this.client.proxy
 					.channels(channelId)
 					.messages(messageId)

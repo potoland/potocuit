@@ -1,12 +1,11 @@
 import type { RESTPatchAPIWebhookJSONBody, RESTPatchAPIWebhookWithTokenJSONBody } from '..';
 import {
-	type Attachment,
-	type MessageWebhookMethodEditParams,
-	type MessageWebhookMethodWriteParams,
-	type RESTPostAPIWebhookWithTokenJSONBody,
 	Webhook,
 	WebhookMessage,
 	resolveFiles,
+	type MessageWebhookMethodEditParams,
+	type MessageWebhookMethodWriteParams,
+	type RESTPostAPIWebhookWithTokenJSONBody
 } from '../..';
 import { MessagesMethods } from '../../structures/methods/channels';
 import { BaseShorter } from './base';
@@ -48,7 +47,7 @@ export class WebhookShorter extends BaseShorter {
 			write: async (webhookId: string, token: string, { body: data, ...payload }: MessageWebhookMethodWriteParams) => {
 				const { files, ...body } = data;
 				const transformedBody = MessagesMethods.transformMessageBody<RESTPostAPIWebhookWithTokenJSONBody>(body);
-				const parsedFiles = files ? await resolveFiles(files as Attachment[]) : [];
+				const parsedFiles = files ? await resolveFiles(files) : [];
 				return this.client.proxy
 					.webhooks(webhookId)(token)
 					.post({ ...payload, files: parsedFiles, body: transformedBody })
@@ -61,7 +60,7 @@ export class WebhookShorter extends BaseShorter {
 			) => {
 				const { files, ...body } = data;
 				const transformedBody = MessagesMethods.transformMessageBody<RESTPostAPIWebhookWithTokenJSONBody>(body);
-				const parsedFiles = files ? await resolveFiles(files as Attachment[]) : [];
+				const parsedFiles = files ? await resolveFiles(files) : [];
 				return this.client.proxy
 					.webhooks(webhookId)(token)
 					.messages(messageId)
