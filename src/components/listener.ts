@@ -1,14 +1,15 @@
 import type { ActionRow, BuilderComponents, ListenerOptions } from '../builders';
+import { fastFlat, type RestOrArray } from '../common';
 
 export class ComponentsListener<T extends BuilderComponents> {
 	components: ActionRow<T>[] = [];
 	idle?: NodeJS.Timeout;
 	timeout?: NodeJS.Timeout;
 
-	constructor(readonly options: ListenerOptions) {}
+	constructor(readonly options: ListenerOptions) { }
 
-	addRow(row: ActionRow<T>) {
-		this.components.push(row);
+	addRows(...row: RestOrArray<ActionRow<T>>) {
+		this.components = this.components.concat(fastFlat(row));
 		return this;
 	}
 }
