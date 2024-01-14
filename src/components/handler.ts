@@ -201,7 +201,7 @@ export class ComponentHandler extends BaseHandler {
 	}
 
 	async load(componentsDir: string) {
-		const paths = await this.loadFilesK<{ new(): ModalCommand | ComponentCommand }>(
+		const paths = await this.loadFilesK<{ new (): ModalCommand | ComponentCommand }>(
 			await this.getFiles(componentsDir),
 		);
 
@@ -257,7 +257,7 @@ export class ComponentHandler extends BaseHandler {
 					break;
 				}
 			} catch (e) {
-				await this.onFail?.(e)
+				await this.onFail?.(e);
 			}
 		}
 	}
