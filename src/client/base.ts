@@ -193,7 +193,7 @@ export class BaseClient {
 		dir ??= await this.getRC().then(x => x.commands);
 		BaseClient.assertString(dir);
 		await this.commands.load(dir, this);
-		this.logger.info('CommandHandlerloaded');
+		this.logger.info('CommandHandler loaded');
 	}
 
 	async loadComponents(dir?: string) {
