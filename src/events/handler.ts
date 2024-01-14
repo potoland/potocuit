@@ -6,7 +6,7 @@ import {
 	type GatewayMessageCreateDispatch,
 	type GatewayMessageDeleteBulkDispatch,
 	type GatewayMessageDeleteDispatch,
-	type SnakeCase
+	type SnakeCase,
 } from '../common';
 import type { ClientEvents } from '../events/hooks';
 import * as RawEvents from '../events/hooks';
@@ -40,15 +40,11 @@ export class EventHandler extends BaseHandler {
 			}
 			//@ts-expect-error
 			instance.__filePath = i.path;
-			this.values[ReplaceRegex.snake(instance.data.name).toUpperCase() as GatewayEvents] =
-				instance as EventValue;
+			this.values[ReplaceRegex.snake(instance.data.name).toUpperCase() as GatewayEvents] = instance as EventValue;
 		}
 	}
 
-	async execute(
-		name: GatewayEvents,
-		...args: [GatewayDispatchPayload, Client<true> | WorkerClient<true>, number]
-	) {
+	async execute(name: GatewayEvents, ...args: [GatewayDispatchPayload, Client<true> | WorkerClient<true>, number]) {
 		switch (name) {
 			case 'MESSAGE_CREATE':
 				{

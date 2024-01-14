@@ -115,7 +115,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 						if (this.__handleGuilds.has(packet.d.id)) {
 							this.__handleGuilds.delete(packet.d.id);
 							if (!this.__handleGuilds.size) {
-								this.events.values.SHARD_READY?.run(shardId, this, shardId)
+								this.events.values.SHARD_READY?.run(shardId, this, shardId);
 							}
 							return;
 						}

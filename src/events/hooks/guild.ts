@@ -65,7 +65,6 @@ export const GUILD_INTEGRATIONS_UPDATE = (_self: BaseClient, data: GatewayGuildI
 };
 
 export const GUILD_MEMBER_ADD = (self: BaseClient, data: GatewayGuildMemberAddDispatchDataFixed<boolean>) => {
-
 	if (!('user' in data)) return new UnavailableMember(self, data, data.id, data.guild_id);
 	return new GuildMember(self, data, data.user, data.guild_id);
 };

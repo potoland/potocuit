@@ -31,7 +31,7 @@ export type GatewayGuildMemberAddDispatchDataFixed<Pending extends boolean> = Pe
 	? Omit<GatewayGuildMemberAddDispatchData, 'user'> & { id: string }
 	: MakeRequired<GatewayGuildMemberAddDispatchData, 'user'>;
 
-export interface BaseGuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> { }
+export interface BaseGuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> {}
 export class BaseGuildMember extends DiscordBase {
 	private _roles: string[];
 	joinedTimestamp?: number;
@@ -111,7 +111,7 @@ export class BaseGuildMember extends DiscordBase {
 	}
 }
 
-export interface GuildMember extends Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> { }
+export interface GuildMember extends Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> {}
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
@@ -152,20 +152,21 @@ export class GuildMember extends BaseGuildMember {
 }
 
 export interface UnavailableMember {
-	pending: true
+	pending: true;
 }
 
-export class UnavailableMember extends BaseGuildMember {
-
-}
+export class UnavailableMember extends BaseGuildMember {}
 
 export interface InteractionGuildMember
-	extends ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles' | 'deaf' | 'mute'>> { }
+	extends ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles' | 'deaf' | 'mute'>> {}
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
  */
-export class InteractionGuildMember extends (GuildMember as unknown as ToClass<Omit<GuildMember, 'deaf' | 'mute'>, InteractionGuildMember>) {
+export class InteractionGuildMember extends (GuildMember as unknown as ToClass<
+	Omit<GuildMember, 'deaf' | 'mute'>,
+	InteractionGuildMember
+>) {
 	constructor(
 		client: BaseClient,
 		data: APIInteractionDataResolvedGuildMember,
