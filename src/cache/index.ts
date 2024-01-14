@@ -195,19 +195,19 @@ export class Cache {
 	async bulkGet(
 		keys: (
 			| readonly [
-					/* type */
-					NonGuildBased | GuildRelated,
-					/* source id */
-					string,
-			  ]
+				/* type */
+				NonGuildBased | GuildRelated,
+				/* source id */
+				string,
+			]
 			| readonly [
-					/* type */
-					GuildBased,
-					/* source id */
-					string,
-					/* guild id */
-					string,
-			  ]
+				/* type */
+				GuildBased,
+				/* source id */
+				string,
+				/* guild id */
+				string,
+			]
 		)[],
 	) {
 		const allData: Partial<Record<NonGuildBased | GuildBased | GuildRelated, string[][]>> = {};
@@ -263,26 +263,111 @@ export class Cache {
 		return obj;
 	}
 
+
+	async bulkPatch(
+		keys: (
+			| readonly [
+				/* type */
+				NonGuildBased,
+				/* data */
+				any,
+				/* source id */
+				string,
+			]
+			| readonly [
+				/* type */
+				GuildBased | GuildRelated,
+				/* data */
+				any,
+				/* source id */
+				string,
+				/* guild id */
+				string,
+			]
+		)[],
+	) {
+		const allData: [string, any][] = [];
+		const relationshipsData: Record<string, string[]> = {};
+		for (const [type, data, id, guildId] of keys) {
+			switch (type) {
+				case 'roles':
+				case 'threads':
+				case 'stickers':
+				case 'channels':
+				case 'presences':
+				case 'voiceStates':
+				case 'stageInstances':
+				case 'emojis':
+					{
+						const hashId = this[type]?.hashId(guildId!);
+						if (!hashId) {
+							continue;
+						}
+						if (!(hashId in relationshipsData)) {
+							relationshipsData[hashId] = [];
+						}
+						relationshipsData[hashId].push(id);
+						data.guild_id = guildId;
+						allData.push([this[type]!.hashId(id), this[type]!.parse(data, id, guildId!)]);
+					}
+					break;
+				case 'members':
+					{
+						const hashId = this[type]?.hashId(guildId!);
+						if (!hashId) {
+							continue;
+						}
+						if (!(hashId in relationshipsData)) {
+							relationshipsData[hashId] = [];
+						}
+						relationshipsData[hashId].push(id);
+						data.guild_id = guildId;
+						allData.push([this[type]!.hashGuildId(id, guildId), this[type]!.parse(data, id, guildId!)]);
+					}
+					break;
+				case 'users':
+				case 'guilds':
+					{
+						const hashId = this[type]?.namespace;
+						if (!hashId) {
+							continue;
+						}
+						if (!(hashId in relationshipsData)) {
+							relationshipsData[hashId] = [];
+						}
+						relationshipsData[hashId].push(id);
+						allData.push([this[type]!.hashId(id), data]);
+					}
+					break;
+				default:
+					throw new Error(`Invalid type ${type}`);
+			}
+		}
+
+		await this.adapter.patch(false, allData);
+		await this.adapter.bulkAddToRelationShip(relationshipsData);
+	}
+
 	async bulkSet(
 		keys: (
 			| readonly [
-					/* type */
-					NonGuildBased,
-					/* data */
-					any,
-					/* source id */
-					string,
-			  ]
+				/* type */
+				NonGuildBased,
+				/* data */
+				any,
+				/* source id */
+				string,
+			]
 			| readonly [
-					/* type */
-					GuildBased | GuildRelated,
-					/* data */
-					any,
-					/* source id */
-					string,
-					/* guild id */
-					string,
-			  ]
+				/* type */
+				GuildBased | GuildRelated,
+				/* data */
+				any,
+				/* source id */
+				string,
+				/* guild id */
+				string,
+			]
 		)[],
 	) {
 		const allData: [string, any][] = [];
@@ -357,7 +442,7 @@ export class Cache {
 				break;
 			case 'GUILD_CREATE':
 			case 'GUILD_UPDATE':
-				await this.guilds?.set(event.d.id, event.d);
+				await this.guilds?.patch(event.d.id, event.d);
 				break;
 			case 'GUILD_DELETE':
 				if (event.d.unavailable) {

@@ -112,4 +112,67 @@ export class Guilds extends BaseResource {
 
 		await this.cache.bulkSet(bulkData);
 	}
+
+	override async patch(id: string, data: any) {
+		const bulkData: Parameters<Cache['bulkPatch']>[0] = [];
+
+		for (const member of data.members ?? []) {
+			if (!member.user?.id) {
+				continue;
+			}
+			bulkData.push(['members', member, member.user.id, id]);
+			bulkData.push(['users', member.user, member.user.id]);
+		}
+
+		for (const role of data.roles ?? []) {
+			bulkData.push(['roles', role, role.id, id]);
+		}
+
+		for (const channel of data.channels ?? []) {
+			bulkData.push(['channels', channel, channel.id, id]);
+		}
+
+		for (const emoji of data.emojis ?? []) {
+			bulkData.push(['emojis', emoji, emoji.id, id]);
+		}
+
+		for (const sticker of data.stickers ?? []) {
+			bulkData.push(['stickers', sticker, sticker.id, id]);
+		}
+
+		for (const voiceState of data.voice_states ?? []) {
+			bulkData.push(['voiceStates', voiceState, voiceState.user_id, id]);
+		}
+
+		for (const presence of data.presences ?? []) {
+			bulkData.push(['presences', presence, presence.user.id, id]);
+		}
+
+		for (const thread of data.threads ?? []) {
+			bulkData.push(['threads', thread, thread.id, id]);
+		}
+
+		for (const instance of data.stage_instances ?? []) {
+			bulkData.push(['stageInstances', instance, instance.id, id]);
+		}
+
+		const {
+			voice_states,
+			members,
+			channels,
+			threads,
+			presences,
+			stage_instances,
+			guild_scheduled_events,
+			roles,
+			emojis,
+			stickers,
+			guild_hashes,
+			...guild
+		} = data;
+
+		bulkData.push(['guilds', guild, id]);
+
+		await this.cache.bulkPatch(bulkData);
+	}
 }
