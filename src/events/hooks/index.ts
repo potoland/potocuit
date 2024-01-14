@@ -1,6 +1,7 @@
 export * from './application_command';
 export * from './auto_moderation';
 export * from './channel';
+export * from './custom';
 export * from './dispatch';
 export * from './entitlement';
 export * from './guild';
@@ -22,6 +23,7 @@ import type * as RawEvents from './index';
 export type ClientEvents = {
 	[X in keyof typeof RawEvents as CamelCase<X>]: ReturnType<(typeof RawEvents)[X]>;
 };
+
 export type DropT<T, R> = {
 	[P in keyof T as T[P] extends R ? never : P]: T[P] extends R ? never : T[P];
 };
@@ -42,8 +44,8 @@ export type Clean<T> = DropT<T, never>;
 
 export type Identify<T> = T extends infer U
 	? {
-			[K in keyof U]: U[K];
-	  }
+		[K in keyof U]: U[K];
+	}
 	: never;
 
 export type PartialAvoid<U, T> = Identify<KeepT<T, U> & Partial<T>>;

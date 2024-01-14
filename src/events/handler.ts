@@ -2,12 +2,13 @@ import type { Client, WorkerClient } from '../client';
 import {
 	BaseHandler,
 	ReplaceRegex,
-	type GatewayDispatchEvents,
 	type GatewayDispatchPayload,
 	type GatewayMessageCreateDispatch,
 	type GatewayMessageDeleteBulkDispatch,
 	type GatewayMessageDeleteDispatch,
+	type SnakeCase
 } from '../common';
+import type { ClientEvents } from '../events/hooks';
 import * as RawEvents from '../events/hooks';
 import type { ClientEvent, ClientNameEvents } from './event';
 
@@ -15,11 +16,13 @@ type OnFailCallback = (error: unknown) => Promise<any>;
 
 type EventValue = ClientEvent & { fired?: boolean; __filePath: string };
 
+type GatewayEvents = Uppercase<SnakeCase<keyof ClientEvents>>;
+
 export class EventHandler extends BaseHandler {
 	protected onFail?: OnFailCallback;
 	protected filter = (path: string) => path.endsWith('.js');
 
-	values: Partial<Record<GatewayDispatchEvents, EventValue>> = {};
+	values: Partial<Record<GatewayEvents, EventValue>> = {};
 
 	set OnFail(cb: OnFailCallback) {
 		this.onFail = cb;
@@ -37,13 +40,13 @@ export class EventHandler extends BaseHandler {
 			}
 			//@ts-expect-error
 			instance.__filePath = i.path;
-			this.values[ReplaceRegex.snake(instance.data.name).toUpperCase() as GatewayDispatchEvents] =
+			this.values[ReplaceRegex.snake(instance.data.name).toUpperCase() as GatewayEvents] =
 				instance as EventValue;
 		}
 	}
 
 	async execute(
-		name: GatewayDispatchEvents,
+		name: GatewayEvents,
 		...args: [GatewayDispatchPayload, Client<true> | WorkerClient<true>, number]
 	) {
 		switch (name) {
@@ -88,7 +91,7 @@ export class EventHandler extends BaseHandler {
 	}
 
 	async reload(name: ClientNameEvents) {
-		const eventName = ReplaceRegex.snake(name).toUpperCase() as GatewayDispatchEvents;
+		const eventName = ReplaceRegex.snake(name).toUpperCase() as GatewayEvents;
 		const event = this.values[eventName];
 		if (!event) return null;
 		delete require.cache[event.__filePath];

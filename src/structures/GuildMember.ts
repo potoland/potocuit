@@ -4,12 +4,14 @@ import type {
 	APIUser,
 	GatewayGuildMemberAddDispatchData,
 	GatewayGuildMemberUpdateDispatchData,
+	MakeRequired,
 	ObjectToLower,
 	RESTGetAPIGuildMembersQuery,
 	RESTGetAPIGuildMembersSearchQuery,
 	RESTPatchAPIGuildMemberJSONBody,
 	RESTPutAPIGuildBanJSONBody,
 	RESTPutAPIGuildMemberJSONBody,
+	ToClass,
 } from '../common';
 import { DiscordBase } from './extra/DiscordBase';
 
@@ -24,43 +26,27 @@ import type { ImageOptions, MethodContext } from '../common/types/options';
 import type { GuildMemberResolvable } from '../common/types/resolvables';
 import type { Guild } from './Guild';
 import { User } from './User';
-import { Base } from './extra/Base';
 
-export interface GuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> {}
-/**
- * Represents a guild member
- * @link https://discord.com/developers/docs/resources/guild#guild-member-object
- */
-export class GuildMember extends DiscordBase {
-	user: User;
+export type GatewayGuildMemberAddDispatchDataFixed<Pending extends boolean> = Pending extends true
+	? Omit<GatewayGuildMemberAddDispatchData, 'user'> & { id: string }
+	: MakeRequired<GatewayGuildMemberAddDispatchData, 'user'>;
+
+export interface BaseGuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> { }
+export class BaseGuildMember extends DiscordBase {
 	private _roles: string[];
 	joinedTimestamp?: number;
 	communicationDisabledUntilTimestamp?: number | null;
 	constructor(
 		client: BaseClient,
 		data: GuildMemberData,
-		user: APIUser | User,
+		id: string,
 		/** the choosen guild id */
 		readonly guildId: string,
 	) {
 		const { roles, ...dataN } = data;
-		super(client, { ...dataN, id: user.id });
-		this.user = user instanceof User ? user : new User(client, user);
+		super(client, { ...dataN, id });
 		this._roles = data.roles;
 		this.patch(data);
-	}
-
-	get username() {
-		return this.user.username;
-	}
-
-	get globalName() {
-		return this.user.globalName;
-	}
-
-	/** gets the nickname or the username */
-	get displayName(): string {
-		return this.nick ?? this.globalName ?? this.username;
 	}
 
 	async guild(force?: true): Promise<Guild<'api'>>;
@@ -84,16 +70,8 @@ export class GuildMember extends DiscordBase {
 		return this.client.members.edit(this.guildId, this.id, body, reason);
 	}
 
-	dynamicAvatarURL(options?: ImageOptions): string {
-		if (!this.avatar) {
-			return this.user.avatarURL(options);
-		}
-
-		return this.rest.cdn.guildMemberAvatar(this.guildId, this.id, this.avatar, options);
-	}
-
-	toString(): string {
-		return `<@${this.user.id}>`;
+	toString() {
+		return `<@${this.id}>`;
 	}
 
 	private patch(data: GuildMemberData) {
@@ -108,58 +86,86 @@ export class GuildMember extends DiscordBase {
 	}
 
 	get roles() {
-		const methods = this.client.members.roles;
 		return {
 			values: Object.freeze(this._roles),
-			add: async (id: string) => methods.add(this.guildId, this.id, id),
-			remove: async (id: string) => methods.remove(this.guildId, this.id, id),
+			add: async (id: string) => this.client.members.roles.add(this.guildId, this.id, id),
+			remove: async (id: string) => this.client.members.roles.remove(this.guildId, this.id, id),
 		};
 	}
 
 	static methods({ client, guildId }: MethodContext<{ guildId: string }>) {
-		const methods = client.members;
 		return {
-			resolve: async (resolve: GuildMemberResolvable) => methods.resolve(guildId, resolve),
-			search: async (query?: RESTGetAPIGuildMembersSearchQuery) => methods.search(guildId, query),
+			resolve: async (resolve: GuildMemberResolvable) => client.members.resolve(guildId, resolve),
+			search: async (query?: RESTGetAPIGuildMembersSearchQuery) => client.members.search(guildId, query),
 			unban: async (id: string, body?: RESTPutAPIGuildBanJSONBody, reason?: string) =>
-				methods.unban(guildId, id, body, reason),
+				client.members.unban(guildId, id, body, reason),
 			ban: async (id: string, body?: RESTPutAPIGuildBanJSONBody, reason?: string) =>
-				methods.ban(guildId, id, body, reason),
-			kick: async (id: string, reason?: string) => methods.kick(guildId, id, reason),
+				client.members.ban(guildId, id, body, reason),
+			kick: async (id: string, reason?: string) => client.members.kick(guildId, id, reason),
 			edit: async (id: string, body: RESTPatchAPIGuildMemberJSONBody, reason?: string) =>
-				methods.edit(guildId, id, body, reason),
-			add: async (id: string, body: RESTPutAPIGuildMemberJSONBody) => methods.add(guildId, id, body),
-			fetch: async (memberId: string, force = false) => methods.fetch(guildId, memberId, force),
-			list: async (query?: RESTGetAPIGuildMembersQuery, force = false) => methods.list(guildId, query, force),
+				client.members.edit(guildId, id, body, reason),
+			add: async (id: string, body: RESTPutAPIGuildMemberJSONBody) => client.members.add(guildId, id, body),
+			fetch: async (memberId: string, force = false) => client.members.fetch(guildId, memberId, force),
+			list: async (query?: RESTGetAPIGuildMembersQuery, force = false) => client.members.list(guildId, query, force),
 		};
 	}
 }
 
-export interface UnavailableMember extends ObjectToLower<Omit<GatewayGuildMemberAddDispatchData, 'user'>> {}
-
-export class UnavailableMember extends Base {
-	declare user: undefined;
-	constructor(client: BaseClient, data: GatewayGuildMemberAddDispatchData) {
-		super(client);
-		this.__patchThis(data);
-	}
-
-	fetch() {
-		if (!this.nick) return;
-		return this.client.members.search(this.guildId, { limit: 1, query: this.nick }).then(x => x[0]);
-	}
-}
-
-export interface InteractionGuildMember
-	extends GuildMember,
-		ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles'>> {}
+export interface GuildMember extends Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> { }
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
  */
-export class InteractionGuildMember extends GuildMember {
-	declare mute: never;
-	declare deaf: never;
+export class GuildMember extends BaseGuildMember {
+	user: User;
+	constructor(
+		client: BaseClient,
+		data: GuildMemberData,
+		user: APIUser | User,
+		/** the choosen guild id */
+		readonly guildId: string,
+	) {
+		super(client, data, user.id, guildId);
+		this.user = user instanceof User ? user : new User(client, user);
+	}
+
+	get username() {
+		return this.user.username;
+	}
+
+	get globalName() {
+		return this.user.globalName;
+	}
+
+	/** gets the nickname or the username */
+	get displayName() {
+		return this.nick ?? this.globalName ?? this.username;
+	}
+
+	dynamicAvatarURL(options?: ImageOptions) {
+		if (!this.avatar) {
+			return this.user.avatarURL(options);
+		}
+
+		return this.rest.cdn.guildMemberAvatar(this.guildId, this.id, this.avatar, options);
+	}
+}
+
+export interface UnavailableMember {
+	pending: true
+}
+
+export class UnavailableMember extends BaseGuildMember {
+
+}
+
+export interface InteractionGuildMember
+	extends ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles' | 'deaf' | 'mute'>> { }
+/**
+ * Represents a guild member
+ * @link https://discord.com/developers/docs/resources/guild#guild-member-object
+ */
+export class InteractionGuildMember extends (GuildMember as unknown as ToClass<Omit<GuildMember, 'deaf' | 'mute'>, InteractionGuildMember>) {
 	constructor(
 		client: BaseClient,
 		data: APIInteractionDataResolvedGuildMember,

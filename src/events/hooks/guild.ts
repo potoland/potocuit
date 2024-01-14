@@ -6,7 +6,6 @@ import type {
 	GatewayGuildCreateDispatchData,
 	GatewayGuildEmojisUpdateDispatchData,
 	GatewayGuildIntegrationsUpdateDispatchData,
-	GatewayGuildMemberAddDispatchData,
 	GatewayGuildMemberRemoveDispatchData,
 	GatewayGuildMemberUpdateDispatchData,
 	GatewayGuildMembersChunkDispatchData,
@@ -31,6 +30,7 @@ import {
 	Sticker,
 	UnavailableMember,
 	User,
+	type GatewayGuildMemberAddDispatchDataFixed,
 } from '../../structures';
 
 export const GUILD_AUDIT_LOG_ENTRY_CREATE = (_self: BaseClient, data: GatewayGuildAuditLogEntryCreateDispatchData) => {
@@ -64,8 +64,9 @@ export const GUILD_INTEGRATIONS_UPDATE = (_self: BaseClient, data: GatewayGuildI
 	return toCamelCase(data);
 };
 
-export const GUILD_MEMBER_ADD = (self: BaseClient, data: GatewayGuildMemberAddDispatchData) => {
-	if (!data.user) return new UnavailableMember(self, data);
+export const GUILD_MEMBER_ADD = (self: BaseClient, data: GatewayGuildMemberAddDispatchDataFixed<boolean>) => {
+
+	if (!('user' in data)) return new UnavailableMember(self, data, data.id, data.guild_id);
 	return new GuildMember(self, data, data.user, data.guild_id);
 };
 

@@ -84,6 +84,9 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 			case 'GUILD_CREATE': {
 				if (this.__handleGuilds.has(packet.d.id)) {
 					this.__handleGuilds.delete(packet.d.id);
+					if (!this.__handleGuilds.size) {
+						this.events.values.SHARD_READY?.run(shardId, this, shardId)
+					}
 					return;
 				}
 			}
