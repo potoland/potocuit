@@ -10,7 +10,7 @@ import { BaseGuild } from './extra/BaseGuild';
 import type { DiscordBase } from './extra/DiscordBase';
 import { BaseChannel, WebhookGuildMethods } from './methods/channels';
 
-export interface Guild extends Omit<ObjectToLower<APIGuild>, 'stickers' | 'emojis' | 'roles'>, DiscordBase {}
+export interface Guild extends Omit<ObjectToLower<APIGuild>, 'stickers' | 'emojis' | 'roles'>, DiscordBase { }
 export class Guild<State extends StructStates = 'api'> extends (BaseGuild as unknown as ToClass<
 	Omit<BaseGuild, keyof ObjectToLower<APIPartialGuild>>,
 	Guild
@@ -22,6 +22,13 @@ export class Guild<State extends StructStates = 'api'> extends (BaseGuild as unk
 
 	constructor(client: BaseClient, data: APIGuild | GatewayGuildCreateDispatchData) {
 		super(client, data);
+
+		if ('joined_at' in data) {
+			this.joinedAt = Number(data.joined_at) as never;
+			this.memberCount = data.member_count as never;
+			this.large = data.large as never;
+			this.unavailable = data.unavailable as never;
+		}
 	}
 
 	webhooks = WebhookGuildMethods.guild({ client: this.client, guildId: this.id });
