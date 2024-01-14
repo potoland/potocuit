@@ -18,7 +18,7 @@ export interface AttachmentData {
 }
 
 export class Attachment {
-	constructor(public data: Partial<AttachmentData> = { name: `${randomBytes(8).toString('base64url')}.jpg` }) { }
+	constructor(public data: Partial<AttachmentData> = { name: `${randomBytes(8).toString('base64url')}.jpg` }) {}
 
 	setName(name: string) {
 		this.data.name = name;
@@ -72,11 +72,16 @@ export async function resolveFiles(resources: (Attachment | RawFile)[]): Promise
 	const data = await Promise.all(
 		resources.map(async (resource, i) => {
 			if (resource instanceof Attachment) {
-				const { type, resolvable, name } = resource.toJSON()
+				const { type, resolvable, name } = resource.toJSON();
 				const resolve = await resolveAttachmentData(resolvable, type);
 				return { ...resolve, key: `files[${i}]`, name } as RawFile;
 			}
-			return { data: resource.data, contentType: resource.contentType, key: `files[${i}]`, name: resource.name } as RawFile;
+			return {
+				data: resource.data,
+				contentType: resource.contentType,
+				key: `files[${i}]`,
+				name: resource.name,
+			} as RawFile;
 		}),
 	);
 

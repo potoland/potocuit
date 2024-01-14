@@ -5,7 +5,7 @@ import {
 	resolveFiles,
 	type MessageWebhookMethodEditParams,
 	type MessageWebhookMethodWriteParams,
-	type RESTPostAPIWebhookWithTokenJSONBody
+	type RESTPostAPIWebhookWithTokenJSONBody,
 } from '../..';
 import { MessagesMethods } from '../../structures/methods/channels';
 import { BaseShorter } from './base';
