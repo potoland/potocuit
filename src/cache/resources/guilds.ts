@@ -174,5 +174,7 @@ export class Guilds extends BaseResource {
 		bulkData.push(['guilds', guild, id]);
 
 		await this.cache.bulkPatch(bulkData);
+
+		return data
 	}
 }

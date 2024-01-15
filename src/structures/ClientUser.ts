@@ -1,10 +1,9 @@
 import type { BaseClient } from '../client/base';
 import type {
-	APIGuild,
 	GatewayReadyDispatchData,
 	MethodContext,
 	RESTGetAPICurrentUserGuildsQuery,
-	RESTPatchAPICurrentUserJSONBody,
+	RESTPatchAPICurrentUserJSONBody
 } from '../common';
 import { AnonymousGuild } from './AnonymousGuild';
 import { Guild } from './Guild';
@@ -43,7 +42,7 @@ export class ClientUser extends User {
 			},
 			fetch: async (id: string) => {
 				const guild = await ctx.client.proxy.guilds(id).get();
-				const patched = await ctx.client.cache.guilds?.patch<APIGuild>(id, guild);
+				const patched = await ctx.client.cache.guilds?.patch(id, guild);
 				return new Guild(ctx.client, patched ?? guild);
 			},
 			fetchSelf: async (id: string) => {
