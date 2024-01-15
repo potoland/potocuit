@@ -43,7 +43,7 @@ export class ClientUser extends User {
 			fetch: async (id: string) => {
 				const guild = await ctx.client.proxy.guilds(id).get();
 				await ctx.client.cache.guilds?.patch(id, guild);
-				return (await ctx.client.cache.guilds?.get(id)) ?? new Guild(ctx.client, guild);
+				return new Guild(ctx.client, guild);
 			},
 			fetchSelf: async (id: string) => {
 				const self = await ctx.client.proxy.users('@me').guilds(id).member.get();
