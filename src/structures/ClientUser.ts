@@ -3,7 +3,7 @@ import type {
 	GatewayReadyDispatchData,
 	MethodContext,
 	RESTGetAPICurrentUserGuildsQuery,
-	RESTPatchAPICurrentUserJSONBody
+	RESTPatchAPICurrentUserJSONBody,
 } from '../common';
 import { AnonymousGuild } from './AnonymousGuild';
 import { Guild } from './Guild';
