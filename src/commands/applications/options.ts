@@ -14,8 +14,8 @@ type BiscuitStringOption = BiscuitBasicOption<'String'> & {
 	autocomplete?: AutocompleteCallback;
 	onAutocompleteError?: OnAutocompleteErrorCallback;
 	choices?:
-	| readonly { readonly name: string; readonly value: string }[]
-	| APIApplicationCommandOptionChoice<ReturnOptionsTypes[ApplicationCommandOptionType.String]>[];
+		| readonly { readonly name: string; readonly value: string }[]
+		| APIApplicationCommandOptionChoice<ReturnOptionsTypes[ApplicationCommandOptionType.String]>[];
 	min_length?: number;
 	max_length?: number;
 };
