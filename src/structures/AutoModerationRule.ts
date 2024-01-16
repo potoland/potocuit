@@ -9,20 +9,20 @@ import type {
 import type { Guild } from './Guild';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface AutoModerationRule extends ObjectToLower<APIAutoModerationRule> {}
+export interface AutoModerationRule extends ObjectToLower<APIAutoModerationRule> { }
 
 export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 	constructor(client: BaseClient, data: APIAutoModerationRule) {
 		super(client, data);
 	}
 
-	async fetchCreator(force = false) {
+	fetchCreator(force = false) {
 		return this.client.members.fetch(this.guildId, this.creatorId, force);
 	}
 
-	async guild(force?: true): Promise<Guild<'api'>>;
-	async guild(force?: boolean): Promise<Guild<'cached'> | Guild<'api'> | undefined>;
-	async guild(force = false): Promise<Guild<'cached'> | Guild<'api'>> {
+	guild(force?: true): Promise<Guild<'api'>>;
+	guild(force?: boolean): Promise<Guild<'cached'> | Guild<'api'> | undefined>;
+	guild(force = false): Promise<Guild<'cached'> | Guild<'api'>> {
 		return this.client.guilds.fetch(this.guildId, force);
 	}
 
@@ -44,8 +44,7 @@ export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 			create: (body: RESTPostAPIAutoModerationRuleJSONBody) => client.guilds.moderation.create(guildId, body),
 			delete: (ruleId: string, reason?: string) => client.guilds.moderation.delete(guildId, ruleId, reason),
 			fetch: (ruleId: string) => client.guilds.moderation.fetch(guildId, ruleId),
-			edit: (ruleId: string, body: RESTPatchAPIAutoModerationRuleJSONBody, reason?: string) =>
-				client.guilds.moderation.edit(guildId, ruleId, body, reason),
+			edit: (ruleId: string, body: RESTPatchAPIAutoModerationRuleJSONBody, reason?: string) => client.guilds.moderation.edit(guildId, ruleId, body, reason),
 		};
 	}
 }

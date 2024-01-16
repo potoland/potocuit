@@ -10,7 +10,7 @@ import type {
 import type { Guild } from './Guild';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface GuildRole extends DiscordBase, ObjectToLower<APIRole> {}
+export interface GuildRole extends DiscordBase, ObjectToLower<APIRole> { }
 
 export class GuildRole extends DiscordBase {
 	constructor(
@@ -38,12 +38,10 @@ export class GuildRole extends DiscordBase {
 	static methods(ctx: MethodContext<{ guildId: string }>) {
 		return {
 			create: (body: RESTPostAPIGuildRoleJSONBody) => ctx.client.roles.create(ctx.guildId, body),
-			list: async (force = false) => ctx.client.roles.list(ctx.guildId, force),
-			edit: (roleId: string, body: RESTPatchAPIGuildRoleJSONBody, reason?: string) =>
-				ctx.client.roles.edit(ctx.guildId, roleId, body, reason),
+			list: (force = false) => ctx.client.roles.list(ctx.guildId, force),
+			edit: (roleId: string, body: RESTPatchAPIGuildRoleJSONBody, reason?: string) => ctx.client.roles.edit(ctx.guildId, roleId, body, reason),
 			delete: (roleId: string, reason?: string) => ctx.client.roles.delete(ctx.guildId, roleId, reason),
-			editPositions: async (body: RESTPatchAPIGuildRolePositionsJSONBody) =>
-				ctx.client.roles.editPositions(ctx.guildId, body),
+			editPositions: (body: RESTPatchAPIGuildRolePositionsJSONBody) => ctx.client.roles.editPositions(ctx.guildId, body),
 		};
 	}
 }

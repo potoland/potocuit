@@ -10,7 +10,7 @@ import { BaseGuild } from './extra/BaseGuild';
 import type { DiscordBase } from './extra/DiscordBase';
 import { BaseChannel, WebhookGuildMethods } from './methods/channels';
 
-export interface Guild extends Omit<ObjectToLower<APIGuild>, 'stickers' | 'emojis' | 'roles'>, DiscordBase {}
+export interface Guild extends Omit<ObjectToLower<APIGuild>, 'stickers' | 'emojis' | 'roles'>, DiscordBase { }
 export class Guild<State extends StructStates = 'api'> extends (BaseGuild as unknown as ToClass<
 	Omit<BaseGuild, keyof ObjectToLower<APIPartialGuild>>,
 	Guild
@@ -59,7 +59,7 @@ export class Guild<State extends StructStates = 'api'> extends (BaseGuild as unk
 		}
 	}
 
-	async fetchOwner(force = false) {
+	fetchOwner(force = false) {
 		// For no reason, discord has some guilds without owner... 🤓
 		if (!this.ownerId) {
 			return null;

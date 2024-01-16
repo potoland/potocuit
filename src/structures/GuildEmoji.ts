@@ -4,7 +4,7 @@ import type { APIEmoji, ObjectToLower, RESTPatchAPIChannelJSONBody } from '../co
 import type { Guild } from './Guild';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface GuildEmoji extends DiscordBase, ObjectToLower<Omit<APIEmoji, 'id'>> {}
+export interface GuildEmoji extends DiscordBase, ObjectToLower<Omit<APIEmoji, 'id'>> { }
 
 export class GuildEmoji extends DiscordBase {
 	constructor(
@@ -15,8 +15,8 @@ export class GuildEmoji extends DiscordBase {
 		super(client, { ...data, id: data.id! });
 	}
 
-	async guild(force?: true): Promise<Guild<'api'>>;
-	async guild(force = false) {
+	guild(force?: true): Promise<Guild<'api'>>;
+	guild(force = false) {
 		if (!this.guildId) return;
 		return this.client.guilds.fetch(this.guildId, force);
 	}

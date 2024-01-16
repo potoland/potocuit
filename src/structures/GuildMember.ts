@@ -31,7 +31,7 @@ export type GatewayGuildMemberAddDispatchDataFixed<Pending extends boolean> = Pe
 	? Omit<GatewayGuildMemberAddDispatchData, 'user'> & { id: string }
 	: MakeRequired<GatewayGuildMemberAddDispatchData, 'user'>;
 
-export interface BaseGuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> {}
+export interface BaseGuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> { }
 export class BaseGuildMember extends DiscordBase {
 	private _roles: string[];
 	joinedTimestamp?: number;
@@ -88,30 +88,27 @@ export class BaseGuildMember extends DiscordBase {
 	get roles() {
 		return {
 			values: Object.freeze(this._roles),
-			add: async (id: string) => this.client.members.roles.add(this.guildId, this.id, id),
-			remove: async (id: string) => this.client.members.roles.remove(this.guildId, this.id, id),
+			add: (id: string) => this.client.members.roles.add(this.guildId, this.id, id),
+			remove: (id: string) => this.client.members.roles.remove(this.guildId, this.id, id),
 		};
 	}
 
 	static methods({ client, guildId }: MethodContext<{ guildId: string }>) {
 		return {
-			resolve: async (resolve: GuildMemberResolvable) => client.members.resolve(guildId, resolve),
-			search: async (query?: RESTGetAPIGuildMembersSearchQuery) => client.members.search(guildId, query),
-			unban: async (id: string, body?: RESTPutAPIGuildBanJSONBody, reason?: string) =>
-				client.members.unban(guildId, id, body, reason),
-			ban: async (id: string, body?: RESTPutAPIGuildBanJSONBody, reason?: string) =>
-				client.members.ban(guildId, id, body, reason),
-			kick: async (id: string, reason?: string) => client.members.kick(guildId, id, reason),
-			edit: async (id: string, body: RESTPatchAPIGuildMemberJSONBody, reason?: string) =>
-				client.members.edit(guildId, id, body, reason),
-			add: async (id: string, body: RESTPutAPIGuildMemberJSONBody) => client.members.add(guildId, id, body),
-			fetch: async (memberId: string, force = false) => client.members.fetch(guildId, memberId, force),
-			list: async (query?: RESTGetAPIGuildMembersQuery, force = false) => client.members.list(guildId, query, force),
+			resolve: (resolve: GuildMemberResolvable) => client.members.resolve(guildId, resolve),
+			search: (query?: RESTGetAPIGuildMembersSearchQuery) => client.members.search(guildId, query),
+			unban: (id: string, body?: RESTPutAPIGuildBanJSONBody, reason?: string) => client.members.unban(guildId, id, body, reason),
+			ban: (id: string, body?: RESTPutAPIGuildBanJSONBody, reason?: string) => client.members.ban(guildId, id, body, reason),
+			kick: (id: string, reason?: string) => client.members.kick(guildId, id, reason),
+			edit: (id: string, body: RESTPatchAPIGuildMemberJSONBody, reason?: string) => client.members.edit(guildId, id, body, reason),
+			add: (id: string, body: RESTPutAPIGuildMemberJSONBody) => client.members.add(guildId, id, body),
+			fetch: (memberId: string, force = false) => client.members.fetch(guildId, memberId, force),
+			list: (query?: RESTGetAPIGuildMembersQuery, force = false) => client.members.list(guildId, query, force),
 		};
 	}
 }
 
-export interface GuildMember extends Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> {}
+export interface GuildMember extends Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> { }
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
@@ -155,10 +152,10 @@ export interface UnavailableMember {
 	pending: true;
 }
 
-export class UnavailableMember extends BaseGuildMember {}
+export class UnavailableMember extends BaseGuildMember { }
 
 export interface InteractionGuildMember
-	extends ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles' | 'deaf' | 'mute'>> {}
+	extends ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles' | 'deaf' | 'mute'>> { }
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
