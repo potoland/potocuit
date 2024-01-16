@@ -80,20 +80,18 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 	}
 
 	static allMethods(ctx: MethodContext<{ guildId: string }>) {
-		const methods = ctx.client.guilds.channels;
 		return {
-			list: (force = false) => methods.list(ctx.guildId, force),
-			fetch: (id: string, force = false) => methods.fetch(ctx.guildId, id, force),
-			create: (body: RESTPostAPIGuildChannelJSONBody) => methods.create(ctx.guildId, body),
-			delete: (id: string, reason?: string) => methods.delete(ctx.guildId, id, reason),
-			edit: (id: string, body: RESTPatchAPIChannelJSONBody, reason?: string) =>
-				methods.edit(ctx.guildId, id, body, reason),
-			editPositions: (body: RESTPatchAPIGuildChannelPositionsJSONBody) => methods.editPositions(ctx.guildId, body),
+			list: (force = false) => ctx.client.guilds.channels.list(ctx.guildId, force),
+			fetch: (id: string, force = false) => ctx.client.guilds.channels.fetch(ctx.guildId, id, force),
+			create: (body: RESTPostAPIGuildChannelJSONBody) => ctx.client.guilds.channels.create(ctx.guildId, body),
+			delete: (id: string, reason?: string) => ctx.client.guilds.channels.delete(ctx.guildId, id, reason),
+			edit: (id: string, body: RESTPatchAPIChannelJSONBody, reason?: string) => ctx.client.guilds.channels.edit(ctx.guildId, id, body, reason),
+			editPositions: (body: RESTPatchAPIGuildChannelPositionsJSONBody) => ctx.client.guilds.channels.editPositions(ctx.guildId, body),
 		};
 	}
 }
 
-export interface BaseGuildChannel extends ObjectToLower<APIGuildChannel<ChannelType.GuildText>> {}
+export interface BaseGuildChannel extends ObjectToLower<APIGuildChannel<ChannelType.GuildText>> { }
 export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
 	async guild(force?: true): Promise<Guild<'api'>>;
 	async guild(force?: boolean): Promise<Guild<'cached'> | Guild<'api'>>;
@@ -114,7 +112,7 @@ export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
 	}
 }
 
-export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> {}
+export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> { }
 export class MessagesMethods extends DiscordBase {
 	typing() {
 		return this.client.channels.typing(this.id);
@@ -125,38 +123,33 @@ export class MessagesMethods extends DiscordBase {
 	reactions = MessagesMethods.reactions({ client: this.client, id: this.id });
 
 	static messages(ctx: MethodContext<{ id: string }>) {
-		const methods = ctx.client.messages;
 		return {
-			write: (body: MessageCreateBodyRequest) => methods.write(ctx.id, body),
-			edit: (messageId: string, body: MessageUpdateBodyRequest) => methods.edit(messageId, ctx.id, body),
-			crosspost: (messageId: string, reason?: string) => methods.crosspost(messageId, ctx.id, reason),
-			delete: (messageId: string, reason?: string) => methods.delete(messageId, ctx.id, reason),
-			fetch: (messageId: string) => methods.fetch(messageId, ctx.id),
-			purge: (messages: string[], reason?: string) => methods.purge(messages, ctx.id, reason),
+			write: (body: MessageCreateBodyRequest) => ctx.client.messages.write(ctx.id, body),
+			edit: (messageId: string, body: MessageUpdateBodyRequest) => ctx.client.messages.edit(messageId, ctx.id, body),
+			crosspost: (messageId: string, reason?: string) => ctx.client.messages.crosspost(messageId, ctx.id, reason),
+			delete: (messageId: string, reason?: string) => ctx.client.messages.delete(messageId, ctx.id, reason),
+			fetch: (messageId: string) => ctx.client.messages.fetch(messageId, ctx.id),
+			purge: (messages: string[], reason?: string) => ctx.client.messages.purge(messages, ctx.id, reason),
 		};
 	}
 
 	static reactions(ctx: MethodContext<{ id: string }>) {
-		const methods = ctx.client.messages.reactions;
 		return {
-			add: (messageId: string, emoji: EmojiResolvable) => methods.add(messageId, ctx.id, emoji),
-			delete: (messageId: string, emoji: EmojiResolvable, userId = '@me') =>
-				methods.delete(messageId, ctx.id, emoji, userId),
+			add: (messageId: string, emoji: EmojiResolvable) => ctx.client.messages.reactions.add(messageId, ctx.id, emoji),
+			delete: (messageId: string, emoji: EmojiResolvable, userId = '@me') => ctx.client.messages.reactions.delete(messageId, ctx.id, emoji, userId),
 			fetch: (
 				messageId: string,
-
 				emoji: EmojiResolvable,
 				query?: RESTGetAPIChannelMessageReactionUsersQuery,
-			) => methods.fetch(messageId, ctx.id, emoji, query),
-			purge: (messageId: string, emoji?: EmojiResolvable) => methods.purge(messageId, ctx.id, emoji),
+			) => ctx.client.messages.reactions.fetch(messageId, ctx.id, emoji, query),
+			purge: (messageId: string, emoji?: EmojiResolvable) => ctx.client.messages.reactions.purge(messageId, ctx.id, emoji),
 		};
 	}
 	static pins(ctx: MethodContext<{ id: string }>) {
-		const methods = ctx.client.channels.pins;
 		return {
-			fetch: () => methods.fetch(ctx.id),
-			set: (messageId: string, reason?: string) => methods.set(messageId, ctx.id, reason),
-			delete: (messageId: string, reason?: string) => methods.delete(messageId, ctx.id, reason),
+			fetch: () => ctx.client.channels.pins.fetch(ctx.id),
+			set: (messageId: string, reason?: string) => ctx.client.channels.pins.set(messageId, ctx.id, reason),
+			delete: (messageId: string, reason?: string) => ctx.client.channels.pins.delete(messageId, ctx.id, reason),
 		};
 	}
 
@@ -165,8 +158,8 @@ export class MessagesMethods extends DiscordBase {
 			...body,
 			components: body.components
 				? (body?.components instanceof ComponentsListener ? body.components.components : body.components).map(x =>
-						x.toJSON(),
-				  )
+					x.toJSON(),
+				)
 				: undefined,
 			embeds: body.embeds?.map(x => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? undefined,
 			//?
@@ -175,9 +168,9 @@ export class MessagesMethods extends DiscordBase {
 	}
 }
 
-export interface TextBaseChannel extends ObjectToLower<APITextChannel>, MessagesMethods {}
+export interface TextBaseChannel extends ObjectToLower<APITextChannel>, MessagesMethods { }
 @mix(MessagesMethods)
-export class TextBaseChannel extends BaseGuildChannel {}
+export class TextBaseChannel extends BaseGuildChannel { }
 
 export default function channelFrom(data: APIChannelBase<ChannelType>, client: BaseClient): AllChannels {
 	switch (data.type) {
@@ -211,14 +204,14 @@ export default function channelFrom(data: APIChannelBase<ChannelType>, client: B
 	}
 }
 
-export interface TopicableGuildChannel extends BaseChannel<ChannelType> {}
+export interface TopicableGuildChannel extends BaseChannel<ChannelType> { }
 export class TopicableGuildChannel extends DiscordBase {
 	setTopic(topic: string | null, reason?: string) {
 		return this.edit({ topic }, reason);
 	}
 }
 
-export interface ThreadOnlyMethods extends BaseChannel<ChannelType.PublicThread | ChannelType.PrivateThread> {}
+export interface ThreadOnlyMethods extends BaseChannel<ChannelType.PublicThread | ChannelType.PrivateThread> { }
 @mix(TopicableGuildChannel)
 export class ThreadOnlyMethods extends DiscordBase {
 	setTags(tags: APIGuildForumTag[], reason?: string) {

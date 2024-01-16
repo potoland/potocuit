@@ -19,7 +19,7 @@ import { AnonymousGuild } from './AnonymousGuild';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> {}
+export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> { }
 
 export class Webhook extends DiscordBase {
 	user?: User;
@@ -74,21 +74,18 @@ export class Webhook extends DiscordBase {
 	}
 
 	static messages({ client, webhookId, webhookToken }: MethodContext<{ webhookId: string; webhookToken: string }>) {
-		const methods = client.webhooks.messages;
 		return {
-			write: (payload: MessageWebhookMethodWriteParams) => methods.write(webhookId, webhookToken, payload),
-			edit: (payload: MessageWebhookMethodEditParams) => methods.edit(webhookId, webhookToken, payload),
-			delete: async (messageId: string, reason?: string) => methods.delete(webhookId, webhookToken, messageId, reason),
+			write: (payload: MessageWebhookMethodWriteParams) => client.webhooks.messages.write(webhookId, webhookToken, payload),
+			edit: (payload: MessageWebhookMethodEditParams) => client.webhooks.messages.edit(webhookId, webhookToken, payload),
+			delete: (messageId: string, reason?: string) => client.webhooks.messages.delete(webhookId, webhookToken, messageId, reason),
 		};
 	}
 
 	static methods({ client, webhookId, webhookToken }: MethodContext<{ webhookId: string; webhookToken?: string }>) {
-		const methods = client.webhooks;
 		return {
-			delete: (reason?: string) => methods.delete(webhookId, { reason, token: webhookToken }),
-			edit: (body: RESTPatchAPIWebhookWithTokenJSONBody | RESTPatchAPIWebhookJSONBody, reason?: string) =>
-				methods.edit(webhookId, body, { token: webhookToken, reason }),
-			fetch: () => methods.fetch(webhookId, webhookToken),
+			delete: (reason?: string) => client.webhooks.delete(webhookId, { reason, token: webhookToken }),
+			edit: (body: RESTPatchAPIWebhookWithTokenJSONBody | RESTPatchAPIWebhookJSONBody, reason?: string) => client.webhooks.edit(webhookId, body, { token: webhookToken, reason }),
+			fetch: () => client.webhooks.fetch(webhookId, webhookToken),
 		};
 	}
 }

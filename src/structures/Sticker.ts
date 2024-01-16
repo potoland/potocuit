@@ -11,7 +11,7 @@ import type { Guild } from './Guild';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface Sticker extends DiscordBase, ObjectToLower<Omit<APISticker, 'user'>> {}
+export interface Sticker extends DiscordBase, ObjectToLower<Omit<APISticker, 'user'>> { }
 
 export class Sticker extends DiscordBase {
 	user?: User;
@@ -44,14 +44,12 @@ export class Sticker extends DiscordBase {
 	}
 
 	static methods({ client, guildId }: MethodContext<{ guildId: string }>) {
-		const methods = client.guilds.stickers;
 		return {
-			list: async () => methods.list(guildId),
-			create: async (payload: CreateStickerBodyRequest, reason?: string) => methods.create(guildId, payload, reason),
-			edit: async (stickerId: string, body: RESTPatchAPIGuildStickerJSONBody, reason?: string) =>
-				methods.edit(guildId, stickerId, body, reason),
-			fetch: async (stickerId: string, force = false) => methods.fetch(guildId, stickerId, force),
-			delete: async (stickerId: string, reason?: string) => methods.delete(guildId, stickerId, reason),
+			list: async () => client.guilds.stickers.list(guildId),
+			create: async (payload: CreateStickerBodyRequest, reason?: string) => client.guilds.stickers.create(guildId, payload, reason),
+			edit: async (stickerId: string, body: RESTPatchAPIGuildStickerJSONBody, reason?: string) => client.guilds.stickers.edit(guildId, stickerId, body, reason),
+			fetch: async (stickerId: string, force = false) => client.guilds.stickers.fetch(guildId, stickerId, force),
+			delete: async (stickerId: string, reason?: string) => client.guilds.stickers.delete(guildId, stickerId, reason),
 		};
 	}
 }
