@@ -9,7 +9,7 @@ import type {
 import type { Guild } from './Guild';
 import { Base } from './extra/Base';
 
-export interface GuildTemplate extends Base, ObjectToLower<APITemplate> { }
+export interface GuildTemplate extends Base, ObjectToLower<APITemplate> {}
 
 export class GuildTemplate extends Base {
 	constructor(client: BaseClient, data: APITemplate) {
@@ -44,7 +44,8 @@ export class GuildTemplate extends Base {
 			list: () => ctx.client.templates.list(ctx.guildId),
 			create: (body: RESTPostAPIGuildTemplatesJSONBody) => ctx.client.templates.create(ctx.guildId, body),
 			sync: (code: string) => ctx.client.templates.sync(ctx.guildId, code),
-			edit: (code: string, body: RESTPatchAPIGuildTemplateJSONBody) => ctx.client.templates.edit(ctx.guildId, code, body),
+			edit: (code: string, body: RESTPatchAPIGuildTemplateJSONBody) =>
+				ctx.client.templates.edit(ctx.guildId, code, body),
 			delete: (code: string) => ctx.client.templates.delete(ctx.guildId, code),
 		};
 	}

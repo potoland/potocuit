@@ -4,7 +4,7 @@ import type { APIEmoji, ObjectToLower, RESTPatchAPIChannelJSONBody } from '../co
 import type { Guild } from './Guild';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface GuildEmoji extends DiscordBase, ObjectToLower<Omit<APIEmoji, 'id'>> { }
+export interface GuildEmoji extends DiscordBase, ObjectToLower<Omit<APIEmoji, 'id'>> {}
 
 export class GuildEmoji extends DiscordBase {
 	constructor(

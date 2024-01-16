@@ -31,7 +31,7 @@ export type GatewayGuildMemberAddDispatchDataFixed<Pending extends boolean> = Pe
 	? Omit<GatewayGuildMemberAddDispatchData, 'user'> & { id: string }
 	: MakeRequired<GatewayGuildMemberAddDispatchData, 'user'>;
 
-export interface BaseGuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> { }
+export interface BaseGuildMember extends DiscordBase, Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> {}
 export class BaseGuildMember extends DiscordBase {
 	private _roles: string[];
 	joinedTimestamp?: number;
@@ -97,10 +97,13 @@ export class BaseGuildMember extends DiscordBase {
 		return {
 			resolve: (resolve: GuildMemberResolvable) => client.members.resolve(guildId, resolve),
 			search: (query?: RESTGetAPIGuildMembersSearchQuery) => client.members.search(guildId, query),
-			unban: (id: string, body?: RESTPutAPIGuildBanJSONBody, reason?: string) => client.members.unban(guildId, id, body, reason),
-			ban: (id: string, body?: RESTPutAPIGuildBanJSONBody, reason?: string) => client.members.ban(guildId, id, body, reason),
+			unban: (id: string, body?: RESTPutAPIGuildBanJSONBody, reason?: string) =>
+				client.members.unban(guildId, id, body, reason),
+			ban: (id: string, body?: RESTPutAPIGuildBanJSONBody, reason?: string) =>
+				client.members.ban(guildId, id, body, reason),
 			kick: (id: string, reason?: string) => client.members.kick(guildId, id, reason),
-			edit: (id: string, body: RESTPatchAPIGuildMemberJSONBody, reason?: string) => client.members.edit(guildId, id, body, reason),
+			edit: (id: string, body: RESTPatchAPIGuildMemberJSONBody, reason?: string) =>
+				client.members.edit(guildId, id, body, reason),
 			add: (id: string, body: RESTPutAPIGuildMemberJSONBody) => client.members.add(guildId, id, body),
 			fetch: (memberId: string, force = false) => client.members.fetch(guildId, memberId, force),
 			list: (query?: RESTGetAPIGuildMembersQuery, force = false) => client.members.list(guildId, query, force),
@@ -108,7 +111,7 @@ export class BaseGuildMember extends DiscordBase {
 	}
 }
 
-export interface GuildMember extends Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> { }
+export interface GuildMember extends Omit<ObjectToLower<APIGuildMember>, 'user' | 'roles'> {}
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
@@ -152,10 +155,10 @@ export interface UnavailableMember {
 	pending: true;
 }
 
-export class UnavailableMember extends BaseGuildMember { }
+export class UnavailableMember extends BaseGuildMember {}
 
 export interface InteractionGuildMember
-	extends ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles' | 'deaf' | 'mute'>> { }
+	extends ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles' | 'deaf' | 'mute'>> {}
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
