@@ -1,10 +1,9 @@
-import type { BaseClient } from '../../client/base';
-import type { LocaleString } from '../../common';
-import type { ApplicationCommandType } from '../../common';
+import type { BaseClient, IClients } from '../../client/base';
+import type { ApplicationCommandType, LocaleString } from '../../common';
 import type { MenuCommandContext } from './menucontext';
 import type { MiddlewareContext, NextFunction, PassFunction, StopFunction } from './shared';
 
-export class ContextMenuCommand {
+export abstract class ContextMenuCommand {
 	middlewares: MiddlewareContext[] = [];
 
 	__filePath?: string;
@@ -23,7 +22,7 @@ export class ContextMenuCommand {
 
 	/** @internal */
 	static __runMiddlewares(
-		context: MenuCommandContext<'base', any>,
+		context: MenuCommandContext<keyof IClients, any>,
 		middlewares: readonly MiddlewareContext[],
 		global: boolean,
 	): Promise<[any, undefined] | [undefined, Error] | 'pass'> {
@@ -67,12 +66,12 @@ export class ContextMenuCommand {
 	}
 
 	/** @internal */
-	__runMiddlewares(context: MenuCommandContext<'base', any, []>) {
+	__runMiddlewares(context: MenuCommandContext<keyof IClients, any, []>) {
 		return ContextMenuCommand.__runMiddlewares(context, this.middlewares, false);
 	}
 
 	/** @internal */
-	__runGlobalMiddlewares(context: MenuCommandContext<'base', any, []>) {
+	__runGlobalMiddlewares(context: MenuCommandContext<keyof IClients, any, []>) {
 		return ContextMenuCommand.__runMiddlewares(context, context.client.options?.globalMiddlewares ?? [], true);
 	}
 
@@ -97,9 +96,9 @@ export class ContextMenuCommand {
 		Object.setPrototypeOf(this, __tempCommand.prototype);
 	}
 
-	run?(context: MenuCommandContext<'base', any>): any;
-	onRunError?(context: MenuCommandContext<'base', any>, error: unknown): any;
-	onMiddlewaresError?(context: MenuCommandContext<'base', any, []>, error: Error): any;
+	abstract run?(context: MenuCommandContext<keyof IClients, any>): any;
+	onRunError?(context: MenuCommandContext<keyof IClients, any>, error: unknown): any;
+	onMiddlewaresError?(context: MenuCommandContext<keyof IClients, any, []>, error: Error): any;
 
 	onInternalError(client: BaseClient, error?: unknown): any {
 		client.logger.fatal(error);
