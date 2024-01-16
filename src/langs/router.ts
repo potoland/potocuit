@@ -34,14 +34,15 @@ export const LangRouter = (defaultLang: string, langs: Partial<Record<string, an
 
 type ParseLocale<T extends Record<string, any>> = {
 	[K in keyof T]: T[K] extends (...args: any[]) => any
-		? (...args: Parameters<T[K]>) => { get(locale?: string): any }
-		: T[K] extends string
-		  ? { get(locale?: string): T[K] }
-		  : T[K] extends unknown[]
-			  ? { get(locale?: string): T[K] }
-			  : T[K] extends Record<string, any>
-				  ? ParseLocales<T[K]> & { get(locale?: string): T[K] }
-				  : never;
+	? (...args: Parameters<T[K]>) => { get(locale?: string): any }
+	: T[K] extends string
+	? { get(locale?: string): T[K] }
+	: T[K] extends unknown[]
+	? { get(locale?: string): T[K] }
+	: T[K] extends Record<string, any>
+	? ParseLocales<T[K]> & { get(locale?: string): T[K] }
+	: never;
 };
 
 export type ParseLocales<T extends Record<string, any>> = ParseLocale<T> & { get(locale?: string): T };
+/**Sorcerer of this file: FreeAoi */
