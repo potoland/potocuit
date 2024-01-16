@@ -7,10 +7,7 @@ export class Members extends GuildBasedResource {
 	override parse(data: any, key: string, guild_id: string) {
 		data.guild_id = guild_id;
 		data.id = data.user?.id ?? key;
-		const {
-			user,
-			...obj
-		} = data
+		const { user, ...obj } = data;
 		return obj;
 	}
 
