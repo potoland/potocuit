@@ -7,8 +7,11 @@ export class Members extends GuildBasedResource {
 	override parse(data: any, key: string, guild_id: string) {
 		data.guild_id = guild_id;
 		data.id = data.user?.id ?? key;
-		delete data.user;
-		return data;
+		const {
+			user,
+			...obj
+		} = data
+		return obj;
 	}
 
 	override async get(id: string, guild: string): Promise<GuildMember | undefined> {
