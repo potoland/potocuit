@@ -13,7 +13,7 @@ export interface DynamicBucketOptions {
 	limit: number;
 	refillInterval: number;
 	refillAmount: number;
-	logger: Logger;
+	debugger?: Logger;
 }
 
 /**
@@ -45,13 +45,16 @@ export class DynamicBucket {
 	/** The timestamp in milliseconds when the next refill is scheduled. */
 	refillsAt?: number;
 
-	logger: Logger;
+	debugger?: Logger;
 
 	constructor(options: DynamicBucketOptions) {
 		this.limit = options.limit;
 		this.refillInterval = options.refillInterval;
 		this.refillAmount = options.refillAmount;
-		this.logger = options.logger;
+
+		if (options.debugger) {
+			this.debugger = options.debugger;
+		}
 	}
 
 	get remaining(): number {
@@ -89,7 +92,7 @@ export class DynamicBucket {
 		// Begin going through the queue.
 		while (!this.queue.isEmpty()) {
 			if (this.remaining) {
-				this.logger.debug(`Processing queue. Remaining: ${this.remaining} Length: ${this.queue.size()}`);
+				this.debugger?.debug(`Processing queue. Remaining: ${this.remaining} Length: ${this.queue.size()}`);
 				// Resolves the promise allowing the paused execution of this request to resolve and continue.
 				this.queue.peek()();
 				this.queue.pop();

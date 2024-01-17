@@ -43,7 +43,7 @@ export class BurstHandler implements IHandler {
 	 * @param message - The message to debug
 	 */
 	private debug(message: string) {
-		this.manager.logger.info(`#${this.id} ${message}`);
+		this.manager.debugger?.info(`#${this.id} ${message}`);
 	}
 
 	/**

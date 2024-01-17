@@ -35,7 +35,7 @@ export function incrementInvalidCount(manager: REST) {
 		invalidCount % manager.options.invalidRequestWarningInterval === 0;
 	if (emitInvalid) {
 		// Let library users know periodically about invalid requests
-		manager.logger.info({
+		manager.debugger?.info({
 			count: invalidCount,
 			remainingTime: invalidCountResetTime - Date.now(),
 		});
@@ -88,7 +88,7 @@ export async function makeNetworkRequest(
 		clearTimeout(timeout);
 	}
 
-	manager.logger.info(
+	manager.debugger?.info(
 		RESTEvents.Response,
 		{
 			method: options.method ?? 'get',

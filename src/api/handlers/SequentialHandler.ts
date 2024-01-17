@@ -113,7 +113,7 @@ export class SequentialHandler implements IHandler {
 	 * @param message - The message to debug
 	 */
 	private debug(message: string) {
-		this.manager.logger.info(`#${this.id} ${message}`);
+		this.manager.debugger?.info(`#${this.id} ${message}`);
 	}
 
 	/**
@@ -240,7 +240,7 @@ export class SequentialHandler implements IHandler {
 			};
 
 			// Let library users know they have hit a rate limit
-			this.manager.logger.info(rateLimitData);
+			this.manager.debugger?.info(rateLimitData);
 			// Determine whether a RateLimitError should be thrown
 			await onRateLimit(this.manager, rateLimitData);
 

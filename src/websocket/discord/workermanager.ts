@@ -10,7 +10,7 @@ import type { WorkerInfo, WorkerMessage, WorkerShardInfo } from './worker';
 
 export class WorkerManager extends Map<number, Worker> {
 	options: Required<WorkerManagerOptions>;
-	logger: Logger;
+	debugger?: Logger;
 	connectQueue: SequentialBucket;
 	cacheAdapter: Adapter;
 	promises = new Map<string, (value: any) => void>();
@@ -22,10 +22,11 @@ export class WorkerManager extends Map<number, Worker> {
 		this.options.info.shards = options.totalShards;
 		this.connectQueue = new SequentialBucket(this.concurrency);
 
-		this.logger = new Logger({
-			active: this.options.debug,
-			name: '[WorkerManager]',
-		});
+		if (this.options.debug) {
+			this.debugger = new Logger({
+				name: '[WorkerManager]',
+			});
+		}
 
 		if (this.totalShards / this.shardsPerWorker > this.workers) {
 			throw new Error(
@@ -95,7 +96,7 @@ export class WorkerManager extends Map<number, Worker> {
 	}
 
 	prepareSpaces() {
-		this.logger.info('Preparing buckets');
+		this.debugger?.info('Preparing buckets');
 
 		const chunks = SequentialBucket.chunk<number>(new Array(this.options.totalShards), this.options.shardsPerWorker);
 
@@ -106,7 +107,7 @@ export class WorkerManager extends Map<number, Worker> {
 			}
 		});
 
-		this.logger.info(`${chunks.length} buckets created`);
+		this.debugger?.info(`${chunks.length} buckets created`);
 		return chunks;
 	}
 
@@ -147,7 +148,7 @@ export class WorkerManager extends Map<number, Worker> {
 		await this.connectQueue.push(async () => {
 			const worker = this.get(workerId);
 			if (!worker) {
-				this.logger.fatal("Trying spawn with worker doesn't exist");
+				this.debugger?.fatal("Trying spawn with worker doesn't exist");
 				return;
 			}
 

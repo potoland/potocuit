@@ -32,10 +32,7 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 		if (!manager) {
 			throw new Error('WorkerClient cannot spawn without manager');
 		}
-		const onPacket = this.onPacket.bind(this);
-		manager!.on('message', data =>
-			handleManagerMessages(data, manager!, this.shards, this.cache, this.logger, onPacket),
-		);
+		manager!.on('message', data => this.handleManagerMessages(data));
 		this.setServices({
 			cache: {
 				adapter: new WorkerAdapter(manager),
@@ -49,7 +46,7 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 	}
 
 	handleManagerMessages(data: ManagerMessages) {
-		return handleManagerMessages(data, manager!, this.shards, this.cache, this.logger, this.onPacket.bind(this));
+		return handleManagerMessages(data, manager!, this.shards, this.cache, this.logger, this.debugger, this.onPacket.bind(this));
 	}
 
 	async start(options: Omit<DeepPartial<StartOptions>, 'httpConnection' | 'token' | 'connection'> = {}) {

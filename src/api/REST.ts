@@ -70,7 +70,7 @@ export class REST {
 
 	public readonly options: RESTOptions;
 
-	logger: Logger;
+	debugger?: Logger;
 
 	public constructor(options: RESTConstructorOptions) {
 		this.options = MergeOptions(DefaultRestOptions, options);
@@ -81,10 +81,12 @@ export class REST {
 
 		this.cdn = new CDN();
 
-		this.logger = new Logger({
-			active: options.debug,
-			name: '[REST]',
-		});
+		if (options.debug) {
+			this.debugger = new Logger({
+				active: options.debug,
+				name: '[REST]',
+			});
+		}
 
 		// Start sweepers
 		this.setupSweepers();
@@ -118,14 +120,14 @@ export class REST {
 						sweptHashes.set(key, val);
 
 						// Emit debug information
-						this.logger.info(`Hash ${val.value} for ${key} swept due to lifetime being exceeded`);
+						this.debugger?.info(`Hash ${val.value} for ${key} swept due to lifetime being exceeded`);
 					}
 
 					return shouldSweep;
 				});
 
 				// Fire event
-				this.logger.info(sweptHashes);
+				this.debugger?.info(sweptHashes);
 			}, this.options.hashSweepInterval);
 
 			this.hashTimer.unref?.();
@@ -143,14 +145,14 @@ export class REST {
 					// Collect inactive handlers
 					if (inactive) {
 						sweptHandlers.set(key, val);
-						this.logger.info(`Handler ${val.id} for ${key} swept due to being inactive`);
+						this.debugger?.info(`Handler ${val.id} for ${key} swept due to being inactive`);
 					}
 
 					return inactive;
 				});
 
 				// Fire event
-				this.logger.info(sweptHandlers);
+				this.debugger?.info(sweptHandlers);
 			}, this.options.handlerSweepInterval);
 
 			this.handlerTimer.unref?.();
@@ -367,9 +369,8 @@ export class REST {
 		}
 
 		// Format the full request URL (api base, optional version, endpoint, optional querystring)
-		const url = `${options.api}${request.versioned === false ? '' : `/v${options.version}`}${
-			request.fullRoute
-		}${query}`;
+		const url = `${options.api}${request.versioned === false ? '' : `/v${options.version}`}${request.fullRoute
+			}${query}`;
 
 		let finalBody: RequestInit['body'];
 		let additionalHeaders: Record<string, string> = {};
@@ -527,9 +528,9 @@ export type RequestObject<
 	(M extends `${ProxyRequestMethod.Get}`
 		? unknown
 		: {
-				body?: B;
-				files?: F;
-		  });
+			body?: B;
+			files?: F;
+		});
 
 export type RestArguments<
 	M extends ProxyRequestMethod,
@@ -538,6 +539,6 @@ export type RestArguments<
 	F extends RawFile[] = RawFile[],
 > = M extends ProxyRequestMethod.Get
 	? Q extends never
-		? RequestObject<M, never, B, never>
-		: never
+	? RequestObject<M, never, B, never>
+	: never
 	: RequestObject<M, B, Q, F>;

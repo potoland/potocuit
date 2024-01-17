@@ -96,8 +96,7 @@ export interface ShardOptions extends ShardDetails {
 		maxRequestsPerRateLimitTick: number;
 		rateLimitResetInterval: number;
 	};
-	logger: Logger;
-	// logger: Logger;
+	debugger?: Logger;
 	compress: boolean;
 	presence?: GatewayPresenceUpdateData;
 }

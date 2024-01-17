@@ -1,4 +1,4 @@
-import { parentPort as manager, workerData as __workerData__ } from 'node:worker_threads';
+import { workerData as __workerData__, parentPort as manager } from 'node:worker_threads';
 import { Cache, WorkerAdapter } from '../../cache';
 import type { GatewayDispatchPayload } from '../../common';
 import { Logger } from '../../common';
@@ -13,14 +13,19 @@ if (!manager) {
 const workerData = __workerData__ as WorkerData;
 
 const logger = new Logger({
-	active: workerData.debug,
+	active: true,
 	name: `[Worker #${workerData.workerId}]`,
 });
+
+const debugLogger = workerData.debug ? new Logger({
+	active: true,
+	name: `[Worker #${workerData.workerId}]`,
+}) : undefined;
 
 const shards = new Map<number, Shard>();
 const cache = new Cache(workerData.intents, new WorkerAdapter(manager));
 
-manager!.on('message', data => handleManagerMessages(data, manager!, shards, cache, logger));
+manager!.on('message', data => handleManagerMessages(data, manager!, shards, cache, logger, debugLogger));
 
 export interface WorkerShardInfo {
 	open: boolean;
@@ -44,20 +49,20 @@ export type WorkerSendCacheRequest = CreateWorkerMessage<
 	{
 		nonce: string;
 		method:
-			| 'scan'
-			| 'get'
-			| 'set'
-			| 'patch'
-			| 'values'
-			| 'keys'
-			| 'count'
-			| 'remove'
-			| 'contains'
-			| 'getToRelationship'
-			| 'bulkAddToRelationShip'
-			| 'addToRelationship'
-			| 'removeRelationship'
-			| 'removeToRelationship';
+		| 'scan'
+		| 'get'
+		| 'set'
+		| 'patch'
+		| 'values'
+		| 'keys'
+		| 'count'
+		| 'remove'
+		| 'contains'
+		| 'getToRelationship'
+		| 'bulkAddToRelationShip'
+		| 'addToRelationship'
+		| 'removeRelationship'
+		| 'removeToRelationship';
 		args: any[];
 		workerId: number;
 	}

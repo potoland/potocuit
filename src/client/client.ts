@@ -1,10 +1,8 @@
 import { ClientUser } from '..';
-import type { REST } from '../api';
-import type { Adapter, Cache } from '../cache';
 import type { DeepPartial, GatewayDispatchPayload, GatewayPresenceUpdateData, If } from '../common';
 import { EventHandler } from '../events';
 import { ShardManager } from '../websocket';
-import type { BaseClientOptions, InternalRuntimeConfig, StartOptions } from './base';
+import type { BaseClientOptions, InternalRuntimeConfig, ServicesOptions, StartOptions } from './base';
 import { BaseClient } from './base';
 import { onInteraction } from './oninteraction';
 
@@ -23,12 +21,11 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 		rest,
 		cache,
 		defaultLang,
-	}: {
-		rest?: REST;
-		gateway?: ShardManager;
-		cache?: { adapter: Adapter; disabledCache?: Cache['disabledCache'] };
-		defaultLang?: string;
-	}) {
+	}:
+		ServicesOptions & {
+			gateway?: ShardManager;
+		}
+	) {
 		super.setServices({ rest, cache, defaultLang });
 		if (gateway) {
 			const onPacket = this.onPacket.bind(this);

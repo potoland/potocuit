@@ -96,11 +96,7 @@ export class BaseClient {
 		rest,
 		cache,
 		defaultLang,
-	}: {
-		rest?: REST;
-		cache?: { adapter: Adapter; disabledCache?: Cache['disabledCache'] };
-		defaultLang?: string;
-	}) {
+	}: ServicesOptions) {
 		if (rest) {
 			this.rest = rest;
 		}
@@ -291,4 +287,10 @@ export interface IClients {
 	http: HttpClient;
 	client: Client<true>;
 	worker: WorkerClient<true>;
+}
+
+export type ServicesOptions = {
+	rest?: REST;
+	cache?: { adapter: Adapter; disabledCache?: Cache['disabledCache'] };
+	defaultLang?: string;
 }

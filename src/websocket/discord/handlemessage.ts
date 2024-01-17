@@ -3,13 +3,12 @@ import { workerData } from 'node:worker_threads';
 import { Shard } from '.';
 import type { Cache, WorkerAdapter } from '../../cache';
 import type { GatewayDispatchPayload, GatewaySendPayload, Logger } from '../../common';
-import type { WorkerShardInfo } from './worker';
 import type {
 	WorkerReceivePayload,
 	WorkerRequestConnect,
 	WorkerSendInfo,
 	WorkerSendResultPayload,
-	WorkerSendShardInfo,
+	WorkerSendShardInfo, WorkerShardInfo
 } from './worker';
 import type { ManagerMessages } from './workermanager';
 
@@ -19,6 +18,7 @@ export async function handleManagerMessages(
 	shards: Map<number, Shard>,
 	cache: Cache,
 	logger: Logger,
+	debugLogger?: Logger,
 	onPacket?: (payload: GatewayDispatchPayload, shardId: number) => any,
 ) {
 	switch (data.type) {
@@ -68,7 +68,7 @@ export async function handleManagerMessages(
 							intents: workerData.intents,
 							info: data.info,
 							compress: data.compress,
-							logger,
+							debugger: debugLogger,
 							async handlePayload(shardId, payload) {
 								await cache.onPacket(payload);
 								await onPacket?.(payload, shardId);
