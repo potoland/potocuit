@@ -8,7 +8,8 @@ import type {
 	WorkerRequestConnect,
 	WorkerSendInfo,
 	WorkerSendResultPayload,
-	WorkerSendShardInfo, WorkerShardInfo
+	WorkerSendShardInfo,
+	WorkerShardInfo,
 } from './worker';
 import type { ManagerMessages } from './workermanager';
 

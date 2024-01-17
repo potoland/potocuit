@@ -46,7 +46,15 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 	}
 
 	handleManagerMessages(data: ManagerMessages) {
-		return handleManagerMessages(data, manager!, this.shards, this.cache, this.logger, this.debugger, this.onPacket.bind(this));
+		return handleManagerMessages(
+			data,
+			manager!,
+			this.shards,
+			this.cache,
+			this.logger,
+			this.debugger,
+			this.onPacket.bind(this),
+		);
 	}
 
 	async start(options: Omit<DeepPartial<StartOptions>, 'httpConnection' | 'token' | 'connection'> = {}) {

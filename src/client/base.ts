@@ -92,11 +92,7 @@ export class BaseClient {
 		return new Router(this.rest).createProxy();
 	}
 
-	setServices({
-		rest,
-		cache,
-		defaultLang,
-	}: ServicesOptions) {
+	setServices({ rest, cache, defaultLang }: ServicesOptions) {
 		if (rest) {
 			this.rest = rest;
 		}
@@ -293,4 +289,4 @@ export type ServicesOptions = {
 	rest?: REST;
 	cache?: { adapter: Adapter; disabledCache?: Cache['disabledCache'] };
 	defaultLang?: string;
-}
+};

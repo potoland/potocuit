@@ -43,8 +43,7 @@ export class Shard {
 			maxRequestsPerRateLimitTick: 120,
 		};
 
-		if (options.debugger)
-			this.debugger = options.debugger;
+		if (options.debugger) this.debugger = options.debugger;
 
 		const safe = this.calculateSafeRequests();
 		this.bucket = new DynamicBucket({

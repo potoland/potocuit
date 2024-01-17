@@ -17,10 +17,12 @@ const logger = new Logger({
 	name: `[Worker #${workerData.workerId}]`,
 });
 
-const debugLogger = workerData.debug ? new Logger({
-	active: true,
-	name: `[Worker #${workerData.workerId}]`,
-}) : undefined;
+const debugLogger = workerData.debug
+	? new Logger({
+			active: true,
+			name: `[Worker #${workerData.workerId}]`,
+	  })
+	: undefined;
 
 const shards = new Map<number, Shard>();
 const cache = new Cache(workerData.intents, new WorkerAdapter(manager));
@@ -49,20 +51,20 @@ export type WorkerSendCacheRequest = CreateWorkerMessage<
 	{
 		nonce: string;
 		method:
-		| 'scan'
-		| 'get'
-		| 'set'
-		| 'patch'
-		| 'values'
-		| 'keys'
-		| 'count'
-		| 'remove'
-		| 'contains'
-		| 'getToRelationship'
-		| 'bulkAddToRelationShip'
-		| 'addToRelationship'
-		| 'removeRelationship'
-		| 'removeToRelationship';
+			| 'scan'
+			| 'get'
+			| 'set'
+			| 'patch'
+			| 'values'
+			| 'keys'
+			| 'count'
+			| 'remove'
+			| 'contains'
+			| 'getToRelationship'
+			| 'bulkAddToRelationShip'
+			| 'addToRelationship'
+			| 'removeRelationship'
+			| 'removeToRelationship';
 		args: any[];
 		workerId: number;
 	}

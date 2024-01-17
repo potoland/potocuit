@@ -21,11 +21,9 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 		rest,
 		cache,
 		defaultLang,
-	}:
-		ServicesOptions & {
-			gateway?: ShardManager;
-		}
-	) {
+	}: ServicesOptions & {
+		gateway?: ShardManager;
+	}) {
 		super.setServices({ rest, cache, defaultLang });
 		if (gateway) {
 			const onPacket = this.onPacket.bind(this);
