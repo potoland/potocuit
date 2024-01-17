@@ -15,6 +15,10 @@ import {
 	channelLink,
 	type APIGuildChannel,
 	type AllChannels,
+	type AllGuildTextChannels,
+	type AllTextChannels,
+	type AllThreadOnlyChannels,
+	type AllVoiceChannels,
 	type Guild,
 	type RESTPatchAPIGuildChannelPositionsJSONBody,
 	type RESTPostAPIGuildChannelJSONBody,
@@ -76,27 +80,27 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 		return `<#${this.id}>`;
 	}
 
-	get isDM() {
+	isDM(): this is DMChannel {
 		return [ChannelType.DM, ChannelType.GroupDM].includes(this.type);
 	}
 
-	get isTextChannel() {
+	isTextChannel(): this is AllTextChannels {
 		return 'messages' in this;
 	}
 
-	get isTextGuildChannel() {
-		return this.isTextChannel && !this.isDM;
+	isTextGuildChannel(): this is AllGuildTextChannels {
+		return this.isTextChannel() && !this.isDM;
 	}
 
-	get isThread() {
+	isThread(): this is ThreadChannel {
 		return ThreadTypes.includes(this.type);
 	}
 
-	get isThreadOnly() {
+	isThreadOnly(): this is AllThreadOnlyChannels {
 		return 'availabeTags' in this;
 	}
 
-	get isVoice() {
+	isVoice(): this is AllVoiceChannels {
 		return 'bitrate' in this;
 	}
 

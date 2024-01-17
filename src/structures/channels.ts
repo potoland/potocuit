@@ -153,6 +153,11 @@ export type AllGuildChannels =
 	| DirectoryChannel
 	| StageChannel;
 
+export type AllTextChannels = TextGuildChannel | VoiceChannel | DMChannel | NewsChannel | ThreadChannel;
+export type AllGuildTextChannels = Extract<AllTextChannels, DMChannel>;
+export type AllThreadOnlyChannels = ForumChannel | MediaChannel;
+export type AllVoiceChannels = VoiceChannel | StageChannel;
+
 export type AllChannels =
 	| BaseChannel<ChannelType>
 	| BaseGuildChannel
