@@ -122,6 +122,10 @@ export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
 		return this.client.guilds.fetch(this.guildId!, force);
 	}
 
+	get url() {
+		return channelLink(this.id, this.guildId);
+	}
+
 	setPosition(position: number, reason?: string) {
 		return this.edit({ position }, reason);
 	}
