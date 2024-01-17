@@ -9,6 +9,7 @@ import {
 	StageChannel,
 	TextGuildChannel,
 	ThreadChannel,
+	ThreadTypes,
 	VoiceChannel,
 	Webhook,
 	channelLink,
@@ -73,6 +74,30 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 
 	toString() {
 		return `<#${this.id}>`;
+	}
+
+	get isDM() {
+		return [ChannelType.DM, ChannelType.GroupDM].includes(this.type);
+	}
+
+	get isTextChannel() {
+		return 'messages' in this;
+	}
+
+	get isTextGuildChannel() {
+		return this.isTextChannel && !this.isDM;
+	}
+
+	get isThread() {
+		return ThreadTypes.includes(this.type);
+	}
+
+	get isThreadOnly() {
+		return 'availabeTags' in this;
+	}
+
+	get isVoice() {
+		return 'bitrate' in this;
 	}
 
 	static allMethods(ctx: MethodContext<{ guildId: string }>) {
