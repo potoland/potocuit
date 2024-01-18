@@ -9,16 +9,13 @@ import {
 	StageChannel,
 	TextGuildChannel,
 	ThreadChannel,
-	ThreadTypes,
 	VoiceChannel,
 	Webhook,
 	channelLink,
 	type APIGuildChannel,
 	type AllChannels,
-	type AllGuildTextChannels,
-	type AllTextChannels,
-	type AllThreadOnlyChannels,
-	type AllVoiceChannels,
+	type AllGuildTextableChannels,
+	type AllTextableChannels,
 	type Guild,
 	type RESTPatchAPIGuildChannelPositionsJSONBody,
 	type RESTPostAPIGuildChannelJSONBody,
@@ -80,28 +77,60 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 		return `<#${this.id}>`;
 	}
 
+	isStage(): this is StageChannel {
+		return this.type === ChannelType.GuildStageVoice;
+	}
+
+	isMedia(): this is MediaChannel {
+		return this.type === ChannelType.GuildMedia;
+	}
+
 	isDM(): this is DMChannel {
 		return [ChannelType.DM, ChannelType.GroupDM].includes(this.type);
 	}
 
-	isTextChannel(): this is AllTextChannels {
-		return 'messages' in this;
-	}
-
-	isTextGuildChannel(): this is AllGuildTextChannels {
-		return this.isTextChannel() && !this.isDM;
+	isForum(): this is ForumChannel {
+		return this.type === ChannelType.GuildForum;
 	}
 
 	isThread(): this is ThreadChannel {
-		return ThreadTypes.includes(this.type);
+		return [
+			ChannelType.PublicThread,
+			ChannelType.PrivateThread,
+			ChannelType.AnnouncementThread,
+		].includes(this.type);
 	}
 
-	isThreadOnly(): this is AllThreadOnlyChannels {
-		return 'availabeTags' in this;
+	isDirectory(): this is DirectoryChannel {
+		return this.type === ChannelType.GuildDirectory;
 	}
 
-	isVoice(): this is AllVoiceChannels {
-		return 'bitrate' in this;
+	isVoice(): this is VoiceChannel {
+		return this.type === ChannelType.GuildVoice;
+	}
+
+	isTextGuild(): this is TextGuildChannel {
+		return this.type === ChannelType.GuildText;
+	}
+
+	isCategory(): this is CategoryChannel {
+		return this.type === ChannelType.GuildCategory;
+	}
+
+	isNews(): this is NewsChannel {
+		return this.type === ChannelType.GuildAnnouncement;
+	}
+
+	isTextable(): this is AllTextableChannels {
+		return 'messages' in this;
+	}
+
+	isGuildTextable(): this is AllGuildTextableChannels {
+		return !this.isDM() && this.isTextable()
+	}
+
+	isThreadOnly(): this is ForumChannel | MediaChannel {
+		return this.isForum() || this.isMedia();
 	}
 
 	static allMethods(ctx: MethodContext<{ guildId: string }>) {
@@ -118,7 +147,7 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 	}
 }
 
-export interface BaseGuildChannel extends ObjectToLower<APIGuildChannel<ChannelType.GuildText>> {}
+export interface BaseGuildChannel extends ObjectToLower<APIGuildChannel<ChannelType.GuildText>> { }
 export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
 	async guild(force?: true): Promise<Guild<'api'>>;
 	async guild(force?: boolean): Promise<Guild<'cached'> | Guild<'api'>>;
@@ -143,7 +172,7 @@ export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
 	}
 }
 
-export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> {}
+export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> { }
 export class MessagesMethods extends DiscordBase {
 	typing() {
 		return this.client.channels.typing(this.id);
@@ -188,8 +217,8 @@ export class MessagesMethods extends DiscordBase {
 			...body,
 			components: body.components
 				? (body?.components instanceof ComponentsListener ? body.components.components : body.components).map(x =>
-						x.toJSON(),
-				  )
+					x.toJSON(),
+				)
 				: undefined,
 			embeds: body.embeds?.map(x => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? undefined,
 			//?
@@ -198,9 +227,9 @@ export class MessagesMethods extends DiscordBase {
 	}
 }
 
-export interface TextBaseChannel extends ObjectToLower<APITextChannel>, MessagesMethods {}
+export interface TextBaseChannel extends ObjectToLower<APITextChannel>, MessagesMethods { }
 @mix(MessagesMethods)
-export class TextBaseChannel extends BaseGuildChannel {}
+export class TextBaseChannel extends BaseGuildChannel { }
 
 export default function channelFrom(data: APIChannelBase<ChannelType>, client: BaseClient): AllChannels {
 	switch (data.type) {
@@ -234,14 +263,14 @@ export default function channelFrom(data: APIChannelBase<ChannelType>, client: B
 	}
 }
 
-export interface TopicableGuildChannel extends BaseChannel<ChannelType> {}
+export interface TopicableGuildChannel extends BaseChannel<ChannelType> { }
 export class TopicableGuildChannel extends DiscordBase {
 	setTopic(topic: string | null, reason?: string) {
 		return this.edit({ topic }, reason);
 	}
 }
 
-export interface ThreadOnlyMethods extends BaseChannel<ChannelType.PublicThread | ChannelType.PrivateThread> {}
+export interface ThreadOnlyMethods extends BaseChannel<ChannelType.PublicThread | ChannelType.PrivateThread> { }
 @mix(TopicableGuildChannel)
 export class ThreadOnlyMethods extends DiscordBase {
 	setTags(tags: APIGuildForumTag[], reason?: string) {

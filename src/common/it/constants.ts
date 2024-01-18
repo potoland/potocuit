@@ -1,4 +1,3 @@
-import { ChannelType } from '..';
 
 export enum EmbedColors {
 	Default = 0x000000,
@@ -32,12 +31,6 @@ export enum EmbedColors {
 	DarkButNotBlack = 0x2c2f33,
 	NotQuiteBlack = 0x23272a,
 }
-
-export const ThreadTypes = Object.freeze([
-	ChannelType.PublicThread,
-	ChannelType.PrivateThread,
-	ChannelType.AnnouncementThread,
-]);
 
 export const DiscordEpoch = 1420070400000;
 
