@@ -129,6 +129,10 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 		return this.isForum() || this.isMedia();
 	}
 
+	is<T extends (keyof IChannelTypes)[]>(channelTypes: T): this is IChannelTypes[T[number]] {
+		return channelTypes.some(x => ChannelType[x] === this.type)
+	}
+
 	static allMethods(ctx: MethodContext<{ guildId: string }>) {
 		return {
 			list: (force = false) => ctx.client.guilds.channels.list(ctx.guildId, force),
@@ -143,7 +147,22 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 	}
 }
 
-export interface BaseGuildChannel extends ObjectToLower<APIGuildChannel<ChannelType.GuildText>> {}
+interface IChannelTypes {
+	GuildStageVoice: StageChannel
+	GuildMedia: MediaChannel
+	DM: DMChannel
+	GuildForum: ForumChannel
+	AnnouncementThread: ThreadChannel
+	PrivateThread: ThreadChannel
+	PublicThread: ThreadChannel
+	GuildDirectory: DirectoryChannel
+	GuildVoice: VoiceChannel
+	GuildText: TextGuildChannel
+	GuildCategory: CategoryChannel
+	GuildAnnouncement: NewsChannel
+}
+
+export interface BaseGuildChannel extends ObjectToLower<APIGuildChannel<ChannelType.GuildText>> { }
 export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
 	async guild(force?: true): Promise<Guild<'api'>>;
 	async guild(force?: boolean): Promise<Guild<'cached'> | Guild<'api'>>;
@@ -168,7 +187,7 @@ export class BaseGuildChannel extends BaseChannel<ChannelType.GuildText> {
 	}
 }
 
-export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> {}
+export interface MessagesMethods extends BaseChannel<ChannelType.GuildText> { }
 export class MessagesMethods extends DiscordBase {
 	typing() {
 		return this.client.channels.typing(this.id);
@@ -213,8 +232,8 @@ export class MessagesMethods extends DiscordBase {
 			...body,
 			components: body.components
 				? (body?.components instanceof ComponentsListener ? body.components.components : body.components).map(x =>
-						x.toJSON(),
-				  )
+					x.toJSON(),
+				)
 				: undefined,
 			embeds: body.embeds?.map(x => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? undefined,
 			//?
@@ -223,9 +242,9 @@ export class MessagesMethods extends DiscordBase {
 	}
 }
 
-export interface TextBaseChannel extends ObjectToLower<APITextChannel>, MessagesMethods {}
+export interface TextBaseChannel extends ObjectToLower<APITextChannel>, MessagesMethods { }
 @mix(MessagesMethods)
-export class TextBaseChannel extends BaseGuildChannel {}
+export class TextBaseChannel extends BaseGuildChannel { }
 
 export default function channelFrom(data: APIChannelBase<ChannelType>, client: BaseClient): AllChannels {
 	switch (data.type) {
@@ -259,14 +278,14 @@ export default function channelFrom(data: APIChannelBase<ChannelType>, client: B
 	}
 }
 
-export interface TopicableGuildChannel extends BaseChannel<ChannelType> {}
+export interface TopicableGuildChannel extends BaseChannel<ChannelType> { }
 export class TopicableGuildChannel extends DiscordBase {
 	setTopic(topic: string | null, reason?: string) {
 		return this.edit({ topic }, reason);
 	}
 }
 
-export interface ThreadOnlyMethods extends BaseChannel<ChannelType.PublicThread | ChannelType.PrivateThread> {}
+export interface ThreadOnlyMethods extends BaseChannel<ChannelType.PublicThread | ChannelType.PrivateThread> { }
 @mix(TopicableGuildChannel)
 export class ThreadOnlyMethods extends DiscordBase {
 	setTags(tags: APIGuildForumTag[], reason?: string) {
