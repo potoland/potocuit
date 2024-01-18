@@ -15,7 +15,7 @@ export class GuildBasedResource<T = any> {
 		}
 	}
 
-	/** @ioternal */
+	/** @internal */
 	__setClient(client: BaseClient) {
 		this.client = client;
 	}
