@@ -1,4 +1,3 @@
-
 export enum EmbedColors {
 	Default = 0x000000,
 	White = 0xffffff,
