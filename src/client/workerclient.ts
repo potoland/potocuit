@@ -32,7 +32,7 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 		if (!manager) {
 			throw new Error('WorkerClient cannot spawn without manager');
 		}
-		manager!.on('message', data => this.handleManagerMessages(data));
+		manager.on('message', data => this.handleManagerMessages(data));
 		this.setServices({
 			cache: {
 				adapter: new WorkerAdapter(manager),

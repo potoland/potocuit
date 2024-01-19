@@ -2,6 +2,7 @@ import { ClientUser } from '..';
 import type { DeepPartial, GatewayDispatchPayload, GatewayPresenceUpdateData, If } from '../common';
 import { EventHandler } from '../events';
 import { ShardManager } from '../websocket';
+import { MemberUpdateHandler } from '../websocket/discord/memberUpdate';
 import type { BaseClientOptions, InternalRuntimeConfig, ServicesOptions, StartOptions } from './base';
 import { BaseClient } from './base';
 import { onInteraction } from './oninteraction';
@@ -11,6 +12,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 	events = new EventHandler(this.logger);
 	me!: If<Ready, ClientUser>;
 	declare options: ClientOptions | undefined;
+	memberUpdateHandler = new MemberUpdateHandler();
 
 	constructor(options?: ClientOptions) {
 		super(options);
@@ -84,6 +86,12 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 		switch (packet.t) {
 			//// Cases where we must obtain the old data before updating
 			case 'GUILD_MEMBER_UPDATE':
+				if (!this.memberUpdateHandler.check(packet.d)) {
+					return;
+				}
+				await this.events.execute(packet.t, packet, this as Client<true>, shardId);
+				await this.cache.onPacket(packet);
+				break
 			case 'CHANNEL_UPDATE': {
 				await this.events.execute(packet.t, packet, this as Client<true>, shardId);
 				await this.cache.onPacket(packet);

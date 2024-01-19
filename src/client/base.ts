@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 import { REST, Router } from '../api';
 import type { Adapter } from '../cache';
-import { Cache, DefaultMemoryAdapter } from '../cache';
+import { Cache, MemoryAdapter } from '../cache';
 import type { MiddlewareContext } from '../commands/applications/shared';
 import { CommandHandler } from '../commands/handler';
 import {
@@ -142,7 +142,7 @@ export class BaseClient {
 		}
 
 		if (!this.cache) {
-			this.cache = new Cache(0, new DefaultMemoryAdapter(), [], this);
+			this.cache = new Cache(0, new MemoryAdapter(), [], this);
 		} else {
 			this.cache.__setClient(this);
 		}

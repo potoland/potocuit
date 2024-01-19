@@ -1,10 +1,17 @@
 import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
 import { Worker } from 'node:worker_threads';
-import { DefaultMemoryAdapter, type Adapter } from '../../cache';
-import { Logger, MergeOptions, delay, type GatewayPresenceUpdateData, type GatewaySendPayload } from '../../common';
+import { MemoryAdapter, type Adapter } from '../../cache';
+import {
+	Logger,
+	MergeOptions,
+	delay,
+	type GatewayPresenceUpdateData,
+	type GatewaySendPayload
+} from '../../common';
 import { WorkerManagerDefaults } from '../constants';
 import { SequentialBucket } from '../structures';
+import { MemberUpdateHandler } from './memberUpdate';
 import type { ShardOptions, WorkerData, WorkerManagerOptions } from './shared';
 import type { WorkerInfo, WorkerMessage, WorkerShardInfo } from './worker';
 
@@ -14,12 +21,15 @@ export class WorkerManager extends Map<number, Worker> {
 	connectQueue: SequentialBucket;
 	cacheAdapter: Adapter;
 	promises = new Map<string, (value: any) => void>();
+	memberUpdateHandler = new MemberUpdateHandler()
 	constructor(options: WorkerManagerOptions) {
 		super();
 		options.totalShards ??= options.info.shards;
 		this.options = MergeOptions<Required<WorkerManagerOptions>>(WorkerManagerDefaults, options);
 		this.options.workers ??= Math.ceil(this.options.totalShards / this.options.shardsPerWorker);
 		this.options.info.shards = options.totalShards;
+		options.shardEnd ??= options.totalShards;
+		options.shardStart ??= 0
 		this.connectQueue = new SequentialBucket(this.concurrency);
 
 		if (this.options.debug) {
@@ -36,7 +46,7 @@ export class WorkerManager extends Map<number, Worker> {
 			);
 		}
 
-		this.cacheAdapter = new DefaultMemoryAdapter();
+		this.cacheAdapter = new MemoryAdapter();
 	}
 
 	setCache(adapter: Adapter) {
@@ -165,47 +175,46 @@ export class WorkerManager extends Map<number, Worker> {
 			case 'CONNECT_QUEUE':
 				this.spawn(message.workerId, message.shardId);
 				break;
-			case 'CACHE_REQUEST':
-				{
-					const worker = this.get(message.workerId);
-					if (!worker) {
-						throw new Error('Invalid request from unavailable worker');
-					}
-					// @ts-expect-error
-					const result = await this.cacheAdapter[message.method](...message.args);
-					worker.postMessage({
-						type: 'CACHE_RESULT',
-						nonce: message.nonce,
-						result,
-					} as ManagerSendCacheResult);
+			case 'CACHE_REQUEST': {
+				const worker = this.get(message.workerId);
+				if (!worker) {
+					throw new Error('Invalid request from unavailable worker');
 				}
-				break;
-			case 'RECEIVE_PAYLOAD':
-				{
-					this.options.handlePayload(message.shardId, message.workerId, message.payload);
+				// @ts-expect-error
+				const result = await this.cacheAdapter[message.method](...message.args);
+				worker.postMessage({
+					type: 'CACHE_RESULT',
+					nonce: message.nonce,
+					result,
+				} as ManagerSendCacheResult);
+			} break;
+			case 'RECEIVE_PAYLOAD': {
+				switch (message.payload.t) {
+					case 'GUILD_MEMBER_UPDATE':
+						if (!this.memberUpdateHandler.check(message.payload.d)) {
+							return;
+						}
+						break;
 				}
-				break;
-			case 'RESULT_PAYLOAD':
-				{
-					const resolve = this.promises.get(message.nonce);
-					if (!resolve) {
-						return;
-					}
-					this.promises.delete(message.nonce);
-					resolve(true);
+				this.options.handlePayload(message.shardId, message.workerId, message.payload);
+			} break;
+			case 'RESULT_PAYLOAD': {
+				const resolve = this.promises.get(message.nonce);
+				if (!resolve) {
+					return;
 				}
-				break;
-			case 'SHARD_INFO':
-				{
-					const { nonce, type, ...data } = message;
-					const resolve = this.promises.get(nonce);
-					if (!resolve) {
-						return;
-					}
-					this.promises.delete(nonce);
-					resolve(data);
+				this.promises.delete(message.nonce);
+				resolve(true);
+			} break;
+			case 'SHARD_INFO': {
+				const { nonce, type, ...data } = message;
+				const resolve = this.promises.get(nonce);
+				if (!resolve) {
+					return;
 				}
-				break;
+				this.promises.delete(nonce);
+				resolve(data);
+			} break;
 			case 'WORKER_INFO': {
 				const { nonce, type, ...data } = message;
 				const resolve = this.promises.get(nonce);
@@ -214,7 +223,7 @@ export class WorkerManager extends Map<number, Worker> {
 				}
 				this.promises.delete(nonce);
 				resolve(data);
-			}
+			} break
 		}
 	}
 

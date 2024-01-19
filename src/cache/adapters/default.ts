@@ -1,6 +1,6 @@
 import type { Adapter } from './types';
 
-export class DefaultMemoryAdapter implements Adapter {
+export class MemoryAdapter implements Adapter {
 	readonly storage = new Map<string, string>();
 	readonly relationships = new Map<string, string[]>();
 

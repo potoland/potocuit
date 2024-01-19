@@ -68,6 +68,10 @@ export class GuildRelatedResource<T = any> {
 		const keys: [string, any][] = Array.isArray(__keys) ? __keys : [[__keys, data]];
 
 		if (guild) {
+			await this.addToRelationship(
+				keys.map(x => x[0]),
+				guild,
+			);
 			await this.adapter.patch(
 				false,
 				keys.map(([key, value]) => {
@@ -94,17 +98,17 @@ export class GuildRelatedResource<T = any> {
 		return guild === '*'
 			? await this.adapter.scan(this.hashId(guild), true)
 			: (async () => {
-					return (await this.adapter.getToRelationship(this.hashId(guild))).map(x => `${this.namespace}.${x}`);
-			  })();
+				return (await this.adapter.getToRelationship(this.hashId(guild))).map(x => `${this.namespace}.${x}`);
+			})();
 	}
 
 	async values(guild: string): Promise<(T & { guild_id: string })[]> {
 		return guild === '*'
 			? await this.adapter.scan(this.hashId(guild))
 			: (async () => {
-					const keys = (await this.adapter.getToRelationship(this.hashId(guild))).map(x => `${this.namespace}.${x}`);
-					return await this.adapter.get(keys);
-			  })();
+				const keys = (await this.adapter.getToRelationship(this.hashId(guild))).map(x => `${this.namespace}.${x}`);
+				return await this.adapter.get(keys);
+			})();
 	}
 
 	async count(to: string) {
