@@ -5,30 +5,30 @@ export class MemberUpdateHandler {
 
 	check(member: GatewayGuildMemberUpdateDispatchData) {
 		if (!this.guildMemberUpdate.has(member.user.id)) {
-			this.setMember(member)
-			return true
+			this.setMember(member);
+			return true;
 		}
 
-		const data = this.guildMemberUpdate.get(member.user.id)!
+		const data = this.guildMemberUpdate.get(member.user.id)!;
 
 		if (this.usersEqual(data.member.user, member.user)) {
 			return this.membersEquals(data.member, member);
 		}
 
-		clearTimeout(data.timeout)
+		clearTimeout(data.timeout);
 
-		this.setMember(member)
+		this.setMember(member);
 
-		return true
+		return true;
 	}
 
 	setMember(member: GatewayGuildMemberUpdateDispatchData) {
 		this.guildMemberUpdate.set(member.user.id, {
 			member,
 			timeout: setTimeout(() => {
-				this.guildMemberUpdate.delete(member.user.id)
-			}, 1.5e3)
-		})
+				this.guildMemberUpdate.delete(member.user.id);
+			}, 1.5e3),
+		});
 	}
 
 	membersEquals(old: GatewayGuildMemberUpdateDispatchData, member: GatewayGuildMemberUpdateDispatchData) {

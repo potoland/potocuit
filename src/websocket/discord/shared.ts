@@ -20,8 +20,8 @@ export interface ShardManagerOptions extends ShardDetails {
 	 * @default 1
 	 */
 	totalShards?: number;
-	shardStart?: number
-	shardEnd?: number
+	shardStart?: number;
+	shardEnd?: number;
 	/**
 	 * The payload handlers for messages on the shard.
 	 */

@@ -38,11 +38,11 @@ export class ShardManager extends Map<number, Shard> {
 	}
 
 	get shardStart() {
-		return this.options.shardStart
+		return this.options.shardStart;
 	}
 
 	get shardEnd() {
-		return this.options.shardEnd
+		return this.options.shardEnd;
 	}
 
 	get concurrency() {
@@ -102,7 +102,14 @@ export class ShardManager extends Map<number, Shard> {
 	 */
 	spawnBuckets(): Shard[][] {
 		this.debugger?.info('#0 Preparing buckets');
-		const chunks = SequentialBucket.chunk(new Array(this.shardStart !== undefined && this.shardEnd !== undefined ? this.shardEnd - this.shardStart : this.options.totalShards), this.concurrency);
+		const chunks = SequentialBucket.chunk(
+			new Array(
+				this.shardStart !== undefined && this.shardEnd !== undefined
+					? this.shardEnd - this.shardStart
+					: this.options.totalShards,
+			),
+			this.concurrency,
+		);
 		chunks.forEach((arr: any[], index: number) => {
 			for (let i = 0; i < arr.length; i++) {
 				const id = i + (index > 0 ? index * this.concurrency : 0) + (this.shardStart ?? 0);
