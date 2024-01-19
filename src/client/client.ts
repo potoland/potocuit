@@ -92,6 +92,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 				await this.events.execute(packet.t, packet, this as Client<true>, shardId);
 				await this.cache.onPacket(packet);
 				break;
+			case 'GUILD_DELETE':
 			case 'CHANNEL_UPDATE': {
 				await this.events.execute(packet.t, packet, this as Client<true>, shardId);
 				await this.cache.onPacket(packet);

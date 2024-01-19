@@ -4,6 +4,7 @@ import type {
 	GatewayGuildBanAddDispatchData,
 	GatewayGuildBanRemoveDispatchData,
 	GatewayGuildCreateDispatchData,
+	GatewayGuildDeleteDispatchData,
 	GatewayGuildEmojisUpdateDispatchData,
 	GatewayGuildIntegrationsUpdateDispatchData,
 	GatewayGuildMemberRemoveDispatchData,
@@ -22,7 +23,6 @@ import type {
 } from '../../common';
 import { toCamelCase } from '../../common';
 import {
-	AnonymousGuild,
 	Guild,
 	GuildEmoji,
 	GuildMember,
@@ -30,7 +30,7 @@ import {
 	Sticker,
 	UnavailableMember,
 	User,
-	type GatewayGuildMemberAddDispatchDataFixed,
+	type GatewayGuildMemberAddDispatchDataFixed
 } from '../../structures';
 
 export const GUILD_AUDIT_LOG_ENTRY_CREATE = (_self: BaseClient, data: GatewayGuildAuditLogEntryCreateDispatchData) => {
@@ -49,8 +49,8 @@ export const GUILD_CREATE = (self: BaseClient, data: GatewayGuildCreateDispatchD
 	return new Guild<'create'>(self, data);
 };
 
-export const GUILD_DELETE = (self: BaseClient, data: GatewayGuildCreateDispatchData): AnonymousGuild => {
-	return new AnonymousGuild(self, data);
+export const GUILD_DELETE = async (_self: BaseClient, data: GatewayGuildDeleteDispatchData) => {
+	return data
 };
 
 export const GUILD_EMOJIS_UPDATE = (self: BaseClient, data: GatewayGuildEmojisUpdateDispatchData) => {
