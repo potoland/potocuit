@@ -30,7 +30,7 @@ import {
 	Sticker,
 	UnavailableMember,
 	User,
-	type GatewayGuildMemberAddDispatchDataFixed
+	type GatewayGuildMemberAddDispatchDataFixed,
 } from '../../structures';
 
 export const GUILD_AUDIT_LOG_ENTRY_CREATE = (_self: BaseClient, data: GatewayGuildAuditLogEntryCreateDispatchData) => {
@@ -50,7 +50,7 @@ export const GUILD_CREATE = (self: BaseClient, data: GatewayGuildCreateDispatchD
 };
 
 export const GUILD_DELETE = async (_self: BaseClient, data: GatewayGuildDeleteDispatchData) => {
-	return data
+	return data;
 };
 
 export const GUILD_EMOJIS_UPDATE = (self: BaseClient, data: GatewayGuildEmojisUpdateDispatchData) => {
