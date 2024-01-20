@@ -110,9 +110,14 @@ export class WorkerManager extends Map<number, Worker> {
 	prepareSpaces() {
 		this.debugger?.info('Preparing buckets');
 
-		const chunks = SequentialBucket.chunk<number>(new Array(this.shardStart !== undefined && this.shardEnd !== undefined
-			? this.shardEnd - this.shardStart
-			: this.options.totalShards,), this.options.shardsPerWorker);
+		const chunks = SequentialBucket.chunk<number>(
+			new Array(
+				this.shardStart !== undefined && this.shardEnd !== undefined
+					? this.shardEnd - this.shardStart
+					: this.options.totalShards,
+			),
+			this.options.shardsPerWorker,
+		);
 
 		chunks.forEach((shards, index) => {
 			for (let i = 0; i < shards.length; i++) {
