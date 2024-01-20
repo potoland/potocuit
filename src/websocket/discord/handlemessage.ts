@@ -55,6 +55,7 @@ export async function handleManagerMessages(
 					return;
 				}
 				shard.options.presence = data.presence;
+				console.log(`Sending allow_connect to ${data.shardId}`);
 				await shard.connect();
 			}
 			break;

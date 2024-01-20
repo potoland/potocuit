@@ -10,11 +10,12 @@ import {
 } from '../../common';
 import { ShardManagerDefaults } from '../constants';
 import { SequentialBucket } from '../structures';
+import { ConnectQueue } from '../structures/timeout';
 import { Shard } from './shard.js';
 import type { ShardManagerOptions } from './shared';
 
 export class ShardManager extends Map<number, Shard> {
-	connectQueue: SequentialBucket;
+	connectQueue: ConnectQueue;
 	options: ShardManagerOptions;
 	debugger?: Logger;
 
@@ -22,7 +23,7 @@ export class ShardManager extends Map<number, Shard> {
 		super();
 		options.totalShards ??= options.info.shards;
 		this.options = MergeOptions<Required<ShardManagerOptions>>(ShardManagerDefaults, options);
-		this.connectQueue = new SequentialBucket(this.concurrency);
+		this.connectQueue = new ConnectQueue(5.5e3, this.concurrency);
 
 		if (this.options.debug) {
 			this.debugger = new Logger({

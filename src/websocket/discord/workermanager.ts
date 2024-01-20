@@ -2,9 +2,10 @@ import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
 import { Worker } from 'node:worker_threads';
 import { MemoryAdapter, type Adapter } from '../../cache';
-import { Logger, MergeOptions, delay, type GatewayPresenceUpdateData, type GatewaySendPayload } from '../../common';
+import { Logger, MergeOptions, type GatewayPresenceUpdateData, type GatewaySendPayload } from '../../common';
 import { WorkerManagerDefaults } from '../constants';
 import { SequentialBucket } from '../structures';
+import { ConnectQueue } from '../structures/timeout';
 import { MemberUpdateHandler } from './memberUpdate';
 import type { ShardOptions, WorkerData, WorkerManagerOptions } from './shared';
 import type { WorkerInfo, WorkerMessage, WorkerShardInfo } from './worker';
@@ -12,7 +13,7 @@ import type { WorkerInfo, WorkerMessage, WorkerShardInfo } from './worker';
 export class WorkerManager extends Map<number, Worker> {
 	options: Required<WorkerManagerOptions>;
 	debugger?: Logger;
-	connectQueue: SequentialBucket;
+	connectQueue: ConnectQueue;
 	cacheAdapter: Adapter;
 	promises = new Map<string, (value: any) => void>();
 	memberUpdateHandler = new MemberUpdateHandler();
@@ -24,7 +25,7 @@ export class WorkerManager extends Map<number, Worker> {
 		this.options.info.shards = options.totalShards;
 		options.shardEnd ??= options.totalShards;
 		options.shardStart ??= 0;
-		this.connectQueue = new SequentialBucket(this.concurrency);
+		this.connectQueue = new ConnectQueue(5.5e3, this.concurrency);
 
 		if (this.options.debug) {
 			this.debugger = new Logger({
@@ -151,7 +152,6 @@ export class WorkerManager extends Map<number, Worker> {
 				info: this.options.info,
 				properties: this.options.properties,
 			} satisfies ManagerSpawnShards);
-			await delay(69);
 		}
 	}
 
@@ -163,8 +163,9 @@ export class WorkerManager extends Map<number, Worker> {
 		return worker;
 	}
 
-	async spawn(workerId: number, shardId: number) {
-		await this.connectQueue.push(async () => {
+	spawn(workerId: number, shardId: number) {
+		this.connectQueue.push(() => {
+			console.log({ workerId, shardId })
 			const worker = this.get(workerId);
 			if (!worker) {
 				this.debugger?.fatal("Trying spawn with worker doesn't exist");
