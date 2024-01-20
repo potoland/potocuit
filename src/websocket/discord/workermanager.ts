@@ -165,7 +165,7 @@ export class WorkerManager extends Map<number, Worker> {
 
 	spawn(workerId: number, shardId: number) {
 		this.connectQueue.push(() => {
-			console.log({ workerId, shardId })
+			console.log({ workerId, shardId });
 			const worker = this.get(workerId);
 			if (!worker) {
 				this.debugger?.fatal("Trying spawn with worker doesn't exist");

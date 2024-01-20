@@ -1,7 +1,7 @@
 export class ConnectTimeout {
 	readonly promises: { promise: Promise<boolean>; resolve: (x: boolean) => any }[] = [];
 	protected interval?: NodeJS.Timeout = undefined;
-	constructor(readonly intervalTime = 5000) { }
+	constructor(readonly intervalTime = 5000) {}
 
 	wait() {
 		let resolve = (_x: boolean) => {
@@ -31,7 +31,10 @@ export class ConnectQueue {
 	readonly queue: { callback?: () => any }[] = [];
 	protected interval?: NodeJS.Timeout = undefined;
 
-	constructor(readonly intervalTime = 5000, readonly concurrency = 1) { }
+	constructor(
+		readonly intervalTime = 5000,
+		readonly concurrency = 1,
+	) {}
 
 	push(callback: () => any) {
 		this.queue.push({ callback });
@@ -41,17 +44,17 @@ export class ConnectQueue {
 					this.shift();
 				}
 			}, this.intervalTime);
-			this.queue[0].callback?.()
-			this.queue[0].callback = undefined
+			this.queue[0].callback?.();
+			this.queue[0].callback = undefined;
 		}
 		return;
 	}
 
 	shift(): any {
-		const shift = this.queue.shift()
+		const shift = this.queue.shift();
 		if (!shift) return;
 		if (!shift.callback) return this.shift();
-		shift.callback()
+		shift.callback();
 		if (!this.queue.length) {
 			clearInterval(this.interval);
 			this.interval = undefined;
