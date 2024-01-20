@@ -92,7 +92,7 @@ export class ShardManager extends Map<number, Shard> {
 					break;
 				}
 				this.debugger?.info(`${shard.id} add to connect queue`);
-				await this.connectQueue.push(shard.connect.bind(shard));
+				this.connectQueue.push(shard.connect.bind(shard));
 			}
 		}
 	}
