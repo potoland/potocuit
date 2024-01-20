@@ -199,10 +199,7 @@ export class MessagesMethods extends DiscordBase {
 
 	static messages(ctx: MethodContext<{ id: string }>) {
 		return {
-			write: (body: MessageCreateBodyRequest) => {
-				console.log(ctx)
-				ctx.client.messages.write(ctx.id, body)
-			},
+			write: (body: MessageCreateBodyRequest) => ctx.client.messages.write(ctx.id, body),
 			edit: (messageId: string, body: MessageUpdateBodyRequest) => ctx.client.messages.edit(messageId, ctx.id, body),
 			crosspost: (messageId: string, reason?: string) => ctx.client.messages.crosspost(messageId, ctx.id, reason),
 			delete: (messageId: string, reason?: string) => ctx.client.messages.delete(messageId, ctx.id, reason),
