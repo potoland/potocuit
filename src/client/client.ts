@@ -52,9 +52,9 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 		if (!workerData?.__USING_WATCHER__) {
 			await this.gateway.spawnShards();
 		} else {
-			parentPort?.on('message', (data) => {
-				return this.gateway.options.handlePayload(data.shardId, data.data)
-			})
+			parentPort?.on('message', data => {
+				return this.gateway.options.handlePayload(data.shardId, data.data);
+			});
 		}
 	}
 
