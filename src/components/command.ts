@@ -1,3 +1,4 @@
+import type { ComponentType } from 'discord-api-types/v10';
 import type { ComponentInteraction, ModalSubmitInteraction } from '../structures';
 
 export const InteractionCommandType = {
@@ -11,6 +12,7 @@ export interface ComponentCommand {
 
 export abstract class ComponentCommand {
 	type = InteractionCommandType.COMPONENT;
+	abstract componentType: ComponentType;
 	abstract filter(interaction: ComponentInteraction): Promise<boolean> | boolean;
 	abstract run(interaction: ComponentInteraction): any;
 }

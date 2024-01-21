@@ -1,8 +1,8 @@
 import type { MessagePort } from 'node:worker_threads';
 import { workerData } from 'node:worker_threads';
-import { Shard } from '.';
 import type { Cache, WorkerAdapter } from '../../cache';
 import type { GatewayDispatchPayload, GatewaySendPayload, Logger } from '../../common';
+import { Shard } from './shard';
 import type {
 	WorkerReceivePayload,
 	WorkerRequestConnect,

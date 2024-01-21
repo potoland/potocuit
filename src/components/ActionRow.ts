@@ -1,7 +1,7 @@
-import type { ActionRowMessageComponents } from '.';
-import { componentFactory } from '.';
 import type { APIMessageActionRowComponent, ComponentType } from '../common';
 import { BaseComponent } from '../structures/extra/BaseComponent';
+import type { ActionRowMessageComponents } from './index';
+import { componentFactory } from './index';
 
 export class MessageActionRowComponent<
 	T extends ActionRowMessageComponents,

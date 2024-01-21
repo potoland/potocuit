@@ -1,4 +1,3 @@
-import type { PartialClass } from '.';
 import type { BaseClient } from '../../client/base';
 import type {
 	APIMessage,
@@ -13,6 +12,7 @@ import type {
 } from '../../common';
 import { toCamelCase } from '../../common';
 import { Message } from '../../structures';
+import type { PartialClass } from './index';
 
 export const MESSAGE_CREATE = (self: BaseClient, data: GatewayMessageCreateDispatchData) => {
 	return new Message(self, data);

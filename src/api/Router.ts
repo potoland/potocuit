@@ -1,5 +1,5 @@
-import type { APIRoutes, CDNRoute, REST } from '.';
 import { CDN_URL } from '../common';
+import type { APIRoutes, CDNRoute, REST } from './index';
 
 export enum ProxyRequestMethod {
 	Delete = 'delete',
@@ -16,7 +16,7 @@ export class Router {
 		return;
 	};
 
-	constructor(private rest: REST) {}
+	constructor(private rest: REST) { }
 
 	createProxy(route = [] as string[]): APIRoutes {
 		return new Proxy(this.noop, {

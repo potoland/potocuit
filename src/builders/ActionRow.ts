@@ -1,4 +1,3 @@
-import { fromComponent } from '.';
 import {
 	ComponentType,
 	fastFlat,
@@ -8,6 +7,7 @@ import {
 	type RestOrArray,
 } from '../common';
 import { BaseComponentBuilder } from './Base';
+import { fromComponent } from './index';
 import type { BuilderComponents, FixedComponents } from './types';
 
 export class ActionRow<T extends BuilderComponents> extends BaseComponentBuilder<

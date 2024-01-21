@@ -44,7 +44,7 @@ export class BaseClient {
 	debugger?: Logger;
 
 	logger = new Logger({
-		name: 'Biscuitjs',
+		name: '[Biscuitjs]',
 		active: true,
 		logLevel: LogLevels.Info,
 	});

@@ -1,4 +1,3 @@
-import { fromComponent } from '.';
 import {
 	ComponentType,
 	fastFlat,
@@ -10,6 +9,7 @@ import {
 } from '../common';
 import type { ActionRow } from './ActionRow';
 import { BaseComponentBuilder, type OptionValuesLength } from './Base';
+import { fromComponent } from './index';
 import type { ModalBuilderComponents, ModalSubmitCallback } from './types';
 
 export class Modal<T extends ModalBuilderComponents = TextInput> {

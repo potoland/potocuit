@@ -201,7 +201,7 @@ export class ComponentHandler extends BaseHandler {
 	}
 
 	async load(componentsDir: string) {
-		const paths = await this.loadFilesK<{ new (): ModalCommand | ComponentCommand }>(
+		const paths = await this.loadFilesK<{ new(): ModalCommand | ComponentCommand }>(
 			await this.getFiles(componentsDir),
 		);
 
@@ -252,7 +252,7 @@ export class ComponentHandler extends BaseHandler {
 	async executeComponent(interaction: ComponentInteraction) {
 		for (const i of this.commands) {
 			try {
-				if (i.type === InteractionCommandType.COMPONENT && (await i.filter(interaction))) {
+				if (i.type === InteractionCommandType.COMPONENT && i.componentType === interaction.componentType && (await i.filter(interaction))) {
 					await i.run(interaction);
 					break;
 				}

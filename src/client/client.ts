@@ -1,3 +1,4 @@
+import { parentPort, workerData } from 'node:worker_threads';
 import { ClientUser } from '..';
 import type { DeepPartial, GatewayDispatchPayload, GatewayPresenceUpdateData, If } from '../common';
 import { EventHandler } from '../events';
@@ -48,7 +49,13 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 
 	protected async execute(options: { token?: string; intents?: number } = {}) {
 		await super.execute(options);
-		await this.gateway.spawnShards();
+		if (!workerData?.__USING_WATCHER__) {
+			await this.gateway.spawnShards();
+		} else {
+			parentPort?.on('message', (data) => {
+				return this.gateway.options.handlePayload(data.shardId, data.data)
+			})
+		}
 	}
 
 	async start(options: Omit<DeepPartial<StartOptions>, 'httpConnection'> = {}, execute = true) {
