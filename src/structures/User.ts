@@ -2,14 +2,14 @@ import type { APIUser, MessageCreateBodyRequest, ObjectToLower } from '../common
 import type { ImageOptions } from '../common/types/options';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface User extends ObjectToLower<APIUser> {}
+export interface User extends ObjectToLower<APIUser> { }
 
 export class User extends DiscordBase<APIUser> {
-	get tag(): string {
+	get tag() {
 		return this.globalName ?? `${this.username}#${this.discriminator}`;
 	}
 
-	get name(): string {
+	get name() {
 		return this.globalName ?? this.username;
 	}
 
@@ -27,7 +27,7 @@ export class User extends DiscordBase<APIUser> {
 		return this.client.users.createDM(this.id, force);
 	}
 
-	avatarURL(options?: ImageOptions): string {
+	avatarURL(options?: ImageOptions) {
 		if (!this.avatar) {
 			return this.rest.cdn.defaultAvatar(Number(this.discriminator));
 		}
@@ -38,7 +38,7 @@ export class User extends DiscordBase<APIUser> {
 		return this.client.users.write(this.id, body);
 	}
 
-	toString(): string {
+	toString() {
 		return `<@${this.id}>`;
 	}
 }

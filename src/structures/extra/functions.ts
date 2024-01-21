@@ -1,5 +1,5 @@
 import type { Cache } from '../../cache';
-import type { APIEmoji, APIPartialEmoji, TypeArray } from '../../common';
+import type { APIPartialEmoji, TypeArray } from '../../common';
 import { DiscordEpoch, FormattingPatterns } from '../../common';
 import type { EmojiResolvable } from '../../common/types/resolvables';
 
@@ -43,19 +43,19 @@ export async function resolveEmoji(emoji: EmojiResolvable, cache: Cache): Promis
 
 	if (typeof emoji === 'string') {
 		if (!emoji.match(/\d{17,20}/g)) return;
-		const fromCache = (await cache?.emojis?.get(emoji)) as APIEmoji | undefined;
+		const fromCache = (await cache.emojis?.get(emoji))
 		return fromCache && { animated: fromCache.animated, id: fromCache.id, name: fromCache.name };
 	}
 
 	const { id } = emoji;
 
-	const fromCache = (await cache?.emojis?.get(id!)) as APIEmoji | undefined;
+	const fromCache = (await cache.emojis?.get(id!))
 	if (fromCache) return { animated: fromCache.animated, id: fromCache.id, name: fromCache.name };
 	return;
 }
 
 export function encodeEmoji(rawEmoji: APIPartialEmoji) {
-	return rawEmoji?.id ? `${rawEmoji.name}:${rawEmoji.id}` : `${rawEmoji?.name}`;
+	return rawEmoji.id ? `${rawEmoji.name}:${rawEmoji.id}` : `${rawEmoji?.name}`;
 }
 
 export function hasProps<T extends Record<any, any>>(target: T, props: TypeArray<keyof T>): boolean {
