@@ -1,4 +1,5 @@
 import { watch } from 'chokidar';
+import type { GatewayDispatchPayload, GatewaySendPayload } from 'discord-api-types/v10';
 import { execSync } from 'node:child_process';
 import { Worker } from 'node:worker_threads';
 import { ShardManager, type ShardManagerOptions } from '../../websocket';
@@ -25,18 +26,26 @@ export class Watcher extends ShardManager {
 				__USING_WATCHER__: true,
 			},
 		});
+		this.worker!.on('message', (data: WatcherSendToShard) => {
+			switch (data.type) {
+				case 'SEND_TO_SHARD':
+					this.send(data.shardId, data.payload)
+					break;
+			}
+		})
 	}
 
 	async spawnShards() {
 		this.build();
 		this.resetWorker();
 		const oldFn = this.options.handlePayload;
-		this.options.handlePayload = (shardId, data) => {
+		this.options.handlePayload = (shardId, payload) => {
 			this.worker?.postMessage({
+				type: 'PAYLOAD',
 				shardId,
-				data,
-			});
-			return oldFn(shardId, data);
+				payload,
+			} satisfies WatcherPayload);
+			return oldFn(shardId, payload);
 		};
 		await super.spawnShards();
 		const watcher = watch(this.options.srcPath).on('ready', () => {
@@ -60,4 +69,16 @@ export interface WatcherOptions extends Omit<ShardManagerOptions, 'debug'> {
 	transpileCommand: string;
 	srcPath: string;
 	argv?: string[];
+}
+
+export interface WatcherPayload {
+	type: 'PAYLOAD';
+	shardId: number;
+	payload: GatewayDispatchPayload;
+}
+
+export interface WatcherSendToShard {
+	type: 'SEND_TO_SHARD';
+	shardId: number;
+	payload: GatewaySendPayload;
 }

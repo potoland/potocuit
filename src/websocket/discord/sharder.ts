@@ -1,12 +1,15 @@
+import { parentPort, workerData } from 'node:worker_threads';
 import {
 	GatewayOpcodes,
 	LogLevels,
 	Logger,
 	MergeOptions,
 	toSnakeCase,
+	type GatewaySendPayload,
 	type GatewayUpdatePresence,
 	type GatewayVoiceStateUpdate,
 	type ObjectToLower,
+	type WatcherSendToShard,
 } from '../../common';
 import { ShardManagerDefaults } from '../constants';
 import { SequentialBucket } from '../structures';
@@ -141,7 +144,7 @@ export class ShardManager extends Map<number, Shard> {
 
 	setShardPresence(shardId: number, payload: GatewayUpdatePresence['d']) {
 		this.debugger?.info(`Shard #${shardId} update presence`);
-		return this.get(shardId)?.send<GatewayUpdatePresence>(1, {
+		return this.send<GatewayUpdatePresence>(shardId, {
 			op: GatewayOpcodes.PresenceUpdate,
 			d: payload,
 		});
@@ -164,7 +167,7 @@ export class ShardManager extends Map<number, Shard> {
 		const shardId = this.calculeShardId(guild_id);
 		this.debugger?.info(`Shard #${shardId} join voice ${channel_id} in ${guild_id}`);
 
-		return this.get(shardId)?.send<GatewayVoiceStateUpdate>(1, {
+		return this.send<GatewayVoiceStateUpdate>(shardId, {
 			op: GatewayOpcodes.VoiceStateUpdate,
 			d: {
 				guild_id,
@@ -178,7 +181,7 @@ export class ShardManager extends Map<number, Shard> {
 		const shardId = this.calculeShardId(guild_id);
 		this.debugger?.info(`Shard #${shardId} leave voice in ${guild_id}`);
 
-		return this.get(shardId)?.send<GatewayVoiceStateUpdate>(1, {
+		return this.send<GatewayVoiceStateUpdate>(shardId, {
 			op: GatewayOpcodes.VoiceStateUpdate,
 			d: {
 				guild_id,
@@ -187,5 +190,16 @@ export class ShardManager extends Map<number, Shard> {
 				self_deaf: false,
 			},
 		});
+	}
+
+	send<T extends GatewaySendPayload>(shardId: number, payload: T) {
+		if (workerData?.__USING_WATCHER__) {
+			return parentPort?.postMessage({
+				type: 'SEND_TO_SHARD',
+				shardId,
+				payload,
+			} satisfies WatcherSendToShard);
+		}
+		this.get(shardId)?.send(1, payload);
 	}
 }

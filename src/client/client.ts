@@ -1,6 +1,6 @@
 import { parentPort, workerData } from 'node:worker_threads';
 import { ClientUser } from '..';
-import type { DeepPartial, GatewayDispatchPayload, GatewayPresenceUpdateData, If } from '../common';
+import type { DeepPartial, GatewayDispatchPayload, GatewayPresenceUpdateData, If, WatcherPayload, WatcherSendToShard } from '../common';
 import { EventHandler } from '../events';
 import { ShardManager } from '../websocket';
 import { MemberUpdateHandler } from '../websocket/discord/memberUpdate';
@@ -52,8 +52,15 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 		if (!workerData?.__USING_WATCHER__) {
 			await this.gateway.spawnShards();
 		} else {
-			parentPort?.on('message', data => {
-				return this.gateway.options.handlePayload(data.shardId, data.data);
+			parentPort?.on('message', (data: WatcherPayload | WatcherSendToShard) => {
+				switch (data.type) {
+					case 'PAYLOAD':
+						this.gateway.options.handlePayload(data.shardId, data.payload);
+						break;
+					case 'SEND_TO_SHARD':
+						this.gateway.send(data.shardId, data.payload)
+						break;
+				}
 			});
 		}
 	}
