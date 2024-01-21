@@ -1,6 +1,13 @@
 import { parentPort, workerData } from 'node:worker_threads';
 import { ClientUser } from '..';
-import type { DeepPartial, GatewayDispatchPayload, GatewayPresenceUpdateData, If, WatcherPayload, WatcherSendToShard } from '../common';
+import type {
+	DeepPartial,
+	GatewayDispatchPayload,
+	GatewayPresenceUpdateData,
+	If,
+	WatcherPayload,
+	WatcherSendToShard,
+} from '../common';
 import { EventHandler } from '../events';
 import { ShardManager } from '../websocket';
 import { MemberUpdateHandler } from '../websocket/discord/memberUpdate';
@@ -58,7 +65,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 						this.gateway.options.handlePayload(data.shardId, data.payload);
 						break;
 					case 'SEND_TO_SHARD':
-						this.gateway.send(data.shardId, data.payload)
+						this.gateway.send(data.shardId, data.payload);
 						break;
 				}
 			});

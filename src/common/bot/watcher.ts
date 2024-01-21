@@ -29,10 +29,10 @@ export class Watcher extends ShardManager {
 		this.worker!.on('message', (data: WatcherSendToShard) => {
 			switch (data.type) {
 				case 'SEND_TO_SHARD':
-					this.send(data.shardId, data.payload)
+					this.send(data.shardId, data.payload);
 					break;
 			}
-		})
+		});
 	}
 
 	async spawnShards() {
