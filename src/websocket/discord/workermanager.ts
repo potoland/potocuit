@@ -48,14 +48,6 @@ export class WorkerManager extends Map<number, Worker> {
 		this.cacheAdapter = adapter;
 	}
 
-	get shardStart() {
-		return this.options.shardStart;
-	}
-
-	get shardEnd() {
-		return this.options.shardEnd;
-	}
-
 	get remaining() {
 		return this.options.info.session_start_limit.remaining;
 	}
@@ -113,8 +105,8 @@ export class WorkerManager extends Map<number, Worker> {
 
 		const chunks = SequentialBucket.chunk<number>(
 			new Array(
-				this.shardStart !== undefined && this.shardEnd !== undefined
-					? this.shardEnd - this.shardStart
+				this.options.shardStart !== undefined && this.options.shardEnd !== undefined
+					? this.options.shardEnd - this.options.shardStart
 					: this.options.totalShards,
 			),
 			this.options.shardsPerWorker,
@@ -122,7 +114,7 @@ export class WorkerManager extends Map<number, Worker> {
 
 		chunks.forEach((shards, index) => {
 			for (let i = 0; i < shards.length; i++) {
-				const id = i + (index > 0 ? index * this.options.shardsPerWorker : 0) + (this.shardStart ?? 0);
+				const id = i + (index > 0 ? index * this.options.shardsPerWorker : 0) + (this.options.shardStart ?? 0);
 				chunks[index][i] = id;
 			}
 		});

@@ -91,6 +91,8 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 				},
 				presence: this.options?.presence,
 				debug: debugRC,
+				shardStart: this.options?.shardStart,
+				shardEnd: this.options?.shardEnd
 			});
 		}
 
@@ -156,4 +158,6 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 
 export interface ClientOptions extends BaseClientOptions {
 	presence?: (shardId: number) => GatewayPresenceUpdateData;
+	shardStart?: number;
+	shardEnd?: number;
 }

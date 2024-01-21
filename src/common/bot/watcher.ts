@@ -2,18 +2,37 @@ import { watch } from 'chokidar';
 import type { GatewayDispatchPayload, GatewaySendPayload } from 'discord-api-types/v10';
 import { execSync } from 'node:child_process';
 import { Worker } from 'node:worker_threads';
+import { REST, Router } from '../../api';
+import { BaseClient, type InternalRuntimeConfig } from '../../client/base';
 import { ShardManager, type ShardManagerOptions } from '../../websocket';
 import { Logger } from '../it/logger';
+import type { MakeRequired } from '../types/util';
 
 export class Watcher extends ShardManager {
 	worker?: Worker;
 	logger = new Logger({
 		name: '[Watcher]',
 	});
-	declare options: WatcherOptions;
+	rest?: REST;
+	declare options: MakeRequired<WatcherOptions, 'intents' | 'token' | 'handlePayload' | 'info'>;
 
 	constructor(options: WatcherOptions) {
-		super(options);
+		super({
+			handlePayload() { },
+			token: '',
+			intents: 0,
+			info: {
+				url: 'wss://gateway.discord.gg',
+				session_start_limit: {
+					max_concurrency: -1,
+					remaining: -1,
+					reset_after: -1,
+					total: -1,
+				},
+				shards: -1,
+			},
+			...options,
+		});
 	}
 
 	resetWorker() {
@@ -36,8 +55,18 @@ export class Watcher extends ShardManager {
 	}
 
 	async spawnShards() {
+		const RC = await BaseClient.prototype.getRC<InternalRuntimeConfig>();
+		this.options.token = RC.token;
+		this.rest ??= new REST({
+			token: this.options.token,
+		});
+		this.options.intents = RC.intents;
+		this.options.info = await new Router(this.rest!).createProxy().gateway.bot.get();
+		this.options.totalShards = this.options.info.shards;
+
 		this.build();
 		this.resetWorker();
+
 		const oldFn = this.options.handlePayload;
 		this.options.handlePayload = (shardId, payload) => {
 			this.worker?.postMessage({
@@ -45,8 +74,10 @@ export class Watcher extends ShardManager {
 				shardId,
 				payload,
 			} satisfies WatcherPayload);
-			return oldFn(shardId, payload);
+			return oldFn?.(shardId, payload);
 		};
+		this.connectQueue.concurrency = this.options.info.session_start_limit.max_concurrency
+
 		await super.spawnShards();
 		const watcher = watch(this.options.srcPath).on('ready', () => {
 			this.logger.debug(`Watching ${this.options.srcPath}`);
@@ -64,11 +95,16 @@ export class Watcher extends ShardManager {
 	}
 }
 
-export interface WatcherOptions extends Omit<ShardManagerOptions, 'debug'> {
+export interface WatcherOptions
+	extends Omit<ShardManagerOptions, 'debug' | 'handlePayload' | 'info' | 'token' | 'intents'> {
 	filePath: string;
 	transpileCommand: string;
 	srcPath: string;
 	argv?: string[];
+	handlePayload?: ShardManagerOptions['handlePayload'];
+	info?: ShardManagerOptions['info'];
+	token?: ShardManagerOptions['token'];
+	intents?: ShardManagerOptions['intents'];
 }
 
 export interface WatcherPayload {
