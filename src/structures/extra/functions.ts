@@ -43,13 +43,13 @@ export async function resolveEmoji(emoji: EmojiResolvable, cache: Cache): Promis
 
 	if (typeof emoji === 'string') {
 		if (!emoji.match(/\d{17,20}/g)) return;
-		const fromCache = (await cache.emojis?.get(emoji))
+		const fromCache = await cache.emojis?.get(emoji);
 		return fromCache && { animated: fromCache.animated, id: fromCache.id, name: fromCache.name };
 	}
 
 	const { id } = emoji;
 
-	const fromCache = (await cache.emojis?.get(id!))
+	const fromCache = await cache.emojis?.get(id!);
 	if (fromCache) return { animated: fromCache.animated, id: fromCache.id, name: fromCache.name };
 	return;
 }
