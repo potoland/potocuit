@@ -60,8 +60,7 @@ export function encodeEmoji(rawEmoji: APIPartialEmoji) {
 
 export function hasProps<T extends Record<any, any>>(target: T, props: TypeArray<keyof T>): boolean {
 	if (Array.isArray(props)) {
-		const parse = props.map(x => hasProps(target, x));
-		return !parse.includes(false);
+		return props.every(x => hasProps(target, x))
 	}
 	if (!((props as T[number]) in target)) {
 		return false;
