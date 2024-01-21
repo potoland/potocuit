@@ -18,7 +18,7 @@ export class Watcher extends ShardManager {
 
 	constructor(options: WatcherOptions) {
 		super({
-			handlePayload() { },
+			handlePayload() {},
 			token: '',
 			intents: 0,
 			info: {
@@ -76,7 +76,7 @@ export class Watcher extends ShardManager {
 			} satisfies WatcherPayload);
 			return oldFn?.(shardId, payload);
 		};
-		this.connectQueue.concurrency = this.options.info.session_start_limit.max_concurrency
+		this.connectQueue.concurrency = this.options.info.session_start_limit.max_concurrency;
 
 		await super.spawnShards();
 		const watcher = watch(this.options.srcPath).on('ready', () => {

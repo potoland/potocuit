@@ -1,7 +1,7 @@
 export class ConnectTimeout {
 	readonly promises: { promise: Promise<boolean>; resolve: (x: boolean) => any }[] = [];
 	protected interval?: NodeJS.Timeout = undefined;
-	constructor(public intervalTime = 5000) { }
+	constructor(public intervalTime = 5000) {}
 
 	wait() {
 		let resolve = (_x: boolean) => {
@@ -34,7 +34,7 @@ export class ConnectQueue {
 	constructor(
 		public intervalTime = 5000,
 		public concurrency = 1,
-	) { }
+	) {}
 
 	push(callback: () => any) {
 		this.queue.push({ callback });

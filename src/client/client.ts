@@ -92,7 +92,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 				presence: this.options?.presence,
 				debug: debugRC,
 				shardStart: this.options?.shardStart,
-				shardEnd: this.options?.shardEnd
+				shardEnd: this.options?.shardEnd,
 			});
 		}
 
