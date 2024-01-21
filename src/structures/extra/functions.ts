@@ -55,7 +55,7 @@ export async function resolveEmoji(emoji: EmojiResolvable, cache: Cache): Promis
 }
 
 export function encodeEmoji(rawEmoji: APIPartialEmoji) {
-	return rawEmoji.id ? `${rawEmoji.name}:${rawEmoji.id}` : `${rawEmoji?.name}`;
+	return rawEmoji.id ? `${rawEmoji.name}:${rawEmoji.id}` : `${rawEmoji.name}`;
 }
 
 export function hasProps<T extends Record<any, any>>(target: T, props: TypeArray<keyof T>): boolean {
