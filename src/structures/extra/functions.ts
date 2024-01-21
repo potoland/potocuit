@@ -25,7 +25,7 @@ export function resolvePartialEmoji(emoji: EmojiResolvable): APIPartialEmoji | u
 		if (emoji.includes('%')) {
 			emoji = encodeURIComponent(emoji);
 		}
-		if (!emoji.includes(':')) {
+		if (!emoji.includes(':') && !emoji.match(/\d{17,20}/g)) {
 			return { name: emoji, id: null };
 		}
 		return;
@@ -60,7 +60,7 @@ export function encodeEmoji(rawEmoji: APIPartialEmoji) {
 
 export function hasProps<T extends Record<any, any>>(target: T, props: TypeArray<keyof T>): boolean {
 	if (Array.isArray(props)) {
-		return props.every(x => hasProps(target, x));
+		return props.every(x => hasProps(target, x))
 	}
 	if (!((props as T[number]) in target)) {
 		return false;
