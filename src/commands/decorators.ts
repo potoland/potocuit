@@ -119,6 +119,7 @@ export function Declare(declare: DeclareOptions) {
 	return <T extends { new (...args: any[]): {} }>(target: T) =>
 		class extends target {
 			name = declare.name;
+			dm = !!declare.dm;
 			nsfw = declare.nsfw;
 			guild_id = declare.guildId;
 			default_member_permissions = Array.isArray(declare.defaultPermissions)
