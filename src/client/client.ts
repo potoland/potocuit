@@ -129,12 +129,12 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 						for (const { id } of packet.d.guilds) {
 							this.__handleGuilds.add(id);
 						}
-						if (!this.__handleGuilds.size) {
-							this.events.values.SHARD_READY?.run(shardId, this, shardId);
-						}
 						this.botId = packet.d.user.id;
 						this.applicationId = packet.d.application.id;
 						this.me = new ClientUser(this, packet.d.user, packet.d.application) as never;
+						if (!this.__handleGuilds.size) {
+							this.events.values.BOT_READY?.run(this.me!, this, shardId);
+						}
 						this.debugger?.debug(`#${shardId}[ ${packet.d.user.username}](${this.botId}) is online...`);
 						break;
 					case 'INTERACTION_CREATE': {
@@ -145,7 +145,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 						if (this.__handleGuilds.has(packet.d.id)) {
 							this.__handleGuilds.delete(packet.d.id);
 							if (!this.__handleGuilds.size) {
-								this.events.values.SHARD_READY?.run(shardId, this, shardId);
+								this.events.values.BOT_READY?.run(shardId, this, shardId);
 							}
 							return;
 						}
