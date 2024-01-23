@@ -13,31 +13,59 @@ import type { ComponentCallback } from './types';
 
 export type ButtonStylesForID = Exclude<ButtonStyle, ButtonStyle.Link>;
 
+/**
+ * Represents a button component.
+ * @template Type - The type of the button component.
+ */
 export class Button<Type extends boolean = boolean> {
 	/** @internal */
 	__exec?: ComponentCallback<ButtonInteraction>;
 
+	/**
+	 * Creates a new Button instance.
+	 * @param data - The initial data for the button.
+	 */
 	constructor(public data: Partial<When<Type, APIButtonComponentWithCustomId, APIButtonComponentWithURL>> = {}) {
 		this.data.type = ComponentType.Button;
 	}
 
+	/**
+	 * Sets the custom ID for the button.
+	 * @param id - The custom ID to set.
+	 * @returns The modified Button instance.
+	 */
 	setCustomId(id: string): Omit<this, 'setURL'> {
 		// @ts-expect-error
 		this.data.custom_id = id;
 		return this;
 	}
 
+	/**
+	 * Sets the URL for the button.
+	 * @param url - The URL to set.
+	 * @returns The modified Button instance.
+	 */
 	setURL(url: string): Omit<this, 'setCustomId'> {
 		// @ts-expect-error
 		this.data.url = url;
 		return this;
 	}
 
+	/**
+	 * Sets the label for the button.
+	 * @param label - The label to set.
+	 * @returns The modified Button instance.
+	 */
 	setLabel(label: string) {
 		this.data.label = label;
 		return this;
 	}
 
+	/**
+	 * Sets the emoji for the button.
+	 * @param emoji - The emoji to set.
+	 * @returns The modified Button instance.
+	 */
 	setEmoji(emoji: EmojiResolvable) {
 		const resolve = resolvePartialEmoji(emoji);
 		if (!resolve) return throwError('Invalid Emoji');
@@ -45,11 +73,21 @@ export class Button<Type extends boolean = boolean> {
 		return this;
 	}
 
+	/**
+	 * Sets the disabled state of the button.
+	 * @param disabled - Whether the button should be disabled or not.
+	 * @returns The modified Button instance.
+	 */
 	setDisabled(disabled = true) {
 		this.data.disabled = disabled;
 		return this;
 	}
 
+	/**
+	 * Sets the style of the button.
+	 * @param style - The style to set.
+	 * @returns The modified Button instance.
+	 */
 	setStyle(style: ButtonStyle.Link): Omit<this, 'setCustomId'>;
 	setStyle(style: ButtonStylesForID): Omit<this, 'setURL'>;
 	setStyle(style: ButtonStyle): Omit<this, 'setURL'> | Omit<this, 'setCustomId'> {
@@ -57,11 +95,20 @@ export class Button<Type extends boolean = boolean> {
 		return this as any;
 	}
 
+	/**
+	 * Sets the callback function to be executed when the button is interacted with.
+	 * @param func - The callback function to set.
+	 * @returns The modified Button instance.
+	 */
 	run(func: ComponentCallback<ButtonInteraction>): this {
 		this.__exec = func;
 		return this;
 	}
 
+	/**
+	 * Converts the Button instance to its JSON representation.
+	 * @returns The JSON representation of the Button instance.
+	 */
 	toJSON() {
 		return { ...this.data } as unknown as APIButtonComponent;
 	}

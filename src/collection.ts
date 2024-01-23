@@ -1,6 +1,25 @@
 import { MergeOptions } from './common';
 
+/**
+ * Represents a collection that extends the built-in Map class.
+ * @template K The type of the keys in the collection.
+ * @template V The type of the values in the collection.
+ */
 export class Collection<K, V> extends Map<K, V> {
+	/**
+	 * Removes elements from the collection based on a filter function.
+	 * @param fn The filter function that determines which elements to remove.
+	 * @param thisArg The value to use as `this` when executing the filter function.
+	 * @returns The number of elements removed from the collection.
+	 * @example
+	 * const collection = new Collection<number, string>();
+	 * collection.set(1, 'one');
+	 * collection.set(2, 'two');
+	 * collection.set(3, 'three');
+	 * const removedCount = collection.sweep((value, key) => key % 2 === 0);
+	 * console.log(removedCount); // Output: 1
+	 * console.log(collection.size); // Output: 2
+	 */
 	sweep(fn: (value: V, key: K, collection: this) => unknown, thisArg?: unknown): number {
 		if (thisArg !== undefined) fn = fn.bind(thisArg);
 		const previous = this.size;
@@ -10,6 +29,19 @@ export class Collection<K, V> extends Map<K, V> {
 		return previous - this.size;
 	}
 
+	/**
+	 * Creates a new array with the results of calling a provided function on every element in the collection.
+	 * @param fn The function that produces an element of the new array.
+	 * @param thisArg The value to use as `this` when executing the map function.
+	 * @returns A new array with the results of calling the provided function on every element in the collection.
+	 * @example
+	 * const collection = new Collection<number, string>();
+	 * collection.set(1, 'one');
+	 * collection.set(2, 'two');
+	 * collection.set(3, 'three');
+	 * const mappedArray = collection.map((value, key) => `${key}: ${value}`);
+	 * console.log(mappedArray); // Output: ['1: one', '2: two', '3: three']
+	 */
 	map<T = any>(fn: (value: V, key: K, collection: this) => T) {
 		const result: T[] = [];
 
@@ -28,7 +60,19 @@ export interface LimitedCollectionOptions {
 	expire: number;
 	resetOnDemand: boolean;
 }
-
+/**
+ * Creates a new array with the results of calling a provided function on every element in the collection.
+ * @param fn The function that produces an element of the new array.
+ * @param thisArg The value to use as `this` when executing the map function.
+ * @returns A new array with the results of calling the provided function on every element in the collection.
+ * @example
+ * const collection = new Collection<number, string>();
+ * collection.set(1, 'one');
+ * collection.set(2, 'two');
+ * collection.set(3, 'three');
+ * const mappedArray = collection.map((value, key) => `${key}: ${value}`);
+ * console.log(mappedArray); // Output: ['1: one', '2: two', '3: three']
+ */
 export class LimitedCollection<K, V> {
 	static readonly default: LimitedCollectionOptions = {
 		resetOnDemand: false,
@@ -45,6 +89,21 @@ export class LimitedCollection<K, V> {
 		this.options = MergeOptions(LimitedCollection.default, options);
 	}
 
+	/**
+	 * Adds an element to the limited collection.
+	 * @param key The key of the element.
+	 * @param value The value of the element.
+	 * @param customExpire The custom expiration time for the element.
+	 * @example
+	 * const collection = new LimitedCollection<number, string>({ limit: 3 });
+	 * collection.set(1, 'one');
+	 * collection.set(2, 'two');
+	 * collection.set(3, 'three');
+	 * console.log(collection.size); // Output: 3
+	 * collection.set(4, 'four');
+	 * console.log(collection.size); // Output: 3
+	 * console.log(collection.get(1)); // Output: undefined
+	 */
 	set(key: K, value: V, customExpire = this.options.expire) {
 		if (this.options.limit <= 0) {
 			return;
@@ -68,10 +127,30 @@ export class LimitedCollection<K, V> {
 		}
 	}
 
+	/**
+	 * Returns the raw data of an element in the limited collection.
+	 * @param key The key of the element.
+	 * @returns The raw data of the element, or `undefined` if the element does not exist.
+	 * @example
+	 * const collection = new LimitedCollection<number, string>();
+	 * collection.set(1, 'one');
+	 * const rawData = collection.raw(1);
+	 * console.log(rawData); // Output: { value: 'one', expire: -1, expireOn: -1 }
+	 */
 	raw(key: K) {
 		return this.data.get(key);
 	}
 
+	/**
+	 * Returns the value of an element in the limited collection.
+	 * @param key The key of the element.
+	 * @returns The value of the element, or `undefined` if the element does not exist.
+	 * @example
+	 * const collection = new LimitedCollection<number, string>();
+	 * collection.set(1, 'one');
+	 * const value = collection.get(1);
+	 * console.log(value); // Output: 'one'
+	 */
 	get(key: K) {
 		const data = this.data.get(key);
 		if (this.options.resetOnDemand && data && data.expire !== -1) {
@@ -83,15 +162,46 @@ export class LimitedCollection<K, V> {
 		return data?.value;
 	}
 
+	/**
+	 * Checks if an element exists in the limited collection.
+	 * @param key The key of the element.
+	 * @returns `true` if the element exists, `false` otherwise.
+	 * @example
+	 * const collection = new LimitedCollection<number, string>();
+	 * collection.set(1, 'one');
+	 * console.log(collection.has(1)); // Output: true
+	 * console.log(collection.has(2)); // Output: false
+	 */
 	has(key: K) {
 		return this.data.has(key);
 	}
 
+	/**
+	 * Removes an element from the limited collection.
+	 * @param key The key of the element to remove.
+	 * @returns `true` if the element was removed, `false` otherwise.
+	 * @example
+	 * const collection = new LimitedCollection<number, string>();
+	 * collection.set(1, 'one');
+	 * console.log(collection.delete(1)); // Output: true
+	 * console.log(collection.delete(2)); // Output: false
+	 */
 	delete(key: K) {
 		setImmediate(() => this.resetTimeout());
 		return this.data.delete(key);
 	}
 
+	/**
+	 * Returns the element in the limited collection that is closest to expiration.
+	 * @returns The element that is closest to expiration, or `undefined` if the collection is empty.
+	 * @example
+	 * const collection = new LimitedCollection<number, string>();
+	 * collection.set(1, 'one', 1000);
+	 * collection.set(2, 'two', 2000);
+	 * collection.set(3, 'three', 500);
+	 * const closestElement = collection.closer;
+	 * console.log(closestElement); // Output: { value: 'three', expire: 500, expireOn: [current timestamp + 500] }
+	 */
 	get closer() {
 		let d: LimitedCollectionData<V> | undefined;
 		for (const value of this.data.values()) {
@@ -109,6 +219,15 @@ export class LimitedCollection<K, V> {
 		return d;
 	}
 
+	/**
+	 * Returns the number of elements in the limited collection.
+	 * @returns The number of elements in the collection.
+	 * @example
+	 * const collection = new LimitedCollection<number, string>();
+	 * collection.set(1, 'one');
+	 * collection.set(2, 'two');
+	 * console.log(collection.size); // Output: 2
+	 */
 	get size() {
 		return this.data.size;
 	}
