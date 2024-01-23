@@ -129,6 +129,9 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 						for (const { id } of packet.d.guilds) {
 							this.__handleGuilds.add(id);
 						}
+						if (!this.__handleGuilds.size) {
+							this.events.values.SHARD_READY?.run(shardId, this, shardId);
+						}
 						this.botId = packet.d.user.id;
 						this.applicationId = packet.d.application.id;
 						this.me = new ClientUser(this, packet.d.user, packet.d.application) as never;
