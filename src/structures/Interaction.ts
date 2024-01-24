@@ -58,6 +58,7 @@ import { GuildRole } from './GuildRole';
 import { Message, type WebhookMessage } from './Message';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
+import { PermissionsBitField } from './extra/Permissions';
 import channelFrom from './methods/channels';
 
 export type ReplyInteractionBody =
@@ -73,7 +74,10 @@ export type __InternalReplyFunction = (_: { body: APIInteractionResponse; files?
 
 export interface BaseInteraction
 	extends ObjectToLower<
-		Omit<APIBaseInteraction<InteractionType, any>, 'user' | 'member' | 'message' | 'channel' | 'type'>
+		Omit<
+			APIBaseInteraction<InteractionType, any>,
+			'user' | 'member' | 'message' | 'channel' | 'type' | 'app_permissions'
+		>
 	> {}
 
 export class BaseInteraction<
@@ -85,6 +89,7 @@ export class BaseInteraction<
 	channel?: AllChannels;
 	message?: Message;
 	replied?: Promise<boolean> | boolean;
+	appPermissions?: PermissionsBitField;
 
 	constructor(
 		readonly client: BaseClient,
@@ -102,6 +107,9 @@ export class BaseInteraction<
 		}
 		if (interaction.message) {
 			this.message = new Message(client, interaction.message);
+		}
+		if (interaction.app_permissions) {
+			this.appPermissions = new PermissionsBitField(Number(interaction.app_permissions));
 		}
 		if (interaction.channel) {
 			this.channel = channelFrom(interaction.channel, client);
@@ -280,7 +288,10 @@ export type AllInteractions =
 
 export interface AutocompleteInteraction
 	extends ObjectToLower<
-		Omit<APIApplicationCommandAutocompleteInteraction, 'user' | 'member' | 'type' | 'data' | 'message' | 'channel'>
+		Omit<
+			APIApplicationCommandAutocompleteInteraction,
+			'user' | 'member' | 'type' | 'data' | 'message' | 'channel' | 'app_permissions'
+		>
 	> {}
 
 export class AutocompleteInteraction<FromGuild extends boolean = boolean> extends BaseInteraction<
@@ -424,7 +435,10 @@ export class ApplicationCommandInteraction<
 
 export interface ComponentInteraction
 	extends ObjectToLower<
-		Omit<APIMessageComponentInteraction, 'user' | 'member' | 'type' | 'data' | 'message' | 'channel'>
+		Omit<
+			APIMessageComponentInteraction,
+			'user' | 'member' | 'type' | 'data' | 'message' | 'channel' | 'app_permissions'
+		>
 	> {}
 
 export class ComponentInteraction<
@@ -433,7 +447,6 @@ export class ComponentInteraction<
 > extends Interaction<FromGuild, Type> {
 	declare data: ObjectToLower<APIMessageComponentInteraction['data']>;
 	declare channelId: string;
-	declare appPermissions: string;
 	declare channel: AllChannels;
 	declare type: InteractionType.MessageComponent;
 

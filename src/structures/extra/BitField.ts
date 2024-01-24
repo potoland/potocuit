@@ -2,6 +2,7 @@ export type BitFieldResolvable = number | bigint | (number | bigint)[];
 
 export class BitField {
 	static None = 0;
+	static Flags: Record<string, any> = {};
 
 	private bit: number;
 
@@ -13,7 +14,7 @@ export class BitField {
 		this.bit = BitField.resolve(bits);
 	}
 
-	get bits() {
+	get bits(): number {
 		return this.bit;
 	}
 
@@ -37,6 +38,11 @@ export class BitField {
 		return (this.bit &= ~reduced);
 	}
 
+	has(...bits: (BitFieldResolvable | string)[]) {
+		const bitsResolved = bits.map(bit => BitField.resolve(bit));
+		return bitsResolved.every(bit => (this.bits & bit) === bit);
+	}
+
 	equals(bits: BitFieldResolvable): boolean {
 		return BitField.equals(this.bits, bits);
 	}
@@ -45,11 +51,12 @@ export class BitField {
 		return !!(BitField.resolve(main) & BitField.resolve(other));
 	}
 
-	static resolve(bits?: BitFieldResolvable): number {
+	static resolve(bits?: BitFieldResolvable | string): number {
 		switch (typeof bits) {
 			case 'number':
 				return bits;
 			case 'bigint':
+			case 'string':
 				return Number(bits);
 			case 'object':
 				if (!Array.isArray(bits)) {

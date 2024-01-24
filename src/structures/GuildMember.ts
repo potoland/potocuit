@@ -24,7 +24,6 @@ export type GuildMemberData =
 import type { BaseClient } from '../client/base';
 import type { ImageOptions, MethodContext } from '../common/types/options';
 import type { GuildMemberResolvable } from '../common/types/resolvables';
-import type { Guild } from './Guild';
 import { User } from './User';
 
 export type GatewayGuildMemberAddDispatchDataFixed<Pending extends boolean> = Pending extends true
@@ -49,7 +48,6 @@ export class BaseGuildMember extends DiscordBase {
 		this.patch(data);
 	}
 
-	async guild(force?: true): Promise<Guild<'api'>>;
 	async guild(force = false) {
 		return this.client.guilds.fetch(this.id, force);
 	}

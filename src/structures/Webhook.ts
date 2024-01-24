@@ -1,5 +1,4 @@
 import type {
-	Guild,
 	ImageOptions,
 	MessageWebhookCreateBodyRequest,
 	MessageWebhookPayload,
@@ -41,9 +40,7 @@ export class Webhook extends DiscordBase {
 		});
 	}
 
-	async guild(force?: true): Promise<Guild<'api'> | undefined>;
-	async guild(force?: boolean): Promise<Guild<'cached'> | Guild<'api'> | undefined>;
-	async guild(force = false): Promise<Guild<'cached'> | Guild<'api'> | undefined> {
+	async guild(force = false) {
 		if (!this.sourceGuild?.id) return;
 		return this.client.guilds.fetch(this.sourceGuild.id, force);
 	}

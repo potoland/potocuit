@@ -12,7 +12,6 @@ import type { EmojiResolvable } from '../common/types/resolvables';
 import type { MessageCreateBodyRequest, MessageUpdateBodyRequest } from '../common/types/write';
 import type { ActionRowMessageComponents } from '../components';
 import { MessageActionRowComponent } from '../components/ActionRow';
-import type { Guild } from './Guild';
 import { GuildMember } from './GuildMember';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
@@ -50,8 +49,6 @@ export class BaseMessage extends DiscordBase {
 		return messageLink(this.channelId, this.id, this.guildId);
 	}
 
-	async guild(force?: true): Promise<Guild<'api'> | undefined>;
-	async guild(force?: boolean): Promise<Guild<'cached'> | Guild<'api'> | undefined>;
 	async guild(force = false) {
 		if (!this.guildId) return;
 		return this.client.guilds.fetch(this.guildId, force);

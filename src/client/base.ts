@@ -196,6 +196,11 @@ export class BaseClient {
 		}
 	}
 
+	/**@internal */
+	t(locale: string) {
+		return this.langs.get(locale);
+	}
+
 	async loadLangs(dir?: string) {
 		dir ??= await this.getRC().then(x => x.langs);
 		if (dir) {

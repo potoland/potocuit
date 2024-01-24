@@ -24,7 +24,6 @@ export class GuildShorter extends BaseShorter {
 				await this.client.cache.guilds?.setIfNI('Guilds', guild.id, guild);
 				return new Guild<'api'>(this.client, guild);
 			},
-
 			fetch: async (id: string, force = false) => {
 				if (!force) {
 					const guild = await this.client.cache.guilds?.get(id);
@@ -32,8 +31,8 @@ export class GuildShorter extends BaseShorter {
 				}
 
 				const data = await this.client.proxy.guilds(id).get();
-				const patched = await this.client.cache.guilds?.set(id, data);
-				return new Guild(this.client, patched ?? data);
+				await this.client.cache.guilds?.patch(id, data);
+				return (await this.client.cache.guilds?.get(id)) ?? new Guild<'api'>(this.client, data);
 			},
 			widgetURL: (id: string, style?: GuildWidgetStyle) => {
 				const params = new URLSearchParams();

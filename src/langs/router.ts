@@ -1,4 +1,4 @@
-export const LangRouter = (defaultLang: string, langs: Partial<Record<string, any>>) => {
+export const LangRouter = (userLocale: string, defaultLang: string, langs: Partial<Record<string, any>>) => {
 	function createProxy(route = [] as string[], args: any[] = []): unknown {
 		const noop = () => {
 			return;
@@ -6,7 +6,8 @@ export const LangRouter = (defaultLang: string, langs: Partial<Record<string, an
 		return new Proxy(noop, {
 			get: (_, key: string) => {
 				if (key === 'get') {
-					function getValue(locale: string) {
+					function getValue(locale?: string) {
+						if (typeof locale === 'undefined') throw new Error('Undefined locale');
 						let value = langs[locale] as Record<string, any>;
 						for (const i of route) value = value[i];
 						return value;
@@ -14,7 +15,7 @@ export const LangRouter = (defaultLang: string, langs: Partial<Record<string, an
 					return (locale?: string) => {
 						let object;
 						try {
-							object = getValue(locale ?? defaultLang);
+							object = getValue(locale ?? userLocale);
 						} catch {
 							object = getValue(defaultLang);
 						}

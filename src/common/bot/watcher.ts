@@ -39,6 +39,7 @@ export class Watcher extends ShardManager {
 		if (this.worker) {
 			this.worker.terminate();
 		}
+		this.build();
 		this.worker = new Worker(this.options.filePath, {
 			argv: this.options.argv,
 			workerData: {
@@ -64,7 +65,6 @@ export class Watcher extends ShardManager {
 		this.options.info = await new Router(this.rest!).createProxy().gateway.bot.get();
 		this.options.totalShards = this.options.info.shards;
 
-		this.build();
 		this.resetWorker();
 
 		const oldFn = this.options.handlePayload;
@@ -83,7 +83,6 @@ export class Watcher extends ShardManager {
 			this.logger.debug(`Watching ${this.options.srcPath}`);
 			watcher.on('all', event => {
 				this.logger.debug(`${event} event detected, building`);
-				this.build();
 				this.resetWorker();
 			});
 		});

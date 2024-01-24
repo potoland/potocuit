@@ -16,7 +16,6 @@ import {
 	type AllChannels,
 	type AllGuildTextableChannels,
 	type AllTextableChannels,
-	type Guild,
 	type RESTPatchAPIGuildChannelPositionsJSONBody,
 	type RESTPostAPIGuildChannelJSONBody,
 } from '../..';
@@ -164,8 +163,6 @@ interface IChannelTypes {
 
 export interface BaseGuildChannel extends ObjectToLower<APIGuildChannel<ChannelType>> {}
 export class BaseGuildChannel extends BaseChannel<ChannelType> {
-	async guild(force?: true): Promise<Guild<'api'>>;
-	async guild(force?: boolean): Promise<Guild<'cached'> | Guild<'api'>>;
 	async guild(force = false) {
 		return this.client.guilds.fetch(this.guildId!, force);
 	}
