@@ -2,7 +2,7 @@ export type BitFieldResolvable = string | number | bigint | (number | bigint)[];
 
 export class BitField {
 	static None = 0;
-	static Flags: Record<string, any> = {}
+	static Flags: Record<string, any> = {};
 
 	private bit: number;
 
@@ -40,7 +40,7 @@ export class BitField {
 
 	has(...bits: BitFieldResolvable[]) {
 		const bitsResolved = bits.map(bit => BitField.resolve(bit));
-		return bitsResolved.every(bit => (this.bits & bit) === bit)
+		return bitsResolved.every(bit => (this.bits & bit) === bit);
 	}
 
 	equals(bits: BitFieldResolvable): boolean {
