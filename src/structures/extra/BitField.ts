@@ -1,4 +1,4 @@
-export type BitFieldResolvable = string | number | bigint | (number | bigint)[];
+export type BitFieldResolvable = number | bigint | (number | bigint)[];
 
 export class BitField {
 	static None = 0;
@@ -38,7 +38,7 @@ export class BitField {
 		return (this.bit &= ~reduced);
 	}
 
-	has(...bits: BitFieldResolvable[]) {
+	has(...bits: (BitFieldResolvable | string)[]) {
 		const bitsResolved = bits.map(bit => BitField.resolve(bit));
 		return bitsResolved.every(bit => (this.bits & bit) === bit);
 	}
@@ -51,7 +51,7 @@ export class BitField {
 		return !!(BitField.resolve(main) & BitField.resolve(other));
 	}
 
-	static resolve(bits?: BitFieldResolvable): number {
+	static resolve(bits?: BitFieldResolvable | string): number {
 		switch (typeof bits) {
 			case 'number':
 				return bits;
