@@ -369,7 +369,7 @@ export class Interaction<
 			.messages(messageId)
 			.patch({
 				body: BaseInteraction.transformBody(data),
-				files: body.files ? await resolveFiles(body.files) : undefined,
+				files: files ? await resolveFiles(files) : undefined,
 			});
 
 		this.client.components.onRequestInteractionUpdate(body, apiMessage);

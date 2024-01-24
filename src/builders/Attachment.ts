@@ -3,6 +3,13 @@ import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { throwError, type ImageResolvable, type RESTAPIAttachment, type RawFile } from '..';
 
+export interface AttachmentResolvableMap {
+	url: string;
+	buffer: Buffer;
+	path: string;
+}
+export type AttachmentResolvable = AttachmentResolvableMap[keyof AttachmentResolvableMap] | Attachment;
+export type AttachmentDataType = keyof AttachmentResolvableMap;
 export interface AttachmentData {
 	name: string;
 	description: string;
@@ -10,15 +17,6 @@ export interface AttachmentData {
 	type: AttachmentDataType;
 }
 
-export type AttachmentResolvable = AttachmentResolvableMap[keyof AttachmentResolvableMap] | Attachment;
-
-export type AttachmentDataType = keyof AttachmentResolvableMap;
-
-export interface AttachmentResolvableMap {
-	url: string;
-	buffer: Buffer;
-	path: string;
-}
 export class Attachment {
 	/**
 	 * Creates a new Attachment instance.
@@ -122,12 +120,20 @@ export function resolveAttachment(
  * @param resources - The list of attachments to resolve.
  * @returns The resolved raw files.
  */
-export async function resolveFiles(resources: Attachment[]): Promise<RawFile[]> {
+export async function resolveFiles(resources: (Attachment | RawFile)[]): Promise<RawFile[]> {
 	const data = await Promise.all(
 		resources.map(async (resource, i) => {
-			const { type, resolvable, name } = resource.toJSON();
-			const resolve = await resolveAttachmentData(resolvable, type);
-			return { ...resolve, key: `files[${i}]`, name } as RawFile;
+			if (resource instanceof Attachment) {
+				const { type, resolvable, name } = resource.toJSON();
+				const resolve = await resolveAttachmentData(resolvable, type);
+				return { ...resolve, key: `files[${i}]`, name } as RawFile;
+			}
+			return {
+				data: resource.data,
+				contentType: resource.contentType,
+				key: `files[${i}]`,
+				name: resource.name,
+			} as RawFile;
 		}),
 	);
 

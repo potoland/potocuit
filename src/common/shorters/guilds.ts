@@ -1,4 +1,5 @@
 import {
+	Routes,
 	type GuildWidgetStyle,
 	type RESTPatchAPIAutoModerationRuleJSONBody,
 	type RESTPatchAPIChannelJSONBody,
@@ -8,11 +9,10 @@ import {
 	type RESTPostAPIGuildChannelJSONBody,
 	type RESTPostAPIGuildEmojiJSONBody,
 	type RESTPostAPIGuildsJSONBody,
-	Routes,
 } from 'discord-api-types/v10';
-import { BASE_URL, type ObjectToLower, type OmitInsert } from '..';
-import { type ImageResolvable, resolveFiles, resolveImage } from '../../builders';
-import { type CreateStickerBodyRequest, Guild, GuildEmoji, Sticker } from '../../structures';
+import { BASE_URL, type ImageResolvable, type ObjectToLower, type OmitInsert } from '..';
+import { resolveFiles, resolveImage } from '../../builders';
+import { Guild, GuildEmoji, Sticker, type CreateStickerBodyRequest } from '../../structures';
 import channelFrom, { BaseChannel } from '../../structures/methods/channels';
 import { BaseShorter } from './base';
 
