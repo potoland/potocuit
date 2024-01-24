@@ -26,7 +26,7 @@ export class LangsHandler extends BaseHandler {
 	}
 
 	get(userLocale: string) {
-		return LangRouter(this.defaultLang ?? userLocale, this.values)();
+		return LangRouter(userLocale, this.defaultLang ?? userLocale, this.values)();
 	}
 
 	async load(dir: string) {

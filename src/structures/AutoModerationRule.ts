@@ -6,10 +6,9 @@ import type {
 	RESTPatchAPIAutoModerationRuleJSONBody,
 	RESTPostAPIAutoModerationRuleJSONBody,
 } from '../common';
-import type { Guild } from './Guild';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface AutoModerationRule extends ObjectToLower<APIAutoModerationRule> {}
+export interface AutoModerationRule extends ObjectToLower<APIAutoModerationRule> { }
 
 export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 	constructor(client: BaseClient, data: APIAutoModerationRule) {
@@ -20,9 +19,7 @@ export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 		return this.client.members.fetch(this.guildId, this.creatorId, force);
 	}
 
-	guild(force?: true): Promise<Guild<'api'>>;
-	guild(force?: boolean): Promise<Guild<'cached'> | Guild<'api'> | undefined>;
-	guild(force = false): Promise<Guild<'cached'> | Guild<'api'>> {
+	guild(force = false) {
 		return this.client.guilds.fetch(this.guildId, force);
 	}
 

@@ -24,14 +24,13 @@ export type GuildMemberData =
 import type { BaseClient } from '../client/base';
 import type { ImageOptions, MethodContext } from '../common/types/options';
 import type { GuildMemberResolvable } from '../common/types/resolvables';
-import type { Guild } from './Guild';
 import { User } from './User';
 
 export type GatewayGuildMemberAddDispatchDataFixed<Pending extends boolean> = Pending extends true
 	? Omit<GatewayGuildMemberAddDispatchData, 'user'> & { id: string }
 	: MakeRequired<GatewayGuildMemberAddDispatchData, 'user'>;
 
-export interface BaseGuildMember extends DiscordBase, ObjectToLower<Omit<APIGuildMember, 'user' | 'roles'>> {}
+export interface BaseGuildMember extends DiscordBase, ObjectToLower<Omit<APIGuildMember, 'user' | 'roles'>> { }
 export class BaseGuildMember extends DiscordBase {
 	private _roles: string[];
 	joinedTimestamp?: number;
@@ -49,7 +48,6 @@ export class BaseGuildMember extends DiscordBase {
 		this.patch(data);
 	}
 
-	async guild(force?: true): Promise<Guild<'api'>>;
 	async guild(force = false) {
 		return this.client.guilds.fetch(this.id, force);
 	}
@@ -111,7 +109,7 @@ export class BaseGuildMember extends DiscordBase {
 	}
 }
 
-export interface GuildMember extends ObjectToLower<Omit<APIGuildMember, 'user' | 'roles'>> {}
+export interface GuildMember extends ObjectToLower<Omit<APIGuildMember, 'user' | 'roles'>> { }
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
@@ -155,10 +153,10 @@ export interface UnavailableMember {
 	pending: true;
 }
 
-export class UnavailableMember extends BaseGuildMember {}
+export class UnavailableMember extends BaseGuildMember { }
 
 export interface InteractionGuildMember
-	extends ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles' | 'deaf' | 'mute'>> {}
+	extends ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles' | 'deaf' | 'mute'>> { }
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object

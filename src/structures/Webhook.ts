@@ -1,10 +1,9 @@
 import type {
-	Guild,
 	ImageOptions,
 	MessageWebhookCreateBodyRequest,
 	MessageWebhookPayload,
 	MessageWebhookUpdateBodyRequest,
-	MethodContext,
+	MethodContext
 } from '..';
 import type { BaseClient } from '../client/base';
 import type {
@@ -19,7 +18,7 @@ import { AnonymousGuild } from './AnonymousGuild';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> {}
+export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> { }
 
 export class Webhook extends DiscordBase {
 	user?: User;
@@ -41,9 +40,7 @@ export class Webhook extends DiscordBase {
 		});
 	}
 
-	async guild(force?: true): Promise<Guild<'api'> | undefined>;
-	async guild(force?: boolean): Promise<Guild<'cached'> | Guild<'api'> | undefined>;
-	async guild(force = false): Promise<Guild<'cached'> | Guild<'api'> | undefined> {
+	async guild(force = false) {
 		if (!this.sourceGuild?.id) return;
 		return this.client.guilds.fetch(this.sourceGuild.id, force);
 	}

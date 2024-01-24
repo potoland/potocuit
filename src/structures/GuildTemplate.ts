@@ -6,10 +6,9 @@ import type {
 	RESTPatchAPIGuildTemplateJSONBody,
 	RESTPostAPIGuildTemplatesJSONBody,
 } from '../common';
-import type { Guild } from './Guild';
 import { Base } from './extra/Base';
 
-export interface GuildTemplate extends Base, ObjectToLower<APITemplate> {}
+export interface GuildTemplate extends Base, ObjectToLower<APITemplate> { }
 
 export class GuildTemplate extends Base {
 	constructor(client: BaseClient, data: APITemplate) {
@@ -17,7 +16,6 @@ export class GuildTemplate extends Base {
 		this.__patchThis(data);
 	}
 
-	async guild(force?: true): Promise<Guild<'api'>>;
 	async guild(force = false) {
 		return this.client.guilds.fetch(this.sourceGuildId, force);
 	}
