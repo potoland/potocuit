@@ -3,7 +3,7 @@ import type { BaseClient } from '../client/base';
 import type { APIEmoji, ObjectToLower, RESTPatchAPIChannelJSONBody } from '../common';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface GuildEmoji extends DiscordBase, ObjectToLower<Omit<APIEmoji, 'id'>> { }
+export interface GuildEmoji extends DiscordBase, ObjectToLower<Omit<APIEmoji, 'id'>> {}
 
 export class GuildEmoji extends DiscordBase {
 	constructor(

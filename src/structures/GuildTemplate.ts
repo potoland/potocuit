@@ -8,7 +8,7 @@ import type {
 } from '../common';
 import { Base } from './extra/Base';
 
-export interface GuildTemplate extends Base, ObjectToLower<APITemplate> { }
+export interface GuildTemplate extends Base, ObjectToLower<APITemplate> {}
 
 export class GuildTemplate extends Base {
 	constructor(client: BaseClient, data: APITemplate) {

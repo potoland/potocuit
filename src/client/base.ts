@@ -198,7 +198,7 @@ export class BaseClient {
 
 	/**@internal */
 	t(locale: string) {
-		return this.langs.get(locale)
+		return this.langs.get(locale);
 	}
 
 	async loadLangs(dir?: string) {

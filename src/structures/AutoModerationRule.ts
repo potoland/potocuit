@@ -8,7 +8,7 @@ import type {
 } from '../common';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface AutoModerationRule extends ObjectToLower<APIAutoModerationRule> { }
+export interface AutoModerationRule extends ObjectToLower<APIAutoModerationRule> {}
 
 export class AutoModerationRule extends DiscordBase<APIAutoModerationRule> {
 	constructor(client: BaseClient, data: APIAutoModerationRule) {

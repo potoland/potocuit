@@ -32,7 +32,7 @@ export class GuildShorter extends BaseShorter {
 
 				const data = await this.client.proxy.guilds(id).get();
 				await this.client.cache.guilds?.patch(id, data);
-				return await this.client.cache.guilds?.get(id) ?? new Guild<'api'>(this.client, data);
+				return (await this.client.cache.guilds?.get(id)) ?? new Guild<'api'>(this.client, data);
 			},
 			widgetURL: (id: string, style?: GuildWidgetStyle) => {
 				const params = new URLSearchParams();

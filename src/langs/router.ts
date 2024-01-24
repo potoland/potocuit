@@ -7,7 +7,7 @@ export const LangRouter = (userLocale: string, defaultLang: string, langs: Parti
 			get: (_, key: string) => {
 				if (key === 'get') {
 					function getValue(locale?: string) {
-						if (typeof locale === 'undefined') throw new Error('Undefined locale')
+						if (typeof locale === 'undefined') throw new Error('Undefined locale');
 						let value = langs[locale] as Record<string, any>;
 						for (const i of route) value = value[i];
 						return value;
@@ -35,14 +35,14 @@ export const LangRouter = (userLocale: string, defaultLang: string, langs: Parti
 
 type ParseLocale<T extends Record<string, any>> = {
 	[K in keyof T]: T[K] extends (...args: any[]) => any
-	? (...args: Parameters<T[K]>) => { get(locale?: string): any }
-	: T[K] extends string
-	? { get(locale?: string): T[K] }
-	: T[K] extends unknown[]
-	? { get(locale?: string): T[K] }
-	: T[K] extends Record<string, any>
-	? ParseLocales<T[K]> & { get(locale?: string): T[K] }
-	: never;
+		? (...args: Parameters<T[K]>) => { get(locale?: string): any }
+		: T[K] extends string
+		  ? { get(locale?: string): T[K] }
+		  : T[K] extends unknown[]
+			  ? { get(locale?: string): T[K] }
+			  : T[K] extends Record<string, any>
+				  ? ParseLocales<T[K]> & { get(locale?: string): T[K] }
+				  : never;
 };
 
 export type ParseLocales<T extends Record<string, any>> = ParseLocale<T> & { get(locale?: string): T };

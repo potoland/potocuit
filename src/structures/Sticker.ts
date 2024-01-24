@@ -10,7 +10,7 @@ import type {
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface Sticker extends DiscordBase, ObjectToLower<Omit<APISticker, 'user'>> { }
+export interface Sticker extends DiscordBase, ObjectToLower<Omit<APISticker, 'user'>> {}
 
 export class Sticker extends DiscordBase {
 	user?: User;
