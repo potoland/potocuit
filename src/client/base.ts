@@ -11,6 +11,7 @@ import {
 	Logger,
 	UsersShorter,
 	filterSplit,
+	magicImport,
 	type MakeRequired,
 } from '../common';
 import { MemberShorter } from '../common/shorters/members';
@@ -212,8 +213,8 @@ export class BaseClient {
 	async getRC<
 		T extends InternalRuntimeConfigHTTP | InternalRuntimeConfig = InternalRuntimeConfigHTTP | InternalRuntimeConfig,
 	>() {
-		const { locations, debug, ...env } = (await import(join(process.cwd(), 'biscuit.config.js')).then(
-			x => x.default,
+		const { locations, debug, ...env } = (await magicImport(join(process.cwd(), 'biscuit.config.js')).then(
+			x => x.default ?? x,
 		)) as T;
 
 		return {

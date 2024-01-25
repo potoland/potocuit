@@ -6,7 +6,7 @@ import type {
 	APIAttachment,
 	LocaleString,
 } from '../../common';
-import { ApplicationCommandOptionType, ApplicationCommandType } from '../../common';
+import { ApplicationCommandOptionType, ApplicationCommandType, magicImport } from '../../common';
 import type { AllChannels, AutocompleteInteraction, GuildRole, InteractionGuildMember, User } from '../../structures';
 import type { Groups } from '../decorators';
 import type { OptionResolver } from '../optionresolver';
@@ -39,35 +39,35 @@ type Wrap<N extends ApplicationCommandOptionType> = N extends
 	| ApplicationCommandOptionType.SubcommandGroup
 	? never
 	: (
-			| {
-					required?: false;
-					value?(
-						data: { context: CommandContext<keyof IClients>; value: ReturnOptionsTypes[N] | undefined },
-						ok: OKFunction<any>,
-						fail: StopFunction,
-					): void;
-			  }
-			| {
-					required: true;
-					value?(
-						data: { context: CommandContext<keyof IClients>; value: ReturnOptionsTypes[N] },
-						ok: OKFunction<any>,
-						fail: StopFunction,
-					): void;
-			  }
-	  ) & {
-			description: string;
-			description_localizations?: APIApplicationCommandBasicOption['description_localizations'];
-			name_localizations?: APIApplicationCommandBasicOption['name_localizations'];
-	  };
+		| {
+			required?: false;
+			value?(
+				data: { context: CommandContext<keyof IClients>; value: ReturnOptionsTypes[N] | undefined },
+				ok: OKFunction<any>,
+				fail: StopFunction,
+			): void;
+		}
+		| {
+			required: true;
+			value?(
+				data: { context: CommandContext<keyof IClients>; value: ReturnOptionsTypes[N] },
+				ok: OKFunction<any>,
+				fail: StopFunction,
+			): void;
+		}
+	) & {
+		description: string;
+		description_localizations?: APIApplicationCommandBasicOption['description_localizations'];
+		name_localizations?: APIApplicationCommandBasicOption['name_localizations'];
+	};
 
 export type __TypeWrapper<T extends ApplicationCommandOptionType> = Wrap<T>;
 
 export type __TypesWrapper = {
 	[P in keyof typeof ApplicationCommandOptionType]: `${(typeof ApplicationCommandOptionType)[P]}` extends `${infer D extends
-		number}`
-		? Wrap<D>
-		: never;
+	number}`
+	? Wrap<D>
+	: never;
 };
 
 export type AutocompleteCallback = (interaction: AutocompleteInteraction) => any;
@@ -84,12 +84,12 @@ export type OptionsRecord = Record<string, __CommandOption & { type: Application
 
 export type ContextOptions<T extends OptionsRecord> = {
 	[K in keyof T]: T[K]['value'] extends (...args: any) => any
-		? T[K]['required'] extends true
-			? Parameters<Parameters<T[K]['value']>[1]>[0]
-			: Parameters<Parameters<T[K]['value']>[1]>[0]
-		: T[K]['required'] extends true
-		  ? ReturnOptionsTypes[T[K]['type']]
-		  : ReturnOptionsTypes[T[K]['type']] | undefined;
+	? T[K]['required'] extends true
+	? Parameters<Parameters<T[K]['value']>[1]>[0]
+	: Parameters<Parameters<T[K]['value']>[1]>[0]
+	: T[K]['required'] extends true
+	? ReturnOptionsTypes[T[K]['type']]
+	: ReturnOptionsTypes[T[K]['type']] | undefined;
 };
 
 class BaseCommand {
@@ -238,7 +238,7 @@ class BaseCommand {
 
 	async reload() {
 		delete require.cache[this.__filePath!];
-		const __tempCommand = await import(this.__filePath!).then(x => x.default ?? x);
+		const __tempCommand = await magicImport(this.__filePath!).then(x => x.default ?? x);
 
 		Object.setPrototypeOf(this, __tempCommand.prototype);
 	}

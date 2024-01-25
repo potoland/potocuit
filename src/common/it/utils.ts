@@ -71,7 +71,7 @@ export function filterSplit<Element, Predicate extends (value: Element) => boole
 }
 
 export class BaseHandler {
-	constructor(protected logger: Logger) {}
+	constructor(protected logger: Logger) { }
 
 	protected filter = (path: string) => !!path;
 
@@ -92,13 +92,13 @@ export class BaseHandler {
 	}
 
 	protected async loadFiles<T extends NonNullable<unknown>>(paths: string[]): Promise<T[]> {
-		return await Promise.all(paths.map(path => import(path).then(file => file.default ?? file)));
+		return await Promise.all(paths.map(path => magicImport(path).then(file => file.default ?? file)));
 	}
 
 	protected async loadFilesK<T>(paths: string[]): Promise<{ name: string; file: T; path: string }[]> {
 		return await Promise.all(
 			paths.map(path =>
-				import(path).then(file => {
+				magicImport(path).then(file => {
 					return {
 						name: basename(path), // .split('.')[0],
 						file: file.default ?? file,
@@ -198,3 +198,11 @@ export const ReplaceRegex = {
 		return s.replace(/[A-Z]/g, a => `_${a.toLowerCase()}`);
 	},
 };
+
+export async function magicImport(path: string) {
+	try {
+		return require(path);
+	} catch {
+		return eval("((path) => import(\`file:///${path}\`))")(path.split('\\').join('\\\\'));
+	}
+}
