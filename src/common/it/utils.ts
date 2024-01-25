@@ -71,7 +71,7 @@ export function filterSplit<Element, Predicate extends (value: Element) => boole
 }
 
 export class BaseHandler {
-	constructor(protected logger: Logger) { }
+	constructor(protected logger: Logger) {}
 
 	protected filter = (path: string) => !!path;
 
@@ -203,6 +203,6 @@ export async function magicImport(path: string) {
 	try {
 		return require(path);
 	} catch {
-		return eval("((path) => import(\`file:///${path}\`))")(path.split('\\').join('\\\\'));
+		return eval('((path) => import(`file:///${path}`))')(path.split('\\').join('\\\\'));
 	}
 }
