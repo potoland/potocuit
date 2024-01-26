@@ -29,6 +29,18 @@ export function fastFlat<A extends any[]>(arr: A): FlatArray<A, 1>[] {
 	return newArr as FlatArray<A, 1>[];
 }
 
+export function fastMap<U, T extends any[]>(arr: T, fn: (value: T[number], index: number, array: T) => U): U[] {
+	const newArr: U[] = [];
+	let key = 0;
+
+	for (const value of arr) {
+		newArr.push(fn(value, key, arr));
+		key++;
+	}
+
+	return newArr;
+}
+
 export function delay<T>(time: number, result?: T): Promise<T> {
 	return setTimeout(time, result);
 }

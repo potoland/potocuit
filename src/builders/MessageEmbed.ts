@@ -13,6 +13,12 @@ import {
 
 /**
  * Represents a message embed.
+ * @example
+ * const embed = new MessageEmbed();
+ * embed.setTitle('Biscuitjs');
+ * embed.setDescription('Better than discord.js');
+ * embed.setColor('Green');
+ * const embedJSON = embed.json();
  */
 export class MessageEmbed {
 	/**

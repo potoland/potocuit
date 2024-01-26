@@ -522,7 +522,7 @@ export class StringSelectMenuInteraction<
 	Omit<SelectMenuInteraction, 'data'>,
 	StringSelectMenuInteraction
 >) {
-	declare data: ObjectToLower<OmitInsert<APIMessageStringSelectInteractionData, 'values', { values: T }>>;
+	declare data: OmitInsert<ObjectToLower<APIMessageStringSelectInteractionData>, 'values', { values: T }>;
 	declare values: T;
 }
 
