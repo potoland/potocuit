@@ -4,6 +4,7 @@ import {
 	LimitedCollection,
 	Modal,
 	SelectMenu,
+	magicImport,
 	type APIMessage,
 	type APIModalInteractionResponseCallbackData,
 } from '..';
@@ -235,7 +236,7 @@ export class ComponentHandler extends BaseHandler {
 		const index = this.client.components.commands.findIndex(x => x.__filePath === component.__filePath!);
 		if (index === -1) return null;
 		this.client.components.commands.splice(index, 1);
-		const imported = await import(component.__filePath).then(x => x.default);
+		const imported = await magicImport(component.__filePath).then(x => x.default ?? x);
 		const command = new imported();
 		command.__filePath = component.__filePath;
 		this.client.components.commands.push(command);

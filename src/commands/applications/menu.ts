@@ -1,5 +1,5 @@
 import type { BaseClient, IClients } from '../../client/base';
-import type { ApplicationCommandType, LocaleString } from '../../common';
+import { magicImport, type ApplicationCommandType, type LocaleString } from '../../common';
 import type { MenuCommandContext } from './menucontext';
 import type { MiddlewareContext, NextFunction, PassFunction, StopFunction } from './shared';
 
@@ -91,7 +91,7 @@ export abstract class ContextMenuCommand {
 
 	async reload() {
 		delete require.cache[this.__filePath!];
-		const __tempCommand = await import(this.__filePath!).then(x => x.default ?? x);
+		const __tempCommand = await magicImport(this.__filePath!).then(x => x.default ?? x);
 
 		Object.setPrototypeOf(this, __tempCommand.prototype);
 	}

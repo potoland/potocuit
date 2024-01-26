@@ -1,70 +1,67 @@
-export type BitFieldResolvable = number | bigint | (number | bigint)[];
+export type BitFieldResolvable<T extends object> = keyof T | number | bigint | (keyof T | number | bigint)[];
 
-export class BitField {
+export class BitField<T extends object> {
 	static None = 0;
-	static Flags: Record<string, any> = {};
+	Flags: Record<string, any> = {};
 
 	private bit: number;
 
-	constructor(bitfields?: BitFieldResolvable) {
-		this.bit = BitField.resolve(bitfields);
+	constructor(bitfields?: BitFieldResolvable<T>) {
+		this.bit = this.resolve(bitfields);
 	}
 
-	set bits(bits: BitFieldResolvable) {
-		this.bit = BitField.resolve(bits);
+	set bits(bits: BitFieldResolvable<T>) {
+		this.bit = this.resolve(bits);
 	}
 
 	get bits(): number {
 		return this.bit;
 	}
 
-	add(...bits: BitFieldResolvable[]): number {
+	add(...bits: BitFieldResolvable<T>[]): number {
 		let reduced = BitField.None;
 
 		for (const bit of bits) {
-			reduced |= BitField.resolve(bit);
+			reduced |= this.resolve(bit);
 		}
 
 		return (this.bit |= reduced);
 	}
 
-	remove(...bits: BitFieldResolvable[]): number {
+	remove(...bits: BitFieldResolvable<T>[]): number {
 		let reduced = BitField.None;
 
 		for (const bit of bits) {
-			reduced |= BitField.resolve(bit);
+			reduced |= this.resolve(bit);
 		}
 
 		return (this.bit &= ~reduced);
 	}
 
-	has(...bits: (BitFieldResolvable | string)[]) {
-		const bitsResolved = bits.map(bit => BitField.resolve(bit));
+	has(...bits: BitFieldResolvable<T>[]) {
+		const bitsResolved = bits.map(bit => this.resolve(bit));
 		return bitsResolved.every(bit => (this.bits & bit) === bit);
 	}
 
-	equals(bits: BitFieldResolvable): boolean {
-		return BitField.equals(this.bits, bits);
+	equals(other: BitFieldResolvable<T>) {
+		return this.bits === this.resolve(other);
 	}
 
-	static equals(main: BitFieldResolvable, other: BitFieldResolvable) {
-		return !!(BitField.resolve(main) & BitField.resolve(other));
-	}
-
-	static resolve(bits?: BitFieldResolvable | string): number {
+	resolve(bits?: BitFieldResolvable<T>): number {
 		switch (typeof bits) {
 			case 'number':
 				return bits;
-			case 'bigint':
 			case 'string':
+				return this.Flags[bits];
+			case 'bigint':
 				return Number(bits);
 			case 'object':
 				if (!Array.isArray(bits)) {
 					throw new TypeError(`Cannot resolve permission: ${bits}`);
 				}
-				return bits.map(BitField.resolve).reduce((acc, cur) => acc | cur, BitField.None);
+				return bits.map(x => this.resolve(x)).reduce((acc, cur) => acc | cur, BitField.None);
 			default:
-				throw new TypeError(`Cannot resolve permission: ${bits}`);
+				throw new TypeError(`Cannot resolve permission: ${typeof bits === 'symbol' ? String(bits) : (bits as any)}`);
 		}
 	}
 }

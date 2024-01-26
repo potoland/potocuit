@@ -2,6 +2,7 @@ import type { Client, WorkerClient } from '../client';
 import {
 	BaseHandler,
 	ReplaceRegex,
+	magicImport,
 	type GatewayDispatchPayload,
 	type GatewayMessageCreateDispatch,
 	type GatewayMessageDeleteBulkDispatch,
@@ -91,7 +92,7 @@ export class EventHandler extends BaseHandler {
 		const event = this.values[eventName];
 		if (!event) return null;
 		delete require.cache[event.__filePath];
-		const imported = await import(event.__filePath).then(x => x.default);
+		const imported = await magicImport(event.__filePath).then(x => x.default ?? x);
 		imported.__filePath = event.__filePath;
 		this.values[eventName] = imported;
 		return imported;

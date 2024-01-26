@@ -6,7 +6,7 @@ import type {
 	APIAttachment,
 	LocaleString,
 } from '../../common';
-import { ApplicationCommandOptionType, ApplicationCommandType } from '../../common';
+import { ApplicationCommandOptionType, ApplicationCommandType, magicImport } from '../../common';
 import type { AllChannels, AutocompleteInteraction, GuildRole, InteractionGuildMember, User } from '../../structures';
 import type { Groups } from '../decorators';
 import type { OptionResolver } from '../optionresolver';
@@ -238,7 +238,7 @@ class BaseCommand {
 
 	async reload() {
 		delete require.cache[this.__filePath!];
-		const __tempCommand = await import(this.__filePath!).then(x => x.default ?? x);
+		const __tempCommand = await magicImport(this.__filePath!).then(x => x.default ?? x);
 
 		Object.setPrototypeOf(this, __tempCommand.prototype);
 	}
