@@ -76,10 +76,10 @@ export class GuildShorter extends BaseShorter {
 				});
 				await this.client.cache.channels?.setIfNI('GuildEmojisAndStickers', emoji.id!, guildId, emoji);
 			},
-			fetch: async (guildId: string, emojiId: string, force = false) => {
+			fetch: async (emojiId: string, guildId: string, force = false) => {
 				let emoji;
 				if (!force) {
-					emoji = await this.client.proxy.guilds(guildId).emojis(emojiId).get();
+					emoji = await this.client.cache.emojis?.get(emojiId);
 					if (emoji) return emoji;
 				}
 				emoji = await this.client.proxy.guilds(guildId).emojis(emojiId).get();
