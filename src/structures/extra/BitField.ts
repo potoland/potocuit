@@ -2,7 +2,7 @@ export type BitFieldResolvable<T extends object> = keyof T | number | bigint | (
 
 export class BitField<T extends object> {
 	static None = 0;
-	Flags: Record<string, bigint> = {};
+	Flags: Partial<Record<string, bigint>> = {};
 
 	private bit: number;
 
