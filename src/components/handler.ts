@@ -83,9 +83,10 @@ export class ComponentHandler extends BaseHandler {
 
 	resetTimeouts(id: string) {
 		const listener = this.values.get(id);
-		if (!listener) return;
-		listener.timeout?.refresh();
-		listener.idle?.refresh();
+		if (listener) {
+			listener.timeout?.refresh();
+			listener.idle?.refresh();
+		}
 	}
 
 	hasModal(interaction: ModalSubmitInteraction) {
@@ -98,36 +99,36 @@ export class ComponentHandler extends BaseHandler {
 	}
 
 	__setComponents(id: string, record: ComponentsListener<BuilderComponents>) {
+		this.deleteValue(id);
 		const components: COMPONENTS = {
 			buttons: {},
 			options: record.options,
 		};
 
-		if (!record.options) return;
+		if ((record.options.idle ?? -1) > 0) {
+			components.idle = setTimeout(() => {
+				clearTimeout(components.timeout);
+				clearTimeout(components.idle);
+				record.options?.onStop?.('idle', () => {
+					this.__setComponents(id, record);
+				});
+				this.values.delete(id);
+			}, record.options.idle);
+		}
+		if ((record.options.timeout ?? -1) > 0) {
+			components.timeout = setTimeout(() => {
+				clearTimeout(components.timeout);
+				clearTimeout(components.idle);
+				record.options?.onStop?.('timeout', () => {
+					this.__setComponents(id, record);
+				});
+				this.values.delete(id);
+			}, record.options.timeout);
+		}
 
 		for (const actionRow of record.components) {
 			for (const child of actionRow.components) {
 				if ((child instanceof SelectMenu || child instanceof Button) && 'custom_id' in child.data) {
-					if ((record.options.idle ?? -1) > 0) {
-						components.idle = setTimeout(() => {
-							clearTimeout(components.timeout);
-							clearTimeout(components.idle);
-							record.options?.onStop?.('idle', () => {
-								this.__setComponents(id, record);
-							});
-							this.values.delete(id);
-						}, record.options.idle);
-					}
-					if ((record.options.timeout ?? -1) > 0) {
-						components.timeout = setTimeout(() => {
-							clearTimeout(components.timeout);
-							clearTimeout(components.idle);
-							record.options?.onStop?.('timeout', () => {
-								this.__setComponents(id, record);
-							});
-							this.values.delete(id);
-						}, record.options.timeout);
-					}
 					components.buttons[child.data.custom_id!] = {
 						callback: child.__exec as ComponentCallback,
 					};
@@ -146,27 +147,6 @@ export class ComponentHandler extends BaseHandler {
 		}
 	}
 
-	onRequestInteraction(interactionId: string, interaction: ReplyInteractionBody) {
-		// @ts-expect-error dapi
-		if (!interaction.data) {
-			return;
-		}
-		switch (interaction.type) {
-			case InteractionResponseType.ChannelMessageWithSource:
-			case InteractionResponseType.UpdateMessage:
-				if (!(interaction.data.components instanceof ComponentsListener)) return;
-				if (!interaction.data.components.components?.length) {
-					return;
-				}
-				this.__setComponents(interactionId, interaction.data.components ?? []);
-				break;
-			case InteractionResponseType.Modal:
-				if (!(interaction.data instanceof Modal)) return;
-				this.__setModal(interactionId, interaction.data);
-				break;
-		}
-	}
-
 	deleteValue(id: string) {
 		const component = this.values.get(id);
 		if (component) {
@@ -176,33 +156,49 @@ export class ComponentHandler extends BaseHandler {
 		}
 	}
 
+	onRequestInteraction(interactionId: string, interaction: ReplyInteractionBody) {
+		// @ts-expect-error dapi
+		if (!interaction.data) {
+			return;
+		}
+		switch (interaction.type) {
+			case InteractionResponseType.ChannelMessageWithSource:
+			case InteractionResponseType.UpdateMessage:
+				if (!(interaction.data.components instanceof ComponentsListener)) return;
+				this.__setComponents(interactionId, interaction.data.components ?? []);
+				break;
+			case InteractionResponseType.Modal:
+				if (!(interaction.data instanceof Modal)) return;
+				this.__setModal(interactionId, interaction.data);
+				break;
+		}
+	}
+
 	onMessageDelete(id: string) {
 		this.deleteValue(id);
 	}
 
-	onRequestInteractionUpdate(body: InteractionMessageUpdateBodyRequest, message: APIMessage) {
-		if (!(body.components instanceof ComponentsListener) || !body.components.components?.length) {
+	onRequestMessage(body: MessageCreateBodyRequest, message: APIMessage) {
+		if (!(body.components instanceof ComponentsListener)) {
 			return;
 		}
-		this.deleteValue(message.id);
 		this.__setComponents(message.id, body.components);
 	}
 
-	onRequestMessage(body: MessageCreateBodyRequest, message: APIMessage) {
-		if (!(body.components instanceof ComponentsListener) || !body.components.components?.length) {
+	onRequestInteractionUpdate(body: InteractionMessageUpdateBodyRequest, message: APIMessage) {
+		if (!(body.components instanceof ComponentsListener)) {
 			return;
 		}
 		this.__setComponents(message.id, body.components);
 	}
 
 	onRequestUpdateMessage(body: MessageUpdateBodyRequest, message: APIMessage) {
-		if (!(body.components instanceof ComponentsListener) || !body.components.components.length) return;
-		this.deleteValue(message.id);
+		if (!(body.components instanceof ComponentsListener)) return;
 		this.__setComponents(message.id, body.components);
 	}
 
 	async load(componentsDir: string) {
-		const paths = await this.loadFilesK<{ new (): ModalCommand | ComponentCommand }>(
+		const paths = await this.loadFilesK<{ new(): ModalCommand | ComponentCommand }>(
 			await this.getFiles(componentsDir),
 		);
 
