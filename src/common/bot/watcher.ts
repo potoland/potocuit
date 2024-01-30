@@ -18,7 +18,7 @@ export class Watcher extends ShardManager {
 
 	constructor(options: WatcherOptions) {
 		super({
-			handlePayload() {},
+			handlePayload() { },
 			token: '',
 			intents: 0,
 			info: {
