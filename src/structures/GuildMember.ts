@@ -31,7 +31,7 @@ export type GatewayGuildMemberAddDispatchDataFixed<Pending extends boolean> = Pe
 	? Omit<GatewayGuildMemberAddDispatchData, 'user'> & { id: string }
 	: MakeRequired<GatewayGuildMemberAddDispatchData, 'user'>;
 
-export interface BaseGuildMember extends DiscordBase, ObjectToLower<Omit<APIGuildMember, 'user' | 'roles'>> { }
+export interface BaseGuildMember extends DiscordBase, ObjectToLower<Omit<APIGuildMember, 'user' | 'roles'>> {}
 export class BaseGuildMember extends DiscordBase {
 	private _roles: string[];
 	joinedTimestamp?: number;
@@ -110,7 +110,7 @@ export class BaseGuildMember extends DiscordBase {
 	}
 }
 
-export interface GuildMember extends ObjectToLower<Omit<APIGuildMember, 'user' | 'roles'>> { }
+export interface GuildMember extends ObjectToLower<Omit<APIGuildMember, 'user' | 'roles'>> {}
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
@@ -129,15 +129,15 @@ export class GuildMember extends BaseGuildMember {
 	}
 
 	get tag() {
-		return this.user.tag
+		return this.user.tag;
 	}
 
 	get bot() {
-		return this.user.bot
+		return this.user.bot;
 	}
 
 	get name() {
-		return this.user.name
+		return this.user.name;
 	}
 
 	get username() {
@@ -154,7 +154,7 @@ export class GuildMember extends BaseGuildMember {
 	}
 
 	dm(force = false) {
-		return this.user.dm(force)
+		return this.user.dm(force);
 	}
 
 	write(body: MessageCreateBodyRequest) {
@@ -162,7 +162,7 @@ export class GuildMember extends BaseGuildMember {
 	}
 
 	avatarURL(options?: ImageOptions) {
-		return this.user.avatarURL(options)
+		return this.user.avatarURL(options);
 	}
 
 	dynamicAvatarURL(options?: ImageOptions) {
@@ -178,10 +178,10 @@ export interface UnavailableMember {
 	pending: true;
 }
 
-export class UnavailableMember extends BaseGuildMember { }
+export class UnavailableMember extends BaseGuildMember {}
 
 export interface InteractionGuildMember
-	extends ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles' | 'deaf' | 'mute'>> { }
+	extends ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles' | 'deaf' | 'mute'>> {}
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
