@@ -5,6 +5,7 @@ import type {
 	GatewayGuildMemberAddDispatchData,
 	GatewayGuildMemberUpdateDispatchData,
 	MakeRequired,
+	MessageCreateBodyRequest,
 	ObjectToLower,
 	RESTGetAPIGuildMembersQuery,
 	RESTGetAPIGuildMembersSearchQuery,
@@ -30,7 +31,7 @@ export type GatewayGuildMemberAddDispatchDataFixed<Pending extends boolean> = Pe
 	? Omit<GatewayGuildMemberAddDispatchData, 'user'> & { id: string }
 	: MakeRequired<GatewayGuildMemberAddDispatchData, 'user'>;
 
-export interface BaseGuildMember extends DiscordBase, ObjectToLower<Omit<APIGuildMember, 'user' | 'roles'>> {}
+export interface BaseGuildMember extends DiscordBase, ObjectToLower<Omit<APIGuildMember, 'user' | 'roles'>> { }
 export class BaseGuildMember extends DiscordBase {
 	private _roles: string[];
 	joinedTimestamp?: number;
@@ -48,7 +49,7 @@ export class BaseGuildMember extends DiscordBase {
 		this.patch(data);
 	}
 
-	async guild(force = false) {
+	guild(force = false) {
 		return this.client.guilds.fetch(this.id, force);
 	}
 
@@ -109,7 +110,7 @@ export class BaseGuildMember extends DiscordBase {
 	}
 }
 
-export interface GuildMember extends ObjectToLower<Omit<APIGuildMember, 'user' | 'roles'>> {}
+export interface GuildMember extends ObjectToLower<Omit<APIGuildMember, 'user' | 'roles'>> { }
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
@@ -127,6 +128,18 @@ export class GuildMember extends BaseGuildMember {
 		this.user = user instanceof User ? user : new User(client, user);
 	}
 
+	get tag() {
+		return this.user.tag
+	}
+
+	get bot() {
+		return this.user.bot
+	}
+
+	get name() {
+		return this.user.name
+	}
+
 	get username() {
 		return this.user.username;
 	}
@@ -138,6 +151,18 @@ export class GuildMember extends BaseGuildMember {
 	/** gets the nickname or the username */
 	get displayName() {
 		return this.nick ?? this.globalName ?? this.username;
+	}
+
+	dm(force = false) {
+		return this.user.dm(force)
+	}
+
+	write(body: MessageCreateBodyRequest) {
+		return this.user.write(body);
+	}
+
+	avatarURL(options?: ImageOptions) {
+		return this.user.avatarURL(options)
 	}
 
 	dynamicAvatarURL(options?: ImageOptions) {
@@ -153,10 +178,10 @@ export interface UnavailableMember {
 	pending: true;
 }
 
-export class UnavailableMember extends BaseGuildMember {}
+export class UnavailableMember extends BaseGuildMember { }
 
 export interface InteractionGuildMember
-	extends ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles' | 'deaf' | 'mute'>> {}
+	extends ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles' | 'deaf' | 'mute'>> { }
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
