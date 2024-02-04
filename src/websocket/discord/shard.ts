@@ -1,6 +1,6 @@
 import { inflateSync } from 'node:zlib';
 import type WS from 'ws';
-import { ErrorEvent, WebSocket, type CloseEvent } from 'ws';
+import { type ErrorEvent, WebSocket, type CloseEvent } from 'ws';
 import type { GatewayReceivePayload, GatewaySendPayload, Logger } from '../../common';
 import { GatewayCloseCodes, GatewayDispatchEvents, GatewayOpcodes } from '../../common';
 import { properties } from '../constants';

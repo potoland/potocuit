@@ -22,20 +22,20 @@ export type WorkerSendCacheRequest = CreateWorkerMessage<
 	{
 		nonce: string;
 		method:
-		| 'scan'
-		| 'get'
-		| 'set'
-		| 'patch'
-		| 'values'
-		| 'keys'
-		| 'count'
-		| 'remove'
-		| 'contains'
-		| 'getToRelationship'
-		| 'bulkAddToRelationShip'
-		| 'addToRelationship'
-		| 'removeRelationship'
-		| 'removeToRelationship';
+			| 'scan'
+			| 'get'
+			| 'set'
+			| 'patch'
+			| 'values'
+			| 'keys'
+			| 'count'
+			| 'remove'
+			| 'contains'
+			| 'getToRelationship'
+			| 'bulkAddToRelationShip'
+			| 'addToRelationship'
+			| 'removeRelationship'
+			| 'removeToRelationship';
 		args: any[];
 		workerId: number;
 	}
