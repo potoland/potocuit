@@ -195,19 +195,19 @@ export class Cache {
 	async bulkGet(
 		keys: (
 			| readonly [
-					/* type */
-					NonGuildBased | GuildRelated,
-					/* source id */
-					string,
-			  ]
+				/* type */
+				NonGuildBased | GuildRelated,
+				/* source id */
+				string,
+			]
 			| readonly [
-					/* type */
-					GuildBased,
-					/* source id */
-					string,
-					/* guild id */
-					string,
-			  ]
+				/* type */
+				GuildBased,
+				/* source id */
+				string,
+				/* guild id */
+				string,
+			]
 		)[],
 	) {
 		const allData: Partial<Record<NonGuildBased | GuildBased | GuildRelated, string[][]>> = {};
@@ -266,23 +266,23 @@ export class Cache {
 	async bulkPatch(
 		keys: (
 			| readonly [
-					/* type */
-					NonGuildBased,
-					/* data */
-					any,
-					/* source id */
-					string,
-			  ]
+				/* type */
+				NonGuildBased,
+				/* data */
+				any,
+				/* source id */
+				string,
+			]
 			| readonly [
-					/* type */
-					GuildBased | GuildRelated,
-					/* data */
-					any,
-					/* source id */
-					string,
-					/* guild id */
-					string,
-			  ]
+				/* type */
+				GuildBased | GuildRelated,
+				/* data */
+				any,
+				/* source id */
+				string,
+				/* guild id */
+				string,
+			]
 		)[],
 	) {
 		const allData: [string, any][] = [];
@@ -350,23 +350,23 @@ export class Cache {
 	async bulkSet(
 		keys: (
 			| readonly [
-					/* type */
-					NonGuildBased,
-					/* data */
-					any,
-					/* source id */
-					string,
-			  ]
+				/* type */
+				NonGuildBased,
+				/* data */
+				any,
+				/* source id */
+				string,
+			]
 			| readonly [
-					/* type */
-					GuildBased | GuildRelated,
-					/* data */
-					any,
-					/* source id */
-					string,
-					/* guild id */
-					string,
-			  ]
+				/* type */
+				GuildBased | GuildRelated,
+				/* data */
+				any,
+				/* source id */
+				string,
+				/* guild id */
+				string,
+			]
 		)[],
 	) {
 		const allData: [string, any][] = [];
@@ -441,11 +441,11 @@ export class Cache {
 				break;
 			case 'GUILD_CREATE':
 			case 'GUILD_UPDATE':
-				await this.guilds?.patch(event.d.id, event.d);
+				await this.guilds?.patch(event.d.id, { unavailable: false, ...event.d });
 				break;
 			case 'GUILD_DELETE':
 				if (event.d.unavailable) {
-					await this.guilds?.set(event.d.id, event.d);
+					await this.guilds?.patch(event.d.id, event.d);
 				} else {
 					await this.guilds?.remove(event.d.id);
 				}
