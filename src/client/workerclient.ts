@@ -41,7 +41,7 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 		});
 		if (workerData.debug) {
 			this.debugger = new Logger({
-				name: `[WorkerClient #${workerData.workerId}]`,
+				name: `[Worker #${workerData.workerId}]`,
 				logLevel: LogLevels.Debug,
 			});
 		}
