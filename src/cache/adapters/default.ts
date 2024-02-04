@@ -110,15 +110,14 @@ export class MemoryAdapter implements Adapter {
 		}
 	}
 
-	addToRelationship(to: string, __keys: string | string[]) {
+	addToRelationship(to: string, keys: string | string[]) {
 		if (!this.relationships.has(to)) {
 			this.relationships.set(to, []);
 		}
 
-		const keys = Array.isArray(__keys) ? __keys : [__keys];
 		const data = this.getToRelationship(to);
 
-		for (const key of keys) {
+		for (const key of Array.isArray(keys) ? keys : [keys]) {
 			if (!data.includes(key)) {
 				data.push(key);
 			}
@@ -127,11 +126,9 @@ export class MemoryAdapter implements Adapter {
 
 	removeToRelationship(to: string, keys: string | string[]) {
 		const data = this.getToRelationship(to);
-
 		if (data) {
-			for (const key of keys) {
+			for (const key of Array.isArray(keys) ? keys : [keys]) {
 				const idx = data.indexOf(key);
-
 				if (idx !== -1) {
 					data.splice(idx, 1);
 				}
