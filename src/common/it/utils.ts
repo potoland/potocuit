@@ -71,7 +71,7 @@ export function filterSplit<Element, Predicate extends (value: Element) => boole
 }
 
 export class BaseHandler {
-	constructor(protected logger: Logger) {}
+	constructor(protected logger: Logger) { }
 
 	protected filter = (path: string) => !!path;
 
@@ -92,11 +92,11 @@ export class BaseHandler {
 	}
 
 	protected async loadFiles<T extends NonNullable<unknown>>(paths: string[]): Promise<T[]> {
-		return await Promise.all(paths.map(path => magicImport(path).then(file => file.default ?? file)));
+		return Promise.all(paths.map(path => magicImport(path).then(file => file.default ?? file)));
 	}
 
 	protected async loadFilesK<T>(paths: string[]): Promise<{ name: string; file: T; path: string }[]> {
-		return await Promise.all(
+		return Promise.all(
 			paths.map(path =>
 				magicImport(path).then(file => {
 					return {

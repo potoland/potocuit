@@ -1,7 +1,7 @@
-import type { OmitInsert, RawFile } from '../..';
 import type {
 	APIThreadChannel,
 	Identify,
+	OmitInsert,
 	RESTDeleteAPIAutoModerationRuleResult,
 	RESTDeleteAPIGuildBanResult,
 	RESTDeleteAPIGuildEmojiResult,
@@ -115,6 +115,7 @@ import type {
 } from '../../common';
 import type { RestArguments } from '../REST';
 import type { ProxyRequestMethod } from '../Router';
+import { RawFile } from '../shared';
 
 export interface GuildRoutes {
 	guilds: {

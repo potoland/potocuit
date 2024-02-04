@@ -6,9 +6,9 @@ import {
 	type GatewayChannelUpdateDispatchData,
 } from '../../common';
 
-import type { AllChannels } from '../..';
 import type { BaseClient } from '../../client/base';
-import channelFrom from '../../structures/methods/channels';
+import { AllChannels } from '../../structures';
+import channelFrom from '../../structures/channels';
 
 export const CHANNEL_CREATE = (self: BaseClient, data: GatewayChannelCreateDispatchData) => {
 	return channelFrom(data, self);

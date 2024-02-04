@@ -1,13 +1,11 @@
+import type { BaseClient } from '../client/base';
 import type {
+	APIWebhook,
 	ImageOptions,
 	MessageWebhookCreateBodyRequest,
 	MessageWebhookPayload,
 	MessageWebhookUpdateBodyRequest,
 	MethodContext,
-} from '..';
-import type { BaseClient } from '../client/base';
-import type {
-	APIWebhook,
 	ObjectToLower,
 	RESTGetAPIWebhookWithTokenMessageQuery,
 	RESTPatchAPIWebhookJSONBody,
@@ -18,7 +16,7 @@ import { AnonymousGuild } from './AnonymousGuild';
 import { User } from './User';
 import { DiscordBase } from './extra/DiscordBase';
 
-export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> {}
+export interface Webhook extends DiscordBase, ObjectToLower<Omit<APIWebhook, 'user' | 'source_guild'>> { }
 
 export class Webhook extends DiscordBase {
 	user?: User;

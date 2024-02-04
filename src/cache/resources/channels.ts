@@ -1,5 +1,5 @@
 import type { AllChannels } from '../../structures';
-import channelFrom from '../../structures/methods/channels';
+import channelFrom from '../../structures/channels';
 import { GuildRelatedResource } from './default/guild-related';
 
 export class Channels extends GuildRelatedResource {

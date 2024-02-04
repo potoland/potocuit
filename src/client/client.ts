@@ -1,5 +1,4 @@
 import { parentPort, workerData } from 'node:worker_threads';
-import { ClientUser } from '..';
 import type {
 	DeepPartial,
 	GatewayDispatchPayload,
@@ -9,6 +8,7 @@ import type {
 	WatcherSendToShard,
 } from '../common';
 import { EventHandler } from '../events';
+import { ClientUser } from '../structures';
 import { ShardManager } from '../websocket';
 import { MemberUpdateHandler } from '../websocket/discord/memberUpdate';
 import type { BaseClientOptions, InternalRuntimeConfig, ServicesOptions, StartOptions } from './base';
@@ -28,13 +28,11 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 
 	setServices({
 		gateway,
-		rest,
-		cache,
-		defaultLang,
+		...rest
 	}: ServicesOptions & {
 		gateway?: ShardManager;
 	}) {
-		super.setServices({ rest, cache, defaultLang });
+		super.setServices(rest);
 		if (gateway) {
 			const onPacket = this.onPacket.bind(this);
 			const oldFn = gateway.options.handlePayload;

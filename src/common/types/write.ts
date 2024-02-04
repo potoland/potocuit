@@ -8,8 +8,8 @@ import type {
 	RESTPostAPIChannelMessageJSONBody,
 	RESTPostAPIWebhookWithTokenJSONBody,
 } from '..';
-import type { RawFile } from '../..';
-import type { ActionRow, Attachment, BuilderComponents, MessageEmbed, Modal, TextInput } from '../../builders';
+import { RawFile } from '../../api';
+import type { ActionRow, Attachment, BuilderComponents, Embed, Modal, TextInput } from '../../builders';
 import type { ComponentsListener } from '../../components/listener';
 
 import type { OmitInsert } from './util';
@@ -19,7 +19,7 @@ export type BodyModalComponentProper = {
 };
 
 export interface ResolverProps {
-	embeds?: MessageEmbed[] | APIEmbed[] | undefined;
+	embeds?: Embed[] | APIEmbed[] | undefined;
 	components?: ComponentsListener<BuilderComponents> | ActionRow<BuilderComponents>[] | undefined;
 	files?: Attachment[] | RawFile[] | undefined;
 }

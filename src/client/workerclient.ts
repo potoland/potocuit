@@ -1,10 +1,10 @@
 import { workerData as __workerData__, parentPort as manager } from 'node:worker_threads';
-import { ClientUser } from '..';
 import type { Cache } from '../cache';
 import { WorkerAdapter } from '../cache';
 import type { GatewayDispatchPayload, When } from '../common';
 import { LogLevels, Logger, type DeepPartial } from '../common';
 import { EventHandler } from '../events';
+import { ClientUser } from '../structures';
 import type { Shard, WorkerData } from '../websocket';
 import { handleManagerMessages } from '../websocket/discord/handlemessage';
 import type { ManagerMessages } from '../websocket/discord/workermanager';

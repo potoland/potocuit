@@ -14,8 +14,8 @@ type BiscuitStringOption = BiscuitBasicOption<'String'> & {
 	autocomplete?: AutocompleteCallback;
 	onAutocompleteError?: OnAutocompleteErrorCallback;
 	choices?:
-		| readonly { readonly name: string; readonly value: string }[]
-		| APIApplicationCommandOptionChoice<ReturnOptionsTypes[ApplicationCommandOptionType.String]>[];
+	| readonly { readonly name: string; readonly value: string }[]
+	| APIApplicationCommandOptionChoice<ReturnOptionsTypes[ApplicationCommandOptionType.String]>[];
 	min_length?: number;
 	max_length?: number;
 };
@@ -78,6 +78,8 @@ export function createAttachmentOption<T extends BiscuitAttachmentOption = Biscu
 	return { ...data, type: ApplicationCommandOptionType.Attachment } as const;
 }
 
-export function createMiddleware<M, T = MiddlewareContext<M, CommandContext<keyof IClients>>>(data: T) {
+export type ParseMiddlewareType<T> = T extends MiddlewareContext<any, CommandContext<keyof IClients>> ? T : MiddlewareContext<T, CommandContext<keyof IClients>>;
+
+export function createMiddleware<T = ParseMiddlewareType<unknown>>(data: ParseMiddlewareType<T>) {
 	return data;
 }

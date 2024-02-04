@@ -43,8 +43,7 @@ export async function onInteraction(
 							await command.autocomplete(interaction);
 						} catch (error) {
 							self.logger.error(
-								`${optionsResolver.fullCommandName} ${command?.name} just threw an error, ${
-									error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+								`${optionsResolver.fullCommandName} ${command?.name} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 								}`,
 							);
 							await command.onAutocompleteError?.(interaction, error);
@@ -89,29 +88,28 @@ export async function onInteraction(
 									if (resultRunGlobalMiddlewares === 'pass') {
 										return;
 									}
-									const [, erroredGlobalMiddlewares] = resultRunGlobalMiddlewares;
-									if (erroredGlobalMiddlewares) {
-										return await command.onMiddlewaresError?.(context, erroredGlobalMiddlewares);
+									if (resultRunGlobalMiddlewares) {
+										return command.onMiddlewaresError?.(context, resultRunGlobalMiddlewares);
 									}
 
 									const resultRunMiddlewares = await command.__runMiddlewares(context);
 									if (resultRunMiddlewares === 'pass') {
 										return;
 									}
-									const [, erroredMiddlewares] = resultRunMiddlewares;
-									if (erroredMiddlewares) {
-										return await command.onMiddlewaresError?.(context, erroredMiddlewares);
+									if (resultRunGlobalMiddlewares) {
+										return command.onMiddlewaresError?.(context, resultRunGlobalMiddlewares);
 									}
 
 									try {
 										await command.run(context);
+										await command.onAfterRun?.(context, undefined)
 									} catch (error) {
 										self.logger.error(
-											`${command.name} just threw an error, ${
-												error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+											`${command.name} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 											}`,
 										);
 										await command.onRunError?.(context, error);
+										await command.onAfterRun?.(context, error)
 									}
 								} catch (error) {
 									try {
@@ -151,35 +149,34 @@ export async function onInteraction(
 								try {
 									const [erroredOptions, result] = await command.__runOptions(context, optionsResolver);
 									if (erroredOptions) {
-										return await command.onOptionsError?.(context, result);
+										return command.onOptionsError?.(context, result);
 									}
 									const resultRunGlobalMiddlewares = await command.__runGlobalMiddlewares(context);
 									if (resultRunGlobalMiddlewares === 'pass') {
 										return;
 									}
-									const [, erroredGlobalMiddlewares] = resultRunGlobalMiddlewares;
-									if (erroredGlobalMiddlewares) {
-										return await command.onMiddlewaresError?.(context, erroredGlobalMiddlewares);
+									if (resultRunGlobalMiddlewares) {
+										return command.onMiddlewaresError?.(context, resultRunGlobalMiddlewares);
 									}
 
 									const resultRunMiddlewares = await command.__runMiddlewares(context);
 									if (resultRunMiddlewares === 'pass') {
 										return;
 									}
-									const [, erroredMiddlewares] = resultRunMiddlewares;
-									if (erroredMiddlewares) {
-										return await command.onMiddlewaresError?.(context, erroredMiddlewares);
+									if (resultRunMiddlewares) {
+										return command.onMiddlewaresError?.(context, resultRunMiddlewares);
 									}
 
 									try {
 										await command.run(context);
+										await command.onAfterRun?.(context, undefined)
 									} catch (error) {
 										self.logger.error(
-											`${optionsResolver.fullCommandName} just threw an error, ${
-												error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+											`${optionsResolver.fullCommandName} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 											}`,
 										);
 										await command.onRunError?.(context, error);
+										await command.onAfterRun?.(context, error)
 									}
 								} catch (error) {
 									try {

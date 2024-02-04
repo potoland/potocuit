@@ -8,16 +8,15 @@ import type {
 } from '../../common';
 import { ApplicationCommandOptionType, ApplicationCommandType, magicImport } from '../../common';
 import type { AllChannels, AutocompleteInteraction, GuildRole, InteractionGuildMember, User } from '../../structures';
-import type { Groups } from '../decorators';
+import type { Groups, RegisteredMiddlewares } from '../decorators';
 import type { OptionResolver } from '../optionresolver';
 import type { CommandContext } from './chatcontext';
 import type {
-	MiddlewareContext,
 	NextFunction,
 	OKFunction,
 	OnOptionsReturnObject,
 	PassFunction,
-	StopFunction,
+	StopFunction
 } from './shared';
 
 export interface ReturnOptionsTypes {
@@ -39,35 +38,35 @@ type Wrap<N extends ApplicationCommandOptionType> = N extends
 	| ApplicationCommandOptionType.SubcommandGroup
 	? never
 	: (
-			| {
-					required?: false;
-					value?(
-						data: { context: CommandContext<keyof IClients>; value: ReturnOptionsTypes[N] | undefined },
-						ok: OKFunction<any>,
-						fail: StopFunction,
-					): void;
-			  }
-			| {
-					required: true;
-					value?(
-						data: { context: CommandContext<keyof IClients>; value: ReturnOptionsTypes[N] },
-						ok: OKFunction<any>,
-						fail: StopFunction,
-					): void;
-			  }
-	  ) & {
-			description: string;
-			description_localizations?: APIApplicationCommandBasicOption['description_localizations'];
-			name_localizations?: APIApplicationCommandBasicOption['name_localizations'];
-	  };
+		| {
+			required?: false;
+			value?(
+				data: { context: CommandContext<keyof IClients>; value: ReturnOptionsTypes[N] | undefined },
+				ok: OKFunction<any>,
+				fail: StopFunction,
+			): void;
+		}
+		| {
+			required: true;
+			value?(
+				data: { context: CommandContext<keyof IClients>; value: ReturnOptionsTypes[N] },
+				ok: OKFunction<any>,
+				fail: StopFunction,
+			): void;
+		}
+	) & {
+		description: string;
+		description_localizations?: APIApplicationCommandBasicOption['description_localizations'];
+		name_localizations?: APIApplicationCommandBasicOption['name_localizations'];
+	};
 
 export type __TypeWrapper<T extends ApplicationCommandOptionType> = Wrap<T>;
 
 export type __TypesWrapper = {
 	[P in keyof typeof ApplicationCommandOptionType]: `${(typeof ApplicationCommandOptionType)[P]}` extends `${infer D extends
-		number}`
-		? Wrap<D>
-		: never;
+	number}`
+	? Wrap<D>
+	: never;
 };
 
 export type AutocompleteCallback = (interaction: AutocompleteInteraction) => any;
@@ -84,16 +83,16 @@ export type OptionsRecord = Record<string, __CommandOption & { type: Application
 
 export type ContextOptions<T extends OptionsRecord> = {
 	[K in keyof T]: T[K]['value'] extends (...args: any) => any
-		? T[K]['required'] extends true
-			? Parameters<Parameters<T[K]['value']>[1]>[0]
-			: Parameters<Parameters<T[K]['value']>[1]>[0]
-		: T[K]['required'] extends true
-		  ? ReturnOptionsTypes[T[K]['type']]
-		  : ReturnOptionsTypes[T[K]['type']] | undefined;
+	? T[K]['required'] extends true
+	? Parameters<Parameters<T[K]['value']>[1]>[0]
+	: Parameters<Parameters<T[K]['value']>[1]>[0]
+	: T[K]['required'] extends true
+	? ReturnOptionsTypes[T[K]['type']]
+	: ReturnOptionsTypes[T[K]['type']] | undefined;
 };
 
 class BaseCommand {
-	middlewares: MiddlewareContext[] = [];
+	middlewares: (keyof RegisteredMiddlewares)[] = [];
 
 	__filePath?: string;
 	__t?: { name: string; description: string };
@@ -170,13 +169,12 @@ class BaseCommand {
 	/** @internal */
 	static __runMiddlewares(
 		context: CommandContext<keyof IClients, {}, []>,
-		middlewares: readonly MiddlewareContext[],
+		middlewares: (keyof RegisteredMiddlewares)[],
 		global: boolean,
-	): Promise<[any, undefined] | [undefined, Error] | 'pass'> {
+	): Promise<undefined | Error | 'pass'> {
 		if (!middlewares.length) {
-			return Promise.resolve([{}, undefined]);
+			return Promise.resolve(undefined);
 		}
-		const metadata: Record<string, any> = {};
 		let index = 0;
 
 		return new Promise(res => {
@@ -192,34 +190,35 @@ class BaseCommand {
 				if (!running) {
 					return;
 				}
-				Object.assign(metadata, obj ?? {});
+				// @ts-expect-error globalMetadata doesnt exist, but is used for global middlewares
+				context[global ? 'globalMetadata' : 'metadata'] ??= {}
+				// @ts-expect-error globalMetadata doesnt exist, but is used for global middlewares
+				context[global ? 'globalMetadata' : 'metadata'][middlewares[index]] = obj
 				if (++index >= middlewares.length) {
 					running = false;
-					// @ts-expect-error globalMetadata doesnt exist, but is used for global middlewares
-					context[global ? 'globalMetadata' : 'metadata'] = metadata;
-					return res([metadata, undefined]);
+					return res(undefined);
 				}
-				middlewares[index]({ context, next, stop, pass });
+				context.client.middlewares![middlewares[index]]({ context, next, stop, pass });
 			};
 			const stop: StopFunction = err => {
 				if (!running) {
 					return;
 				}
 				running = false;
-				return res([undefined, err]);
+				return res(err);
 			};
-			middlewares[0]({ context, next, stop, pass });
+			context.client.middlewares![middlewares[0]]({ context, next, stop, pass });
 		});
 	}
 
 	/** @internal */
 	__runMiddlewares(context: CommandContext<keyof IClients, {}, []>) {
-		return BaseCommand.__runMiddlewares(context, this.middlewares, false);
+		return BaseCommand.__runMiddlewares(context, this.middlewares as (keyof RegisteredMiddlewares)[], false);
 	}
 
 	/** @internal */
 	__runGlobalMiddlewares(context: CommandContext<keyof IClients, {}, []>) {
-		return BaseCommand.__runMiddlewares(context, context.client.options?.globalMiddlewares ?? [], true);
+		return BaseCommand.__runMiddlewares(context, (context.client.options?.globalMiddlewares ?? []) as (keyof RegisteredMiddlewares)[], true);
 	}
 
 	toJSON() {
@@ -244,6 +243,7 @@ class BaseCommand {
 	}
 
 	run?(context: CommandContext<keyof IClients, any>): any;
+	onAfterRun?(context: CommandContext<keyof IClients, any>, error: unknown | undefined): any;
 	onRunError?(context: CommandContext<keyof IClients, any>, error: unknown): any;
 	onOptionsError?(context: CommandContext<keyof IClients, {}, []>, metadata: OnOptionsReturnObject): any;
 	onMiddlewaresError?(context: CommandContext<keyof IClients, {}, []>, error: Error): any;

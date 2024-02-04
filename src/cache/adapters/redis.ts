@@ -133,7 +133,7 @@ export class RedisAdapter implements Adapter {
 	}
 
 	async count(to: string): Promise<number> {
-		return await this.client.scard(`${this.buildKey(to)}:set`);
+		return this.client.scard(`${this.buildKey(to)}:set`);
 	}
 
 	async remove(keys: string | string[]): Promise<void> {
@@ -150,7 +150,7 @@ export class RedisAdapter implements Adapter {
 	}
 
 	async getToRelationship(to: string): Promise<string[]> {
-		return await this.client.smembers(`${this.buildKey(to)}:set`);
+		return this.client.smembers(`${this.buildKey(to)}:set`);
 	}
 
 	async bulkAddToRelationShip(data: Record<string, string[]>): Promise<void> {

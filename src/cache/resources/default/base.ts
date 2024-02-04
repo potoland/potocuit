@@ -42,7 +42,7 @@ export class BaseResource<T = any> {
 	}
 
 	async get(id: string): Promise<T | undefined> {
-		return await this.adapter.get(this.hashId(id));
+		return this.adapter.get(this.hashId(id));
 	}
 
 	async set(id: string, data: any) {
@@ -61,23 +61,23 @@ export class BaseResource<T = any> {
 	}
 
 	async keys(): Promise<string[]> {
-		return await this.adapter.keys(this.namespace);
+		return this.adapter.keys(this.namespace);
 	}
 
 	async values(): Promise<T[]> {
-		return await this.adapter.values(this.namespace);
+		return this.adapter.values(this.namespace);
 	}
 
 	async count() {
-		return await this.adapter.count(this.namespace);
+		return this.adapter.count(this.namespace);
 	}
 
 	async contains(id: string) {
-		return await this.adapter.contains(this.namespace, id);
+		return this.adapter.contains(this.namespace, id);
 	}
 
 	async getToRelationship() {
-		return await this.adapter.getToRelationship(this.namespace);
+		return this.adapter.getToRelationship(this.namespace);
 	}
 
 	async addToRelationship(id: string | string[]) {

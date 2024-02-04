@@ -11,7 +11,7 @@ import {
 	type RestOrArray,
 } from '../common';
 
-export class MessageEmbed {
+export class Embed {
 	constructor(public data: Partial<APIEmbed> = {}) {
 		if (!data.fields) this.data.fields = [];
 	}

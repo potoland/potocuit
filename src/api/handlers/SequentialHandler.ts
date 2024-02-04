@@ -164,7 +164,7 @@ export class SequentialHandler implements IHandler {
 
 		try {
 			// Make the request, and return the results
-			return await this.runRequest(routeId, url, options, requestData);
+			return this.runRequest(routeId, url, options, requestData);
 		} finally {
 			// Allow the next request to fire
 			queue.shift();

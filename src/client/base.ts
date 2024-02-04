@@ -2,6 +2,7 @@ import { join } from 'node:path';
 import { REST, Router } from '../api';
 import type { Adapter } from '../cache';
 import { Cache, MemoryAdapter } from '../cache';
+import { RegisteredMiddlewares } from '../commands';
 import type { MiddlewareContext } from '../commands/applications/shared';
 import { CommandHandler } from '../commands/handler';
 import {
@@ -56,6 +57,7 @@ export class BaseClient {
 
 	private _applicationId?: string;
 	private _botId?: string;
+	middlewares?: Record<string, MiddlewareContext>;
 
 	protected static assertString(value: unknown, message?: string): asserts value is string {
 		if (!(typeof value === 'string' && value !== '')) {
@@ -93,7 +95,7 @@ export class BaseClient {
 		return new Router(this.rest).createProxy();
 	}
 
-	setServices({ rest, cache, defaultLang }: ServicesOptions) {
+	setServices({ rest, cache, defaultLang, middlewares }: ServicesOptions) {
 		if (rest) {
 			this.rest = rest;
 		}
@@ -105,7 +107,12 @@ export class BaseClient {
 				this,
 			);
 		}
-		this.langs.defaultLang = defaultLang;
+		if (defaultLang) {
+			this.langs.defaultLang = defaultLang;
+		}
+		if (middlewares) {
+			this.middlewares = middlewares
+		}
 	}
 
 	protected async execute(..._options: unknown[]) {
@@ -239,7 +246,7 @@ export interface BaseClientOptions {
 			| UserCommandInteraction<boolean>
 			| MessageCommandInteraction<boolean>,
 	) => {};
-	globalMiddlewares?: readonly MiddlewareContext[];
+	globalMiddlewares?: readonly (keyof RegisteredMiddlewares)[];
 }
 
 export interface StartOptions {
@@ -295,4 +302,5 @@ export type ServicesOptions = {
 	rest?: REST;
 	cache?: { adapter: Adapter; disabledCache?: Cache['disabledCache'] };
 	defaultLang?: string;
+	middlewares?: Record<string, MiddlewareContext>
 };

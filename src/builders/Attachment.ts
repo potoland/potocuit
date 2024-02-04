@@ -1,7 +1,9 @@
+import { RESTAPIAttachment } from 'discord-api-types/v10';
 import { randomBytes } from 'node:crypto';
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
-import { throwError, type RESTAPIAttachment, type RawFile } from '..';
+import { throwError } from '..';
+import { RawFile } from '../api';
 
 export interface AttachmentResolvableMap {
 	url: string;
@@ -18,7 +20,7 @@ export interface AttachmentData {
 }
 
 export class Attachment {
-	constructor(public data: Partial<AttachmentData> = { name: `${randomBytes(8).toString('base64url')}.jpg` }) {}
+	constructor(public data: Partial<AttachmentData> = { name: `${randomBytes(8).toString('base64url')}.jpg` }) { }
 
 	setName(name: string) {
 		this.data.name = name;

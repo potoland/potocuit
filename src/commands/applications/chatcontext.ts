@@ -6,14 +6,15 @@ import type {
 	ModalCreateBodyRequest,
 } from '../../common/types/write';
 import type { ChatInputCommandInteraction } from '../../structures';
+import { RegisteredMiddlewares } from '../decorators';
 import type { OptionResolver } from '../optionresolver';
 import type { ContextOptions, OptionsRecord } from './chat';
-import type { CommandMetadata, MiddlewareContext } from './shared';
+import type { CommandMetadata } from './shared';
 
 export class CommandContext<
 	C extends keyof IClients,
 	T extends OptionsRecord = {},
-	M extends Readonly<MiddlewareContext[]> = [],
+	M extends readonly (keyof RegisteredMiddlewares)[] = [],
 > {
 	constructor(
 		readonly client: IClients[C],
@@ -22,7 +23,7 @@ export class CommandContext<
 		public metadata: CommandMetadata<M>,
 		public resolver: OptionResolver,
 		readonly shardId: number,
-	) {}
+	) { }
 
 	get proxy() {
 		return this.client.proxy;

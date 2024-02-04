@@ -1,15 +1,15 @@
 {
 	"name": "biscuitjs",
 	"version": "0.1.0",
-	"main": "./dist/index.js",
-	"module": "./dist/index.js",
-	"types": "./dist/index.d.ts",
+	"main": "./lib/index.js",
+	"module": "./lib/index.js",
+	"types": "./lib/index.d.ts",
 	"files": [
-		"dist/**"
+		"lib/**"
 	],
 	"scripts": {
-		"build": "tsc --outDir ./dist",
-		"dev": "swc src -d dist -w",
+		"build": "tsc --outDir ./lib",
+		"dev": "swc src -d lib -w",
 		"prepublishOnly": "npm run build",
 		"prepare": "npm run build && husky install",
 		"lint": "biome lint --apply ./src",
@@ -42,16 +42,6 @@
 	"optionalDependencies": {
 		"tweetnacl": "^1.0.3",
 		"uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.39.0"
-	},
-	"exports": {
-		"./package.json": "./package.json",
-		".": {
-			"import": {
-				"types": "./dist/index.d.ts",
-				"default": "./dist/index.js"
-			},
-			"require": "./dist/index.js"
-		}
 	},
 	"homepage": "https://biscuitjs.com",
 	"repository": {

@@ -29,11 +29,11 @@ export class MemberShorter extends BaseShorter {
 				const { id, displayName } = resolve;
 
 				if (id) {
-					return await this.client.members.fetch(guildId, id);
+					return this.client.members.fetch(guildId, id);
 				}
 
 				return displayName
-					? await this.members.search(guildId, { query: displayName, limit: 1 }).then(x => x[0])
+					? this.members.search(guildId, { query: displayName, limit: 1 }).then(x => x[0])
 					: undefined;
 			},
 			search: async (guildId: string, query?: RESTGetAPIGuildMembersSearchQuery) => {

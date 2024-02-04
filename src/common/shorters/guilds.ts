@@ -1,4 +1,5 @@
 import {
+	RESTPatchAPIGuildEmojiJSONBody,
 	Routes,
 	type GuildWidgetStyle,
 	type RESTPatchAPIAutoModerationRuleJSONBody,
@@ -12,8 +13,8 @@ import {
 } from 'discord-api-types/v10';
 import { BASE_URL, type ObjectToLower, type OmitInsert } from '..';
 import { resolveFiles, resolveImage, type ImageResolvable } from '../../builders';
-import { Guild, GuildEmoji, Sticker, type CreateStickerBodyRequest } from '../../structures';
-import channelFrom, { BaseChannel } from '../../structures/methods/channels';
+import { BaseChannel, Guild, GuildEmoji, Sticker, type CreateStickerBodyRequest } from '../../structures';
+import channelFrom from '../../structures/channels';
 import { BaseShorter } from './base';
 
 export class GuildShorter extends BaseShorter {
@@ -76,7 +77,7 @@ export class GuildShorter extends BaseShorter {
 				});
 				await this.client.cache.channels?.setIfNI('GuildEmojisAndStickers', emoji.id!, guildId, emoji);
 			},
-			fetch: async (emojiId: string, guildId: string, force = false) => {
+			fetch: async (guildId: string, emojiId: string, force = false) => {
 				let emoji;
 				if (!force) {
 					emoji = await this.client.cache.emojis?.get(emojiId);
@@ -89,7 +90,7 @@ export class GuildShorter extends BaseShorter {
 				await this.client.proxy.guilds(guildId).emojis(emojiId).delete({ reason });
 				await this.client.cache.channels?.removeIfNI('GuildEmojisAndStickers', emojiId, guildId);
 			},
-			edit: async (guildId: string, emojiId: string, body: RESTPatchAPIChannelJSONBody, reason?: string) => {
+			edit: async (guildId: string, emojiId: string, body: RESTPatchAPIGuildEmojiJSONBody, reason?: string) => {
 				const emoji = await this.client.proxy.guilds(guildId).emojis(emojiId).patch({ body, reason });
 				await this.client.cache.channels?.setIfNI('GuildEmojisAndStickers', emoji.id!, guildId, emoji);
 				return new GuildEmoji(this.client, emoji, guildId);
