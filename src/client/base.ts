@@ -2,7 +2,7 @@ import { join } from 'node:path';
 import { REST, Router } from '../api';
 import type { Adapter } from '../cache';
 import { Cache, MemoryAdapter } from '../cache';
-import { RegisteredMiddlewares } from '../commands';
+import type { RegisteredMiddlewares } from '../commands';
 import type { MiddlewareContext } from '../commands/applications/shared';
 import { CommandHandler } from '../commands/handler';
 import {
@@ -111,7 +111,7 @@ export class BaseClient {
 			this.langs.defaultLang = defaultLang;
 		}
 		if (middlewares) {
-			this.middlewares = middlewares
+			this.middlewares = middlewares;
 		}
 	}
 
@@ -302,5 +302,5 @@ export type ServicesOptions = {
 	rest?: REST;
 	cache?: { adapter: Adapter; disabledCache?: Cache['disabledCache'] };
 	defaultLang?: string;
-	middlewares?: Record<string, MiddlewareContext>
+	middlewares?: Record<string, MiddlewareContext>;
 };

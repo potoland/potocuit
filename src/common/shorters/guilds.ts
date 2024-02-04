@@ -1,5 +1,5 @@
 import {
-	RESTPatchAPIGuildEmojiJSONBody,
+	type RESTPatchAPIGuildEmojiJSONBody,
 	Routes,
 	type GuildWidgetStyle,
 	type RESTPatchAPIAutoModerationRuleJSONBody,

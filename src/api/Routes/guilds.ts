@@ -115,7 +115,7 @@ import type {
 } from '../../common';
 import type { RestArguments } from '../REST';
 import type { ProxyRequestMethod } from '../Router';
-import { RawFile } from '../shared';
+import type { RawFile } from '../shared';
 
 export interface GuildRoutes {
 	guilds: {

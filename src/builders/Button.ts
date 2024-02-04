@@ -1,6 +1,6 @@
 import { throwError } from '..';
 import {
-	APIMessageComponentEmoji,
+	type APIMessageComponentEmoji,
 	ComponentType,
 	type APIButtonComponent,
 	type APIButtonComponentWithCustomId,

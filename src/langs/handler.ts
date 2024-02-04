@@ -3,7 +3,7 @@ import { LangRouter } from './router';
 
 export class LangsHandler extends BaseHandler {
 	values: Partial<Record<string, any>> = {};
-	protected filter = (path: string) => path.endsWith('.js') || path.endsWith('.ts')
+	protected filter = (path: string) => path.endsWith('.js') || path.endsWith('.ts');
 	defaultLang?: string;
 
 	getKey(lang: string, message: string) {

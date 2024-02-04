@@ -1,5 +1,5 @@
 import type { BaseClient } from '../../client/base';
-import { ClientUser } from '../../structures';
+import type { ClientUser } from '../../structures';
 
 export const BOT_READY = (_self: BaseClient, me: ClientUser) => {
 	return me;

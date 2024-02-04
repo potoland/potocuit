@@ -8,7 +8,7 @@ import type {
 	RESTPostAPIChannelMessageJSONBody,
 	RESTPostAPIWebhookWithTokenJSONBody,
 } from '..';
-import { RawFile } from '../../api';
+import type { RawFile } from '../../api';
 import type { ActionRow, Attachment, BuilderComponents, Embed, Modal, TextInput } from '../../builders';
 import type { ComponentsListener } from '../../components/listener';
 

@@ -7,7 +7,7 @@ import { ContextMenuCommand } from './applications/menu';
 
 export class CommandHandler extends BaseHandler {
 	values: (Command | ContextMenuCommand)[] = [];
-	protected filter = (path: string) => path.endsWith('.js') || path.endsWith('.ts')
+	protected filter = (path: string) => path.endsWith('.js') || path.endsWith('.ts');
 
 	constructor(protected logger: Logger) {
 		super(logger);

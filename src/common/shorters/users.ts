@@ -1,5 +1,5 @@
 import { BaseChannel, DMChannel, User } from '../../structures';
-import { MessageCreateBodyRequest } from '../types/write';
+import type { MessageCreateBodyRequest } from '../types/write';
 import { BaseShorter } from './base';
 
 export class UsersShorter extends BaseShorter {

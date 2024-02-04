@@ -1,6 +1,6 @@
 import type { BaseClient, IClients } from '../../client/base';
 import { magicImport, type ApplicationCommandType, type LocaleString } from '../../common';
-import { RegisteredMiddlewares } from '../decorators';
+import type { RegisteredMiddlewares } from '../decorators';
 import type { MenuCommandContext } from './menucontext';
 import type { NextFunction, PassFunction, StopFunction } from './shared';
 
@@ -46,9 +46,9 @@ export abstract class ContextMenuCommand {
 					return;
 				}
 				// @ts-expect-error globalMetadata doesnt exist, but is used for global middlewares
-				context[global ? 'globalMetadata' : 'metadata'] ??= {}
+				context[global ? 'globalMetadata' : 'metadata'] ??= {};
 				// @ts-expect-error globalMetadata doesnt exist, but is used for global middlewares
-				context[global ? 'globalMetadata' : 'metadata'][middlewares[index]] = obj
+				context[global ? 'globalMetadata' : 'metadata'][middlewares[index]] = obj;
 				if (++index >= middlewares.length) {
 					running = false;
 					return res(undefined);
@@ -73,7 +73,11 @@ export abstract class ContextMenuCommand {
 
 	/** @internal */
 	__runGlobalMiddlewares(context: MenuCommandContext<keyof IClients, any, []>) {
-		return ContextMenuCommand.__runMiddlewares(context, (context.client.options?.globalMiddlewares ?? []) as (keyof RegisteredMiddlewares)[], true);
+		return ContextMenuCommand.__runMiddlewares(
+			context,
+			(context.client.options?.globalMiddlewares ?? []) as (keyof RegisteredMiddlewares)[],
+			true,
+		);
 	}
 
 	toJSON() {

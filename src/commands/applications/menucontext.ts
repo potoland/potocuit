@@ -8,7 +8,7 @@ import {
 	type ModalCreateBodyRequest,
 } from '../../common';
 import { Message, User, type MessageCommandInteraction, type UserCommandInteraction } from '../../structures';
-import { RegisteredMiddlewares } from '../decorators';
+import type { RegisteredMiddlewares } from '../decorators';
 import type { CommandMetadata } from './shared';
 
 export type InteractionTarget<T> = T extends MessageCommandInteraction ? Message : User;
@@ -22,7 +22,7 @@ export class MenuCommandContext<
 		readonly interaction: T,
 		public metadata: CommandMetadata<M>,
 		readonly shardId: number,
-	) { }
+	) {}
 
 	get proxy() {
 		return this.client.proxy;

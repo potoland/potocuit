@@ -11,7 +11,7 @@ import { BaseChannel, WebhookGuildMethods } from './channels';
 import { BaseGuild } from './extra/BaseGuild';
 import type { DiscordBase } from './extra/DiscordBase';
 
-export interface Guild extends ObjectToLower<Omit<APIGuild, 'stickers' | 'emojis' | 'roles'>>, DiscordBase { }
+export interface Guild extends ObjectToLower<Omit<APIGuild, 'stickers' | 'emojis' | 'roles'>>, DiscordBase {}
 export class Guild<State extends StructStates = 'api'> extends (BaseGuild as unknown as ToClass<
 	Omit<BaseGuild, keyof ObjectToLower<APIPartialGuild>>,
 	Guild

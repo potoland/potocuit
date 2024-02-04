@@ -6,7 +6,7 @@ import type {
 	ModalCreateBodyRequest,
 } from '../../common/types/write';
 import type { ChatInputCommandInteraction } from '../../structures';
-import { RegisteredMiddlewares } from '../decorators';
+import type { RegisteredMiddlewares } from '../decorators';
 import type { OptionResolver } from '../optionresolver';
 import type { ContextOptions, OptionsRecord } from './chat';
 import type { CommandMetadata } from './shared';
@@ -23,7 +23,7 @@ export class CommandContext<
 		public metadata: CommandMetadata<M>,
 		public resolver: OptionResolver,
 		readonly shardId: number,
-	) { }
+	) {}
 
 	get proxy() {
 		return this.client.proxy;
