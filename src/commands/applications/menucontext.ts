@@ -22,13 +22,15 @@ export class MenuCommandContext<
 		readonly interaction: T,
 		public metadata: CommandMetadata<M>,
 		readonly shardId: number,
-	) {}
+	) { }
+
+	/**@internal */
+	globalMetadata: Record<string, any> = {}
 
 	get proxy() {
 		return this.client.proxy;
 	}
 
-	// biome-ignore lint/suspicious/useGetterReturn: bugged
 	get target(): InteractionTarget<T> {
 		switch (this.interaction.data.type) {
 			case ApplicationCommandType.Message: {

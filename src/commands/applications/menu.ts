@@ -45,7 +45,6 @@ export abstract class ContextMenuCommand {
 				if (!running) {
 					return;
 				}
-				// @ts-expect-error globalMetadata doesnt exist, but is used for global middlewares
 				context[global ? 'globalMetadata' : 'metadata'] ??= {};
 				// @ts-expect-error globalMetadata doesnt exist, but is used for global middlewares
 				context[global ? 'globalMetadata' : 'metadata'][middlewares[index]] = obj;
