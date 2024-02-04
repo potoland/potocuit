@@ -23,10 +23,10 @@ export class CommandContext<
 		public metadata: CommandMetadata<M>,
 		public resolver: OptionResolver,
 		readonly shardId: number,
-	) { }
+	) {}
 
 	/**@internal */
-	globalMetadata: Record<string, any> = {}
+	globalMetadata: Record<string, any> = {};
 
 	get proxy() {
 		return this.client.proxy;
