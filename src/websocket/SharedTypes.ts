@@ -56,9 +56,9 @@ import type {
 	GatewayVoiceStateUpdateData,
 	GatewayWebhooksUpdateDispatchData,
 	PresenceUpdateStatus,
-	RestToKeys
+	RestToKeys,
 } from '../common';
-import { GatewayGuildMemberAddDispatchDataFixed } from '../structures';
+import type { GatewayGuildMemberAddDispatchDataFixed } from '../structures';
 
 /** https://discord.com/developers/docs/topics/gateway-events#update-presence */
 export interface StatusUpdate {
@@ -84,7 +84,7 @@ export type ShardStatusUpdate = Pick<GatewayPresenceUpdateData, 'activities' | '
 
 export interface RequestGuildMembersOptions
 	extends GatewayRequestGuildMembersDataWithQuery,
-	GatewayRequestGuildMembersDataWithUserIds { }
+		GatewayRequestGuildMembersDataWithUserIds {}
 
 export interface GatewayMemberRequest {
 	/** The unique nonce for this request. */
