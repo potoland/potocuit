@@ -39,6 +39,12 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 				disabledCache: options?.disabledCache,
 			},
 		});
+		if (workerData.debug) {
+			this.debugger = new Logger({
+				name: `[WorkerClient #${workerData.workerId}]`,
+				logLevel: LogLevels.Debug,
+			});
+		}
 	}
 
 	get workerId() {

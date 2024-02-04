@@ -1,6 +1,6 @@
 import { inflateSync } from 'node:zlib';
 import type WS from 'ws';
-import { WebSocket, type CloseEvent } from 'ws';
+import { ErrorEvent, WebSocket, type CloseEvent } from 'ws';
 import type { GatewayReceivePayload, GatewaySendPayload, Logger } from '../../common';
 import { GatewayCloseCodes, GatewayDispatchEvents, GatewayOpcodes } from '../../common';
 import { properties } from '../constants';
@@ -92,8 +92,7 @@ export class Shard {
 
 		this.websocket!.onclose = (event: WS.CloseEvent) => this.handleClosed(event);
 
-		// @ts-expect-error
-		this.websocket!.onerror = (event: WS.CloseEvent) => this.debugger?.error(event);
+		this.websocket!.onerror = (event: ErrorEvent) => this.debugger?.error(event);
 
 		this.websocket!.onopen = () => {
 			this.heart.ack = true;

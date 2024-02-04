@@ -46,7 +46,7 @@ export interface WorkerManagerOptions extends Omit<ShardManagerOptions, 'handleP
 	 */
 	shardsPerWorker?: number;
 
-	path?: string;
+	path: string;
 
 	handlePayload(shardId: number, workerId: number, packet: GatewayDispatchPayload): unknown;
 }

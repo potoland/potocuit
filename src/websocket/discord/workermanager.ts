@@ -137,7 +137,6 @@ export class WorkerManager extends Map<number, Worker> {
 				});
 				this.set(i, worker);
 			}
-
 			worker.postMessage({
 				type: 'SPAWN_SHARDS',
 				compress: this.options.compress ?? false,
@@ -149,7 +148,6 @@ export class WorkerManager extends Map<number, Worker> {
 
 	createWorker(workerData: WorkerData) {
 		const worker = new Worker(workerData.path, { workerData });
-
 		worker.on('message', data => this.handleWorkerMessage(data));
 
 		return worker;
@@ -166,7 +164,7 @@ export class WorkerManager extends Map<number, Worker> {
 			worker.postMessage({
 				type: 'ALLOW_CONNECT',
 				shardId,
-				presence: this.options.presence(shardId, workerId),
+				presence: this.options.presence?.(shardId, workerId),
 			} satisfies ManagerAllowConnect);
 		});
 	}
