@@ -233,6 +233,9 @@ export class WorkerManager extends Map<number, Worker> {
 					resolve(data);
 				}
 				break;
+			case 'WORKER_READY': {
+				//todo
+			} break;
 		}
 	}
 

@@ -22,26 +22,29 @@ export type WorkerSendCacheRequest = CreateWorkerMessage<
 	{
 		nonce: string;
 		method:
-			| 'scan'
-			| 'get'
-			| 'set'
-			| 'patch'
-			| 'values'
-			| 'keys'
-			| 'count'
-			| 'remove'
-			| 'contains'
-			| 'getToRelationship'
-			| 'bulkAddToRelationShip'
-			| 'addToRelationship'
-			| 'removeRelationship'
-			| 'removeToRelationship';
+		| 'scan'
+		| 'get'
+		| 'set'
+		| 'patch'
+		| 'values'
+		| 'keys'
+		| 'count'
+		| 'remove'
+		| 'contains'
+		| 'getToRelationship'
+		| 'bulkAddToRelationShip'
+		| 'addToRelationship'
+		| 'removeRelationship'
+		| 'removeToRelationship';
 		args: any[];
 		workerId: number;
 	}
 >;
 export type WorkerSendShardInfo = CreateWorkerMessage<'SHARD_INFO', WorkerShardInfo & { nonce: string }>;
 export type WorkerSendInfo = CreateWorkerMessage<'WORKER_INFO', WorkerInfo & { nonce: string }>;
+export type WorkerReady = CreateWorkerMessage<'WORKER_READY', {
+	workerId: number;
+}>;
 
 export type WorkerMessage =
 	| WorkerRequestConnect
@@ -49,4 +52,5 @@ export type WorkerMessage =
 	| WorkerSendResultPayload
 	| WorkerSendCacheRequest
 	| WorkerSendShardInfo
-	| WorkerSendInfo;
+	| WorkerSendInfo
+	| WorkerReady

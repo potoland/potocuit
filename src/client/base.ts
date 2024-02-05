@@ -47,7 +47,6 @@ export class BaseClient {
 
 	logger = new Logger({
 		name: '[Biscuitjs]',
-		active: true,
 		logLevel: LogLevels.Info,
 	});
 
@@ -119,7 +118,6 @@ export class BaseClient {
 		if ((await this.getRC()).debug) {
 			this.debugger = new Logger({
 				name: '[Debug]',
-				active: true,
 				logLevel: LogLevels.Debug,
 			});
 		}
