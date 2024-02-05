@@ -1,5 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import { join } from 'node:path';
 import { Worker } from 'node:worker_threads';
 import { MemoryAdapter, type Adapter } from '../../cache';
 import { Logger, MergeOptions, type GatewayPresenceUpdateData, type GatewaySendPayload } from '../../common';
@@ -128,7 +127,7 @@ export class WorkerManager extends Map<number, Worker> {
 			let worker = this.get(i);
 			if (!worker) {
 				worker = this.createWorker({
-					path: this.options.path ?? `${join(__dirname, './worker.js')}`,
+					path: this.options.path,
 					debug: this.options.debug,
 					token: this.options.token,
 					shards: shards[i],
