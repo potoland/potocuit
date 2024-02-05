@@ -5,8 +5,16 @@ import type { GatewayDispatchPayload, GatewaySendPayload, When } from '../common
 import { LogLevels, Logger, type DeepPartial } from '../common';
 import { EventHandler } from '../events';
 import { ClientUser } from '../structures';
-import { Shard, WorkerData } from '../websocket';
-import { WorkerReady, WorkerReceivePayload, WorkerRequestConnect, WorkerSendInfo, WorkerSendResultPayload, WorkerSendShardInfo, WorkerShardInfo } from '../websocket/discord/worker';
+import { Shard, type WorkerData } from '../websocket';
+import type {
+	WorkerReady,
+	WorkerReceivePayload,
+	WorkerRequestConnect,
+	WorkerSendInfo,
+	WorkerSendResultPayload,
+	WorkerSendShardInfo,
+	WorkerShardInfo,
+} from '../websocket/discord/worker';
 import type { ManagerMessages } from '../websocket/discord/workermanager';
 import type { BaseClientOptions, StartOptions } from './base';
 import { BaseClient } from './base';
@@ -172,8 +180,12 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 				this.applicationId = packet.d.application.id;
 				this.me = new ClientUser(this, packet.d.user, packet.d.application) as never;
 				if (!this.__handleGuilds.size) {
-					if ([...this.shards.values()].every(shard => shard.data.session_id) && this.events.values.WORKER_READY && (this.events.values.WORKER_READY.fired ? !this.events.values.WORKER_READY.data.once : true)) {
-						this.events.values.WORKER_READY.fired = true
+					if (
+						[...this.shards.values()].every(shard => shard.data.session_id) &&
+						this.events.values.WORKER_READY &&
+						(this.events.values.WORKER_READY.fired ? !this.events.values.WORKER_READY.data.once : true)
+					) {
+						this.events.values.WORKER_READY.fired = true;
 						await this.events.values.WORKER_READY.run(this.me!, this, shardId);
 					}
 				}
@@ -189,10 +201,14 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 					if ([...this.shards.values()].every(shard => shard.data.session_id)) {
 						manager!.postMessage({
 							type: 'WORKER_READY',
-							workerId: this.workerId
-						} as WorkerReady)
-						if ([...this.shards.values()].every(shard => shard.data.session_id) && this.events.values.WORKER_READY && (this.events.values.WORKER_READY.fired ? !this.events.values.WORKER_READY.data.once : true)) {
-							this.events.values.WORKER_READY.fired = true
+							workerId: this.workerId,
+						} as WorkerReady);
+						if (
+							[...this.shards.values()].every(shard => shard.data.session_id) &&
+							this.events.values.WORKER_READY &&
+							(this.events.values.WORKER_READY.fired ? !this.events.values.WORKER_READY.data.once : true)
+						) {
+							this.events.values.WORKER_READY.fired = true;
 							await this.events.values.WORKER_READY.run(this.me!, this, shardId);
 						}
 					}

@@ -368,8 +368,9 @@ export class REST {
 		}
 
 		// Format the full request URL (api base, optional version, endpoint, optional querystring)
-		const url = `${options.api}${request.versioned === false ? '' : `/v${options.version}`}${request.fullRoute
-			}${query}`;
+		const url = `${options.api}${request.versioned === false ? '' : `/v${options.version}`}${
+			request.fullRoute
+		}${query}`;
 
 		let finalBody: RequestInit['body'];
 		let additionalHeaders: Record<string, string> = {};
@@ -527,9 +528,9 @@ export type RequestObject<
 	(M extends `${ProxyRequestMethod.Get}`
 		? unknown
 		: {
-			body?: B;
-			files?: F;
-		});
+				body?: B;
+				files?: F;
+		  });
 
 export type RestArguments<
 	M extends ProxyRequestMethod,
@@ -538,6 +539,6 @@ export type RestArguments<
 	F extends RawFile[] = RawFile[],
 > = M extends ProxyRequestMethod.Get
 	? Q extends never
-	? RequestObject<M, never, B, never>
-	: never
+		? RequestObject<M, never, B, never>
+		: never
 	: RequestObject<M, B, Q, F>;

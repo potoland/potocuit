@@ -131,8 +131,12 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 						this.applicationId = packet.d.application.id;
 						this.me = new ClientUser(this, packet.d.user, packet.d.application) as never;
 						if (!this.__handleGuilds.size) {
-							if ([...this.gateway.values()].every(shard => shard.data.session_id) && this.events.values.BOT_READY && (this.events.values.BOT_READY.fired ? !this.events.values.BOT_READY.data.once : true)) {
-								this.events.values.BOT_READY.fired = true
+							if (
+								[...this.gateway.values()].every(shard => shard.data.session_id) &&
+								this.events.values.BOT_READY &&
+								(this.events.values.BOT_READY.fired ? !this.events.values.BOT_READY.data.once : true)
+							) {
+								this.events.values.BOT_READY.fired = true;
 								await this.events.values.BOT_READY.run(this.me!, this, shardId);
 							}
 						}
@@ -145,8 +149,12 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 					case 'GUILD_CREATE': {
 						if (this.__handleGuilds.has(packet.d.id)) {
 							this.__handleGuilds.delete(packet.d.id);
-							if ([...this.gateway.values()].every(shard => shard.data.session_id) && this.events.values.BOT_READY && (this.events.values.BOT_READY.fired ? !this.events.values.BOT_READY.data.once : true)) {
-								this.events.values.BOT_READY.fired = true
+							if (
+								[...this.gateway.values()].every(shard => shard.data.session_id) &&
+								this.events.values.BOT_READY &&
+								(this.events.values.BOT_READY.fired ? !this.events.values.BOT_READY.data.once : true)
+							) {
+								this.events.values.BOT_READY.fired = true;
 								await this.events.values.BOT_READY.run(this.me!, this, shardId);
 							}
 							return;
