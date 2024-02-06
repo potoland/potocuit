@@ -10,7 +10,14 @@ import type { AllChannels, AutocompleteInteraction, GuildRole, InteractionGuildM
 import type { Groups, RegisteredMiddlewares } from '../decorators';
 import type { OptionResolver } from '../optionresolver';
 import type { CommandContext } from './chatcontext';
-import type { NextFunction, OKFunction, OnOptionsReturnObject, PassFunction, StopFunction, UsingClient } from './shared';
+import type {
+	NextFunction,
+	OKFunction,
+	OnOptionsReturnObject,
+	PassFunction,
+	StopFunction,
+	UsingClient,
+} from './shared';
 
 export interface ReturnOptionsTypes {
 	1: never; // subcommand
@@ -31,35 +38,35 @@ type Wrap<N extends ApplicationCommandOptionType> = N extends
 	| ApplicationCommandOptionType.SubcommandGroup
 	? never
 	: (
-		| {
-			required?: false;
-			value?(
-				data: { context: CommandContext; value: ReturnOptionsTypes[N] | undefined },
-				ok: OKFunction<any>,
-				fail: StopFunction,
-			): void;
-		}
-		| {
-			required: true;
-			value?(
-				data: { context: CommandContext; value: ReturnOptionsTypes[N] },
-				ok: OKFunction<any>,
-				fail: StopFunction,
-			): void;
-		}
-	) & {
-		description: string;
-		description_localizations?: APIApplicationCommandBasicOption['description_localizations'];
-		name_localizations?: APIApplicationCommandBasicOption['name_localizations'];
-	};
+			| {
+					required?: false;
+					value?(
+						data: { context: CommandContext; value: ReturnOptionsTypes[N] | undefined },
+						ok: OKFunction<any>,
+						fail: StopFunction,
+					): void;
+			  }
+			| {
+					required: true;
+					value?(
+						data: { context: CommandContext; value: ReturnOptionsTypes[N] },
+						ok: OKFunction<any>,
+						fail: StopFunction,
+					): void;
+			  }
+	  ) & {
+			description: string;
+			description_localizations?: APIApplicationCommandBasicOption['description_localizations'];
+			name_localizations?: APIApplicationCommandBasicOption['name_localizations'];
+	  };
 
 export type __TypeWrapper<T extends ApplicationCommandOptionType> = Wrap<T>;
 
 export type __TypesWrapper = {
 	[P in keyof typeof ApplicationCommandOptionType]: `${(typeof ApplicationCommandOptionType)[P]}` extends `${infer D extends
-	number}`
-	? Wrap<D>
-	: never;
+		number}`
+		? Wrap<D>
+		: never;
 };
 
 export type AutocompleteCallback = (interaction: AutocompleteInteraction) => any;
@@ -76,12 +83,12 @@ export type OptionsRecord = Record<string, __CommandOption & { type: Application
 
 export type ContextOptions<T extends OptionsRecord> = {
 	[K in keyof T]: T[K]['value'] extends (...args: any) => any
-	? T[K]['required'] extends true
-	? Parameters<Parameters<T[K]['value']>[1]>[0]
-	: Parameters<Parameters<T[K]['value']>[1]>[0]
-	: T[K]['required'] extends true
-	? ReturnOptionsTypes[T[K]['type']]
-	: ReturnOptionsTypes[T[K]['type']] | undefined;
+		? T[K]['required'] extends true
+			? Parameters<Parameters<T[K]['value']>[1]>[0]
+			: Parameters<Parameters<T[K]['value']>[1]>[0]
+		: T[K]['required'] extends true
+		  ? ReturnOptionsTypes[T[K]['type']]
+		  : ReturnOptionsTypes[T[K]['type']] | undefined;
 };
 
 class BaseCommand {

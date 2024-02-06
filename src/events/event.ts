@@ -1,4 +1,4 @@
-import { UsingClient } from '../commands';
+import type { UsingClient } from '../commands';
 import type { ClientEvents } from './hooks';
 
 export interface DeclareEventsOptions {
@@ -15,9 +15,7 @@ export interface ClientDataEvent {
 export type Handler = {
 	[K in keyof ClientEvents]: (...data: [Awaited<ClientEvents[K]>, UsingClient, number]) => unknown;
 };
-export type EventContext<T extends { data: { name: ClientNameEvents } }> = Parameters<
-	Handler[T['data']['name']]
->;
+export type EventContext<T extends { data: { name: ClientNameEvents } }> = Parameters<Handler[T['data']['name']]>;
 export interface ClientEvent {
 	data: ClientDataEvent;
 	run(...args: EventContext<any>): any;
