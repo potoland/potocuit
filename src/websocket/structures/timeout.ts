@@ -1,7 +1,7 @@
 export class ConnectTimeout {
 	readonly promises: ((x: boolean) => any)[] = [];
 	protected interval?: NodeJS.Timeout = undefined;
-	constructor(public intervalTime = 5000) { }
+	constructor(public intervalTime = 5000) {}
 
 	wait() {
 		let resolve = (_x: boolean) => {
@@ -28,13 +28,13 @@ export class ConnectTimeout {
 }
 
 export class ConnectQueue {
-	readonly queue: ({ cb: (() => any) | undefined })[] = [];
+	readonly queue: { cb: (() => any) | undefined }[] = [];
 	protected interval?: NodeJS.Timeout = undefined;
 
 	constructor(
 		public intervalTime = 5000,
 		public concurrency = 1,
-	) { }
+	) {}
 
 	push(callback: () => any) {
 		this.queue.push({ cb: callback });

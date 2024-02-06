@@ -38,15 +38,17 @@ export async function onInteraction(
 				const command = optionsResolver.getAutocomplete();
 
 				// idc, is a YOU problem
-				if (!command?.autocomplete) return self.logger.debug(
-					`${optionsResolver.fullCommandName} ${command?.name} command does not have 'autocomplete' callback`,
-				);
+				if (!command?.autocomplete)
+					return self.logger.debug(
+						`${optionsResolver.fullCommandName} ${command?.name} command does not have 'autocomplete' callback`,
+					);
 				try {
 					try {
 						await command.autocomplete(interaction);
 					} catch (error) {
 						self.logger.error(
-							`${optionsResolver.fullCommandName} ${command.name} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+							`${optionsResolver.fullCommandName} ${command.name} just threw an error, ${
+								error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 							}`,
 						);
 						await command.onAutocompleteError?.(interaction, error);
@@ -76,12 +78,9 @@ export async function onInteraction(
 								| UserCommandInteraction
 								| MessageCommandInteraction;
 							// idc, is a YOU problem
-							if (!command?.run) return self.logger.debug(`${command.name ?? 'Unknown'} command does not have 'run' callback`);
-							const context = new MenuCommandContext<keyof IClients, any>(
-								self,
-								interaction,
-								shardId,
-							);
+							if (!command?.run)
+								return self.logger.debug(`${command.name ?? 'Unknown'} command does not have 'run' callback`);
+							const context = new MenuCommandContext<keyof IClients, any>(self, interaction, shardId);
 							const extendContext = self.options?.context?.(interaction) ?? {};
 							Object.assign(context, extendContext);
 							try {
@@ -106,7 +105,8 @@ export async function onInteraction(
 									await command.onAfterRun?.(context, undefined);
 								} catch (error) {
 									self.logger.error(
-										`${command.name} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+										`${command.name} just threw an error, ${
+											error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 										}`,
 									);
 									await command.onRunError?.(context, error);
@@ -139,7 +139,8 @@ export async function onInteraction(
 							);
 							const interaction = BaseInteraction.from(self, body, __reply) as ChatInputCommandInteraction;
 							const command = optionsResolver.getCommand();
-							if (!command?.run) return self.logger.debug(`${optionsResolver.fullCommandName} command does not have 'run' callback`);
+							if (!command?.run)
+								return self.logger.debug(`${optionsResolver.fullCommandName} command does not have 'run' callback`);
 							const context = new CommandContext(self, interaction, optionsResolver, shardId);
 							const extendContext = self.options?.context?.(interaction) ?? {};
 							Object.assign(context, extendContext);
@@ -169,7 +170,8 @@ export async function onInteraction(
 									await command.onAfterRun?.(context, undefined);
 								} catch (error) {
 									self.logger.error(
-										`${optionsResolver.fullCommandName} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+										`${optionsResolver.fullCommandName} just threw an error, ${
+											error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 										}`,
 									);
 									await command.onRunError?.(context, error);
@@ -183,7 +185,7 @@ export async function onInteraction(
 								}
 							}
 						}
-						break
+						break;
 				}
 			}
 			break;

@@ -15,16 +15,17 @@ export class CommandContext<
 	C extends keyof IClients,
 	T extends OptionsRecord = {},
 	M extends keyof RegisteredMiddlewares = never,
-> implements ExtendContext {
+> implements ExtendContext
+{
 	constructor(
 		readonly client: IClients[C],
 		readonly interaction: ChatInputCommandInteraction,
 		public resolver: OptionResolver,
 		readonly shardId: number,
-	) { }
+	) {}
 
-	options: ContextOptions<T> = {} as never
-	metadata: CommandMetadata<UnionToTuple<M>> = {} as never
+	options: ContextOptions<T> = {} as never;
+	metadata: CommandMetadata<UnionToTuple<M>> = {} as never;
 	globalMetadata: GlobalMetadata = {};
 
 	get proxy() {
