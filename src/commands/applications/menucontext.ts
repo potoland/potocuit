@@ -2,11 +2,11 @@ import type { IClients } from '../../client/base';
 import {
 	ApplicationCommandType,
 	MessageFlags,
-	type UnionToTuple,
 	toSnakeCase,
 	type InteractionCreateBodyRequest,
 	type InteractionMessageUpdateBodyRequest,
 	type ModalCreateBodyRequest,
+	type UnionToTuple,
 } from '../../common';
 import { Message, User, type MessageCommandInteraction, type UserCommandInteraction } from '../../structures';
 import type { RegisteredMiddlewares } from '../decorators';
@@ -17,15 +17,14 @@ export class MenuCommandContext<
 	C extends keyof IClients,
 	T extends MessageCommandInteraction | UserCommandInteraction,
 	M extends keyof RegisteredMiddlewares = never,
-> implements ExtendContext
-{
+> implements ExtendContext {
 	constructor(
 		readonly client: IClients[C],
 		readonly interaction: T,
-		public metadata: CommandMetadata<UnionToTuple<M>>,
 		readonly shardId: number,
-	) {}
+	) { }
 
+	metadata: CommandMetadata<UnionToTuple<M>> = {} as never
 	globalMetadata: GlobalMetadata = {};
 
 	get proxy() {

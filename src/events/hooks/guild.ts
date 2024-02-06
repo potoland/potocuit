@@ -56,7 +56,7 @@ export const GUILD_DELETE = async (_self: BaseClient, data: GatewayGuildDeleteDi
 export const GUILD_EMOJIS_UPDATE = (self: BaseClient, data: GatewayGuildEmojisUpdateDispatchData) => {
 	return {
 		...toCamelCase(data),
-		emojis: data.emojis.map(x => new GuildEmoji(self, x as any, data.guild_id)),
+		emojis: data.emojis.map(x => new GuildEmoji(self, x, data.guild_id)),
 	};
 };
 

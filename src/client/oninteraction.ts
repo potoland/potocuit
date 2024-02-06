@@ -21,47 +21,43 @@ export async function onInteraction(
 	switch (body.type) {
 		case InteractionType.ApplicationCommandAutocomplete:
 			{
-				const packetData = body.data;
 				const parentCommand = self.commands.values.find(x => {
-					if (x.guild_id && !x.guild_id.includes(packetData.guild_id ?? '')) {
+					if (x.guild_id && !x.guild_id.includes(body.data.guild_id ?? '')) {
 						return false;
 					}
-					return x.name === packetData.name;
+					return x.name === body.data.name;
 				});
 				const optionsResolver = new OptionResolver(
 					self,
-					packetData.options ?? [],
+					body.data.options ?? [],
 					parentCommand as Command,
 					body.data.guild_id,
 					body.data.resolved,
 				);
 				const interaction = new AutocompleteInteraction(self, body, __reply);
 				const command = optionsResolver.getAutocomplete();
-				if (command?.autocomplete) {
-					try {
-						try {
-							await command.autocomplete(interaction);
-						} catch (error) {
-							self.logger.error(
-								`${optionsResolver.fullCommandName} ${command?.name} just threw an error, ${
-									error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
-								}`,
-							);
-							await command.onAutocompleteError?.(interaction, error);
-						}
-					} catch (error) {
-						try {
-							await optionsResolver.getCommand()?.onInternalError(self, error);
-						} catch {
-							// supress error
-						}
-					}
-					return /* 418*/;
-				}
+
 				// idc, is a YOU problem
-				self.logger.debug(
+				if (!command?.autocomplete) return self.logger.debug(
 					`${optionsResolver.fullCommandName} ${command?.name} command does not have 'autocomplete' callback`,
 				);
+				try {
+					try {
+						await command.autocomplete(interaction);
+					} catch (error) {
+						self.logger.error(
+							`${optionsResolver.fullCommandName} ${command.name} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+							}`,
+						);
+						await command.onAutocompleteError?.(interaction, error);
+					}
+				} catch (error) {
+					try {
+						await optionsResolver.getCommand()?.onInternalError(self, error);
+					} catch {
+						// supress error
+					}
+				}
 			}
 			break;
 		case InteractionType.ApplicationCommand:
@@ -70,65 +66,59 @@ export async function onInteraction(
 					case ApplicationCommandType.Message:
 					case ApplicationCommandType.User:
 						{
-							const packetData = body.data;
 							const command = self.commands.values.find(x => {
-								if (x.guild_id && !x.guild_id.includes(packetData.guild_id ?? '')) {
+								if (x.guild_id && !x.guild_id.includes(body.data.guild_id ?? '')) {
 									return false;
 								}
-								return x.name === packetData.name;
+								return x.name === body.data.name;
 							}) as ContextMenuCommand;
 							const interaction = BaseInteraction.from(self, body, __reply) as
 								| UserCommandInteraction
 								| MessageCommandInteraction;
-							if (command?.run) {
-								const context = new MenuCommandContext<keyof IClients, any>(
-									self as any,
-									interaction,
-									{} as never,
-									shardId,
-								);
-								const extendContext = self.options?.context?.(interaction) ?? {};
-								Object.assign(context, extendContext);
-								try {
-									const resultRunGlobalMiddlewares = await command.__runGlobalMiddlewares(context);
-									if (resultRunGlobalMiddlewares === 'pass') {
-										return;
-									}
-									if (resultRunGlobalMiddlewares) {
-										return command.onMiddlewaresError?.(context, resultRunGlobalMiddlewares);
-									}
-
-									const resultRunMiddlewares = await command.__runMiddlewares(context);
-									if (resultRunMiddlewares === 'pass') {
-										return;
-									}
-									if (resultRunGlobalMiddlewares) {
-										return command.onMiddlewaresError?.(context, resultRunGlobalMiddlewares);
-									}
-
-									try {
-										await command.run(context);
-										await command.onAfterRun?.(context, undefined);
-									} catch (error) {
-										self.logger.error(
-											`${command.name} just threw an error, ${
-												error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
-											}`,
-										);
-										await command.onRunError?.(context, error);
-										await command.onAfterRun?.(context, error);
-									}
-								} catch (error) {
-									try {
-										await command.onInternalError(self, error);
-									} catch {
-										// supress error
-									}
-								}
-								return /* 418*/;
-							}
 							// idc, is a YOU problem
-							self.logger.debug(`${command?.name ?? 'Unknown'} command does not have 'run' callback`);
+							if (!command?.run) return self.logger.debug(`${command.name ?? 'Unknown'} command does not have 'run' callback`);
+							const context = new MenuCommandContext<keyof IClients, any>(
+								self,
+								interaction,
+								shardId,
+							);
+							const extendContext = self.options?.context?.(interaction) ?? {};
+							Object.assign(context, extendContext);
+							try {
+								const resultRunGlobalMiddlewares = await command.__runGlobalMiddlewares(context);
+								if (resultRunGlobalMiddlewares === 'pass') {
+									return;
+								}
+								if (resultRunGlobalMiddlewares) {
+									return command.onMiddlewaresError?.(context, resultRunGlobalMiddlewares);
+								}
+
+								const resultRunMiddlewares = await command.__runMiddlewares(context);
+								if (resultRunMiddlewares === 'pass') {
+									return;
+								}
+								if (resultRunGlobalMiddlewares) {
+									return command.onMiddlewaresError?.(context, resultRunGlobalMiddlewares);
+								}
+
+								try {
+									await command.run(context);
+									await command.onAfterRun?.(context, undefined);
+								} catch (error) {
+									self.logger.error(
+										`${command.name} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+										}`,
+									);
+									await command.onRunError?.(context, error);
+									await command.onAfterRun?.(context, error);
+								}
+							} catch (error) {
+								try {
+									await command.onInternalError(self, error);
+								} catch {
+									// supress error
+								}
+							}
 						}
 						break;
 					case ApplicationCommandType.ChatInput:
@@ -149,56 +139,51 @@ export async function onInteraction(
 							);
 							const interaction = BaseInteraction.from(self, body, __reply) as ChatInputCommandInteraction;
 							const command = optionsResolver.getCommand();
-							if (command?.run) {
-								const context = new CommandContext(self as any, interaction, {}, {} as never, optionsResolver, shardId);
-								const extendContext = self.options?.context?.(interaction) ?? {};
-								Object.assign(context, extendContext);
-								try {
-									const [erroredOptions, result] = await command.__runOptions(context, optionsResolver);
-									if (erroredOptions) {
-										return command.onOptionsError?.(context, result);
-									}
-									const resultRunGlobalMiddlewares = await command.__runGlobalMiddlewares(context);
-									if (resultRunGlobalMiddlewares === 'pass') {
-										return;
-									}
-									if (resultRunGlobalMiddlewares) {
-										return command.onMiddlewaresError?.(context, resultRunGlobalMiddlewares);
-									}
-
-									const resultRunMiddlewares = await command.__runMiddlewares(context);
-									if (resultRunMiddlewares === 'pass') {
-										return;
-									}
-									if (resultRunMiddlewares) {
-										return command.onMiddlewaresError?.(context, resultRunMiddlewares);
-									}
-
-									try {
-										await command.run(context);
-										await command.onAfterRun?.(context, undefined);
-									} catch (error) {
-										self.logger.error(
-											`${optionsResolver.fullCommandName} just threw an error, ${
-												error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
-											}`,
-										);
-										await command.onRunError?.(context, error);
-										await command.onAfterRun?.(context, error);
-									}
-								} catch (error) {
-									try {
-										await command.onInternalError(self, error);
-									} catch {
-										// supress error
-									}
+							if (!command?.run) return self.logger.debug(`${optionsResolver.fullCommandName} command does not have 'run' callback`);
+							const context = new CommandContext(self, interaction, optionsResolver, shardId);
+							const extendContext = self.options?.context?.(interaction) ?? {};
+							Object.assign(context, extendContext);
+							try {
+								const [erroredOptions, result] = await command.__runOptions(context, optionsResolver);
+								if (erroredOptions) {
+									return command.onOptionsError?.(context, result);
 								}
-								return /* 418*/;
+								const resultRunGlobalMiddlewares = await command.__runGlobalMiddlewares(context);
+								if (resultRunGlobalMiddlewares === 'pass') {
+									return;
+								}
+								if (resultRunGlobalMiddlewares) {
+									return command.onMiddlewaresError?.(context, resultRunGlobalMiddlewares);
+								}
+
+								const resultRunMiddlewares = await command.__runMiddlewares(context);
+								if (resultRunMiddlewares === 'pass') {
+									return;
+								}
+								if (resultRunMiddlewares) {
+									return command.onMiddlewaresError?.(context, resultRunMiddlewares);
+								}
+
+								try {
+									await command.run(context);
+									await command.onAfterRun?.(context, undefined);
+								} catch (error) {
+									self.logger.error(
+										`${optionsResolver.fullCommandName} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+										}`,
+									);
+									await command.onRunError?.(context, error);
+									await command.onAfterRun?.(context, error);
+								}
+							} catch (error) {
+								try {
+									await command.onInternalError(self, error);
+								} catch {
+									// supress error
+								}
 							}
-							// idc, is a YOU problem
-							self.logger.debug(`${optionsResolver.fullCommandName} command does not have 'run' callback`);
 						}
-						break;
+						break
 				}
 			}
 			break;

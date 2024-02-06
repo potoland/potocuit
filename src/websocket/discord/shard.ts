@@ -232,6 +232,7 @@ export class Shard {
 					switch (packet.t) {
 						case GatewayDispatchEvents.Resumed:
 							this.offlineSendQueue.toArray().map((resolve: () => any) => resolve());
+							this.options.handlePayload(this.id, packet);
 							break;
 						case GatewayDispatchEvents.Ready: {
 							this.data.resume_gateway_url = packet.d.resume_gateway_url;
@@ -252,8 +253,7 @@ export class Shard {
 	protected async handleClosed(close: CloseEvent) {
 		clearInterval(this.heart.nodeInterval);
 		this.debugger?.warn(
-			`[Shard #${this.id}] ${ShardSocketCloseCodes[close.code] ?? GatewayCloseCodes[close.code] ?? close.code} (${
-				close.code
+			`[Shard #${this.id}] ${ShardSocketCloseCodes[close.code] ?? GatewayCloseCodes[close.code] ?? close.code} (${close.code
 			})`,
 		);
 

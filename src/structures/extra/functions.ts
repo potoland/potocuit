@@ -4,8 +4,8 @@ import { DiscordEpoch, FormattingPatterns } from '../../common';
 import type { EmojiResolvable } from '../../common/types/resolvables';
 
 /** * Convert a timestamp to a snowflake. * @param timestamp The timestamp to convert. * @returns The snowflake. */
-export function snowflakeToTimestamp(id: string): number {
-	return (Number(id) >> 22) + DiscordEpoch;
+export function snowflakeToTimestamp(id: string): bigint {
+	return (BigInt(id) >> 22n) + DiscordEpoch;
 }
 
 export function channelLink(channelId: string, guildId?: string) {
