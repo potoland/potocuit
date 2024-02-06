@@ -252,8 +252,7 @@ export class Shard {
 	protected async handleClosed(close: CloseEvent) {
 		clearInterval(this.heart.nodeInterval);
 		this.debugger?.warn(
-			`[Shard #${this.id}] ${ShardSocketCloseCodes[close.code] ?? GatewayCloseCodes[close.code] ?? close.code} (${
-				close.code
+			`[Shard #${this.id}] ${ShardSocketCloseCodes[close.code] ?? GatewayCloseCodes[close.code] ?? close.code} (${close.code
 			})`,
 		);
 
@@ -300,7 +299,7 @@ export class Shard {
 		this.websocket?.close(code, reason);
 	}
 
-	protected async handleMessage({ data }: WS.MessageEvent) {
+	protected handleMessage({ data }: WS.MessageEvent) {
 		if (data instanceof Buffer) {
 			data = inflateSync(data);
 		}
