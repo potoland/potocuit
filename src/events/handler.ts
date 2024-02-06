@@ -79,7 +79,7 @@ export class EventHandler extends BaseHandler {
 			if (Event.data.once && Event.fired) {
 				return;
 			}
-			Event.fired ||= true;
+			Event.fired = true;
 			const hook = await RawEvents[args[0].t]?.(args[1], args[0].d as never);
 			await Event.run(...[hook, args[1], args[2]]);
 		} catch (e) {

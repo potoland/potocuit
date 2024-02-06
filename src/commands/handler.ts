@@ -93,45 +93,55 @@ export class CommandHandler extends BaseHandler {
 			}
 
 			this.values.push(commandInstance);
-			if (commandInstance.__t) {
-				commandInstance.name_localizations = {};
-				commandInstance.description_localizations = {};
-				for (const locale of Object.keys(client.langs.values)) {
-					const valueName = client.langs.getKey(locale, commandInstance.__t.name);
-					if (valueName) {
-						commandInstance.name_localizations[locale as LocaleString] = valueName;
-					}
-					const valueKey = client.langs.getKey(locale, commandInstance.__t.description);
-					if (valueKey) {
-						commandInstance.description_localizations[locale as LocaleString] = valueKey;
-					}
-				}
-			}
+			this.__parseLocales(commandInstance, client);
 
-			if (commandInstance.__tGroups) {
-				commandInstance.groups = {};
-				for (const locale of Object.keys(client.langs.values)) {
-					for (const group in commandInstance.__tGroups) {
-						commandInstance.groups[group] ??= {
-							defaultDescription: commandInstance.__tGroups[group].defaultDescription,
-							description: [],
-							name: [],
-						};
-
-						const valueName = client.langs.getKey(locale, commandInstance.__tGroups[group].name);
-						if (valueName) {
-							commandInstance.groups[group].name!.push([locale as LocaleString, valueName]);
-						}
-
-						const valueKey = client.langs.getKey(locale, commandInstance.__tGroups[group].description);
-						if (valueKey) {
-							commandInstance.groups[group].description!.push([locale as LocaleString, valueKey]);
-						}
-					}
+			for (let i of commandInstance.options ?? []) {
+				if (i instanceof SubCommand) {
+					this.__parseLocales(i, client)
 				}
 			}
 		}
 
 		return this.values;
+	}
+
+	private __parseLocales(command: Command | SubCommand, client: BaseClient) {
+		if (command.__t) {
+			command.name_localizations = {};
+			command.description_localizations = {};
+			for (const locale of Object.keys(client.langs.values)) {
+				const valueName = client.langs.getKey(locale, command.__t.name);
+				if (valueName) {
+					command.name_localizations[locale as LocaleString] = valueName;
+				}
+				const valueKey = client.langs.getKey(locale, command.__t.description);
+				if (valueKey) {
+					command.description_localizations[locale as LocaleString] = valueKey;
+				}
+			}
+		}
+
+		if (command instanceof Command) {
+			command.groups = {};
+			for (const locale of Object.keys(client.langs.values)) {
+				for (const group in command.__tGroups) {
+					command.groups[group] ??= {
+						defaultDescription: command.__tGroups[group].defaultDescription,
+						description: [],
+						name: [],
+					};
+
+					const valueName = client.langs.getKey(locale, command.__tGroups[group].name);
+					if (valueName) {
+						command.groups[group].name!.push([locale as LocaleString, valueName]);
+					}
+
+					const valueKey = client.langs.getKey(locale, command.__tGroups[group].description);
+					if (valueKey) {
+						command.groups[group].description!.push([locale as LocaleString, valueKey]);
+					}
+				}
+			}
+		}
 	}
 }
