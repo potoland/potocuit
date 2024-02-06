@@ -136,7 +136,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 								this.events.values.BOT_READY &&
 								(this.events.values.BOT_READY.fired ? !this.events.values.BOT_READY.data.once : true)
 							) {
-								this.events.values.BOT_READY.fired = true;
+								this.events.values.BOT_READY.fired ||= true;
 								await this.events.values.BOT_READY.run(this.me!, this, -1);
 							}
 						}
@@ -154,7 +154,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 								this.events.values.BOT_READY &&
 								(this.events.values.BOT_READY.fired ? !this.events.values.BOT_READY.data.once : true)
 							) {
-								this.events.values.BOT_READY.fired = true;
+								this.events.values.BOT_READY.fired ||= true;
 								await this.events.values.BOT_READY.run(this.me!, this, -1);
 							}
 							return;
