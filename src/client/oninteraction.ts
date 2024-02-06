@@ -9,7 +9,7 @@ import type {
 	__InternalReplyFunction,
 } from '../structures';
 import { AutocompleteInteraction, BaseInteraction } from '../structures';
-import type { BaseClient, IClients } from './base';
+import type { BaseClient } from './base';
 
 export async function onInteraction(
 	shardId: number,
@@ -47,8 +47,7 @@ export async function onInteraction(
 						await command.autocomplete(interaction);
 					} catch (error) {
 						self.logger.error(
-							`${optionsResolver.fullCommandName} ${command.name} just threw an error, ${
-								error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+							`${optionsResolver.fullCommandName} ${command.name} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 							}`,
 						);
 						await command.onAutocompleteError?.(interaction, error);
@@ -80,7 +79,7 @@ export async function onInteraction(
 							// idc, is a YOU problem
 							if (!command?.run)
 								return self.logger.debug(`${command.name ?? 'Unknown'} command does not have 'run' callback`);
-							const context = new MenuCommandContext<keyof IClients, any>(self, interaction, shardId);
+							const context = new MenuCommandContext(self, interaction, shardId);
 							const extendContext = self.options?.context?.(interaction) ?? {};
 							Object.assign(context, extendContext);
 							try {
@@ -105,8 +104,7 @@ export async function onInteraction(
 									await command.onAfterRun?.(context, undefined);
 								} catch (error) {
 									self.logger.error(
-										`${command.name} just threw an error, ${
-											error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+										`${command.name} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 										}`,
 									);
 									await command.onRunError?.(context, error);
@@ -170,8 +168,7 @@ export async function onInteraction(
 									await command.onAfterRun?.(context, undefined);
 								} catch (error) {
 									self.logger.error(
-										`${optionsResolver.fullCommandName} just threw an error, ${
-											error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+										`${optionsResolver.fullCommandName} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 										}`,
 									);
 									await command.onRunError?.(context, error);

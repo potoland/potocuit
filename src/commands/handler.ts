@@ -121,7 +121,7 @@ export class CommandHandler extends BaseHandler {
 			}
 		}
 
-		if (command instanceof Command) {
+		if (command instanceof Command && command.__tGroups) {
 			command.groups = {};
 			for (const locale of Object.keys(client.langs.values)) {
 				for (const group in command.__tGroups) {

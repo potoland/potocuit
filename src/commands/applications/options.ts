@@ -4,7 +4,6 @@ import {
 	type ChannelType,
 } from 'discord-api-types/v10';
 import type { AutocompleteCallback, OnAutocompleteErrorCallback, ReturnOptionsTypes, __TypesWrapper } from '..';
-import type { IClients } from '../../client';
 import type { CommandContext } from './chatcontext';
 import type { MiddlewareContext } from './shared';
 
@@ -14,8 +13,8 @@ type BiscuitStringOption = BiscuitBasicOption<'String'> & {
 	autocomplete?: AutocompleteCallback;
 	onAutocompleteError?: OnAutocompleteErrorCallback;
 	choices?:
-		| readonly { readonly name: string; readonly value: string }[]
-		| APIApplicationCommandOptionChoice<ReturnOptionsTypes[ApplicationCommandOptionType.String]>[];
+	| readonly { readonly name: string; readonly value: string }[]
+	| APIApplicationCommandOptionChoice<ReturnOptionsTypes[ApplicationCommandOptionType.String]>[];
 	min_length?: number;
 	max_length?: number;
 };
@@ -78,9 +77,9 @@ export function createAttachmentOption<T extends BiscuitAttachmentOption = Biscu
 	return { ...data, type: ApplicationCommandOptionType.Attachment } as const;
 }
 
-export type ParseMiddlewareType<T> = T extends MiddlewareContext<any, CommandContext<keyof IClients>>
+export type ParseMiddlewareType<T> = T extends MiddlewareContext<any, CommandContext>
 	? T
-	: MiddlewareContext<T, CommandContext<keyof IClients>>;
+	: MiddlewareContext<T, CommandContext>;
 
 export function createMiddleware<T = ParseMiddlewareType<unknown>>(data: ParseMiddlewareType<T>) {
 	return data;

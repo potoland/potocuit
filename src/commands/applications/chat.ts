@@ -1,4 +1,4 @@
-import type { BaseClient, IClients } from '../../client/base';
+import type { BaseClient } from '../../client/base';
 import type {
 	APIApplicationCommandBasicOption,
 	APIApplicationCommandOption,
@@ -32,35 +32,35 @@ type Wrap<N extends ApplicationCommandOptionType> = N extends
 	| ApplicationCommandOptionType.SubcommandGroup
 	? never
 	: (
-			| {
-					required?: false;
-					value?(
-						data: { context: CommandContext<keyof IClients>; value: ReturnOptionsTypes[N] | undefined },
-						ok: OKFunction<any>,
-						fail: StopFunction,
-					): void;
-			  }
-			| {
-					required: true;
-					value?(
-						data: { context: CommandContext<keyof IClients>; value: ReturnOptionsTypes[N] },
-						ok: OKFunction<any>,
-						fail: StopFunction,
-					): void;
-			  }
-	  ) & {
-			description: string;
-			description_localizations?: APIApplicationCommandBasicOption['description_localizations'];
-			name_localizations?: APIApplicationCommandBasicOption['name_localizations'];
-	  };
+		| {
+			required?: false;
+			value?(
+				data: { context: CommandContext; value: ReturnOptionsTypes[N] | undefined },
+				ok: OKFunction<any>,
+				fail: StopFunction,
+			): void;
+		}
+		| {
+			required: true;
+			value?(
+				data: { context: CommandContext; value: ReturnOptionsTypes[N] },
+				ok: OKFunction<any>,
+				fail: StopFunction,
+			): void;
+		}
+	) & {
+		description: string;
+		description_localizations?: APIApplicationCommandBasicOption['description_localizations'];
+		name_localizations?: APIApplicationCommandBasicOption['name_localizations'];
+	};
 
 export type __TypeWrapper<T extends ApplicationCommandOptionType> = Wrap<T>;
 
 export type __TypesWrapper = {
 	[P in keyof typeof ApplicationCommandOptionType]: `${(typeof ApplicationCommandOptionType)[P]}` extends `${infer D extends
-		number}`
-		? Wrap<D>
-		: never;
+	number}`
+	? Wrap<D>
+	: never;
 };
 
 export type AutocompleteCallback = (interaction: AutocompleteInteraction) => any;
@@ -77,12 +77,12 @@ export type OptionsRecord = Record<string, __CommandOption & { type: Application
 
 export type ContextOptions<T extends OptionsRecord> = {
 	[K in keyof T]: T[K]['value'] extends (...args: any) => any
-		? T[K]['required'] extends true
-			? Parameters<Parameters<T[K]['value']>[1]>[0]
-			: Parameters<Parameters<T[K]['value']>[1]>[0]
-		: T[K]['required'] extends true
-		  ? ReturnOptionsTypes[T[K]['type']]
-		  : ReturnOptionsTypes[T[K]['type']] | undefined;
+	? T[K]['required'] extends true
+	? Parameters<Parameters<T[K]['value']>[1]>[0]
+	: Parameters<Parameters<T[K]['value']>[1]>[0]
+	: T[K]['required'] extends true
+	? ReturnOptionsTypes[T[K]['type']]
+	: ReturnOptionsTypes[T[K]['type']] | undefined;
 };
 
 class BaseCommand {
@@ -115,7 +115,7 @@ class BaseCommand {
 
 	/** @internal */
 	async __runOptions(
-		ctx: CommandContext<keyof IClients, {}, never>,
+		ctx: CommandContext<{}, never>,
 		resolver: OptionResolver,
 	): Promise<[boolean, OnOptionsReturnObject]> {
 		const command = resolver.getCommand();
@@ -162,7 +162,7 @@ class BaseCommand {
 
 	/** @internal */
 	static __runMiddlewares(
-		context: CommandContext<keyof IClients, {}, never>,
+		context: CommandContext<{}, never>,
 		middlewares: (keyof RegisteredMiddlewares)[],
 		global: boolean,
 	): Promise<undefined | Error | 'pass'> {
@@ -205,12 +205,12 @@ class BaseCommand {
 	}
 
 	/** @internal */
-	__runMiddlewares(context: CommandContext<keyof IClients, {}, never>) {
+	__runMiddlewares(context: CommandContext<{}, never>) {
 		return BaseCommand.__runMiddlewares(context, this.middlewares as (keyof RegisteredMiddlewares)[], false);
 	}
 
 	/** @internal */
-	__runGlobalMiddlewares(context: CommandContext<keyof IClients, {}, never>) {
+	__runGlobalMiddlewares(context: CommandContext<{}, never>) {
 		return BaseCommand.__runMiddlewares(
 			context,
 			(context.client.options?.globalMiddlewares ?? []) as (keyof RegisteredMiddlewares)[],
@@ -239,11 +239,11 @@ class BaseCommand {
 		Object.setPrototypeOf(this, __tempCommand.prototype);
 	}
 
-	run?(context: CommandContext<keyof IClients, any>): any;
-	onAfterRun?(context: CommandContext<keyof IClients, any>, error: unknown | undefined): any;
-	onRunError?(context: CommandContext<keyof IClients, any>, error: unknown): any;
-	onOptionsError?(context: CommandContext<keyof IClients, {}, never>, metadata: OnOptionsReturnObject): any;
-	onMiddlewaresError?(context: CommandContext<keyof IClients, {}, never>, error: Error): any;
+	run?(context: CommandContext<any>): any;
+	onAfterRun?(context: CommandContext<any>, error: unknown | undefined): any;
+	onRunError?(context: CommandContext<any>, error: unknown): any;
+	onOptionsError?(context: CommandContext<{}, never>, metadata: OnOptionsReturnObject): any;
+	onMiddlewaresError?(context: CommandContext<{}, never>, error: Error): any;
 
 	onInternalError(client: BaseClient, error?: unknown): any {
 		client.logger.fatal(error);
@@ -301,6 +301,6 @@ export abstract class SubCommand extends BaseCommand {
 		};
 	}
 
-	abstract run(context: CommandContext<keyof IClients, any>): any;
-	onRunError?(context: CommandContext<keyof IClients, any>, error: unknown): any;
+	abstract run(context: CommandContext<any>): any;
+	onRunError?(context: CommandContext<any>, error: unknown): any;
 }

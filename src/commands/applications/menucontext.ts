@@ -1,4 +1,3 @@
-import type { IClients } from '../../client/base';
 import {
 	ApplicationCommandType,
 	MessageFlags,
@@ -10,20 +9,18 @@ import {
 } from '../../common';
 import { Message, User, type MessageCommandInteraction, type UserCommandInteraction } from '../../structures';
 import type { RegisteredMiddlewares } from '../decorators';
-import type { CommandMetadata, DefaultLocale, ExtendContext, GlobalMetadata } from './shared';
+import type { CommandMetadata, DefaultLocale, ExtendContext, GlobalMetadata, UsingClient } from './shared';
 
 export type InteractionTarget<T> = T extends MessageCommandInteraction ? Message : User;
 export class MenuCommandContext<
-	C extends keyof IClients,
 	T extends MessageCommandInteraction | UserCommandInteraction,
 	M extends keyof RegisteredMiddlewares = never,
-> implements ExtendContext
-{
+> implements ExtendContext {
 	constructor(
-		readonly client: IClients[C],
+		readonly client: UsingClient,
 		readonly interaction: T,
 		readonly shardId: number,
-	) {}
+	) { }
 
 	metadata: CommandMetadata<UnionToTuple<M>> = {} as never;
 	globalMetadata: GlobalMetadata = {};
