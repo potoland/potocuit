@@ -31,10 +31,8 @@ export function resolvePartialEmoji(emoji: EmojiResolvable): APIPartialEmoji | u
 		return;
 	}
 
-	const { id, name, animated } = emoji;
-
-	if (!(id && name)) return;
-	return { id, name, animated: !!animated };
+	if (!(emoji.id && emoji.name)) return;
+	return { id: emoji.id, name: emoji.name, animated: !!emoji.animated };
 }
 
 export async function resolveEmoji(emoji: EmojiResolvable, cache: Cache): Promise<APIPartialEmoji | undefined> {
@@ -47,9 +45,7 @@ export async function resolveEmoji(emoji: EmojiResolvable, cache: Cache): Promis
 		return fromCache && { animated: fromCache.animated, id: fromCache.id, name: fromCache.name };
 	}
 
-	const { id } = emoji;
-
-	const fromCache = await cache.emojis?.get(id!);
+	const fromCache = await cache.emojis?.get(emoji.id!);
 	if (fromCache) return { animated: fromCache.animated, id: fromCache.id, name: fromCache.name };
 	return;
 }

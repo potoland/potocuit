@@ -184,8 +184,8 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 	protected async onPacket(packet: GatewayDispatchPayload, shardId: number) {
 		switch (packet.t) {
 			case 'READY':
-				for (const { id } of packet.d.guilds) {
-					this.__handleGuilds.add(id);
+				for (const g of packet.d.guilds) {
+					this.__handleGuilds.add(g.id);
 				}
 				this.botId = packet.d.user.id;
 				this.applicationId = packet.d.application.id;

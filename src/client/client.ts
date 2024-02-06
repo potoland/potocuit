@@ -124,8 +124,8 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 				await this.cache.onPacket(packet);
 				switch (packet.t) {
 					case 'READY':
-						for (const { id } of packet.d.guilds) {
-							this.__handleGuilds.add(id);
+						for (const g of packet.d.guilds) {
+							this.__handleGuilds.add(g.id);
 						}
 						this.botId = packet.d.user.id;
 						this.applicationId = packet.d.application.id;

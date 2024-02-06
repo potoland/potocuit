@@ -1,13 +1,13 @@
 import type { Client, WorkerClient } from '../client';
 import {
 	BaseHandler,
-	type MakeRequired,
 	ReplaceRegex,
 	magicImport,
 	type GatewayDispatchPayload,
 	type GatewayMessageCreateDispatch,
 	type GatewayMessageDeleteBulkDispatch,
 	type GatewayMessageDeleteDispatch,
+	type MakeRequired,
 	type SnakeCase,
 } from '../common';
 import type { ClientEvents } from '../events/hooks';
