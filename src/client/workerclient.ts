@@ -166,7 +166,16 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 					type: 'WORKER_INFO',
 					nonce: data.nonce,
 				} satisfies WorkerSendInfo);
-			}
+			} break
+			case 'BOT_READY':
+				if (
+					this.events.values.BOT_READY &&
+					(this.events.values.BOT_READY.fired ? !this.events.values.BOT_READY.data.once : true)
+				) {
+					this.events.values.BOT_READY.fired = true;
+					await this.events.values.BOT_READY.run(this.me!, this, -1);
+				}
+				break
 		}
 	}
 
@@ -185,8 +194,12 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 						this.events.values.WORKER_READY &&
 						(this.events.values.WORKER_READY.fired ? !this.events.values.WORKER_READY.data.once : true)
 					) {
+						manager!.postMessage({
+							type: 'WORKER_READY',
+							workerId: this.workerId,
+						} as WorkerReady);
 						this.events.values.WORKER_READY.fired = true;
-						await this.events.values.WORKER_READY.run(this.me!, this, shardId);
+						await this.events.values.WORKER_READY.run(this.me!, this, -1);
 					}
 				}
 				this.debugger?.debug(`#${shardId} [${packet.d.user.username}](${this.botId}) is online...`);
@@ -198,19 +211,17 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 			case 'GUILD_CREATE': {
 				if (this.__handleGuilds.has(packet.d.id)) {
 					this.__handleGuilds.delete(packet.d.id);
-					if ([...this.shards.values()].every(shard => shard.data.session_id)) {
+					if (
+						[...this.shards.values()].every(shard => shard.data.session_id) &&
+						this.events.values.WORKER_READY &&
+						(this.events.values.WORKER_READY.fired ? !this.events.values.WORKER_READY.data.once : true)
+					) {
 						manager!.postMessage({
 							type: 'WORKER_READY',
 							workerId: this.workerId,
 						} as WorkerReady);
-						if (
-							[...this.shards.values()].every(shard => shard.data.session_id) &&
-							this.events.values.WORKER_READY &&
-							(this.events.values.WORKER_READY.fired ? !this.events.values.WORKER_READY.data.once : true)
-						) {
-							this.events.values.WORKER_READY.fired = true;
-							await this.events.values.WORKER_READY.run(this.me!, this, shardId);
-						}
+						this.events.values.WORKER_READY.fired = true;
+						await this.events.values.WORKER_READY.run(this.me!, this, -1);
 					}
 					return;
 				}

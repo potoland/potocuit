@@ -234,7 +234,11 @@ export class WorkerManager extends Map<number, Worker> {
 				break;
 			case 'WORKER_READY':
 				{
-					//todo
+					if (message.workerId === [...this.keys()].at(-1)) {
+						this.get(this.keys().next().value)?.postMessage({
+							type: 'BOT_READY',
+						} satisfies ManagerSendBotReady)
+					}
 				}
 				break;
 		}
@@ -334,6 +338,7 @@ export type ManagerSendPayload = CreateManagerMessage<
 export type ManagerRequestShardInfo = CreateManagerMessage<'SHARD_INFO', { nonce: string; shardId: number }>;
 export type ManagerRequestWorkerInfo = CreateManagerMessage<'WORKER_INFO', { nonce: string }>;
 export type ManagerSendCacheResult = CreateManagerMessage<'CACHE_RESULT', { nonce: string; result: any }>;
+export type ManagerSendBotReady = CreateManagerMessage<'BOT_READY'>;
 
 export type ManagerMessages =
 	| ManagerAllowConnect
@@ -341,4 +346,5 @@ export type ManagerMessages =
 	| ManagerSendPayload
 	| ManagerRequestShardInfo
 	| ManagerRequestWorkerInfo
-	| ManagerSendCacheResult;
+	| ManagerSendCacheResult
+	| ManagerSendBotReady

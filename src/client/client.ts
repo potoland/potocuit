@@ -137,7 +137,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 								(this.events.values.BOT_READY.fired ? !this.events.values.BOT_READY.data.once : true)
 							) {
 								this.events.values.BOT_READY.fired = true;
-								await this.events.values.BOT_READY.run(this.me!, this, shardId);
+								await this.events.values.BOT_READY.run(this.me!, this, -1);
 							}
 						}
 						this.debugger?.debug(`#${shardId}[${packet.d.user.username}](${this.botId}) is online...`);
@@ -155,7 +155,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 								(this.events.values.BOT_READY.fired ? !this.events.values.BOT_READY.data.once : true)
 							) {
 								this.events.values.BOT_READY.fired = true;
-								await this.events.values.BOT_READY.run(this.me!, this, shardId);
+								await this.events.values.BOT_READY.run(this.me!, this, -1);
 							}
 							return;
 						}
