@@ -27,5 +27,5 @@ export interface ClientEvent {
 	data: ClientDataEvent;
 	run(...args: EventContext<any, any>): any;
 	/**@internal */
-	__filePath?: string
+	__filePath?: string;
 }

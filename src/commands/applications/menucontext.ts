@@ -2,7 +2,7 @@ import type { IClients } from '../../client/base';
 import {
 	ApplicationCommandType,
 	MessageFlags,
-	UnionToTuple,
+	type UnionToTuple,
 	toSnakeCase,
 	type InteractionCreateBodyRequest,
 	type InteractionMessageUpdateBodyRequest,
@@ -17,15 +17,16 @@ export class MenuCommandContext<
 	C extends keyof IClients,
 	T extends MessageCommandInteraction | UserCommandInteraction,
 	M extends keyof RegisteredMiddlewares = never,
-> implements ExtendContext {
+> implements ExtendContext
+{
 	constructor(
 		readonly client: IClients[C],
 		readonly interaction: T,
 		public metadata: CommandMetadata<UnionToTuple<M>>,
 		readonly shardId: number,
-	) { }
+	) {}
 
-	globalMetadata: GlobalMetadata = {}
+	globalMetadata: GlobalMetadata = {};
 
 	get proxy() {
 		return this.client.proxy;

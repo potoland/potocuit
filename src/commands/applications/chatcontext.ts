@@ -1,5 +1,5 @@
 import type { IClients } from '../../client/base';
-import { MessageFlags, UnionToTuple } from '../../common';
+import { MessageFlags, type UnionToTuple } from '../../common';
 import type {
 	InteractionCreateBodyRequest,
 	InteractionMessageUpdateBodyRequest,
@@ -15,7 +15,8 @@ export class CommandContext<
 	C extends keyof IClients,
 	T extends OptionsRecord = {},
 	M extends keyof RegisteredMiddlewares = never,
-> implements ExtendContext {
+> implements ExtendContext
+{
 	constructor(
 		readonly client: IClients[C],
 		readonly interaction: ChatInputCommandInteraction,
@@ -23,9 +24,9 @@ export class CommandContext<
 		public metadata: CommandMetadata<UnionToTuple<M>>,
 		public resolver: OptionResolver,
 		readonly shardId: number,
-	) { }
+	) {}
 
-	globalMetadata: GlobalMetadata = {}
+	globalMetadata: GlobalMetadata = {};
 
 	get proxy() {
 		return this.client.proxy;

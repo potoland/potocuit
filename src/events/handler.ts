@@ -1,7 +1,7 @@
 import type { Client, WorkerClient } from '../client';
 import {
 	BaseHandler,
-	MakeRequired,
+	type MakeRequired,
 	ReplaceRegex,
 	magicImport,
 	type GatewayDispatchPayload,

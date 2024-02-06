@@ -1,4 +1,4 @@
-import { DefaultLocale } from '../commands';
+import type { DefaultLocale } from '../commands';
 import { BaseHandler } from '../common';
 import { LangRouter } from './router';
 
