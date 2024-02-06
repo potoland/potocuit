@@ -95,9 +95,9 @@ export class CommandHandler extends BaseHandler {
 			this.values.push(commandInstance);
 			this.__parseLocales(commandInstance, client);
 
-			for (let i of commandInstance.options ?? []) {
+			for (const i of commandInstance.options ?? []) {
 				if (i instanceof SubCommand) {
-					this.__parseLocales(i, client)
+					this.__parseLocales(i, client);
 				}
 			}
 		}
