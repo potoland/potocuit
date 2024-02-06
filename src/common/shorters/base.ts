@@ -1,5 +1,5 @@
-import type { BaseClient } from '../../client/base';
+import { UsingClient } from '../../commands';
 
 export class BaseShorter {
-	constructor(readonly client: BaseClient) {}
+	constructor(readonly client: UsingClient) { }
 }

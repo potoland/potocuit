@@ -1,4 +1,4 @@
-import type { Client, WorkerClient } from '../client';
+import { UsingClient } from '../commands';
 import type { ClientEvents } from './hooks';
 
 export interface DeclareEventsOptions {
@@ -12,20 +12,15 @@ export interface ClientDataEvent {
 	once: boolean;
 }
 
-export interface IClientEvents {
-	client: Client;
-	worker: WorkerClient;
-}
-
-export type Handler<T extends Client | WorkerClient> = {
-	[K in keyof ClientEvents]: (...data: [Awaited<ClientEvents[K]>, T, number]) => unknown;
+export type Handler = {
+	[K in keyof ClientEvents]: (...data: [Awaited<ClientEvents[K]>, UsingClient, number]) => unknown;
 };
-export type EventContext<K extends keyof IClientEvents, T extends { data: { name: ClientNameEvents } }> = Parameters<
-	Handler<IClientEvents[K]>[T['data']['name']]
+export type EventContext<T extends { data: { name: ClientNameEvents } }> = Parameters<
+	Handler[T['data']['name']]
 >;
 export interface ClientEvent {
 	data: ClientDataEvent;
-	run(...args: EventContext<any, any>): any;
+	run(...args: EventContext<any>): any;
 	/**@internal */
 	__filePath?: string;
 }

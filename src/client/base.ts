@@ -24,9 +24,6 @@ import type { DeepPartial, IntentStrings, OmitInsert } from '../common/types/uti
 import { ComponentHandler } from '../components/handler';
 import { LangsHandler } from '../langs/handler';
 import type { ChatInputCommandInteraction, MessageCommandInteraction, UserCommandInteraction } from '../structures';
-import type { Client } from './client';
-import type { HttpClient } from './httpclient';
-import type { WorkerClient } from './workerclient';
 
 export class BaseClient {
 	/** @internal */
@@ -288,12 +285,12 @@ export type RuntimeConfigHTTP = Omit<MakeRequired<RC, 'publicKey' | 'application
 export type InternalRuntimeConfig = Omit<MakeRequired<RC, 'intents'>, 'publicKey' | 'port'>;
 export type RuntimeConfig = OmitInsert<InternalRuntimeConfig, 'intents', { intents?: IntentStrings | number }>;
 
-export interface IClients {
-	base: BaseClient;
-	http: HttpClient;
-	client: Client<true>;
-	worker: WorkerClient<true>;
-}
+// export interface IClients {
+// 	base: BaseClient;
+// 	http: HttpClient;
+// 	client: Client<true>;
+// 	worker: WorkerClient<true>;
+// }
 
 export type ServicesOptions = {
 	rest?: REST;
