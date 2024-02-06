@@ -159,14 +159,16 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 					} satisfies WorkerSendShardInfo);
 				}
 				break;
-			case 'WORKER_INFO': {
-				manager!.postMessage({
-					shards: [...this.shards.values()].map(generateShardInfo),
-					workerId: workerData.workerId,
-					type: 'WORKER_INFO',
-					nonce: data.nonce,
-				} satisfies WorkerSendInfo);
-			} break
+			case 'WORKER_INFO':
+				{
+					manager!.postMessage({
+						shards: [...this.shards.values()].map(generateShardInfo),
+						workerId: workerData.workerId,
+						type: 'WORKER_INFO',
+						nonce: data.nonce,
+					} satisfies WorkerSendInfo);
+				}
+				break;
 			case 'BOT_READY':
 				if (
 					this.events.values.BOT_READY &&
@@ -175,7 +177,7 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 					this.events.values.BOT_READY.fired = true;
 					await this.events.values.BOT_READY.run(this.me!, this, -1);
 				}
-				break
+				break;
 		}
 	}
 

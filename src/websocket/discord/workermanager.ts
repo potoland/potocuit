@@ -237,7 +237,7 @@ export class WorkerManager extends Map<number, Worker> {
 					if (message.workerId === [...this.keys()].at(-1)) {
 						this.get(this.keys().next().value)?.postMessage({
 							type: 'BOT_READY',
-						} satisfies ManagerSendBotReady)
+						} satisfies ManagerSendBotReady);
 					}
 				}
 				break;
@@ -347,4 +347,4 @@ export type ManagerMessages =
 	| ManagerRequestShardInfo
 	| ManagerRequestWorkerInfo
 	| ManagerSendCacheResult
-	| ManagerSendBotReady
+	| ManagerSendBotReady;
