@@ -43,8 +43,7 @@ export async function onInteraction(
 							await command.autocomplete(interaction);
 						} catch (error) {
 							self.logger.error(
-								`${optionsResolver.fullCommandName} ${command?.name} just threw an error, ${
-									error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+								`${optionsResolver.fullCommandName} ${command?.name} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 								}`,
 							);
 							await command.onAutocompleteError?.(interaction, error);
@@ -59,7 +58,7 @@ export async function onInteraction(
 					return /* 418*/;
 				}
 				// idc, is a YOU problem
-				self.debugger?.debug(
+				self.logger.debug(
 					`${optionsResolver.fullCommandName} ${command?.name} command does not have 'autocomplete' callback`,
 				);
 			}
@@ -111,8 +110,7 @@ export async function onInteraction(
 										await command.onAfterRun?.(context, undefined);
 									} catch (error) {
 										self.logger.error(
-											`${command.name} just threw an error, ${
-												error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+											`${command.name} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 											}`,
 										);
 										await command.onRunError?.(context, error);
@@ -128,7 +126,7 @@ export async function onInteraction(
 								return /* 418*/;
 							}
 							// idc, is a YOU problem
-							self.debugger?.debug(`${command?.name ?? 'Unknown'} command does not have 'run' callback`);
+							self.logger.debug(`${command?.name ?? 'Unknown'} command does not have 'run' callback`);
 						}
 						break;
 					case ApplicationCommandType.ChatInput:
@@ -179,8 +177,7 @@ export async function onInteraction(
 										await command.onAfterRun?.(context, undefined);
 									} catch (error) {
 										self.logger.error(
-											`${optionsResolver.fullCommandName} just threw an error, ${
-												error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+											`${optionsResolver.fullCommandName} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 											}`,
 										);
 										await command.onRunError?.(context, error);
@@ -196,7 +193,7 @@ export async function onInteraction(
 								return /* 418*/;
 							}
 							// idc, is a YOU problem
-							self.debugger?.debug(`${optionsResolver.fullCommandName} command does not have 'run' callback`);
+							self.logger.debug(`${optionsResolver.fullCommandName} command does not have 'run' callback`);
 						}
 						break;
 				}

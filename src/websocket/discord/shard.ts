@@ -1,6 +1,6 @@
 import { inflateSync } from 'node:zlib';
 import type WS from 'ws';
-import { type ErrorEvent, WebSocket, type CloseEvent } from 'ws';
+import { WebSocket, type CloseEvent, type ErrorEvent } from 'ws';
 import type { GatewayReceivePayload, GatewaySendPayload, Logger } from '../../common';
 import { GatewayCloseCodes, GatewayDispatchEvents, GatewayOpcodes } from '../../common';
 import { properties } from '../constants';
@@ -252,7 +252,7 @@ export class Shard {
 	protected async handleClosed(close: CloseEvent) {
 		clearInterval(this.heart.nodeInterval);
 		this.debugger?.warn(
-			`[Shard #${this.id}] ${GatewayCloseCodes[close.code] ?? ShardSocketCloseCodes[close.code] ?? close.code}`,
+			`[Shard #${this.id}] ${ShardSocketCloseCodes[close.code] ?? GatewayCloseCodes[close.code] ?? close.code} (${close.code})`,
 		);
 
 		switch (close.code) {
