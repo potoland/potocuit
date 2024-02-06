@@ -1,3 +1,4 @@
+import { DefaultLocale } from '../commands';
 import { BaseHandler } from '../common';
 import { LangRouter } from './router';
 
@@ -25,7 +26,7 @@ export class LangsHandler extends BaseHandler {
 		return str.replace(regex, match => metadata[match.slice(2, -2)] ?? match);
 	}
 
-	get(userLocale: string) {
+	get(userLocale: string): DefaultLocale {
 		return LangRouter(userLocale, this.defaultLang ?? userLocale, this.values)();
 	}
 

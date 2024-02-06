@@ -3,7 +3,7 @@ import { REST, Router } from '../api';
 import type { Adapter } from '../cache';
 import { Cache, MemoryAdapter } from '../cache';
 import type { RegisteredMiddlewares } from '../commands';
-import type { MiddlewareContext } from '../commands/applications/shared';
+import type { DefaultLocale, MiddlewareContext } from '../commands/applications/shared';
 import { CommandHandler } from '../commands/handler';
 import {
 	ChannelShorter,
@@ -202,8 +202,7 @@ export class BaseClient {
 		}
 	}
 
-	/**@internal */
-	t(locale: string) {
+	t(locale: string): DefaultLocale {
 		return this.langs.get(locale);
 	}
 

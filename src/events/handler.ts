@@ -1,6 +1,7 @@
 import type { Client, WorkerClient } from '../client';
 import {
 	BaseHandler,
+	MakeRequired,
 	ReplaceRegex,
 	magicImport,
 	type GatewayDispatchPayload,
@@ -15,7 +16,7 @@ import type { ClientEvent, ClientNameEvents } from './event';
 
 type OnFailCallback = (error: unknown) => Promise<any>;
 
-type EventValue = ClientEvent & { fired?: boolean; __filePath: string };
+type EventValue = MakeRequired<ClientEvent, '__filePath'> & { fired?: boolean };
 
 type GatewayEvents = Uppercase<SnakeCase<keyof ClientEvents>>;
 
@@ -39,7 +40,6 @@ export class EventHandler extends BaseHandler {
 				);
 				continue;
 			}
-			//@ts-expect-error
 			instance.__filePath = i.path;
 			this.values[ReplaceRegex.snake(instance.data.name).toUpperCase() as GatewayEvents] = instance as EventValue;
 		}

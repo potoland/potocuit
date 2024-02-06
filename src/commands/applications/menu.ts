@@ -46,7 +46,7 @@ export abstract class ContextMenuCommand {
 					return;
 				}
 				context[global ? 'globalMetadata' : 'metadata'] ??= {};
-				// @ts-expect-error globalMetadata doesnt exist, but is used for global middlewares
+				// @ts-expect-error
 				context[global ? 'globalMetadata' : 'metadata'][middlewares[index]] = obj;
 				if (++index >= middlewares.length) {
 					running = false;
@@ -66,12 +66,12 @@ export abstract class ContextMenuCommand {
 	}
 
 	/** @internal */
-	__runMiddlewares(context: MenuCommandContext<keyof IClients, any, []>) {
+	__runMiddlewares(context: MenuCommandContext<keyof IClients, any, never>) {
 		return ContextMenuCommand.__runMiddlewares(context, this.middlewares as (keyof RegisteredMiddlewares)[], false);
 	}
 
 	/** @internal */
-	__runGlobalMiddlewares(context: MenuCommandContext<keyof IClients, any, []>) {
+	__runGlobalMiddlewares(context: MenuCommandContext<keyof IClients, any, never>) {
 		return ContextMenuCommand.__runMiddlewares(
 			context,
 			(context.client.options?.globalMiddlewares ?? []) as (keyof RegisteredMiddlewares)[],
@@ -103,7 +103,7 @@ export abstract class ContextMenuCommand {
 	abstract run?(context: MenuCommandContext<keyof IClients, any>): any;
 	onAfterRun?(context: MenuCommandContext<keyof IClients, any>, error: unknown | undefined): any;
 	onRunError?(context: MenuCommandContext<keyof IClients, any>, error: unknown): any;
-	onMiddlewaresError?(context: MenuCommandContext<keyof IClients, any, []>, error: Error): any;
+	onMiddlewaresError?(context: MenuCommandContext<keyof IClients, any, never>, error: Error): any;
 
 	onInternalError(client: BaseClient, error?: unknown): any {
 		client.logger.fatal(error);

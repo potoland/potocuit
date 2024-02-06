@@ -43,8 +43,7 @@ export async function onInteraction(
 							await command.autocomplete(interaction);
 						} catch (error) {
 							self.logger.error(
-								`${optionsResolver.fullCommandName} ${command?.name} just threw an error, ${
-									error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+								`${optionsResolver.fullCommandName} ${command?.name} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 								}`,
 							);
 							await command.onAutocompleteError?.(interaction, error);
@@ -81,7 +80,7 @@ export async function onInteraction(
 								| UserCommandInteraction
 								| MessageCommandInteraction;
 							if (command?.run) {
-								const context = new MenuCommandContext<keyof IClients, any>(self as any, interaction, {}, shardId);
+								const context = new MenuCommandContext<keyof IClients, any>(self as any, interaction, {} as never, shardId);
 								const extendContext = self.options?.context?.(interaction) ?? {};
 								Object.assign(context, extendContext);
 								try {
@@ -106,8 +105,7 @@ export async function onInteraction(
 										await command.onAfterRun?.(context, undefined);
 									} catch (error) {
 										self.logger.error(
-											`${command.name} just threw an error, ${
-												error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+											`${command.name} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 											}`,
 										);
 										await command.onRunError?.(context, error);
@@ -145,7 +143,7 @@ export async function onInteraction(
 							const interaction = BaseInteraction.from(self, body, __reply) as ChatInputCommandInteraction;
 							const command = optionsResolver.getCommand();
 							if (command?.run) {
-								const context = new CommandContext(self as any, interaction, {}, {}, optionsResolver, shardId);
+								const context = new CommandContext(self as any, interaction, {}, {} as never, optionsResolver, shardId);
 								const extendContext = self.options?.context?.(interaction) ?? {};
 								Object.assign(context, extendContext);
 								try {
@@ -174,8 +172,7 @@ export async function onInteraction(
 										await command.onAfterRun?.(context, undefined);
 									} catch (error) {
 										self.logger.error(
-											`${optionsResolver.fullCommandName} just threw an error, ${
-												error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+											`${optionsResolver.fullCommandName} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 											}`,
 										);
 										await command.onRunError?.(context, error);

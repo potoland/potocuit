@@ -26,4 +26,6 @@ export type EventContext<K extends keyof IClientEvents, T extends { data: { name
 export interface ClientEvent {
 	data: ClientDataEvent;
 	run(...args: EventContext<any, any>): any;
+	/**@internal */
+	__filePath?: string
 }

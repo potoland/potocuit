@@ -1,10 +1,10 @@
 import { throwError } from '..';
 import {
-	type APIMessageComponentEmoji,
 	ComponentType,
 	type APIButtonComponent,
 	type APIButtonComponentWithCustomId,
 	type APIButtonComponentWithURL,
+	type APIMessageComponentEmoji,
 	type ButtonStyle,
 	type EmojiResolvable,
 	type When,
@@ -29,7 +29,7 @@ export class Button<Type extends boolean = boolean> {
 		return this;
 	}
 
-	setURL(url: string): Omit<this, 'setCustomId'> {
+	setURL(url: string): Omit<this, 'setCustomId' | 'run'> {
 		// @ts-expect-error
 		this.data.url = url;
 		return this;
@@ -52,14 +52,14 @@ export class Button<Type extends boolean = boolean> {
 		return this;
 	}
 
-	setStyle(style: ButtonStyle.Link): Omit<this, 'setCustomId'>;
+	setStyle(style: ButtonStyle.Link): Omit<this, 'setCustomId' | 'run'>;
 	setStyle(style: ButtonStylesForID): Omit<this, 'setURL'>;
-	setStyle(style: ButtonStyle): Omit<this, 'setURL'> | Omit<this, 'setCustomId'> {
+	setStyle(style: ButtonStyle): Omit<this, 'setURL'> | Omit<this, 'setCustomId' | 'run'> {
 		this.data.style = style;
 		return this as any;
 	}
 
-	run(func: ComponentCallback<ButtonInteraction>): this {
+	run(func: ComponentCallback<ButtonInteraction>): Omit<this, 'setURL'> {
 		this.__exec = func;
 		return this;
 	}
