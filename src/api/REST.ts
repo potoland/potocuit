@@ -332,7 +332,6 @@ export class REST {
 	 * @param request - The request data
 	 */
 	private async resolveRequest(request: InternalRequest): Promise<{ fetchOptions: RequestInit; url: string }> {
-
 		let query = '';
 
 		// If a query option is passed, use it
@@ -365,8 +364,9 @@ export class REST {
 		}
 
 		// Format the full request URL (api base, optional version, endpoint, optional querystring)
-		const url = `${this.options.api}${request.versioned === false ? '' : `/v${this.options.version}`}${request.fullRoute
-			}${query}`;
+		const url = `${this.options.api}${request.versioned === false ? '' : `/v${this.options.version}`}${
+			request.fullRoute
+		}${query}`;
 
 		let finalBody: RequestInit['body'];
 		let additionalHeaders: Record<string, string> = {};
@@ -524,9 +524,9 @@ export type RequestObject<
 	(M extends `${ProxyRequestMethod.Get}`
 		? unknown
 		: {
-			body?: B;
-			files?: F;
-		});
+				body?: B;
+				files?: F;
+		  });
 
 export type RestArguments<
 	M extends ProxyRequestMethod,
@@ -535,6 +535,6 @@ export type RestArguments<
 	F extends RawFile[] = RawFile[],
 > = M extends ProxyRequestMethod.Get
 	? Q extends never
-	? RequestObject<M, never, B, never>
-	: never
+		? RequestObject<M, never, B, never>
+		: never
 	: RequestObject<M, B, Q, F>;
