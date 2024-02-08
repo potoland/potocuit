@@ -84,7 +84,7 @@ export type ShardStatusUpdate = Pick<GatewayPresenceUpdateData, 'activities' | '
 
 export interface RequestGuildMembersOptions
 	extends GatewayRequestGuildMembersDataWithQuery,
-		GatewayRequestGuildMembersDataWithUserIds {}
+	GatewayRequestGuildMembersDataWithUserIds { }
 
 export interface GatewayMemberRequest {
 	/** The unique nonce for this request. */
@@ -94,13 +94,6 @@ export interface GatewayMemberRequest {
 	/** The members that have already arrived for this request. */
 	members: APIGuildMember[];
 }
-
-export type AtLeastOne<
-	T,
-	U = {
-		[K in keyof T]: Pick<T, K>;
-	},
-> = Partial<T> & U[keyof U];
 
 export type RawClientUser = { bot: true } & APIUser;
 

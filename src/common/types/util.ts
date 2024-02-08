@@ -3,14 +3,14 @@ import type { GatewayIntentBits, PermissionFlagsBits } from '..';
 export type ToClass<T, This> = new (
 	...args: any[]
 ) => {
-	[K in keyof T]: T[K] extends (...args: any[]) => any
+		[K in keyof T]: T[K] extends (...args: any[]) => any
 		? ReturnType<T[K]> extends Promise<T>
-			? (...args: Parameters<T[K]>) => Promise<This>
-			: ReturnType<T[K]> extends T
-			  ? (...args: Parameters<T[K]>) => This
-			  : T[K]
+		? (...args: Parameters<T[K]>) => Promise<This>
+		: ReturnType<T[K]> extends T
+		? (...args: Parameters<T[K]>) => This
+		: T[K]
 		: T[K];
-};
+	};
 
 export type StringToNumber<T extends string> = T extends `${infer N extends number}` ? N : never;
 
@@ -18,10 +18,10 @@ export type MakePartial<T, K extends keyof T> = T & { [P in K]?: T[P] };
 
 export type DeepPartial<T> = {
 	[K in keyof T]?: T[K] extends Record<any, any>
-		? DeepPartial<T[K]>
-		: T[K] extends (infer I)[]
-		  ? DeepPartial<I>[]
-		  : T[K];
+	? DeepPartial<T[K]>
+	: T[K] extends (infer I)[]
+	? DeepPartial<I>[]
+	: T[K];
 };
 
 export type OmitInsert<T, K extends keyof T, I> = I extends [] ? Omit<T, K> & I[number] : Omit<T, K> & I;
@@ -50,10 +50,10 @@ export type WithID<More> = { id: string } & More;
 export type Tail<A> = A extends [unknown, ...infer rest]
 	? rest
 	: A extends [unknown]
-	  ? []
-	  : A extends (infer first)[]
-		  ? first[]
-		  : never;
+	? []
+	: A extends (infer first)[]
+	? first[]
+	: never;
 
 export type ValueOf<T> = T[keyof T];
 
@@ -74,8 +74,8 @@ export type If<T extends boolean, A, B = null> = T extends true ? A : B extends 
 export type PickPartial<T, K extends keyof T> = {
 	[P in keyof T]?: T[P] | undefined;
 } & {
-	[P in K]: T[P];
-};
+		[P in K]: T[P];
+	};
 
 export type MakeRequired<T, K extends keyof T> = T & { [P in K]-?: NonFalsy<T[P]> };
 
@@ -87,32 +87,32 @@ export type CamelCase<S extends string> = S extends `${infer P1}_${infer P2}${in
 
 export type SnakeCase<S extends string> = S extends `${infer A}${infer Rest}`
 	? A extends Uppercase<A>
-		? `_${Lowercase<A>}${SnakeCase<Rest>}`
-		: `${A}${SnakeCase<Rest>}`
+	? `_${Lowercase<A>}${SnakeCase<Rest>}`
+	: `${A}${SnakeCase<Rest>}`
 	: Lowercase<S>;
 
 export type ObjectToLower<T> = Identify<{
 	[K in keyof T as CamelCase<Exclude<K, symbol | number>>]: T[K] extends unknown[]
-		? Identify<ObjectToLower<T[K][0]>[]>
-		: T[K] extends object
-		  ? Identify<ObjectToLower<T[K]>>
-		  : T[K];
+	? Identify<ObjectToLower<T[K][0]>[]>
+	: T[K] extends object
+	? Identify<ObjectToLower<T[K]>>
+	: T[K];
 }>;
 
 export type ObjectToSnake<T> = Identify<{
 	[K in keyof T as SnakeCase<Exclude<K, symbol | number>>]: T[K] extends unknown[]
-		? Identify<ObjectToSnake<T[K][0]>[]>
-		: T[K] extends object
-		  ? Identify<ObjectToSnake<T[K]>>
-		  : T[K];
+	? Identify<ObjectToSnake<T[K][0]>[]>
+	: T[K] extends object
+	? Identify<ObjectToSnake<T[K]>>
+	: T[K];
 }>;
 
 export type UnionToTuple<U, A extends any[] = []> = (U extends void ? void : (arg: () => U) => never) extends (
 	arg: infer I,
 ) => void
 	? I extends () => infer W
-		? UnionToTuple<Exclude<U, W>, [W, ...A]>
-		: A
+	? UnionToTuple<Exclude<U, W>, [W, ...A]>
+	: A
 	: never;
 
 export type KeysWithUndefined<T> = {
@@ -133,12 +133,12 @@ type OptionalizeAux<T extends object> = Identify<
  */
 export type Optionalize<T> = T extends object
 	? T extends Array<unknown>
-		? number extends T['length']
-			? T[number] extends object
-				? Array<OptionalizeAux<T[number]>>
-				: T
-			: Partial<T>
-		: OptionalizeAux<T>
+	? number extends T['length']
+	? T[number] extends object
+	? Array<OptionalizeAux<T[number]>>
+	: T
+	: Partial<T>
+	: OptionalizeAux<T>
 	: T;
 
 export type ObjectLiteral<T = unknown> = {
@@ -167,3 +167,10 @@ export type PartialAvoid<U, T> = Identify<KeepT<T, U> & Partial<T>>;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type PartialClass<T> = PartialAvoid<Function, T>;
+
+export type AtLeastOne<
+	T,
+	U = {
+		[K in keyof T]: Pick<T, K>;
+	},
+> = Partial<T> & U[keyof U];
