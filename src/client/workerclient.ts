@@ -214,6 +214,7 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 				if (this.__handleGuilds.has(packet.d.id)) {
 					this.__handleGuilds.delete(packet.d.id);
 					if (
+						!this.__handleGuilds.size &&
 						[...this.shards.values()].every(shard => shard.data.session_id) &&
 						this.events.values.WORKER_READY &&
 						(this.events.values.WORKER_READY.fired ? !this.events.values.WORKER_READY.data.once : true)

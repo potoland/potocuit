@@ -150,6 +150,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 						if (this.__handleGuilds.has(packet.d.id)) {
 							this.__handleGuilds.delete(packet.d.id);
 							if (
+								!this.__handleGuilds.size &&
 								[...this.gateway.values()].every(shard => shard.data.session_id) &&
 								this.events.values.BOT_READY &&
 								(this.events.values.BOT_READY.fired ? !this.events.values.BOT_READY.data.once : true)
