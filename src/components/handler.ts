@@ -1,13 +1,13 @@
-import { Button, Modal, SelectMenu, type BuilderComponents, type ListenerOptions } from '../builders';
+import { Button, Modal, SelectMenu, type BuilderComponents } from '../builders';
 import type { ComponentCallback, ModalSubmitCallback } from '../builders/types';
 import type { BaseClient } from '../client/base';
 import { LimitedCollection } from '../collection';
 import {
-	type APIMessage,
-	type APIModalInteractionResponseCallbackData,
 	BaseHandler,
 	InteractionResponseType,
 	magicImport,
+	type APIMessage,
+	type APIModalInteractionResponseCallbackData,
 	type Logger,
 } from '../common';
 import type {
@@ -23,7 +23,6 @@ import { ComponentsListener } from './listener';
 type OnFailCallback = (error: unknown) => Promise<any>;
 
 type COMPONENTS = {
-	options: ListenerOptions | undefined;
 	buttons: Partial<
 		Record<
 			string,
@@ -32,6 +31,7 @@ type COMPONENTS = {
 			}
 		>
 	>;
+	listener: ComponentsListener<BuilderComponents>
 	idle?: NodeJS.Timeout;
 	timeout?: NodeJS.Timeout;
 };
@@ -63,14 +63,14 @@ export class ComponentHandler extends BaseHandler {
 		const row = this.values.get(id);
 		const component = row?.buttons?.[interaction.customId];
 		if (!component) return;
-		if (row.options?.filter) {
-			if (!(await row.options.filter(interaction))) return;
+		if (row.listener.options?.filter) {
+			if (!(await row.listener.options.filter(interaction))) return;
 		}
 		row.idle?.refresh();
 		await component.callback(
 			interaction,
 			reason => {
-				row.options?.onStop?.(reason ?? 'stop');
+				row.listener.options?.onStop?.(reason ?? 'stop');
 				this.deleteValue(id);
 			},
 			() => {
@@ -100,7 +100,7 @@ export class ComponentHandler extends BaseHandler {
 		this.deleteValue(id);
 		const components: COMPONENTS = {
 			buttons: {},
-			options: record.options,
+			listener: record
 		};
 
 		if ((record.options.idle ?? -1) > 0) {
@@ -196,7 +196,7 @@ export class ComponentHandler extends BaseHandler {
 	}
 
 	async load(componentsDir: string) {
-		const paths = await this.loadFilesK<{ new (): ModalCommand | ComponentCommand }>(
+		const paths = await this.loadFilesK<{ new(): ModalCommand | ComponentCommand }>(
 			await this.getFiles(componentsDir),
 		);
 
