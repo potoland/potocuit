@@ -44,7 +44,6 @@ export class BaseClient {
 
 	logger = new Logger({
 		name: '[Biscuitjs]',
-		logLevel: LogLevels.Info,
 	});
 
 	commands = new CommandHandler(this.logger);

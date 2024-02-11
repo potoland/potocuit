@@ -25,7 +25,6 @@ const workerData = __workerData__ as WorkerData;
 export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 	logger = new Logger({
 		name: `[Worker #${workerData.workerId}]`,
-		logLevel: LogLevels.Debug,
 	});
 
 	events = new EventHandler(this.logger);
