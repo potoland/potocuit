@@ -31,7 +31,7 @@ type COMPONENTS = {
 			}
 		>
 	>;
-	listener: ComponentsListener<BuilderComponents>
+	listener: ComponentsListener<BuilderComponents>;
 	idle?: NodeJS.Timeout;
 	timeout?: NodeJS.Timeout;
 };
@@ -100,7 +100,7 @@ export class ComponentHandler extends BaseHandler {
 		this.deleteValue(id);
 		const components: COMPONENTS = {
 			buttons: {},
-			listener: record
+			listener: record,
 		};
 
 		if ((record.options.idle ?? -1) > 0) {
@@ -196,7 +196,7 @@ export class ComponentHandler extends BaseHandler {
 	}
 
 	async load(componentsDir: string) {
-		const paths = await this.loadFilesK<{ new(): ModalCommand | ComponentCommand }>(
+		const paths = await this.loadFilesK<{ new (): ModalCommand | ComponentCommand }>(
 			await this.getFiles(componentsDir),
 		);
 

@@ -52,8 +52,8 @@ export class EventHandler extends BaseHandler {
 					const { d: data } = args[0] as unknown as GatewayMessageCreateDispatch;
 					if (args[1].components.values.has(data.interaction?.id ?? '')) {
 						const value = args[1].components.values.get(data.interaction!.id)!;
-						args[1].components.deleteValue(data.interaction!.id)
-						args[1].components.__setComponents(data.id, value.listener)
+						args[1].components.deleteValue(data.interaction!.id);
+						args[1].components.__setComponents(data.id, value.listener);
 					}
 				}
 				break;
