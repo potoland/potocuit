@@ -15,6 +15,7 @@ import type {
 	MessageCreateBodyRequest,
 	MessageUpdateBodyRequest,
 	ModalCreateBodyRequest,
+	ResolverProps,
 } from '../common/types/write';
 import type { ComponentInteraction, ModalSubmitInteraction, ReplyInteractionBody } from '../structures';
 import { ComponentCommand, InteractionCommandType, ModalCommand } from './command';
@@ -96,8 +97,9 @@ export class ComponentHandler extends BaseHandler {
 		return this.modals.get(interaction.user.id)?.(interaction);
 	}
 
-	__setComponents(id: string, record: ComponentsListener<BuilderComponents>) {
+	__setComponents(id: string, record: NonNullable<ResolverProps['components']>) {
 		this.deleteValue(id);
+		if (!(record instanceof ComponentsListener)) return;
 		const components: COMPONENTS = {
 			buttons: {},
 			listener: record,
@@ -162,8 +164,8 @@ export class ComponentHandler extends BaseHandler {
 		switch (interaction.type) {
 			case InteractionResponseType.ChannelMessageWithSource:
 			case InteractionResponseType.UpdateMessage:
-				if (!(interaction.data.components instanceof ComponentsListener)) return;
-				this.__setComponents(interactionId, interaction.data.components ?? []);
+				if (!interaction.data.components) return;
+				this.__setComponents(interactionId, interaction.data.components);
 				break;
 			case InteractionResponseType.Modal:
 				if (!(interaction.data instanceof Modal)) return;
@@ -177,26 +179,26 @@ export class ComponentHandler extends BaseHandler {
 	}
 
 	onRequestMessage(body: MessageCreateBodyRequest, message: APIMessage) {
-		if (!(body.components instanceof ComponentsListener)) {
+		if (!body.components) {
 			return;
 		}
 		this.__setComponents(message.id, body.components);
 	}
 
 	onRequestInteractionUpdate(body: InteractionMessageUpdateBodyRequest, message: APIMessage) {
-		if (!(body.components instanceof ComponentsListener)) {
+		if (!body.components) {
 			return;
 		}
 		this.__setComponents(message.id, body.components);
 	}
 
 	onRequestUpdateMessage(body: MessageUpdateBodyRequest, message: APIMessage) {
-		if (!(body.components instanceof ComponentsListener)) return;
+		if (!body.components) return;
 		this.__setComponents(message.id, body.components);
 	}
 
 	async load(componentsDir: string) {
-		const paths = await this.loadFilesK<{ new (): ModalCommand | ComponentCommand }>(
+		const paths = await this.loadFilesK<{ new(): ModalCommand | ComponentCommand }>(
 			await this.getFiles(componentsDir),
 		);
 
@@ -223,7 +225,7 @@ export class ComponentHandler extends BaseHandler {
 
 	async reload(path: string) {
 		const component = this.client.components.commands.find(
-			x => x.__filePath?.endsWith(`${path}.js`) || x.__filePath?.endsWith(path) || x.__filePath === path,
+			x => x.__filePath?.endsWith(`${path}.js`) || x.__filePath?.endsWith(`${path}.ts`) || x.__filePath?.endsWith(path) || x.__filePath === path,
 		);
 		if (!component || !component.__filePath) return null;
 		delete require.cache[component.__filePath];
