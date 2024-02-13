@@ -8,7 +8,7 @@ import type {
 	RESTPatchAPIChannelMessageJSONBody,
 	RESTPatchAPIWebhookWithTokenMessageJSONBody,
 	RESTPostAPIChannelMessageJSONBody,
-	RESTPostAPIWebhookWithTokenJSONBody
+	RESTPostAPIWebhookWithTokenJSONBody,
 } from '..';
 import type { RawFile } from '../../api';
 import type { ActionRow, Attachment, BuilderComponents, Embed, Modal, TextInput } from '../../builders';
@@ -22,7 +22,11 @@ export type BodyModalComponentProper = {
 
 export interface ResolverProps {
 	embeds?: Embed[] | APIEmbed[] | undefined;
-	components?: ComponentsListener<BuilderComponents> | APIActionRowComponent<APIMessageActionRowComponent>[] | ActionRow<BuilderComponents>[] | undefined;
+	components?:
+		| ComponentsListener<BuilderComponents>
+		| APIActionRowComponent<APIMessageActionRowComponent>[]
+		| ActionRow<BuilderComponents>[]
+		| undefined;
 	files?: Attachment[] | RawFile[] | undefined;
 }
 

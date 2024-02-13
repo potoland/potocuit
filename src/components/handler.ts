@@ -198,7 +198,7 @@ export class ComponentHandler extends BaseHandler {
 	}
 
 	async load(componentsDir: string) {
-		const paths = await this.loadFilesK<{ new(): ModalCommand | ComponentCommand }>(
+		const paths = await this.loadFilesK<{ new (): ModalCommand | ComponentCommand }>(
 			await this.getFiles(componentsDir),
 		);
 
@@ -225,7 +225,11 @@ export class ComponentHandler extends BaseHandler {
 
 	async reload(path: string) {
 		const component = this.client.components.commands.find(
-			x => x.__filePath?.endsWith(`${path}.js`) || x.__filePath?.endsWith(`${path}.ts`) || x.__filePath?.endsWith(path) || x.__filePath === path,
+			x =>
+				x.__filePath?.endsWith(`${path}.js`) ||
+				x.__filePath?.endsWith(`${path}.ts`) ||
+				x.__filePath?.endsWith(path) ||
+				x.__filePath === path,
 		);
 		if (!component || !component.__filePath) return null;
 		delete require.cache[component.__filePath];
