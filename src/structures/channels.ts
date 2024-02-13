@@ -159,7 +159,7 @@ interface IChannelTypes {
 	GuildAnnouncement: NewsChannel;
 }
 
-export interface BaseGuildChannel extends ObjectToLower<APIGuildChannel<ChannelType>> { }
+export interface BaseGuildChannel extends ObjectToLower<APIGuildChannel<ChannelType>> {}
 export class BaseGuildChannel extends BaseChannel<ChannelType> {
 	async guild(force = false) {
 		return this.client.guilds.fetch(this.guildId!, force);
@@ -182,7 +182,7 @@ export class BaseGuildChannel extends BaseChannel<ChannelType> {
 	}
 }
 
-export interface MessagesMethods extends BaseChannel<ChannelType> { }
+export interface MessagesMethods extends BaseChannel<ChannelType> {}
 export class MessagesMethods extends DiscordBase {
 	typing() {
 		return this.client.channels.typing(this.id);
@@ -230,8 +230,8 @@ export class MessagesMethods extends DiscordBase {
 			...body,
 			components: body.components
 				? (body?.components instanceof ComponentsListener ? body.components.components : body.components).map(x =>
-					'toJSON' in x ? x.toJSON() : x,
-				)
+						'toJSON' in x ? x.toJSON() : x,
+				  )
 				: undefined,
 			embeds: body.embeds?.map(x => (x instanceof Embed ? x.toJSON() : x)) ?? undefined,
 			//?
@@ -240,9 +240,9 @@ export class MessagesMethods extends DiscordBase {
 	}
 }
 
-export interface TextBaseGuildChannel extends ObjectToLower<Omit<APITextChannel, 'type'>>, MessagesMethods { }
+export interface TextBaseGuildChannel extends ObjectToLower<Omit<APITextChannel, 'type'>>, MessagesMethods {}
 @mix(MessagesMethods)
-export class TextBaseGuildChannel extends BaseGuildChannel { }
+export class TextBaseGuildChannel extends BaseGuildChannel {}
 
 export default function channelFrom(data: APIChannelBase<ChannelType>, client: BaseClient): AllChannels {
 	switch (data.type) {
@@ -276,14 +276,14 @@ export default function channelFrom(data: APIChannelBase<ChannelType>, client: B
 	}
 }
 
-export interface TopicableGuildChannel extends BaseChannel<ChannelType> { }
+export interface TopicableGuildChannel extends BaseChannel<ChannelType> {}
 export class TopicableGuildChannel extends DiscordBase {
 	setTopic(topic: string | null, reason?: string) {
 		return this.edit({ topic }, reason);
 	}
 }
 
-export interface ThreadOnlyMethods extends BaseChannel<ChannelType>, TopicableGuildChannel { }
+export interface ThreadOnlyMethods extends BaseChannel<ChannelType>, TopicableGuildChannel {}
 @mix(TopicableGuildChannel)
 export class ThreadOnlyMethods extends DiscordBase {
 	setTags(tags: APIGuildForumTag[], reason?: string) {
@@ -307,7 +307,7 @@ export class ThreadOnlyMethods extends DiscordBase {
 	}
 }
 
-export interface VoiceChannelMethods extends BaseChannel<ChannelType> { }
+export interface VoiceChannelMethods extends BaseChannel<ChannelType> {}
 export class VoiceChannelMethods extends DiscordBase {
 	setBitrate(bitrate: number | null, reason?: string) {
 		return this.edit({ bitrate }, reason);
@@ -360,9 +360,9 @@ export class WebhookChannelMethods extends DiscordBase {
 
 export interface TextGuildChannel
 	extends ObjectToLower<Omit<APITextChannel, 'type'>>,
-	BaseGuildChannel,
-	TextBaseGuildChannel,
-	WebhookChannelMethods { }
+		BaseGuildChannel,
+		TextBaseGuildChannel,
+		WebhookChannelMethods {}
 @mix(TextBaseGuildChannel, WebhookChannelMethods)
 export class TextGuildChannel extends BaseGuildChannel {
 	declare type: ChannelType.GuildText;
@@ -376,7 +376,7 @@ export class TextGuildChannel extends BaseGuildChannel {
 	}
 }
 
-export interface DMChannel extends ObjectToLower<APIDMChannel>, Omit<MessagesMethods, 'edit'> { }
+export interface DMChannel extends ObjectToLower<APIDMChannel>, Omit<MessagesMethods, 'edit'> {}
 @mix(MessagesMethods)
 export class DMChannel extends (BaseChannel<ChannelType.DM> as unknown as ToClass<
 	Omit<BaseChannel<ChannelType.DM>, 'edit'>,
@@ -386,9 +386,9 @@ export class DMChannel extends (BaseChannel<ChannelType.DM> as unknown as ToClas
 }
 export interface VoiceChannel
 	extends ObjectToLower<APIGuildVoiceChannel>,
-	Omit<TextGuildChannel, 'type'>,
-	VoiceChannelMethods,
-	WebhookChannelMethods { }
+		Omit<TextGuildChannel, 'type'>,
+		VoiceChannelMethods,
+		WebhookChannelMethods {}
 @mix(TextGuildChannel, WebhookChannelMethods, VoiceChannelMethods)
 export class VoiceChannel extends BaseChannel<ChannelType.GuildVoice> {
 	declare type: ChannelType.GuildVoice;
@@ -396,14 +396,14 @@ export class VoiceChannel extends BaseChannel<ChannelType.GuildVoice> {
 
 export interface StageChannel
 	extends ObjectToLower<Omit<APIGuildStageVoiceChannel, 'type'>>,
-	TopicableGuildChannel,
-	VoiceChannelMethods { }
+		TopicableGuildChannel,
+		VoiceChannelMethods {}
 @mix(TopicableGuildChannel, VoiceChannelMethods)
 export class StageChannel extends BaseChannel<ChannelType> {
 	declare type: ChannelType.GuildStageVoice;
 }
 
-export interface MediaChannel extends ObjectToLower<Omit<APIGuildMediaChannel, 'type'>>, ThreadOnlyMethods { }
+export interface MediaChannel extends ObjectToLower<Omit<APIGuildMediaChannel, 'type'>>, ThreadOnlyMethods {}
 @mix(ThreadOnlyMethods)
 export class MediaChannel extends BaseChannel<ChannelType> {
 	declare type: ChannelType.GuildMedia;
@@ -411,14 +411,14 @@ export class MediaChannel extends BaseChannel<ChannelType> {
 
 export interface ForumChannel
 	extends ObjectToLower<APIGuildForumChannel>,
-	Omit<ThreadOnlyMethods, 'type'>,
-	WebhookChannelMethods { }
+		Omit<ThreadOnlyMethods, 'type'>,
+		WebhookChannelMethods {}
 @mix(ThreadOnlyMethods, WebhookChannelMethods)
 export class ForumChannel extends BaseChannel<ChannelType.GuildForum> {
 	declare type: ChannelType.GuildForum;
 }
 
-export interface ThreadChannel extends ObjectToLower<APIThreadChannel>, TextBaseGuildChannel { }
+export interface ThreadChannel extends ObjectToLower<APIThreadChannel>, TextBaseGuildChannel {}
 @mix(TextBaseGuildChannel)
 export class ThreadChannel extends BaseChannel<
 	ChannelType.PublicThread | ChannelType.AnnouncementThread | ChannelType.PrivateThread
@@ -466,7 +466,7 @@ export class ThreadChannel extends BaseChannel<
 	}
 }
 
-export interface CategoryChannel extends ObjectToLower<APIGuildCategoryChannel> { }
+export interface CategoryChannel extends ObjectToLower<APIGuildCategoryChannel> {}
 
 export class CategoryChannel extends (BaseGuildChannel as unknown as ToClass<
 	Omit<BaseGuildChannel, 'setParent' | 'type'>,
@@ -475,7 +475,7 @@ export class CategoryChannel extends (BaseGuildChannel as unknown as ToClass<
 	declare type: ChannelType.GuildCategory;
 }
 
-export interface NewsChannel extends ObjectToLower<APINewsChannel>, WebhookChannelMethods { }
+export interface NewsChannel extends ObjectToLower<APINewsChannel>, WebhookChannelMethods {}
 @mix(WebhookChannelMethods)
 export class NewsChannel extends BaseChannel<ChannelType.GuildAnnouncement> {
 	declare type: ChannelType.GuildAnnouncement;
@@ -490,7 +490,7 @@ export class NewsChannel extends BaseChannel<ChannelType.GuildAnnouncement> {
 	}
 }
 
-export class DirectoryChannel extends BaseChannel<ChannelType.GuildDirectory> { }
+export class DirectoryChannel extends BaseChannel<ChannelType.GuildDirectory> {}
 
 export type AllGuildChannels =
 	| TextGuildChannel
