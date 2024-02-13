@@ -3,10 +3,14 @@ import { GatewayIntentBits } from './common';
 import type { ClientNameEvents, EventContext } from './events';
 import type { ChatInputCommandInteraction, MessageCommandInteraction, UserCommandInteraction } from './structures';
 
+export * from './api';
+export * from './builders';
 export * from './client';
 export * from './commands';
+export { Logger } from './common';
 export { ComponentCommand, ComponentsListener, ModalCommand } from './components';
 export type { ParseLocales } from './langs';
+export * from './structures';
 export { ShardManager, WorkerManager } from './websocket/discord';
 
 export function throwError(msg: string): never {
