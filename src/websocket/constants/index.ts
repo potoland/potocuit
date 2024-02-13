@@ -5,8 +5,8 @@ const COMPRESS = false;
 
 const properties = {
 	os: process.platform,
-	browser: 'Tiramisu',
-	device: 'Tiramisu',
+	browser: 'Biscuitjs',
+	device: 'Biscuitjs',
 };
 
 const ShardManagerDefaults: Partial<ShardManagerOptions> = {

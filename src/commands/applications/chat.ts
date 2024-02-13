@@ -38,25 +38,25 @@ type Wrap<N extends ApplicationCommandOptionType> = N extends
 	| ApplicationCommandOptionType.SubcommandGroup
 	? never
 	: {
-		required?: boolean;
-		value?(
-			data: { context: CommandContext; value: ReturnOptionsTypes[N] },
-			ok: OKFunction<any>,
-			fail: StopFunction,
-		): void;
-	} & {
-		description: string;
-		description_localizations?: APIApplicationCommandBasicOption['description_localizations'];
-		name_localizations?: APIApplicationCommandBasicOption['name_localizations'];
-	};
+			required?: boolean;
+			value?(
+				data: { context: CommandContext; value: ReturnOptionsTypes[N] },
+				ok: OKFunction<any>,
+				fail: StopFunction,
+			): void;
+	  } & {
+			description: string;
+			description_localizations?: APIApplicationCommandBasicOption['description_localizations'];
+			name_localizations?: APIApplicationCommandBasicOption['name_localizations'];
+	  };
 
 export type __TypeWrapper<T extends ApplicationCommandOptionType> = Wrap<T>;
 
 export type __TypesWrapper = {
 	[P in keyof typeof ApplicationCommandOptionType]: `${(typeof ApplicationCommandOptionType)[P]}` extends `${infer D extends
-	number}`
-	? Wrap<D>
-	: never;
+		number}`
+		? Wrap<D>
+		: never;
 };
 
 export type AutocompleteCallback = (interaction: AutocompleteInteraction) => any;
@@ -77,21 +77,21 @@ type KeysWithoutRequired<T extends OptionsRecord> = {
 
 type ContextOptionsAux<T extends OptionsRecord> = {
 	[K in Exclude<keyof T, KeysWithoutRequired<T>>]: T[K]['value'] extends (...args: any) => any
-	? T[K]['required'] extends true
-	? Parameters<Parameters<T[K]['value']>[1]>[0]
-	: never
-	: T[K]['required'] extends true
-	? ReturnOptionsTypes[T[K]['type']]
-	: never;
-} & {
-		[K in KeysWithoutRequired<T>]?: T[K]['value'] extends (...args: any) => any
 		? T[K]['required'] extends true
-		? never
-		: Parameters<Parameters<T[K]['value']>[1]>[0]
+			? Parameters<Parameters<T[K]['value']>[1]>[0]
+			: never
 		: T[K]['required'] extends true
-		? never
-		: ReturnOptionsTypes[T[K]['type']];
-	};
+		  ? ReturnOptionsTypes[T[K]['type']]
+		  : never;
+} & {
+	[K in KeysWithoutRequired<T>]?: T[K]['value'] extends (...args: any) => any
+		? T[K]['required'] extends true
+			? never
+			: Parameters<Parameters<T[K]['value']>[1]>[0]
+		: T[K]['required'] extends true
+		  ? never
+		  : ReturnOptionsTypes[T[K]['type']];
+};
 
 export type ContextOptions<T extends OptionsRecord> = ContextOptionsAux<T>;
 

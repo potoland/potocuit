@@ -13,7 +13,7 @@ export class RedisAdapter implements Adapter {
 
 	constructor(data: ({ client: Redis } | { redisOptions: RedisOptions }) & RedisAdapterOptions) {
 		this.client = 'client' in data ? data.client : new Redis(data.redisOptions);
-		this.namespace = data.namespace ?? 'tiramisu';
+		this.namespace = data.namespace ?? 'biscuitjs';
 	}
 
 	scan(query: string, returnKeys?: false): Promise<any[]>;
