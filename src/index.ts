@@ -7,7 +7,7 @@ export * from './api';
 export * from './builders';
 export * from './client';
 export * from './commands';
-export { Logger } from './common';
+export { Logger, Watcher } from './common';
 export { ComponentCommand, ComponentsListener, ModalCommand } from './components';
 export type { ParseLocales } from './langs';
 export * from './structures';
