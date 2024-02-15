@@ -1,6 +1,6 @@
 import { Router } from '../../api';
 import type { BaseClient } from '../../client/base';
-import { UsingClient } from '../../commands';
+import type { UsingClient } from '../../commands';
 import { toCamelCase } from '../../common';
 
 /** */
