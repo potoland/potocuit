@@ -58,7 +58,7 @@ export class EventHandler extends BaseHandler {
 			case 'MESSAGE_DELETE':
 				{
 					const { d: data } = args[0] as GatewayMessageDeleteDispatch;
-					const value = [...args[1].components.values].find(x => x[1].messageId === data.id)
+					const value = [...args[1].components.values].find(x => x[1].messageId === data.id);
 					if (value) {
 						args[1].components.onMessageDelete(value[0]);
 					}
@@ -69,7 +69,7 @@ export class EventHandler extends BaseHandler {
 					const { d: data } = args[0] as GatewayMessageDeleteBulkDispatch;
 					const values = [...args[1].components.values];
 					data.ids.forEach(id => {
-						const value = values.find(x => x[1].messageId === id)
+						const value = values.find(x => x[1].messageId === id);
 						if (value) {
 							args[1].components.onMessageDelete(value[0]);
 						}
