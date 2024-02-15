@@ -32,7 +32,7 @@ export type GatewayGuildMemberAddDispatchDataFixed<Pending extends boolean> = Pe
 	? Omit<GatewayGuildMemberAddDispatchData, 'user'> & { id: string }
 	: MakeRequired<GatewayGuildMemberAddDispatchData, 'user'>;
 
-export interface BaseGuildMember extends DiscordBase, ObjectToLower<Omit<APIGuildMember, 'user' | 'roles'>> { }
+export interface BaseGuildMember extends DiscordBase, ObjectToLower<Omit<APIGuildMember, 'user' | 'roles'>> {}
 export class BaseGuildMember extends DiscordBase {
 	private _roles: string[];
 	joinedTimestamp?: number;
@@ -111,7 +111,7 @@ export class BaseGuildMember extends DiscordBase {
 	}
 }
 
-export interface GuildMember extends ObjectToLower<Omit<APIGuildMember, 'user' | 'roles'>> { }
+export interface GuildMember extends ObjectToLower<Omit<APIGuildMember, 'user' | 'roles'>> {}
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
@@ -179,10 +179,10 @@ export interface UnavailableMember {
 	pending: true;
 }
 
-export class UnavailableMember extends BaseGuildMember { }
+export class UnavailableMember extends BaseGuildMember {}
 
 export interface InteractionGuildMember
-	extends ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles' | 'deaf' | 'mute' | 'permissions'>> { }
+	extends ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles' | 'deaf' | 'mute' | 'permissions'>> {}
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
@@ -191,7 +191,7 @@ export class InteractionGuildMember extends (GuildMember as unknown as ToClass<
 	Omit<GuildMember, 'deaf' | 'mute'>,
 	InteractionGuildMember
 >) {
-	permissions: PermissionsBitField
+	permissions: PermissionsBitField;
 	constructor(
 		client: BaseClient,
 		data: APIInteractionDataResolvedGuildMember,
@@ -200,6 +200,6 @@ export class InteractionGuildMember extends (GuildMember as unknown as ToClass<
 		guildId: string,
 	) {
 		super(client, data, user, guildId);
-		this.permissions = new PermissionsBitField(Number(data.permissions))
+		this.permissions = new PermissionsBitField(Number(data.permissions));
 	}
 }
