@@ -1,6 +1,7 @@
 import type { Client, WorkerClient } from '../client';
 import {
 	BaseHandler,
+	OnFailCallback,
 	ReplaceRegex,
 	magicImport,
 	type GatewayDispatchPayload,
@@ -13,8 +14,6 @@ import {
 import type { ClientEvents } from '../events/hooks';
 import * as RawEvents from '../events/hooks';
 import type { ClientEvent, ClientNameEvents } from './event';
-
-type OnFailCallback = (error: unknown) => Promise<any>;
 
 type EventValue = MakeRequired<ClientEvent, '__filePath'> & { fired?: boolean };
 

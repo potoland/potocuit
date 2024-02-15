@@ -5,6 +5,7 @@ import { LimitedCollection } from '../collection';
 import {
 	BaseHandler,
 	InteractionResponseType,
+	OnFailCallback,
 	magicImport,
 	type APIMessage,
 	type APIModalInteractionResponseCallbackData,
@@ -20,8 +21,6 @@ import type {
 import type { ComponentInteraction, ModalSubmitInteraction, ReplyInteractionBody } from '../structures';
 import { ComponentCommand, InteractionCommandType, ModalCommand } from './command';
 import { ComponentsListener } from './listener';
-
-type OnFailCallback = (error: unknown) => Promise<any>;
 
 type COMPONENTS = {
 	buttons: Partial<
@@ -200,7 +199,7 @@ export class ComponentHandler extends BaseHandler {
 	}
 
 	async load(componentsDir: string) {
-		const paths = await this.loadFilesK<{ new (): ModalCommand | ComponentCommand }>(
+		const paths = await this.loadFilesK<{ new(): ModalCommand | ComponentCommand }>(
 			await this.getFiles(componentsDir),
 		);
 
