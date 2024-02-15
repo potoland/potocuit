@@ -26,12 +26,13 @@ import type { BaseClient } from '../client/base';
 import type { ImageOptions, MethodContext } from '../common/types/options';
 import type { GuildMemberResolvable } from '../common/types/resolvables';
 import { User } from './User';
+import { PermissionsBitField } from './extra/Permissions';
 
 export type GatewayGuildMemberAddDispatchDataFixed<Pending extends boolean> = Pending extends true
 	? Omit<GatewayGuildMemberAddDispatchData, 'user'> & { id: string }
 	: MakeRequired<GatewayGuildMemberAddDispatchData, 'user'>;
 
-export interface BaseGuildMember extends DiscordBase, ObjectToLower<Omit<APIGuildMember, 'user' | 'roles'>> {}
+export interface BaseGuildMember extends DiscordBase, ObjectToLower<Omit<APIGuildMember, 'user' | 'roles'>> { }
 export class BaseGuildMember extends DiscordBase {
 	private _roles: string[];
 	joinedTimestamp?: number;
@@ -110,7 +111,7 @@ export class BaseGuildMember extends DiscordBase {
 	}
 }
 
-export interface GuildMember extends ObjectToLower<Omit<APIGuildMember, 'user' | 'roles'>> {}
+export interface GuildMember extends ObjectToLower<Omit<APIGuildMember, 'user' | 'roles'>> { }
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
@@ -178,10 +179,10 @@ export interface UnavailableMember {
 	pending: true;
 }
 
-export class UnavailableMember extends BaseGuildMember {}
+export class UnavailableMember extends BaseGuildMember { }
 
 export interface InteractionGuildMember
-	extends ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles' | 'deaf' | 'mute'>> {}
+	extends ObjectToLower<Omit<APIInteractionDataResolvedGuildMember, 'roles' | 'deaf' | 'mute' | 'permissions'>> { }
 /**
  * Represents a guild member
  * @link https://discord.com/developers/docs/resources/guild#guild-member-object
@@ -190,6 +191,7 @@ export class InteractionGuildMember extends (GuildMember as unknown as ToClass<
 	Omit<GuildMember, 'deaf' | 'mute'>,
 	InteractionGuildMember
 >) {
+	permissions: PermissionsBitField
 	constructor(
 		client: BaseClient,
 		data: APIInteractionDataResolvedGuildMember,
@@ -198,5 +200,6 @@ export class InteractionGuildMember extends (GuildMember as unknown as ToClass<
 		guildId: string,
 	) {
 		super(client, data, user, guildId);
+		this.permissions = new PermissionsBitField(Number(data.permissions))
 	}
 }
