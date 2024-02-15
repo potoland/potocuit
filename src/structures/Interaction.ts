@@ -52,7 +52,7 @@ import type {
 	ModalCreateBodyRequest,
 } from '../common/types/write';
 import { ComponentsListener } from '../components/listener';
-import { GuildMember, InteractionGuildMember, type AllChannels } from './';
+import { InteractionGuildMember, type AllChannels } from './';
 import { GuildRole } from './GuildRole';
 import { Message, type WebhookMessage } from './Message';
 import { User } from './User';
@@ -63,9 +63,9 @@ import { PermissionsBitField } from './extra/Permissions';
 export type ReplyInteractionBody =
 	| { type: InteractionResponseType.Modal; data: ModalCreateBodyRequest }
 	| {
-			type: InteractionResponseType.ChannelMessageWithSource | InteractionResponseType.UpdateMessage;
-			data: InteractionCreateBodyRequest | InteractionMessageUpdateBodyRequest | ComponentInteractionMessageUpdate;
-	  }
+		type: InteractionResponseType.ChannelMessageWithSource | InteractionResponseType.UpdateMessage;
+		data: InteractionCreateBodyRequest | InteractionMessageUpdateBodyRequest | ComponentInteractionMessageUpdate;
+	}
 	| Exclude<RESTPostAPIInteractionCallbackJSONBody, APIInteractionResponsePong>;
 
 /** @internal */
@@ -77,14 +77,14 @@ export interface BaseInteraction
 			APIBaseInteraction<InteractionType, any>,
 			'user' | 'member' | 'message' | 'channel' | 'type' | 'app_permissions'
 		>
-	> {}
+	> { }
 
 export class BaseInteraction<
 	FromGuild extends boolean = boolean,
 	Type extends APIInteraction = APIInteraction,
 > extends DiscordBase<Type> {
 	user: User;
-	member!: When<FromGuild, GuildMember, undefined>;
+	member!: When<FromGuild, InteractionGuildMember, undefined>;
 	channel?: AllChannels;
 	message?: Message;
 	replied?: Promise<boolean> | boolean;
@@ -97,7 +97,7 @@ export class BaseInteraction<
 	) {
 		super(client, interaction);
 		if (interaction.member) {
-			this.member = new GuildMember(
+			this.member = new InteractionGuildMember(
 				client,
 				interaction.member,
 				interaction.member!.user,
@@ -145,15 +145,15 @@ export class BaseInteraction<
 						body.data instanceof Modal
 							? body.data.toJSON()
 							: {
-									...body.data,
-									components: body.data?.components
-										? body.data.components.map(x =>
-												x instanceof ActionRow
-													? (x.toJSON() as unknown as APIActionRowComponent<APITextInputComponent>)
-													: x,
-										  )
-										: [],
-							  },
+								...body.data,
+								components: body.data?.components
+									? body.data.components.map(x =>
+										x instanceof ActionRow
+											? (x.toJSON() as unknown as APIActionRowComponent<APITextInputComponent>)
+											: x,
+									)
+									: [],
+							},
 				};
 			default:
 				return body;
@@ -204,8 +204,8 @@ export class BaseInteraction<
 			body.type === InteractionResponseType.Modal
 				? this.user.id
 				: body.type === InteractionResponseType.UpdateMessage
-				  ? this.message!.id
-				  : this.id,
+					? this.message!.id
+					: this.id,
 			body,
 		);
 
@@ -291,7 +291,7 @@ export interface AutocompleteInteraction
 			APIApplicationCommandAutocompleteInteraction,
 			'user' | 'member' | 'type' | 'data' | 'message' | 'channel' | 'app_permissions'
 		>
-	> {}
+	> { }
 
 export class AutocompleteInteraction<FromGuild extends boolean = boolean> extends BaseInteraction<
 	FromGuild,
@@ -438,7 +438,7 @@ export interface ComponentInteraction
 			APIMessageComponentInteraction,
 			'user' | 'member' | 'type' | 'data' | 'message' | 'channel' | 'app_permissions'
 		>
-	> {}
+	> { }
 
 export class ComponentInteraction<
 	FromGuild extends boolean = boolean,
@@ -554,14 +554,14 @@ export class MentionableSelectMenuInteraction extends SelectMenuInteraction {
 			: [];
 		this.members = resolved.members
 			? this.values.map(
-					x =>
-						new InteractionGuildMember(
-							this.client,
-							resolved.members![x],
-							this.users!.find(u => u.id === x)!,
-							this.guildId!,
-						),
-			  )
+				x =>
+					new InteractionGuildMember(
+						this.client,
+						resolved.members![x],
+						this.users!.find(u => u.id === x)!,
+						this.guildId!,
+					),
+			)
 			: [];
 		this.users = resolved.users ? this.values.map(x => new User(this.client, resolved.users![x])) : [];
 	}
@@ -593,14 +593,14 @@ export class UserSelectMenuInteraction extends SelectMenuInteraction {
 		this.users = this.values.map(x => new User(this.client, resolved.users[x]));
 		this.members = resolved.members
 			? this.values.map(
-					x =>
-						new InteractionGuildMember(
-							this.client,
-							resolved.members![x],
-							this.users!.find(u => u.id === x)!,
-							this.guildId!,
-						),
-			  )
+				x =>
+					new InteractionGuildMember(
+						this.client,
+						resolved.members![x],
+						this.users!.find(u => u.id === x)!,
+						this.guildId!,
+					),
+			)
 			: [];
 	}
 }
@@ -629,7 +629,7 @@ export class MessageCommandInteraction<FromGuild extends boolean = boolean> exte
 }
 
 export interface ModalSubmitInteraction<FromGuild extends boolean = boolean>
-	extends Omit<Interaction<FromGuild, APIModalSubmitInteraction>, 'modal'> {}
+	extends Omit<Interaction<FromGuild, APIModalSubmitInteraction>, 'modal'> { }
 @mix(Interaction)
 export class ModalSubmitInteraction<FromGuild extends boolean = boolean> extends BaseInteraction<FromGuild> {
 	declare data: ObjectToLower<APIModalSubmission>;
