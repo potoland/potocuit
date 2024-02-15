@@ -49,24 +49,31 @@ export class EventHandler extends BaseHandler {
 		switch (name) {
 			case 'MESSAGE_CREATE':
 				{
-					const { d: data } = args[0] as unknown as GatewayMessageCreateDispatch;
+					const { d: data } = args[0] as GatewayMessageCreateDispatch;
 					if (args[1].components.values.has(data.interaction?.id ?? '')) {
-						const value = args[1].components.values.get(data.interaction!.id)!;
-						args[1].components.deleteValue(data.interaction!.id);
-						args[1].components.__setComponents(data.id, value.listener);
+						args[1].components.values.get(data.interaction!.id)!.messageId = data.id;
 					}
 				}
 				break;
 			case 'MESSAGE_DELETE':
 				{
-					const { d: data } = args[0] as unknown as GatewayMessageDeleteDispatch;
-					args[1].components.onMessageDelete(data.id);
+					const { d: data } = args[0] as GatewayMessageDeleteDispatch;
+					const value = [...args[1].components.values].find(x => x[1].messageId === data.id)
+					if (value) {
+						args[1].components.onMessageDelete(value[0]);
+					}
 				}
 				break;
 			case 'MESSAGE_DELETE_BULK':
 				{
-					const { d: data } = args[0] as unknown as GatewayMessageDeleteBulkDispatch;
-					data.ids.forEach(id => args[1].components.onMessageDelete(id));
+					const { d: data } = args[0] as GatewayMessageDeleteBulkDispatch;
+					const values = [...args[1].components.values];
+					data.ids.forEach(id => {
+						const value = values.find(x => x[1].messageId === id)
+						if (value) {
+							args[1].components.onMessageDelete(value[0]);
+						}
+					});
 				}
 				break;
 		}
