@@ -1,7 +1,7 @@
 import type { Client, WorkerClient } from '../client';
 import {
 	BaseHandler,
-	OnFailCallback,
+	type OnFailCallback,
 	ReplaceRegex,
 	magicImport,
 	type GatewayDispatchPayload,

@@ -5,7 +5,7 @@ import { LimitedCollection } from '../collection';
 import {
 	BaseHandler,
 	InteractionResponseType,
-	OnFailCallback,
+	type OnFailCallback,
 	magicImport,
 	type APIMessage,
 	type APIModalInteractionResponseCallbackData,
@@ -199,7 +199,7 @@ export class ComponentHandler extends BaseHandler {
 	}
 
 	async load(componentsDir: string) {
-		const paths = await this.loadFilesK<{ new(): ModalCommand | ComponentCommand }>(
+		const paths = await this.loadFilesK<{ new (): ModalCommand | ComponentCommand }>(
 			await this.getFiles(componentsDir),
 		);
 

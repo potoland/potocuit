@@ -71,7 +71,7 @@ export function filterSplit<Element, Predicate extends (value: Element) => boole
 }
 
 export class BaseHandler {
-	constructor(protected logger: Logger) { }
+	constructor(protected logger: Logger) {}
 
 	protected filter = (path: string) => !!path;
 
