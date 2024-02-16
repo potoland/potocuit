@@ -43,7 +43,7 @@ export class BaseClient {
 	debugger?: Logger;
 
 	logger = new Logger({
-		name: '[Biscuitjs]',
+		name: '[Paragonjs]',
 	});
 
 	commands = new CommandHandler(this.logger);
@@ -213,7 +213,7 @@ export class BaseClient {
 	async getRC<
 		T extends InternalRuntimeConfigHTTP | InternalRuntimeConfig = InternalRuntimeConfigHTTP | InternalRuntimeConfig,
 	>() {
-		const { locations, debug, ...env } = (await magicImport(join(process.cwd(), 'biscuit.config.js')).then(
+		const { locations, debug, ...env } = (await magicImport(join(process.cwd(), 'paragon.config.js')).then(
 			x => x.default ?? x,
 		)) as T;
 

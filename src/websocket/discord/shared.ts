@@ -63,7 +63,7 @@ export interface ShardData {
 
 	/**
 	 * session_id is the unique session id of the gateway
-	 * do not mistake with the biscuit client which is named Session
+	 * do not mistake with the paragon client which is named Client
 	 */
 	session_id?: string;
 }

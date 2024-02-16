@@ -98,7 +98,7 @@ export class Logger {
 
 	static DEFAULT_OPTIONS: Required<LoggerOptions> = {
 		logLevel: LogLevels.Debug,
-		name: 'BISCUIT',
+		name: 'PARAGON',
 		active: true,
 	};
 

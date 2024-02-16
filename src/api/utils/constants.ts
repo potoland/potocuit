@@ -1,6 +1,6 @@
 import { APIVersion, BASE_URL } from '../../common';
 
-export const DefaultUserAgent = 'DiscordBot (https://biscuitjs.com)';
+export const DefaultUserAgent = 'DiscordBot (https://paragonjs.com)';
 
 export const DefaultRestOptions = {
 	agent: null,

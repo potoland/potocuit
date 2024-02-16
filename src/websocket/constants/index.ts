@@ -5,8 +5,8 @@ const COMPRESS = false;
 
 const properties = {
 	os: process.platform,
-	browser: 'Biscuitjs',
-	device: 'Biscuitjs',
+	browser: 'Paragonjs',
+	device: 'Paragonjs',
 };
 
 const ShardManagerDefaults: Partial<ShardManagerOptions> = {
