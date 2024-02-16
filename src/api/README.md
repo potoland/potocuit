@@ -2,7 +2,7 @@
 
   # **Paragonjs**
 
-  <img src="https://github.com/potoland/potocuit/raw/main/assets/icon.png" alt="potocuit" width="100px" />
+  <img src="https://github.com/potoland/potocuit/raw/main/assets/icon.png" alt="potocuit" width="200px" />
 
   **A brand new bleeding edge non bloated Discord framework**
 
