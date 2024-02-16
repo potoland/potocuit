@@ -1,8 +1,8 @@
 <div align='center'>
 
-  # **Biscuitjs**
+  # **Paragonjs**
 
-  <img src="https://github.com/potoland/potocuit/raw/main/assets/icon.png" alt="biscuitjs" width="100px" />
+  <img src="https://github.com/potoland/potocuit/raw/main/assets/icon.png" alt="paragonjs" width="100px" />
 
   **A brand new bleeding edge non bloated Discord framework**
 
@@ -16,11 +16,11 @@
 > This readme is work in progress!
 
 # FAQ
-## So, what is `biscuitjs`?
-Biscuitjs is the ultimate Discord framework! With its highly efficient interaction with the Discord API, you can achieve anything you set your mind to.
+## So, what is `paragonjs`?
+Paragonjs is the ultimate Discord framework! With its highly efficient interaction with the Discord API, you can achieve anything you set your mind to.
 
 ## Why I should use it?
-Biscuitjs has a good scalability, strict types, smooth developing experience...
+Paragonjs has a good scalability, strict types, smooth developing experience...
 
 > more questions soon...
 
@@ -29,7 +29,7 @@ Biscuitjs has a good scalability, strict types, smooth developing experience...
 > [!NOTE]
 > You **NEED** Node.js 18>= for this to work, also we recomended Node.js 20 LTS and Bun latest
 ```sh
-pnpm add biscuitjs
+pnpm add paragonjs
 ```
 
 > You may use your preferred package manager, for this example I am using PNPM since is more efficient.
@@ -37,7 +37,7 @@ pnpm add biscuitjs
 ## Basic bot example
 
 ```ts
-import { Client } from 'biscuitjs'; 
+import { Client } from 'paragonjs';
 
 const client = new Client();
 
