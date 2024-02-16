@@ -10,7 +10,8 @@ import type {
 import { EventHandler } from '../events';
 import { ClientUser } from '../structures';
 import { ShardManager } from '../websocket';
-import { MemberUpdateHandler } from '../websocket/discord/memberUpdate';
+import { MemberUpdateHandler } from '../websocket/discord/events/memberUpdate';
+import { PresenceUpdateHandler } from '../websocket/discord/events/presenceUpdate';
 import type { BaseClientOptions, InternalRuntimeConfig, ServicesOptions, StartOptions } from './base';
 import { BaseClient } from './base';
 import { onInteraction } from './oninteraction';
@@ -21,6 +22,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 	me!: If<Ready, ClientUser>;
 	declare options: ClientOptions | undefined;
 	memberUpdateHandler = new MemberUpdateHandler();
+	presenceUpdateHandler = new PresenceUpdateHandler();
 
 	constructor(options?: ClientOptions) {
 		super(options);
@@ -108,6 +110,13 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 			//// Cases where we must obtain the old data before updating
 			case 'GUILD_MEMBER_UPDATE':
 				if (!this.memberUpdateHandler.check(packet.d)) {
+					return;
+				}
+				await this.events.execute(packet.t, packet, this as Client<true>, shardId);
+				await this.cache.onPacket(packet);
+				break;
+			case 'PRESENCE_UPDATE':
+				if (!this.presenceUpdateHandler.check(packet.d as any)) {
 					return;
 				}
 				await this.events.execute(packet.t, packet, this as Client<true>, shardId);

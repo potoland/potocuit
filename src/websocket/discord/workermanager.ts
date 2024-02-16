@@ -5,7 +5,8 @@ import { Logger, MergeOptions, type GatewayPresenceUpdateData, type GatewaySendP
 import { WorkerManagerDefaults } from '../constants';
 import { SequentialBucket } from '../structures';
 import { ConnectQueue } from '../structures/timeout';
-import { MemberUpdateHandler } from './memberUpdate';
+import { MemberUpdateHandler } from './events/memberUpdate';
+import { PresenceUpdateHandler } from './events/presenceUpdate';
 import type { ShardOptions, WorkerData, WorkerManagerOptions } from './shared';
 import type { WorkerInfo, WorkerMessage, WorkerShardInfo } from './worker';
 
@@ -16,6 +17,7 @@ export class WorkerManager extends Map<number, Worker> {
 	cacheAdapter: Adapter;
 	promises = new Map<string, (value: any) => void>();
 	memberUpdateHandler = new MemberUpdateHandler();
+	presenceUpdateHandler = new PresenceUpdateHandler();
 	constructor(options: WorkerManagerOptions) {
 		super();
 		options.totalShards ??= options.info.shards;
@@ -193,6 +195,11 @@ export class WorkerManager extends Map<number, Worker> {
 					switch (message.payload.t) {
 						case 'GUILD_MEMBER_UPDATE':
 							if (!this.memberUpdateHandler.check(message.payload.d)) {
+								return;
+							}
+							break;
+						case 'PRESENCE_UPDATE':
+							if (!this.presenceUpdateHandler.check(message.payload.d as any)) {
 								return;
 							}
 							break;
