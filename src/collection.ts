@@ -31,17 +31,17 @@ export class Collection<K, V> extends Map<K, V> {
 
 	reduce<T = any>(fn: (accumulator: T, value: V, key: K, collection: this) => T, initialValue?: T): T {
 		const entries = this.entries();
-		const first = entries.next().value as [K, V]
-		let result = initialValue
+		const first = entries.next().value as [K, V];
+		let result = initialValue;
 
 		if (result !== undefined) {
-			result = fn(result, first[1], first[0], this)
+			result = fn(result, first[1], first[0], this);
 		} else {
-			result = first[1] as unknown as T
+			result = first[1] as unknown as T;
 		}
 
 		for (const [key, value] of entries) {
-			result = fn(result, value, key, this)
+			result = fn(result, value, key, this);
 		}
 
 		return result as T;
@@ -50,7 +50,7 @@ export class Collection<K, V> extends Map<K, V> {
 	every(fn: (value: V, key: K, collection: this) => boolean): boolean {
 		for (const [key, value] of this.entries()) {
 			if (!fn(value, key, this)) {
-				return false
+				return false;
 			}
 		}
 
@@ -60,7 +60,7 @@ export class Collection<K, V> extends Map<K, V> {
 	some(fn: (value: V, key: K, collection: this) => boolean): boolean {
 		for (const [key, value] of this.entries()) {
 			if (fn(value, key, this)) {
-				return true
+				return true;
 			}
 		}
 
@@ -73,7 +73,7 @@ export class Collection<K, V> extends Map<K, V> {
 				return value;
 			}
 		}
-		return undefined
+		return undefined;
 	}
 
 	findKey(fn: (value: V, key: K, collection: this) => boolean): K | undefined {
@@ -82,7 +82,7 @@ export class Collection<K, V> extends Map<K, V> {
 				return key;
 			}
 		}
-		return undefined
+		return undefined;
 	}
 }
 
