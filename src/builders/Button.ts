@@ -85,7 +85,7 @@ export class Button<Type extends boolean = boolean> {
 		return this;
 	}
 
-	setStyle(style: ButtonStyle.Link): Omit<this, 'setCustomId'>;
+	setStyle(style: ButtonStyle.Link): Omit<this, 'setCustomId' | 'run'>;
 	setStyle(style: ButtonStylesForID): Omit<this, 'setURL'>;
 	setStyle(style: ButtonStyle): Omit<this, 'setURL'> | Omit<this, 'setCustomId' | 'run'> {
 		this.data.style = style;
