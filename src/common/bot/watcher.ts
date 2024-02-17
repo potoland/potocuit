@@ -8,14 +8,22 @@ import { ShardManager, type ShardManagerOptions } from '../../websocket';
 import { Logger } from '../it/logger';
 import type { MakeRequired } from '../types/util';
 
+/**
+ * Represents a watcher class that extends the ShardManager.
+ */
 export class Watcher extends ShardManager {
 	worker?: Worker;
 	logger = new Logger({
 		name: '[Watcher]',
 	});
 	rest?: REST;
+
 	declare options: MakeRequired<WatcherOptions, 'intents' | 'token' | 'handlePayload' | 'info'>;
 
+	/**
+	 * Initializes a new instance of the Watcher class.
+	 * @param options The options for the watcher.
+	 */
 	constructor(options: WatcherOptions) {
 		super({
 			handlePayload() {},
@@ -35,6 +43,9 @@ export class Watcher extends ShardManager {
 		});
 	}
 
+	/**
+	 * Resets the worker instance.
+	 */
 	resetWorker() {
 		if (this.worker) {
 			this.worker.terminate();
@@ -55,6 +66,9 @@ export class Watcher extends ShardManager {
 		});
 	}
 
+	/**
+	 * Spawns shards for the watcher.
+	 */
 	async spawnShards() {
 		const RC = await BaseClient.prototype.getRC<InternalRuntimeConfig>();
 		this.options.token = RC.token;
@@ -88,6 +102,9 @@ export class Watcher extends ShardManager {
 		});
 	}
 
+	/**
+	 * Builds the watcher.
+	 */
 	protected build() {
 		execSync(`cd ${process.cwd()} && ${this.options.transpileCommand}`);
 		this.logger.info('Builded');

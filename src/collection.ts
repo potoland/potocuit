@@ -51,6 +51,19 @@ export class Collection<K, V> extends Map<K, V> {
 		return result;
 	}
 
+	/**
+	 * Creates a new array with all elements that pass the test implemented by the provided function.
+	 * @param fn The function to test each element of the collection.
+	 * @param thisArg The value to use as `this` when executing the filter function.
+	 * @returns A new array with the elements that pass the test.
+	 * @example
+	 * const collection = new Collection<number, string>();
+	 * collection.set(1, 'one');
+	 * collection.set(2, 'two');
+	 * collection.set(3, 'three');
+	 * const filteredArray = collection.filter((value, key) => key % 2 === 0);
+	 * console.log(filteredArray); // Output: ['two']
+	 */
 	filter(fn: (value: V, key: K, collection: this) => boolean): V[] {
 		const result: V[] = [];
 
@@ -61,6 +74,19 @@ export class Collection<K, V> extends Map<K, V> {
 		return result;
 	}
 
+	/**
+	 * Apply a function against an accumulator and each element in the collection (from left to right) to reduce it to a single value.
+	 * @param fn The function to execute on each element in the collection.
+	 * @param initialValue The initial value of the accumulator.
+	 * @returns The value that results from the reduction.
+	 * @example
+	 * const collection = new Collection<number, number>();
+	 * collection.set(1, 1);
+	 * collection.set(2, 2);
+	 * collection.set(3, 3);
+	 * const sum = collection.reduce((acc, value) => acc + value, 0);
+	 * console.log(sum); // Output: 6
+	 */
 	reduce<T = any>(fn: (accumulator: T, value: V, key: K, collection: this) => T, initialValue?: T): T {
 		const entries = this.entries();
 		const first = entries.next().value as [K, V];
@@ -79,6 +105,18 @@ export class Collection<K, V> extends Map<K, V> {
 		return result as T;
 	}
 
+	/**
+	 * Checks if all elements in the collection pass a test implemented by the provided function.
+	 * @param fn The function to test each element of the collection.
+	 * @returns `true` if all elements pass the test, otherwise `false`.
+	 * @example
+	 * const collection = new Collection<number, number>();
+	 * collection.set(1, 1);
+	 * collection.set(2, 2);
+	 * collection.set(3, 3);
+	 * const allGreaterThanZero = collection.every(value => value > 0);
+	 * console.log(allGreaterThanZero); // Output: true
+	 */
 	every(fn: (value: V, key: K, collection: this) => boolean): boolean {
 		for (const [key, value] of this.entries()) {
 			if (!fn(value, key, this)) {
@@ -89,6 +127,18 @@ export class Collection<K, V> extends Map<K, V> {
 		return true;
 	}
 
+	/**
+	 * Checks if at least one element in the collection passes a test implemented by the provided function.
+	 * @param fn The function to test each element of the collection.
+	 * @returns `true` if at least one element passes the test, otherwise `false`.
+	 * @example
+	 * const collection = new Collection<number, number>();
+	 * collection.set(1, 1);
+	 * collection.set(2, 2);
+	 * collection.set(3, 3);
+	 * const hasEvenValue = collection.some(value => value % 2 === 0);
+	 * console.log(hasEvenValue); // Output: true
+	 */
 	some(fn: (value: V, key: K, collection: this) => boolean): boolean {
 		for (const [key, value] of this.entries()) {
 			if (fn(value, key, this)) {
@@ -99,6 +149,18 @@ export class Collection<K, V> extends Map<K, V> {
 		return false;
 	}
 
+	/**
+	 * Returns the value of the first element in the collection that satisfies the provided testing function.
+	 * @param fn The function to test each element of the collection.
+	 * @returns The value of the first element that passes the test. `undefined` if no element passes the test.
+	 * @example
+	 * const collection = new Collection<number, number>();
+	 * collection.set(1, 1);
+	 * collection.set(2, 2);
+	 * collection.set(3, 3);
+	 * const firstEvenValue = collection.find(value => value % 2 === 0);
+	 * console.log(firstEvenValue); // Output: 2
+	 */
 	find(fn: (value: V, key: K, collection: this) => boolean): V | undefined {
 		for (const [key, value] of this.entries()) {
 			if (fn(value, key, this)) {
@@ -108,6 +170,18 @@ export class Collection<K, V> extends Map<K, V> {
 		return undefined;
 	}
 
+	/**
+	 * Returns the first key in the collection that satisfies the provided testing function.
+	 * @param fn The function to test each element of the collection.
+	 * @returns The first key that passes the test. `undefined` if no element passes the test.
+	 * @example
+	 * const collection = new Collection<number, number>();
+	 * collection.set(1, 1);
+	 * collection.set(2, 2);
+	 * collection.set(3, 3);
+	 * const firstEvenKey = collection.findKey(value => value % 2 === 0);
+	 * console.log(firstEvenKey); // Output: 2
+	 */
 	findKey(fn: (value: V, key: K, collection: this) => boolean): K | undefined {
 		for (const [key, value] of this.entries()) {
 			if (fn(value, key, this)) {
@@ -125,6 +199,7 @@ export interface LimitedCollectionOptions {
 	expire: number;
 	resetOnDemand: boolean;
 }
+
 /**
  * Creates a new array with the results of calling a provided function on every element in the collection.
  * @param fn The function that produces an element of the new array.
