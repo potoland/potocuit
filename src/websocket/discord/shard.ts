@@ -1,6 +1,6 @@
 import { inflateSync } from 'node:zlib';
 import type WS from 'ws';
-import { WebSocket, type CloseEvent } from 'ws';
+import { WebSocket, type CloseEvent, type ErrorEvent } from 'ws';
 import type { GatewayReceivePayload, GatewaySendPayload, Logger } from '../../common';
 import { GatewayCloseCodes, GatewayDispatchEvents, GatewayOpcodes } from '../../common';
 import { properties } from '../constants';
@@ -92,8 +92,7 @@ export class Shard {
 
 		this.websocket!.onclose = (event: WS.CloseEvent) => this.handleClosed(event);
 
-		// @ts-expect-error
-		this.websocket!.onerror = (event: WS.CloseEvent) => this.debugger?.error(event);
+		this.websocket!.onerror = (event: ErrorEvent) => this.debugger?.error(event);
 
 		this.websocket!.onopen = () => {
 			this.heart.ack = true;
@@ -233,6 +232,7 @@ export class Shard {
 					switch (packet.t) {
 						case GatewayDispatchEvents.Resumed:
 							this.offlineSendQueue.toArray().map((resolve: () => any) => resolve());
+							this.options.handlePayload(this.id, packet);
 							break;
 						case GatewayDispatchEvents.Ready: {
 							this.data.resume_gateway_url = packet.d.resume_gateway_url;
@@ -253,7 +253,9 @@ export class Shard {
 	protected async handleClosed(close: CloseEvent) {
 		clearInterval(this.heart.nodeInterval);
 		this.debugger?.warn(
-			`[Shard #${this.id}] ${GatewayCloseCodes[close.code] ?? ShardSocketCloseCodes[close.code] ?? close.code}`,
+			`[Shard #${this.id}] ${ShardSocketCloseCodes[close.code] ?? GatewayCloseCodes[close.code] ?? close.code} (${
+				close.code
+			})`,
 		);
 
 		switch (close.code) {
@@ -299,7 +301,7 @@ export class Shard {
 		this.websocket?.close(code, reason);
 	}
 
-	protected async handleMessage({ data }: WS.MessageEvent) {
+	protected handleMessage({ data }: WS.MessageEvent) {
 		if (data instanceof Buffer) {
 			data = inflateSync(data);
 		}

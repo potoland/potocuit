@@ -19,7 +19,6 @@ import type {
 	GatewayGuildDeleteDispatchData,
 	GatewayGuildEmojisUpdateDispatchData,
 	GatewayGuildIntegrationsUpdateDispatchData,
-	GatewayGuildMemberAddDispatchData,
 	GatewayGuildMemberRemoveDispatchData,
 	GatewayGuildMemberUpdateDispatchData,
 	GatewayGuildMembersChunkDispatchData,
@@ -59,6 +58,7 @@ import type {
 	PresenceUpdateStatus,
 	RestToKeys,
 } from '../common';
+import type { GatewayGuildMemberAddDispatchDataFixed } from '../structures';
 
 /** https://discord.com/developers/docs/topics/gateway-events#update-presence */
 export interface StatusUpdate {
@@ -95,18 +95,11 @@ export interface GatewayMemberRequest {
 	members: APIGuildMember[];
 }
 
-export type AtLeastOne<
-	T,
-	U = {
-		[K in keyof T]: Pick<T, K>;
-	},
-> = Partial<T> & U[keyof U];
-
-export type ClientUser = { bot: true } & APIUser;
+export type RawClientUser = { bot: true } & APIUser;
 
 export interface Events {
 	[GatewayDispatchEvents.Ready]: GatewayReadyDispatchData & {
-		user: ClientUser;
+		user: RawClientUser;
 	};
 	[GatewayDispatchEvents.ChannelUpdate]: GatewayChannelUpdateDispatchData;
 	[GatewayDispatchEvents.AutoModerationActionExecution]: GatewayAutoModerationActionExecutionDispatchData;
@@ -126,7 +119,7 @@ export interface Events {
 	[GatewayDispatchEvents.GuildEmojisUpdate]: GatewayGuildEmojisUpdateDispatchData;
 	[GatewayDispatchEvents.GuildStickersUpdate]: GatewayGuildStickersUpdateDispatchData;
 	[GatewayDispatchEvents.GuildIntegrationsUpdate]: GatewayGuildIntegrationsUpdateDispatchData;
-	[GatewayDispatchEvents.GuildMemberAdd]: GatewayGuildMemberAddDispatchData;
+	[GatewayDispatchEvents.GuildMemberAdd]: GatewayGuildMemberAddDispatchDataFixed<boolean>;
 	[GatewayDispatchEvents.GuildMemberRemove]: GatewayGuildMemberRemoveDispatchData;
 	[GatewayDispatchEvents.GuildMemberUpdate]: GatewayGuildMemberUpdateDispatchData;
 	[GatewayDispatchEvents.GuildMembersChunk]: GatewayGuildMembersChunkDispatchData;

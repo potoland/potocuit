@@ -83,7 +83,6 @@ export class REST {
 
 		if (options.debug) {
 			this.debugger = new Logger({
-				active: options.debug,
 				name: '[REST]',
 			});
 		}
@@ -140,15 +139,13 @@ export class REST {
 
 				// Begin sweeping handlers based on activity
 				this.handlers.sweep((val, key) => {
-					const { inactive } = val;
-
 					// Collect inactive handlers
-					if (inactive) {
+					if (val.inactive) {
 						sweptHandlers.set(key, val);
 						this.debugger?.info(`Handler ${val.id} for ${key} swept due to being inactive`);
 					}
 
-					return inactive;
+					return val.inactive;
 				});
 
 				// Fire event
@@ -335,8 +332,6 @@ export class REST {
 	 * @param request - The request data
 	 */
 	private async resolveRequest(request: InternalRequest): Promise<{ fetchOptions: RequestInit; url: string }> {
-		const { options } = this;
-
 		let query = '';
 
 		// If a query option is passed, use it
@@ -350,7 +345,7 @@ export class REST {
 		// Create the required headers
 		const headers: RequestHeaders = {
 			...this.options.headers,
-			'User-Agent': `${DefaultUserAgent} ${options.userAgentAppendix}`.trim(),
+			'User-Agent': `${DefaultUserAgent} ${this.options.userAgentAppendix}`.trim(),
 		};
 
 		// If this request requires authorization (allowing non-"authorized" requests for webhooks)
@@ -369,7 +364,7 @@ export class REST {
 		}
 
 		// Format the full request URL (api base, optional version, endpoint, optional querystring)
-		const url = `${options.api}${request.versioned === false ? '' : `/v${options.version}`}${
+		const url = `${this.options.api}${request.versioned === false ? '' : `/v${this.options.version}`}${
 			request.fullRoute
 		}${query}`;
 
@@ -502,7 +497,7 @@ export class REST {
 		// https://github.com/discord/discord-api-docs/issues/1295
 		if (method === RequestMethod.Delete && baseRoute === '/channels/:id/messages/:id') {
 			const id = /\d{17,19}$/.exec(endpoint)![0]!;
-			const timestamp = snowflakeToTimestamp(id);
+			const timestamp = Number(snowflakeToTimestamp(id));
 			if (Date.now() - timestamp > 1_000 * 60 * 60 * 24 * 14) {
 				exceptions += '/Delete Old Message';
 			}

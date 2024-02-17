@@ -18,7 +18,7 @@ export class DiscordBase<Data extends Record<string, any> = { id: string }> exte
 	 * Create a timestamp for the current object.
 	 */
 	get createdTimestamp() {
-		return snowflakeToTimestamp(this.id);
+		return Number(snowflakeToTimestamp(this.id));
 	}
 
 	/**

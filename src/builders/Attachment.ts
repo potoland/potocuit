@@ -1,7 +1,8 @@
+import type { RESTAPIAttachment } from 'discord-api-types/v10';
 import { randomBytes } from 'node:crypto';
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
-import { throwError, type ImageResolvable, type RESTAPIAttachment, type RawFile } from '..';
+import { throwError, type ImageResolvable, type RawFile } from '..';
 
 export interface AttachmentResolvableMap {
 	url: string;

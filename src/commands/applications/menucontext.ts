@@ -1,4 +1,3 @@
-import type { IClients } from '../../client/base';
 import {
 	ApplicationCommandType,
 	MessageFlags,
@@ -6,22 +5,26 @@ import {
 	type InteractionCreateBodyRequest,
 	type InteractionMessageUpdateBodyRequest,
 	type ModalCreateBodyRequest,
+	type UnionToTuple,
 } from '../../common';
 import { Message, User, type MessageCommandInteraction, type UserCommandInteraction } from '../../structures';
-import type { CommandMetadata, MiddlewareContext } from './shared';
+import type { RegisteredMiddlewares } from '../decorators';
+import type { CommandMetadata, DefaultLocale, ExtendContext, GlobalMetadata, UsingClient } from './shared';
 
 export type InteractionTarget<T> = T extends MessageCommandInteraction ? Message : User;
 export class MenuCommandContext<
-	C extends keyof IClients,
 	T extends MessageCommandInteraction | UserCommandInteraction,
-	M extends Readonly<MiddlewareContext[]> = [],
-> {
+	M extends keyof RegisteredMiddlewares = never,
+> implements ExtendContext
+{
 	constructor(
-		readonly client: IClients[C],
+		readonly client: UsingClient,
 		readonly interaction: T,
-		public metadata: CommandMetadata<M>,
 		readonly shardId: number,
 	) {}
+
+	metadata: CommandMetadata<UnionToTuple<M>> = {} as never;
+	globalMetadata: GlobalMetadata = {};
 
 	get proxy() {
 		return this.client.proxy;
@@ -41,8 +44,7 @@ export class MenuCommandContext<
 		}
 	}
 
-	/**@internal */
-	get t() {
+	get t(): DefaultLocale {
 		return this.client.langs.get(this.interaction.locale);
 	}
 

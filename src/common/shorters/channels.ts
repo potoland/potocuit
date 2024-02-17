@@ -1,6 +1,6 @@
 import type { RESTPatchAPIChannelJSONBody } from '..';
-import { Message } from '../../structures';
-import channelFrom, { BaseChannel } from '../../structures/methods/channels';
+import { BaseChannel, Message } from '../../structures';
+import channelFrom from '../../structures/channels';
 import { BaseShorter } from './base';
 
 export class ChannelShorter extends BaseShorter {

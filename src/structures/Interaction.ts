@@ -1,8 +1,8 @@
 import { mix } from 'ts-mixer';
 import type { RawFile } from '../api';
-import { ActionRow, MessageEmbed, Modal, resolveAttachment, resolveFiles } from '../builders';
+import { ActionRow, Embed, Modal, resolveAttachment, resolveFiles } from '../builders';
 import type { BaseClient } from '../client/base';
-import { OptionResolver } from '../commands';
+import { OptionResolver, type UsingClient } from '../commands';
 import type {
 	APIActionRowComponent,
 	APIApplicationCommandAutocompleteInteraction,
@@ -34,7 +34,6 @@ import type {
 	APIUserApplicationCommandInteraction,
 	APIUserApplicationCommandInteractionData,
 	GatewayInteractionCreateDispatchData,
-	If,
 	MessageFlags,
 	ObjectToLower,
 	OmitInsert,
@@ -53,13 +52,13 @@ import type {
 	ModalCreateBodyRequest,
 } from '../common/types/write';
 import { ComponentsListener } from '../components/listener';
-import { GuildMember, InteractionGuildMember, type AllChannels } from './';
+import { InteractionGuildMember, type AllChannels } from './';
 import { GuildRole } from './GuildRole';
 import { Message, type WebhookMessage } from './Message';
 import { User } from './User';
+import channelFrom from './channels';
 import { DiscordBase } from './extra/DiscordBase';
 import { PermissionsBitField } from './extra/Permissions';
-import channelFrom from './methods/channels';
 
 export type ReplyInteractionBody =
 	| { type: InteractionResponseType.Modal; data: ModalCreateBodyRequest }
@@ -85,20 +84,20 @@ export class BaseInteraction<
 	Type extends APIInteraction = APIInteraction,
 > extends DiscordBase<Type> {
 	user: User;
-	member!: When<FromGuild, GuildMember, undefined>;
+	member!: When<FromGuild, InteractionGuildMember, undefined>;
 	channel?: AllChannels;
 	message?: Message;
 	replied?: Promise<boolean> | boolean;
 	appPermissions?: PermissionsBitField;
 
 	constructor(
-		readonly client: BaseClient,
+		readonly client: UsingClient,
 		interaction: Type,
 		protected __reply?: __InternalReplyFunction,
 	) {
 		super(client, interaction);
 		if (interaction.member) {
-			this.member = new GuildMember(
+			this.member = new InteractionGuildMember(
 				client,
 				interaction.member,
 				interaction.member!.user,
@@ -135,7 +134,7 @@ export class BaseInteraction<
 								? body.data.components.components
 								: body.data!.components
 							)?.map(x => (x instanceof ActionRow ? x.toJSON() : x)) ?? undefined,
-						embeds: body.data?.embeds?.map(x => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? undefined,
+						embeds: body.data?.embeds?.map(x => (x instanceof Embed ? x.toJSON() : x)) ?? undefined,
 						attachments: body.data?.attachments?.map((x, i) => ({ id: i, ...resolveAttachment(x) })) ?? undefined,
 					},
 				};
@@ -174,7 +173,7 @@ export class BaseInteraction<
 				(body?.components instanceof ComponentsListener ? body.components.components : body.components)?.map(x =>
 					x instanceof ActionRow ? x.toJSON() : x,
 				) ?? undefined,
-			embeds: body?.embeds?.map(x => (x instanceof MessageEmbed ? x.toJSON() : x)) ?? undefined,
+			embeds: body?.embeds?.map(x => (x instanceof Embed ? x.toJSON() : x)) ?? undefined,
 			// attachments: body.attachments?.map((x, i) => ({ id: i, ...resolveAttachment(x) })) ?? undefined,
 		} as T;
 	}
@@ -642,11 +641,18 @@ export class ModalSubmitInteraction<FromGuild extends boolean = boolean> extends
 		return this.data.components;
 	}
 
-	getInputValue<Required extends boolean>(customId: string, _required?: Required): If<Required, string> {
+	getInputValue(customId: string, required: true): string;
+	getInputValue(customId: string, required?: false): string | undefined;
+	getInputValue(customId: string, required?: boolean): string | undefined {
+		let value;
 		for (const { components } of this.components) {
 			const get = components.find(x => x.customId === customId);
-			if (get) return get.value;
+			if (get) {
+				value = get.value;
+				break;
+			}
 		}
-		return null as never;
+		if (!value && required) throw new Error(`${customId} component doesn't have a value`);
+		return value;
 	}
 }

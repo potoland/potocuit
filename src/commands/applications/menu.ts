@@ -1,10 +1,11 @@
-import type { BaseClient, IClients } from '../../client/base';
+import type { BaseClient } from '../../client/base';
 import { magicImport, type ApplicationCommandType, type LocaleString } from '../../common';
+import type { RegisteredMiddlewares } from '../decorators';
 import type { MenuCommandContext } from './menucontext';
-import type { MiddlewareContext, NextFunction, PassFunction, StopFunction } from './shared';
+import type { NextFunction, PassFunction, StopFunction } from './shared';
 
 export abstract class ContextMenuCommand {
-	middlewares: MiddlewareContext[] = [];
+	middlewares: (keyof RegisteredMiddlewares)[] = [];
 
 	__filePath?: string;
 	__t?: { name: string; description: string };
@@ -22,14 +23,13 @@ export abstract class ContextMenuCommand {
 
 	/** @internal */
 	static __runMiddlewares(
-		context: MenuCommandContext<keyof IClients, any>,
-		middlewares: readonly MiddlewareContext[],
+		context: MenuCommandContext<any>,
+		middlewares: (keyof RegisteredMiddlewares)[],
 		global: boolean,
-	): Promise<[any, undefined] | [undefined, Error] | 'pass'> {
+	): Promise<undefined | Error | 'pass'> {
 		if (!middlewares.length) {
-			return Promise.resolve([{}, undefined]);
+			return Promise.resolve(undefined);
 		}
-		const metadata: Record<string, any> = {};
 		let index = 0;
 
 		return new Promise(res => {
@@ -45,41 +45,45 @@ export abstract class ContextMenuCommand {
 				if (!running) {
 					return;
 				}
-				Object.assign(metadata, obj ?? {});
+				context[global ? 'globalMetadata' : 'metadata'] ??= {};
+				// @ts-expect-error
+				context[global ? 'globalMetadata' : 'metadata'][middlewares[index]] = obj;
 				if (++index >= middlewares.length) {
 					running = false;
-					// @ts-expect-error globalMetadata doesnt exist, but is used for global middlewares
-					context[global ? 'globalMetadata' : 'metadata'] = metadata;
-					return res([metadata, undefined]);
+					return res(undefined);
 				}
-				middlewares[index]({ context, next, stop, pass });
+				context.client.middlewares![middlewares[index]]({ context, next, stop, pass });
 			};
 			const stop: StopFunction = err => {
 				if (!running) {
 					return;
 				}
 				running = false;
-				return res([undefined, err]);
+				return res(err);
 			};
-			middlewares[0]({ context, next, stop, pass });
+			context.client.middlewares![middlewares[0]]({ context, next, stop, pass });
 		});
 	}
 
 	/** @internal */
-	__runMiddlewares(context: MenuCommandContext<keyof IClients, any, []>) {
-		return ContextMenuCommand.__runMiddlewares(context, this.middlewares, false);
+	__runMiddlewares(context: MenuCommandContext<any, never>) {
+		return ContextMenuCommand.__runMiddlewares(context, this.middlewares as (keyof RegisteredMiddlewares)[], false);
 	}
 
 	/** @internal */
-	__runGlobalMiddlewares(context: MenuCommandContext<keyof IClients, any, []>) {
-		return ContextMenuCommand.__runMiddlewares(context, context.client.options?.globalMiddlewares ?? [], true);
+	__runGlobalMiddlewares(context: MenuCommandContext<any, never>) {
+		return ContextMenuCommand.__runMiddlewares(
+			context,
+			(context.client.options?.globalMiddlewares ?? []) as (keyof RegisteredMiddlewares)[],
+			true,
+		);
 	}
 
 	toJSON() {
 		return {
 			name: this.name,
 			type: this.type,
-			nsfw: this.nsfw || false,
+			nsfw: this.nsfw,
 			description: this.description,
 			name_localizations: this.name_localizations,
 			description_localizations: this.description_localizations,
@@ -96,9 +100,10 @@ export abstract class ContextMenuCommand {
 		Object.setPrototypeOf(this, __tempCommand.prototype);
 	}
 
-	abstract run?(context: MenuCommandContext<keyof IClients, any>): any;
-	onRunError?(context: MenuCommandContext<keyof IClients, any>, error: unknown): any;
-	onMiddlewaresError?(context: MenuCommandContext<keyof IClients, any, []>, error: Error): any;
+	abstract run?(context: MenuCommandContext<any>): any;
+	onAfterRun?(context: MenuCommandContext<any>, error: unknown | undefined): any;
+	onRunError?(context: MenuCommandContext<any>, error: unknown): any;
+	onMiddlewaresError?(context: MenuCommandContext<any, never>, error: Error): any;
 
 	onInternalError(client: BaseClient, error?: unknown): any {
 		client.logger.fatal(error);

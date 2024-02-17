@@ -1,4 +1,3 @@
-import type { MessageWebhookMethodEditParams, MessageWebhookMethodWriteParams } from '..';
 import type { BaseClient } from '../client/base';
 import type {
 	APIChannelMention,
@@ -14,6 +13,7 @@ import type { ActionRowMessageComponents } from '../components';
 import { MessageActionRowComponent } from '../components/ActionRow';
 import { GuildMember } from './GuildMember';
 import { User } from './User';
+import type { MessageWebhookMethodEditParams, MessageWebhookMethodWriteParams } from './Webhook';
 import { DiscordBase } from './extra/DiscordBase';
 import { messageLink } from './extra/functions';
 

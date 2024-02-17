@@ -1,5 +1,6 @@
 import { Router } from '../../api';
 import type { BaseClient } from '../../client/base';
+import type { UsingClient } from '../../commands';
 import { toCamelCase } from '../../common';
 
 /** */
@@ -38,5 +39,5 @@ export abstract class Base {
 		return this;
 	}
 
-	readonly client!: BaseClient;
+	readonly client!: UsingClient;
 }

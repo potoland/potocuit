@@ -1,15 +1,17 @@
 import type {
+	APIActionRowComponent,
 	APIEmbed,
 	APIInteractionResponseCallbackData,
 	APIInteractionResponseChannelMessageWithSource,
+	APIMessageActionRowComponent,
 	APIModalInteractionResponse,
 	RESTPatchAPIChannelMessageJSONBody,
 	RESTPatchAPIWebhookWithTokenMessageJSONBody,
 	RESTPostAPIChannelMessageJSONBody,
 	RESTPostAPIWebhookWithTokenJSONBody,
 } from '..';
-import type { RawFile } from '../..';
-import type { ActionRow, Attachment, BuilderComponents, MessageEmbed, Modal, TextInput } from '../../builders';
+import type { RawFile } from '../../api';
+import type { ActionRow, Attachment, BuilderComponents, Embed, Modal, TextInput } from '../../builders';
 import type { ComponentsListener } from '../../components/listener';
 
 import type { OmitInsert } from './util';
@@ -19,8 +21,12 @@ export type BodyModalComponentProper = {
 };
 
 export interface ResolverProps {
-	embeds?: MessageEmbed[] | APIEmbed[] | undefined;
-	components?: ComponentsListener<BuilderComponents> | ActionRow<BuilderComponents>[] | undefined;
+	embeds?: Embed[] | APIEmbed[] | undefined;
+	components?:
+		| ComponentsListener<BuilderComponents>
+		| APIActionRowComponent<APIMessageActionRowComponent>[]
+		| ActionRow<BuilderComponents>[]
+		| undefined;
 	files?: Attachment[] | RawFile[] | undefined;
 }
 

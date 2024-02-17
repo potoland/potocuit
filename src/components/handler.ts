@@ -1,31 +1,28 @@
+import { Button, Modal, SelectMenu, type BuilderComponents } from '../builders';
+import type { ComponentCallback, ModalSubmitCallback } from '../builders/types';
+import type { BaseClient } from '../client/base';
+import { LimitedCollection } from '../collection';
 import {
-	Button,
+	BaseHandler,
 	InteractionResponseType,
-	LimitedCollection,
-	Modal,
-	SelectMenu,
+	type OnFailCallback,
 	magicImport,
 	type APIMessage,
 	type APIModalInteractionResponseCallbackData,
-} from '..';
-import type { BuilderComponents, ListenerOptions } from '../builders';
-import type { ComponentCallback, ModalSubmitCallback } from '../builders/types';
-import type { BaseClient } from '../client/base';
-import { BaseHandler, type Logger } from '../common';
+	type Logger,
+} from '../common';
 import type {
 	InteractionMessageUpdateBodyRequest,
 	MessageCreateBodyRequest,
 	MessageUpdateBodyRequest,
 	ModalCreateBodyRequest,
+	ResolverProps,
 } from '../common/types/write';
 import type { ComponentInteraction, ModalSubmitInteraction, ReplyInteractionBody } from '../structures';
 import { ComponentCommand, InteractionCommandType, ModalCommand } from './command';
 import { ComponentsListener } from './listener';
 
-type OnFailCallback = (error: unknown) => Promise<any>;
-
 type COMPONENTS = {
-	options: ListenerOptions | undefined;
 	buttons: Partial<
 		Record<
 			string,
@@ -34,6 +31,8 @@ type COMPONENTS = {
 			}
 		>
 	>;
+	listener: ComponentsListener<BuilderComponents>;
+	messageId?: string;
 	idle?: NodeJS.Timeout;
 	timeout?: NodeJS.Timeout;
 };
@@ -44,7 +43,7 @@ export class ComponentHandler extends BaseHandler {
 	// 10 minutes timeout, because discord dont send an event when the user cancel the modal
 	readonly modals = new LimitedCollection<string, ModalSubmitCallback>({ expire: 60e3 * 10 });
 	readonly commands: (ComponentCommand | ModalCommand)[] = [];
-	protected filter = (path: string) => path.endsWith('.js');
+	protected filter = (path: string) => path.endsWith('.js') || path.endsWith('.ts');
 
 	constructor(
 		logger: Logger,
@@ -65,14 +64,14 @@ export class ComponentHandler extends BaseHandler {
 		const row = this.values.get(id);
 		const component = row?.buttons?.[interaction.customId];
 		if (!component) return;
-		if (row.options?.filter) {
-			if (!(await row.options.filter(interaction))) return;
+		if (row.listener.options?.filter) {
+			if (!(await row.listener.options.filter(interaction))) return;
 		}
 		row.idle?.refresh();
 		await component.callback(
 			interaction,
 			reason => {
-				row.options?.onStop?.(reason ?? 'stop');
+				row.listener.options?.onStop?.(reason ?? 'stop');
 				this.deleteValue(id);
 			},
 			() => {
@@ -83,9 +82,10 @@ export class ComponentHandler extends BaseHandler {
 
 	resetTimeouts(id: string) {
 		const listener = this.values.get(id);
-		if (!listener) return;
-		listener.timeout?.refresh();
-		listener.idle?.refresh();
+		if (listener) {
+			listener.timeout?.refresh();
+			listener.idle?.refresh();
+		}
 	}
 
 	hasModal(interaction: ModalSubmitInteraction) {
@@ -97,37 +97,38 @@ export class ComponentHandler extends BaseHandler {
 		return this.modals.get(interaction.user.id)?.(interaction);
 	}
 
-	__setComponents(id: string, record: ComponentsListener<BuilderComponents>) {
+	__setComponents(id: string, record: NonNullable<ResolverProps['components']>) {
+		this.deleteValue(id);
+		if (!(record instanceof ComponentsListener)) return;
 		const components: COMPONENTS = {
 			buttons: {},
-			options: record.options,
+			listener: record,
 		};
 
-		if (!record.options) return;
+		if ((record.options.idle ?? -1) > 0) {
+			components.idle = setTimeout(() => {
+				clearTimeout(components.timeout);
+				clearTimeout(components.idle);
+				record.options?.onStop?.('idle', () => {
+					this.__setComponents(id, record);
+				});
+				this.values.delete(id);
+			}, record.options.idle);
+		}
+		if ((record.options.timeout ?? -1) > 0) {
+			components.timeout = setTimeout(() => {
+				clearTimeout(components.timeout);
+				clearTimeout(components.idle);
+				record.options?.onStop?.('timeout', () => {
+					this.__setComponents(id, record);
+				});
+				this.values.delete(id);
+			}, record.options.timeout);
+		}
 
 		for (const actionRow of record.components) {
 			for (const child of actionRow.components) {
 				if ((child instanceof SelectMenu || child instanceof Button) && 'custom_id' in child.data) {
-					if ((record.options.idle ?? -1) > 0) {
-						components.idle = setTimeout(() => {
-							clearTimeout(components.timeout);
-							clearTimeout(components.idle);
-							record.options?.onStop?.('idle', () => {
-								this.__setComponents(id, record);
-							});
-							this.values.delete(id);
-						}, record.options.idle);
-					}
-					if ((record.options.timeout ?? -1) > 0) {
-						components.timeout = setTimeout(() => {
-							clearTimeout(components.timeout);
-							clearTimeout(components.idle);
-							record.options?.onStop?.('timeout', () => {
-								this.__setComponents(id, record);
-							});
-							this.values.delete(id);
-						}, record.options.timeout);
-					}
 					components.buttons[child.data.custom_id!] = {
 						callback: child.__exec as ComponentCallback,
 					};
@@ -146,6 +147,16 @@ export class ComponentHandler extends BaseHandler {
 		}
 	}
 
+	deleteValue(id: string, reason?: string) {
+		const component = this.values.get(id);
+		if (component) {
+			if (reason !== undefined) component.listener.options.onStop?.(reason);
+			clearTimeout(component.timeout);
+			clearTimeout(component.idle);
+			this.values.delete(id);
+		}
+	}
+
 	onRequestInteraction(interactionId: string, interaction: ReplyInteractionBody) {
 		// @ts-expect-error dapi
 		if (!interaction.data) {
@@ -154,11 +165,8 @@ export class ComponentHandler extends BaseHandler {
 		switch (interaction.type) {
 			case InteractionResponseType.ChannelMessageWithSource:
 			case InteractionResponseType.UpdateMessage:
-				if (!(interaction.data.components instanceof ComponentsListener)) return;
-				if (!interaction.data.components.components?.length) {
-					return;
-				}
-				this.__setComponents(interactionId, interaction.data.components ?? []);
+				if (!interaction.data.components) return;
+				this.__setComponents(interactionId, interaction.data.components);
 				break;
 			case InteractionResponseType.Modal:
 				if (!(interaction.data instanceof Modal)) return;
@@ -167,37 +175,26 @@ export class ComponentHandler extends BaseHandler {
 		}
 	}
 
-	deleteValue(id: string) {
-		const component = this.values.get(id);
-		if (component) {
-			clearTimeout(component.timeout);
-			clearTimeout(component.idle);
-			this.values.delete(id);
-		}
-	}
-
 	onMessageDelete(id: string) {
-		this.deleteValue(id);
-	}
-
-	onRequestInteractionUpdate(body: InteractionMessageUpdateBodyRequest, message: APIMessage) {
-		if (!(body.components instanceof ComponentsListener) || !body.components.components?.length) {
-			return;
-		}
-		this.deleteValue(message.id);
-		this.__setComponents(message.id, body.components);
+		this.deleteValue(id, 'messageDelete');
 	}
 
 	onRequestMessage(body: MessageCreateBodyRequest, message: APIMessage) {
-		if (!(body.components instanceof ComponentsListener) || !body.components.components?.length) {
+		if (!body.components) {
 			return;
 		}
 		this.__setComponents(message.id, body.components);
 	}
 
+	onRequestInteractionUpdate(body: InteractionMessageUpdateBodyRequest, message: APIMessage) {
+		if (!body.components) {
+			return;
+		}
+		this.__setComponents(message.interaction!.id, body.components);
+	}
+
 	onRequestUpdateMessage(body: MessageUpdateBodyRequest, message: APIMessage) {
-		if (!(body.components instanceof ComponentsListener) || !body.components.components.length) return;
-		this.deleteValue(message.id);
+		if (!body.components) return;
 		this.__setComponents(message.id, body.components);
 	}
 
@@ -229,7 +226,11 @@ export class ComponentHandler extends BaseHandler {
 
 	async reload(path: string) {
 		const component = this.client.components.commands.find(
-			x => x.__filePath?.endsWith(`${path}.js`) || x.__filePath?.endsWith(path) || x.__filePath === path,
+			x =>
+				x.__filePath?.endsWith(`${path}.js`) ||
+				x.__filePath?.endsWith(`${path}.ts`) ||
+				x.__filePath?.endsWith(path) ||
+				x.__filePath === path,
 		);
 		if (!component || !component.__filePath) return null;
 		delete require.cache[component.__filePath];

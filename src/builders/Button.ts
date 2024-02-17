@@ -1,14 +1,16 @@
-import { resolvePartialEmoji, throwError, type APIMessageComponentEmoji } from '..';
+import { throwError } from '..';
 import {
 	ComponentType,
 	type APIButtonComponent,
 	type APIButtonComponentWithCustomId,
 	type APIButtonComponentWithURL,
+	type APIMessageComponentEmoji,
 	type ButtonStyle,
 	type EmojiResolvable,
 	type When,
 } from '../common';
 import type { ButtonInteraction } from '../structures';
+import { resolvePartialEmoji } from '../structures/extra/functions';
 import type { ComponentCallback } from './types';
 
 export type ButtonStylesForID = Exclude<ButtonStyle, ButtonStyle.Link>;
@@ -45,7 +47,7 @@ export class Button<Type extends boolean = boolean> {
 	 * @param url - The URL to set.
 	 * @returns The modified Button instance.
 	 */
-	setURL(url: string): Omit<this, 'setCustomId'> {
+	setURL(url: string): Omit<this, 'setCustomId' | 'run'> {
 		// @ts-expect-error
 		this.data.url = url;
 		return this;
@@ -83,16 +85,11 @@ export class Button<Type extends boolean = boolean> {
 		return this;
 	}
 
-	/**
-	 * Sets the style of the button.
-	 * @param style - The style to set.
-	 * @returns The modified Button instance.
-	 */
 	setStyle(style: ButtonStyle.Link): Omit<this, 'setCustomId'>;
 	setStyle(style: ButtonStylesForID): Omit<this, 'setURL'>;
-	setStyle(style: ButtonStyle): Omit<this, 'setURL'> | Omit<this, 'setCustomId'> {
+	setStyle(style: ButtonStyle): Omit<this, 'setURL'> | Omit<this, 'setCustomId' | 'run'> {
 		this.data.style = style;
-		return this as any;
+		return this;
 	}
 
 	/**
@@ -100,7 +97,7 @@ export class Button<Type extends boolean = boolean> {
 	 * @param func - The callback function to set.
 	 * @returns The modified Button instance.
 	 */
-	run(func: ComponentCallback<ButtonInteraction>): this {
+	run(func: ComponentCallback<ButtonInteraction>): Omit<this, 'setURL'> {
 		this.__exec = func;
 		return this;
 	}

@@ -1,27 +1,27 @@
 import type { Client, WorkerClient } from '../client';
 import {
 	BaseHandler,
+	type OnFailCallback,
 	ReplaceRegex,
 	magicImport,
 	type GatewayDispatchPayload,
 	type GatewayMessageCreateDispatch,
 	type GatewayMessageDeleteBulkDispatch,
 	type GatewayMessageDeleteDispatch,
+	type MakeRequired,
 	type SnakeCase,
 } from '../common';
 import type { ClientEvents } from '../events/hooks';
 import * as RawEvents from '../events/hooks';
 import type { ClientEvent, ClientNameEvents } from './event';
 
-type OnFailCallback = (error: unknown) => Promise<any>;
-
-type EventValue = ClientEvent & { fired?: boolean; __filePath: string };
+type EventValue = MakeRequired<ClientEvent, '__filePath'> & { fired?: boolean };
 
 type GatewayEvents = Uppercase<SnakeCase<keyof ClientEvents>>;
 
 export class EventHandler extends BaseHandler {
 	protected onFail?: OnFailCallback;
-	protected filter = (path: string) => path.endsWith('.js');
+	protected filter = (path: string) => path.endsWith('.js') || path.endsWith('.ts');
 
 	values: Partial<Record<GatewayEvents, EventValue>> = {};
 
@@ -39,7 +39,6 @@ export class EventHandler extends BaseHandler {
 				);
 				continue;
 			}
-			//@ts-expect-error
 			instance.__filePath = i.path;
 			this.values[ReplaceRegex.snake(instance.data.name).toUpperCase() as GatewayEvents] = instance as EventValue;
 		}
@@ -49,24 +48,31 @@ export class EventHandler extends BaseHandler {
 		switch (name) {
 			case 'MESSAGE_CREATE':
 				{
-					const { d: data } = args[0] as unknown as GatewayMessageCreateDispatch;
+					const { d: data } = args[0] as GatewayMessageCreateDispatch;
 					if (args[1].components.values.has(data.interaction?.id ?? '')) {
-						const value = args[1].components.values.get(data.interaction!.id)!;
-						args[1].components.values.delete(data.interaction!.id);
-						args[1].components.values.set(data.id, value);
+						args[1].components.values.get(data.interaction!.id)!.messageId = data.id;
 					}
 				}
 				break;
 			case 'MESSAGE_DELETE':
 				{
-					const { d: data } = args[0] as unknown as GatewayMessageDeleteDispatch;
-					args[1].components.onMessageDelete(data.id);
+					const { d: data } = args[0] as GatewayMessageDeleteDispatch;
+					const value = [...args[1].components.values].find(x => x[1].messageId === data.id);
+					if (value) {
+						args[1].components.onMessageDelete(value[0]);
+					}
 				}
 				break;
 			case 'MESSAGE_DELETE_BULK':
 				{
-					const { d: data } = args[0] as unknown as GatewayMessageDeleteBulkDispatch;
-					data.ids.forEach(id => args[1].components.onMessageDelete(id));
+					const { d: data } = args[0] as GatewayMessageDeleteBulkDispatch;
+					const values = [...args[1].components.values];
+					data.ids.forEach(id => {
+						const value = values.find(x => x[1].messageId === id);
+						if (value) {
+							args[1].components.onMessageDelete(value[0]);
+						}
+					});
 				}
 				break;
 		}

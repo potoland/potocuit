@@ -1,5 +1,7 @@
+import type { DefaultLocale } from '../commands';
+
 export const LangRouter = (userLocale: string, defaultLang: string, langs: Partial<Record<string, any>>) => {
-	function createProxy(route = [] as string[], args: any[] = []): unknown {
+	function createProxy(route = [] as string[], args: any[] = []): DefaultLocale {
 		const noop = () => {
 			return;
 		};
@@ -28,7 +30,7 @@ export const LangRouter = (userLocale: string, defaultLang: string, langs: Parti
 			apply: (...[, , args]) => {
 				return createProxy(route, args);
 			},
-		}) as unknown;
+		});
 	}
 	return createProxy;
 };

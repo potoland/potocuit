@@ -2,6 +2,8 @@ import { ApplicationCommandType, PermissionFlagsBits, type LocaleString, type Pe
 import type { CommandOption, OptionsRecord, SubCommand } from './applications/chat';
 import type { MiddlewareContext } from './applications/shared';
 
+export interface RegisteredMiddlewares {}
+
 type DeclareOptions =
 	| {
 			name: string;
@@ -108,7 +110,11 @@ export function AutoLoad() {
 		};
 }
 
-export function Middlewares(cbs: Readonly<MiddlewareContext[]>) {
+export type ParseMiddlewares<T extends Record<string, MiddlewareContext>> = {
+	[k in keyof T]: T[k];
+};
+
+export function Middlewares(cbs: readonly (keyof RegisteredMiddlewares)[]) {
 	return <T extends { new (...args: any[]): {} }>(target: T) =>
 		class extends target {
 			middlewares = cbs;

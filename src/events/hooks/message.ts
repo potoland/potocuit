@@ -9,10 +9,11 @@ import type {
 	GatewayMessageReactionRemoveDispatchData,
 	GatewayMessageReactionRemoveEmojiDispatchData,
 	GatewayMessageUpdateDispatchData,
+	MakeRequired,
+	PartialClass,
 } from '../../common';
 import { toCamelCase } from '../../common';
 import { Message } from '../../structures';
-import type { PartialClass } from './index';
 
 export const MESSAGE_CREATE = (self: BaseClient, data: GatewayMessageCreateDispatchData) => {
 	return new Message(self, data);
@@ -45,6 +46,12 @@ export const MESSAGE_REACTION_REMOVE_EMOJI = (
 	return toCamelCase(data);
 };
 
-export const MESSAGE_UPDATE = (self: BaseClient, data: GatewayMessageUpdateDispatchData): PartialClass<Message> => {
-	return new Message(self, data as unknown as APIMessage);
+export const MESSAGE_UPDATE = (
+	self: BaseClient,
+	data: GatewayMessageUpdateDispatchData,
+): MakeRequired<
+	PartialClass<Message>,
+	'id' | 'channelId' | 'createdAt' | 'createdTimestamp' | 'rest' | 'cache' | 'api' | 'client'
+> => {
+	return new Message(self, data as APIMessage);
 };

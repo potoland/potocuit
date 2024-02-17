@@ -25,11 +25,11 @@
 		"noFallthroughCasesInSwitch": true,
 		"skipLibCheck": false,
 		"noErrorTruncation": true,
-		"outDir": "./dist",
+		"outDir": "./lib",
 		"stripInternal": true,
 	},
 	"exclude": [
-		"**/dist",
+		"**/lib",
 		"**/__test__"
 	],
 	"include": [

@@ -30,7 +30,6 @@ export class ShardManager extends Map<number, Shard> {
 
 		if (this.options.debug) {
 			this.debugger = new Logger({
-				active: this.options.debug,
 				name: '[ShardManager]',
 				logLevel: LogLevels.Debug,
 			});
@@ -64,7 +63,7 @@ export class ShardManager extends Map<number, Shard> {
 		shard ??= new Shard(shardId, {
 			token: this.options.token,
 			intents: this.options.intents,
-			info: { ...this.options.info, shards: this.options.totalShards! },
+			info: { ...this.options.info, shards: (this.options.shardEnd ?? this.options.totalShards)! },
 			handlePayload: this.options.handlePayload,
 			properties: this.options.properties,
 			debugger: this.debugger,

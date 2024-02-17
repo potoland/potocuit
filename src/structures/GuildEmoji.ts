@@ -1,6 +1,13 @@
-import type { BaseImageURLOptions } from '..';
+import type { BaseImageURLOptions } from '../api';
 import type { BaseClient } from '../client/base';
-import type { APIEmoji, ObjectToLower, RESTPatchAPIChannelJSONBody } from '../common';
+import type {
+	APIEmoji,
+	GuildShorter,
+	MethodContext,
+	ObjectToLower,
+	RESTPatchAPIChannelJSONBody,
+	RESTPatchAPIGuildEmojiJSONBody,
+} from '../common';
 import { DiscordBase } from './extra/DiscordBase';
 
 export interface GuildEmoji extends DiscordBase, ObjectToLower<Omit<APIEmoji, 'id'>> {}
@@ -44,6 +51,16 @@ export class GuildEmoji extends DiscordBase {
 			id: this.id,
 			name: this.name,
 			animated: !!this.animated,
+		};
+	}
+
+	static methods({ client, guildId }: MethodContext<{ guildId: string }>) {
+		return {
+			edit: (emojiId: string, body: RESTPatchAPIGuildEmojiJSONBody, reason?: string) =>
+				client.guilds.emojis.edit(guildId, emojiId, body, reason),
+			create: (body: Parameters<GuildShorter['emojis']['create']>[1]) => client.guilds.emojis.create(guildId, body),
+			fetch: (emojiId: string, force = false) => client.guilds.emojis.fetch(guildId, emojiId, force),
+			list: (force = false) => client.guilds.emojis.list(guildId, force),
 		};
 	}
 }

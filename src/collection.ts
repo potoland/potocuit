@@ -20,8 +20,7 @@ export class Collection<K, V> extends Map<K, V> {
 	 * console.log(removedCount); // Output: 1
 	 * console.log(collection.size); // Output: 2
 	 */
-	sweep(fn: (value: V, key: K, collection: this) => unknown, thisArg?: unknown): number {
-		if (thisArg !== undefined) fn = fn.bind(thisArg);
+	sweep(fn: (value: V, key: K, collection: this) => unknown): number {
 		const previous = this.size;
 		for (const [key, val] of this) {
 			if (fn(val, key, this)) this.delete(key);
@@ -42,7 +41,7 @@ export class Collection<K, V> extends Map<K, V> {
 	 * const mappedArray = collection.map((value, key) => `${key}: ${value}`);
 	 * console.log(mappedArray); // Output: ['1: one', '2: two', '3: three']
 	 */
-	map<T = any>(fn: (value: V, key: K, collection: this) => T) {
+	map<T = any>(fn: (value: V, key: K, collection: this) => T): T[] {
 		const result: T[] = [];
 
 		for (const [key, value] of this.entries()) {
@@ -50,6 +49,72 @@ export class Collection<K, V> extends Map<K, V> {
 		}
 
 		return result;
+	}
+
+	filter(fn: (value: V, key: K, collection: this) => boolean): V[] {
+		const result: V[] = [];
+
+		for (const [key, value] of this.entries()) {
+			if (fn(value, key, this)) result.push(value);
+		}
+
+		return result;
+	}
+
+	reduce<T = any>(fn: (accumulator: T, value: V, key: K, collection: this) => T, initialValue?: T): T {
+		const entries = this.entries();
+		const first = entries.next().value as [K, V];
+		let result = initialValue;
+
+		if (result !== undefined) {
+			result = fn(result, first[1], first[0], this);
+		} else {
+			result = first[1] as unknown as T;
+		}
+
+		for (const [key, value] of entries) {
+			result = fn(result, value, key, this);
+		}
+
+		return result as T;
+	}
+
+	every(fn: (value: V, key: K, collection: this) => boolean): boolean {
+		for (const [key, value] of this.entries()) {
+			if (!fn(value, key, this)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	some(fn: (value: V, key: K, collection: this) => boolean): boolean {
+		for (const [key, value] of this.entries()) {
+			if (fn(value, key, this)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	find(fn: (value: V, key: K, collection: this) => boolean): V | undefined {
+		for (const [key, value] of this.entries()) {
+			if (fn(value, key, this)) {
+				return value;
+			}
+		}
+		return undefined;
+	}
+
+	findKey(fn: (value: V, key: K, collection: this) => boolean): K | undefined {
+		for (const [key, value] of this.entries()) {
+			if (fn(value, key, this)) {
+				return key;
+			}
+		}
+		return undefined;
 	}
 }
 

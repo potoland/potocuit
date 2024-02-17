@@ -1,13 +1,16 @@
-import type { RESTPatchAPIWebhookJSONBody, RESTPatchAPIWebhookWithTokenJSONBody } from '..';
+import type {
+	RESTPatchAPIWebhookJSONBody,
+	RESTPatchAPIWebhookWithTokenJSONBody,
+	RESTPostAPIWebhookWithTokenJSONBody,
+} from '..';
+import { resolveFiles } from '../../builders';
 import {
-	Webhook,
-	WebhookMessage,
-	resolveFiles,
 	type MessageWebhookMethodEditParams,
 	type MessageWebhookMethodWriteParams,
-	type RESTPostAPIWebhookWithTokenJSONBody,
-} from '../..';
-import { MessagesMethods } from '../../structures/methods/channels';
+	MessagesMethods,
+	Webhook,
+	WebhookMessage,
+} from '../../structures';
 import { BaseShorter } from './base';
 
 export class WebhookShorter extends BaseShorter {

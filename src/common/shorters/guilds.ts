@@ -4,6 +4,7 @@ import {
 	type RESTPatchAPIAutoModerationRuleJSONBody,
 	type RESTPatchAPIChannelJSONBody,
 	type RESTPatchAPIGuildChannelPositionsJSONBody,
+	type RESTPatchAPIGuildEmojiJSONBody,
 	type RESTPatchAPIGuildStickerJSONBody,
 	type RESTPostAPIAutoModerationRuleJSONBody,
 	type RESTPostAPIGuildChannelJSONBody,
@@ -12,8 +13,8 @@ import {
 } from 'discord-api-types/v10';
 import { BASE_URL, type ImageResolvable, type ObjectToLower, type OmitInsert } from '..';
 import { resolveFiles, resolveImage } from '../../builders';
-import { Guild, GuildEmoji, Sticker, type CreateStickerBodyRequest } from '../../structures';
-import channelFrom, { BaseChannel } from '../../structures/methods/channels';
+import { BaseChannel, Guild, GuildEmoji, Sticker, type CreateStickerBodyRequest } from '../../structures';
+import channelFrom from '../../structures/channels';
 import { BaseShorter } from './base';
 
 export class GuildShorter extends BaseShorter {
@@ -79,7 +80,7 @@ export class GuildShorter extends BaseShorter {
 			fetch: async (guildId: string, emojiId: string, force = false) => {
 				let emoji;
 				if (!force) {
-					emoji = await this.client.proxy.guilds(guildId).emojis(emojiId).get();
+					emoji = await this.client.cache.emojis?.get(emojiId);
 					if (emoji) return emoji;
 				}
 				emoji = await this.client.proxy.guilds(guildId).emojis(emojiId).get();
@@ -89,7 +90,7 @@ export class GuildShorter extends BaseShorter {
 				await this.client.proxy.guilds(guildId).emojis(emojiId).delete({ reason });
 				await this.client.cache.channels?.removeIfNI('GuildEmojisAndStickers', emojiId, guildId);
 			},
-			edit: async (guildId: string, emojiId: string, body: RESTPatchAPIChannelJSONBody, reason?: string) => {
+			edit: async (guildId: string, emojiId: string, body: RESTPatchAPIGuildEmojiJSONBody, reason?: string) => {
 				const emoji = await this.client.proxy.guilds(guildId).emojis(emojiId).patch({ body, reason });
 				await this.client.cache.channels?.setIfNI('GuildEmojisAndStickers', emoji.id!, guildId, emoji);
 				return new GuildEmoji(this.client, emoji, guildId);

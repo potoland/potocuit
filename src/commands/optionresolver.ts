@@ -1,4 +1,3 @@
-import type { BaseClient } from '../client/base';
 import type {
 	APIApplicationCommandInteractionDataOption,
 	APIAttachment,
@@ -8,8 +7,9 @@ import type {
 import { ApplicationCommandOptionType } from '../common';
 import type { AllChannels } from '../structures';
 import { GuildRole, InteractionGuildMember, User } from '../structures';
-import channelFrom from '../structures/methods/channels';
+import channelFrom from '../structures/channels';
 import type { Command, CommandAutocompleteOption, CommandOption, SubCommand } from './applications/chat';
+import type { UsingClient } from './applications/shared';
 
 export class OptionResolver {
 	readonly options: OptionResolved[];
@@ -17,7 +17,7 @@ export class OptionResolver {
 	private subCommand: string | null = null;
 	private group: string | null = null;
 	constructor(
-		private client: BaseClient,
+		private client: UsingClient,
 		options: APIApplicationCommandInteractionDataOption[],
 		public parent?: Command,
 		public guildId?: string,

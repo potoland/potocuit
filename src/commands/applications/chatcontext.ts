@@ -1,35 +1,34 @@
-import type { IClients } from '../../client/base';
-import { MessageFlags } from '../../common';
+import { MessageFlags, type UnionToTuple } from '../../common';
 import type {
 	InteractionCreateBodyRequest,
 	InteractionMessageUpdateBodyRequest,
 	ModalCreateBodyRequest,
 } from '../../common/types/write';
 import type { ChatInputCommandInteraction } from '../../structures';
+import type { RegisteredMiddlewares } from '../decorators';
 import type { OptionResolver } from '../optionresolver';
 import type { ContextOptions, OptionsRecord } from './chat';
-import type { CommandMetadata, MiddlewareContext } from './shared';
+import type { CommandMetadata, DefaultLocale, ExtendContext, GlobalMetadata, UsingClient } from './shared';
 
-export class CommandContext<
-	C extends keyof IClients,
-	T extends OptionsRecord = {},
-	M extends Readonly<MiddlewareContext[]> = [],
-> {
+export class CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never>
+	implements ExtendContext
+{
 	constructor(
-		readonly client: IClients[C],
+		readonly client: UsingClient,
 		readonly interaction: ChatInputCommandInteraction,
-		public options: ContextOptions<T>,
-		public metadata: CommandMetadata<M>,
 		public resolver: OptionResolver,
 		readonly shardId: number,
 	) {}
+
+	options: ContextOptions<T> = {} as never;
+	metadata: CommandMetadata<UnionToTuple<M>> = {} as never;
+	globalMetadata: GlobalMetadata = {};
 
 	get proxy() {
 		return this.client.proxy;
 	}
 
-	/**@internal */
-	get t() {
+	get t(): DefaultLocale {
 		return this.client.langs.get(this.interaction.locale);
 	}
 

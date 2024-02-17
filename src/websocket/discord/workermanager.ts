@@ -1,12 +1,12 @@
 import { randomUUID } from 'node:crypto';
-import { join } from 'node:path';
 import { Worker } from 'node:worker_threads';
 import { MemoryAdapter, type Adapter } from '../../cache';
 import { Logger, MergeOptions, type GatewayPresenceUpdateData, type GatewaySendPayload } from '../../common';
 import { WorkerManagerDefaults } from '../constants';
 import { SequentialBucket } from '../structures';
 import { ConnectQueue } from '../structures/timeout';
-import { MemberUpdateHandler } from './memberUpdate';
+import { MemberUpdateHandler } from './events/memberUpdate';
+import { PresenceUpdateHandler } from './events/presenceUpdate';
 import type { ShardOptions, WorkerData, WorkerManagerOptions } from './shared';
 import type { WorkerInfo, WorkerMessage, WorkerShardInfo } from './worker';
 
@@ -17,6 +17,7 @@ export class WorkerManager extends Map<number, Worker> {
 	cacheAdapter: Adapter;
 	promises = new Map<string, (value: any) => void>();
 	memberUpdateHandler = new MemberUpdateHandler();
+	presenceUpdateHandler = new PresenceUpdateHandler();
 	constructor(options: WorkerManagerOptions) {
 		super();
 		options.totalShards ??= options.info.shards;
@@ -128,7 +129,7 @@ export class WorkerManager extends Map<number, Worker> {
 			let worker = this.get(i);
 			if (!worker) {
 				worker = this.createWorker({
-					path: this.options.path ?? `${join(__dirname, './worker.js')}`,
+					path: this.options.path,
 					debug: this.options.debug,
 					token: this.options.token,
 					shards: shards[i],
@@ -137,7 +138,6 @@ export class WorkerManager extends Map<number, Worker> {
 				});
 				this.set(i, worker);
 			}
-
 			worker.postMessage({
 				type: 'SPAWN_SHARDS',
 				compress: this.options.compress ?? false,
@@ -149,7 +149,6 @@ export class WorkerManager extends Map<number, Worker> {
 
 	createWorker(workerData: WorkerData) {
 		const worker = new Worker(workerData.path, { workerData });
-
 		worker.on('message', data => this.handleWorkerMessage(data));
 
 		return worker;
@@ -166,7 +165,7 @@ export class WorkerManager extends Map<number, Worker> {
 			worker.postMessage({
 				type: 'ALLOW_CONNECT',
 				shardId,
-				presence: this.options.presence(shardId, workerId),
+				presence: this.options.presence?.(shardId, workerId),
 			} satisfies ManagerAllowConnect);
 		});
 	}
@@ -196,6 +195,11 @@ export class WorkerManager extends Map<number, Worker> {
 					switch (message.payload.t) {
 						case 'GUILD_MEMBER_UPDATE':
 							if (!this.memberUpdateHandler.check(message.payload.d)) {
+								return;
+							}
+							break;
+						case 'PRESENCE_UPDATE':
+							if (!this.presenceUpdateHandler.check(message.payload.d as any)) {
 								return;
 							}
 							break;
@@ -233,6 +237,15 @@ export class WorkerManager extends Map<number, Worker> {
 					}
 					this.promises.delete(nonce);
 					resolve(data);
+				}
+				break;
+			case 'WORKER_READY':
+				{
+					if (message.workerId === [...this.keys()].at(-1)) {
+						this.get(this.keys().next().value)?.postMessage({
+							type: 'BOT_READY',
+						} satisfies ManagerSendBotReady);
+					}
 				}
 				break;
 		}
@@ -332,6 +345,7 @@ export type ManagerSendPayload = CreateManagerMessage<
 export type ManagerRequestShardInfo = CreateManagerMessage<'SHARD_INFO', { nonce: string; shardId: number }>;
 export type ManagerRequestWorkerInfo = CreateManagerMessage<'WORKER_INFO', { nonce: string }>;
 export type ManagerSendCacheResult = CreateManagerMessage<'CACHE_RESULT', { nonce: string; result: any }>;
+export type ManagerSendBotReady = CreateManagerMessage<'BOT_READY'>;
 
 export type ManagerMessages =
 	| ManagerAllowConnect
@@ -339,4 +353,5 @@ export type ManagerMessages =
 	| ManagerSendPayload
 	| ManagerRequestShardInfo
 	| ManagerRequestWorkerInfo
-	| ManagerSendCacheResult;
+	| ManagerSendCacheResult
+	| ManagerSendBotReady;

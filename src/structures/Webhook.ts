@@ -1,13 +1,11 @@
+import type { BaseClient } from '../client/base';
 import type {
+	APIWebhook,
 	ImageOptions,
 	MessageWebhookCreateBodyRequest,
 	MessageWebhookPayload,
 	MessageWebhookUpdateBodyRequest,
 	MethodContext,
-} from '..';
-import type { BaseClient } from '../client/base';
-import type {
-	APIWebhook,
 	ObjectToLower,
 	RESTGetAPIWebhookWithTokenMessageQuery,
 	RESTPatchAPIWebhookJSONBody,

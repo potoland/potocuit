@@ -27,15 +27,15 @@ export class User extends DiscordBase<APIUser> {
 		return this.client.users.createDM(this.id, force);
 	}
 
+	write(body: MessageCreateBodyRequest) {
+		return this.client.users.write(this.id, body);
+	}
+
 	avatarURL(options?: ImageOptions) {
 		if (!this.avatar) {
 			return this.rest.cdn.defaultAvatar(Number(this.discriminator));
 		}
 		return this.rest.cdn.avatar(this.id, this.avatar, options);
-	}
-
-	write(body: MessageCreateBodyRequest) {
-		return this.client.users.write(this.id, body);
 	}
 
 	toString() {

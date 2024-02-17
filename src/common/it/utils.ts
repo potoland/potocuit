@@ -104,11 +104,11 @@ export class BaseHandler {
 	}
 
 	protected async loadFiles<T extends NonNullable<unknown>>(paths: string[]): Promise<T[]> {
-		return await Promise.all(paths.map(path => magicImport(path).then(file => file.default ?? file)));
+		return Promise.all(paths.map(path => magicImport(path).then(file => file.default ?? file)));
 	}
 
 	protected async loadFilesK<T>(paths: string[]): Promise<{ name: string; file: T; path: string }[]> {
-		return await Promise.all(
+		return Promise.all(
 			paths.map(path =>
 				magicImport(path).then(file => {
 					return {
@@ -218,3 +218,5 @@ export async function magicImport(path: string) {
 		return eval('((path) => import(`file:///${path}`))')(path.split('\\').join('\\\\'));
 	}
 }
+
+export type OnFailCallback = (error: unknown) => any;

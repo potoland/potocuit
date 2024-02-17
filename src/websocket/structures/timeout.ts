@@ -1,5 +1,5 @@
 export class ConnectTimeout {
-	readonly promises: { promise: Promise<boolean>; resolve: (x: boolean) => any }[] = [];
+	readonly promises: ((x: boolean) => any)[] = [];
 	protected interval?: NodeJS.Timeout = undefined;
 	constructor(public intervalTime = 5000) {}
 
@@ -14,12 +14,12 @@ export class ConnectTimeout {
 			}, this.intervalTime);
 			resolve(true);
 		}
-		this.promises.push({ resolve, promise });
+		this.promises.push(resolve);
 		return promise;
 	}
 
 	shift() {
-		this.promises.shift()?.resolve(true);
+		this.promises.shift()?.(true);
 		if (!this.promises.length) {
 			clearInterval(this.interval);
 			this.interval = undefined;
@@ -28,7 +28,7 @@ export class ConnectTimeout {
 }
 
 export class ConnectQueue {
-	readonly queue: { callback?: () => any }[] = [];
+	readonly queue: { cb: (() => any) | undefined }[] = [];
 	protected interval?: NodeJS.Timeout = undefined;
 
 	constructor(
@@ -37,11 +37,11 @@ export class ConnectQueue {
 	) {}
 
 	push(callback: () => any) {
-		this.queue.push({ callback });
+		this.queue.push({ cb: callback });
 		if (this.queue.length === this.concurrency) {
 			for (let i = 0; i < this.concurrency; i++) {
-				this.queue[i].callback?.();
-				this.queue[i].callback = undefined;
+				this.queue[i].cb?.();
+				this.queue[i].cb = undefined;
 			}
 			this.interval = setInterval(() => {
 				for (let i = 0; i < this.concurrency; i++) {
@@ -49,7 +49,6 @@ export class ConnectQueue {
 				}
 			}, this.intervalTime);
 		}
-		return;
 	}
 
 	shift(): any {
@@ -61,8 +60,8 @@ export class ConnectQueue {
 			}
 			return;
 		}
-		if (!shift.callback) return this.shift();
-		shift.callback();
+		if (!shift.cb) return this.shift();
+		shift.cb?.();
 		if (!this.queue.length) {
 			clearInterval(this.interval);
 			this.interval = undefined;

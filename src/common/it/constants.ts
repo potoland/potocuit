@@ -31,7 +31,7 @@ export enum EmbedColors {
 	NotQuiteBlack = 0x23272a,
 }
 
-export const DiscordEpoch = 1420070400000;
+export const DiscordEpoch = 1420070400000n;
 
 export const BASE_HOST = 'https://discord.com';
 export const BASE_URL = `${BASE_HOST}/api`;

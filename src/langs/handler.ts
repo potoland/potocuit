@@ -1,9 +1,10 @@
+import type { DefaultLocale } from '../commands';
 import { BaseHandler } from '../common';
 import { LangRouter } from './router';
 
 export class LangsHandler extends BaseHandler {
 	values: Partial<Record<string, any>> = {};
-	protected filter = (path: string) => path.endsWith('.js');
+	protected filter = (path: string) => path.endsWith('.js') || path.endsWith('.ts');
 	defaultLang?: string;
 
 	getKey(lang: string, message: string) {
@@ -25,7 +26,7 @@ export class LangsHandler extends BaseHandler {
 		return str.replace(regex, match => metadata[match.slice(2, -2)] ?? match);
 	}
 
-	get(userLocale: string) {
+	get(userLocale: string): DefaultLocale {
 		return LangRouter(userLocale, this.defaultLang ?? userLocale, this.values)();
 	}
 

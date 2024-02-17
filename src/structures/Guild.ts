@@ -2,13 +2,14 @@ import type { BaseClient } from '../client/base';
 import type { APIGuild, APIPartialGuild, GatewayGuildCreateDispatchData, ObjectToLower } from '../common';
 import type { StructPropState, StructStates, ToClass } from '../common/types/util';
 import { AutoModerationRule } from './AutoModerationRule';
+import { GuildEmoji } from './GuildEmoji';
 import { GuildMember } from './GuildMember';
 import { GuildRole } from './GuildRole';
 import { GuildTemplate } from './GuildTemplate';
 import { Sticker } from './Sticker';
+import { BaseChannel, WebhookGuildMethods } from './channels';
 import { BaseGuild } from './extra/BaseGuild';
 import type { DiscordBase } from './extra/DiscordBase';
-import { BaseChannel, WebhookGuildMethods } from './methods/channels';
 
 export interface Guild extends ObjectToLower<Omit<APIGuild, 'stickers' | 'emojis' | 'roles'>>, DiscordBase {}
 export class Guild<State extends StructStates = 'api'> extends (BaseGuild as unknown as ToClass<
@@ -73,6 +74,7 @@ export class Guild<State extends StructStates = 'api'> extends (BaseGuild as unk
 	moderationRules = AutoModerationRule.methods({ client: this.client, guildId: this.id });
 	roles = GuildRole.methods({ client: this.client, guildId: this.id });
 	channels = BaseChannel.allMethods({ client: this.client, guildId: this.id });
+	emojis = GuildEmoji.methods({ client: this.client, guildId: this.id });
 }
 
 /** Maximun custom guild emojis per level */

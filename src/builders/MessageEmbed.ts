@@ -20,7 +20,7 @@ import {
  * embed.setColor('Green');
  * const embedJSON = embed.json();
  */
-export class MessageEmbed {
+export class Embed {
 	/**
 	 * Creates a new instance of MessageEmbed.
 	 * @param data - The initial data for the embed.

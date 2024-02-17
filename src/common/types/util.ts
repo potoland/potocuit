@@ -98,6 +98,7 @@ export type ObjectToLower<T> = Identify<{
 		  ? Identify<ObjectToLower<T[K]>>
 		  : T[K];
 }>;
+
 export type ObjectToSnake<T> = Identify<{
 	[K in keyof T as SnakeCase<Exclude<K, symbol | number>>]: T[K] extends unknown[]
 		? Identify<ObjectToSnake<T[K][0]>[]>
@@ -105,3 +106,71 @@ export type ObjectToSnake<T> = Identify<{
 		  ? Identify<ObjectToSnake<T[K]>>
 		  : T[K];
 }>;
+
+export type UnionToTuple<U, A extends any[] = []> = (U extends void ? void : (arg: () => U) => never) extends (
+	arg: infer I,
+) => void
+	? I extends () => infer W
+		? UnionToTuple<Exclude<U, W>, [W, ...A]>
+		: A
+	: never;
+
+export type KeysWithUndefined<T> = {
+	[K in keyof T]-?: undefined extends T[K] ? K : null extends T[K] ? K : never;
+}[keyof T];
+
+type OptionalizeAux<T extends object> = Identify<
+	{
+		[K in KeysWithUndefined<T>]?: T[K] extends ObjectLiteral ? Optionalize<T[K]> : T[K];
+	} & {
+		[K in Exclude<keyof T, KeysWithUndefined<T>>]: T[K] extends ObjectLiteral ? Optionalize<T[K]> : T[K];
+	}
+>;
+
+/**
+ * Makes all of properties in T optional when they're null | undefined
+ * it is recursive
+ */
+export type Optionalize<T> = T extends object
+	? T extends Array<unknown>
+		? number extends T['length']
+			? T[number] extends object
+				? Array<OptionalizeAux<T[number]>>
+				: T
+			: Partial<T>
+		: OptionalizeAux<T>
+	: T;
+
+export type ObjectLiteral<T = unknown> = {
+	[K in PropertyKey]: T;
+};
+
+export type DropT<T, R> = {
+	[P in keyof T as T[P] extends R ? never : P]: T[P] extends R ? never : T[P];
+};
+
+export type DropTI<T, U> = {
+	[P in keyof T as U extends T[P] ? never : P]: U extends T[P] ? never : T[P];
+};
+
+export type KeepT<T, R> = {
+	[P in keyof T as T[P] extends R ? P : never]: T[P] extends R ? T[P] : never;
+};
+
+export type KeepTI<T, U> = {
+	[P in keyof T as U extends T[P] ? P : never]: U extends T[P] ? T[P] : never;
+};
+
+export type Clean<T> = DropT<T, never>;
+
+export type PartialAvoid<U, T> = Identify<KeepT<T, U> & Partial<T>>;
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type PartialClass<T> = PartialAvoid<Function, T>;
+
+export type AtLeastOne<
+	T,
+	U = {
+		[K in keyof T]: Pick<T, K>;
+	},
+> = Partial<T> & U[keyof U];

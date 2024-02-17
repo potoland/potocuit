@@ -2,7 +2,8 @@ import { join } from 'node:path';
 import { REST, Router } from '../api';
 import type { Adapter } from '../cache';
 import { Cache, MemoryAdapter } from '../cache';
-import type { MiddlewareContext } from '../commands/applications/shared';
+import type { RegisteredMiddlewares } from '../commands';
+import type { DefaultLocale, MiddlewareContext } from '../commands/applications/shared';
 import { CommandHandler } from '../commands/handler';
 import {
 	ChannelShorter,
@@ -23,9 +24,6 @@ import type { DeepPartial, IntentStrings, OmitInsert } from '../common/types/uti
 import { ComponentHandler } from '../components/handler';
 import { LangsHandler } from '../langs/handler';
 import type { ChatInputCommandInteraction, MessageCommandInteraction, UserCommandInteraction } from '../structures';
-import type { Client } from './client';
-import type { HttpClient } from './httpclient';
-import type { WorkerClient } from './workerclient';
 
 export class BaseClient {
 	/** @internal */
@@ -45,9 +43,7 @@ export class BaseClient {
 	debugger?: Logger;
 
 	logger = new Logger({
-		name: '[Biscuitjs]',
-		active: true,
-		logLevel: LogLevels.Info,
+		name: '[Paragonjs]',
 	});
 
 	commands = new CommandHandler(this.logger);
@@ -56,6 +52,7 @@ export class BaseClient {
 
 	private _applicationId?: string;
 	private _botId?: string;
+	middlewares?: Record<string, MiddlewareContext>;
 
 	protected static assertString(value: unknown, message?: string): asserts value is string {
 		if (!(typeof value === 'string' && value !== '')) {
@@ -93,7 +90,7 @@ export class BaseClient {
 		return new Router(this.rest).createProxy();
 	}
 
-	setServices({ rest, cache, defaultLang }: ServicesOptions) {
+	setServices({ rest, cache, defaultLang, middlewares }: ServicesOptions) {
 		if (rest) {
 			this.rest = rest;
 		}
@@ -105,14 +102,18 @@ export class BaseClient {
 				this,
 			);
 		}
-		this.langs.defaultLang = defaultLang;
+		if (defaultLang) {
+			this.langs.defaultLang = defaultLang;
+		}
+		if (middlewares) {
+			this.middlewares = middlewares;
+		}
 	}
 
 	protected async execute(..._options: unknown[]) {
 		if ((await this.getRC()).debug) {
 			this.debugger = new Logger({
 				name: '[Debug]',
-				active: true,
 				logLevel: LogLevels.Debug,
 			});
 		}
@@ -197,8 +198,7 @@ export class BaseClient {
 		}
 	}
 
-	/**@internal */
-	t(locale: string) {
+	t(locale: string): DefaultLocale {
 		return this.langs.get(locale);
 	}
 
@@ -213,7 +213,7 @@ export class BaseClient {
 	async getRC<
 		T extends InternalRuntimeConfigHTTP | InternalRuntimeConfig = InternalRuntimeConfigHTTP | InternalRuntimeConfig,
 	>() {
-		const { locations, debug, ...env } = (await magicImport(join(process.cwd(), 'biscuit.config.js')).then(
+		const { locations, debug, ...env } = (await magicImport(join(process.cwd(), 'paragon.config.js')).then(
 			x => x.default ?? x,
 		)) as T;
 
@@ -239,7 +239,7 @@ export interface BaseClientOptions {
 			| UserCommandInteraction<boolean>
 			| MessageCommandInteraction<boolean>,
 	) => {};
-	globalMiddlewares?: readonly MiddlewareContext[];
+	globalMiddlewares?: readonly (keyof RegisteredMiddlewares)[];
 }
 
 export interface StartOptions {
@@ -284,15 +284,16 @@ export type RuntimeConfigHTTP = Omit<MakeRequired<RC, 'publicKey' | 'application
 export type InternalRuntimeConfig = Omit<MakeRequired<RC, 'intents'>, 'publicKey' | 'port'>;
 export type RuntimeConfig = OmitInsert<InternalRuntimeConfig, 'intents', { intents?: IntentStrings | number }>;
 
-export interface IClients {
-	base: BaseClient;
-	http: HttpClient;
-	client: Client<true>;
-	worker: WorkerClient<true>;
-}
+// export interface IClients {
+// 	base: BaseClient;
+// 	http: HttpClient;
+// 	client: Client<true>;
+// 	worker: WorkerClient<true>;
+// }
 
 export type ServicesOptions = {
 	rest?: REST;
 	cache?: { adapter: Adapter; disabledCache?: Cache['disabledCache'] };
 	defaultLang?: string;
+	middlewares?: Record<string, MiddlewareContext>;
 };

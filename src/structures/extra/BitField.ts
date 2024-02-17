@@ -2,7 +2,7 @@ export type BitFieldResolvable<T extends object> = keyof T | number | bigint | (
 
 export class BitField<T extends object> {
 	static None = 0;
-	Flags: Record<string, any> = {};
+	Flags: Partial<Record<string, bigint>> = {};
 
 	private bit: number;
 
@@ -52,7 +52,7 @@ export class BitField<T extends object> {
 			case 'number':
 				return bits;
 			case 'string':
-				return this.Flags[bits];
+				return this.resolve(this.Flags[bits]);
 			case 'bigint':
 				return Number(bits);
 			case 'object':
