@@ -1,10 +1,12 @@
 {
-	"name": "seyfertjs",
+	"name": "seyfert",
 	"version": "0.1.0",
 	"main": "./lib/index.js",
 	"module": "./lib/index.js",
 	"types": "./lib/index.d.ts",
-	"files": ["lib/**"],
+	"files": [
+		"lib/**"
+	],
 	"scripts": {
 		"build": "tsc --outDir ./lib",
 		"dev": "swc src -d lib -w",
@@ -49,7 +51,13 @@
 	"bugs": {
 		"url": "https://github.com/potoland/potocuit"
 	},
-	"keywords": ["api", "discord", "bots", "typescript", "botdev"],
+	"keywords": [
+		"api",
+		"discord",
+		"bots",
+		"typescript",
+		"botdev"
+	],
 	"publishConfig": {
 		"access": "public"
 	},
