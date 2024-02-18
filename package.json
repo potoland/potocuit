@@ -1,12 +1,10 @@
 {
-	"name": "paragonjs",
+	"name": "seyfertjs",
 	"version": "0.1.0",
 	"main": "./lib/index.js",
 	"module": "./lib/index.js",
 	"types": "./lib/index.d.ts",
-	"files": [
-		"lib/**"
-	],
+	"files": ["lib/**"],
 	"scripts": {
 		"build": "tsc --outDir ./lib",
 		"dev": "swc src -d lib -w",
@@ -43,7 +41,7 @@
 		"tweetnacl": "^1.0.3",
 		"uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.39.0"
 	},
-	"homepage": "https://paragonjs.com",
+	"homepage": "https://biscuitjs.com",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/potoland/potocuit.git"
@@ -51,13 +49,7 @@
 	"bugs": {
 		"url": "https://github.com/potoland/potocuit"
 	},
-	"keywords": [
-		"api",
-		"discord",
-		"bots",
-		"typescript",
-		"botdev"
-	],
+	"keywords": ["api", "discord", "bots", "typescript", "botdev"],
 	"publishConfig": {
 		"access": "public"
 	},

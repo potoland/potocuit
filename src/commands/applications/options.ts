@@ -7,9 +7,9 @@ import type { AutocompleteCallback, OnAutocompleteErrorCallback, ReturnOptionsTy
 import type { CommandContext } from './chatcontext';
 import type { MiddlewareContext } from './shared';
 
-type ParagonBasicOption<T extends keyof __TypesWrapper, D = {}> = __TypesWrapper[T] & D;
+type SeyfertBasicOption<T extends keyof __TypesWrapper, D = {}> = __TypesWrapper[T] & D;
 
-type ParagonStringOption = ParagonBasicOption<'String'> & {
+type SeyfertStringOption = SeyfertBasicOption<'String'> & {
 	autocomplete?: AutocompleteCallback;
 	onAutocompleteError?: OnAutocompleteErrorCallback;
 	choices?:
@@ -18,62 +18,62 @@ type ParagonStringOption = ParagonBasicOption<'String'> & {
 	min_length?: number;
 	max_length?: number;
 };
-type ParagonIntegerOption = ParagonBasicOption<'Integer'> & {
+type SeyfertIntegerOption = SeyfertBasicOption<'Integer'> & {
 	autocomplete?: AutocompleteCallback;
 	onAutocompleteError?: OnAutocompleteErrorCallback;
 	choices?: APIApplicationCommandOptionChoice<ReturnOptionsTypes[ApplicationCommandOptionType.Integer]>[];
 	min_value?: number;
 	max_value?: number;
 };
-type ParagonBooleanOption = ParagonBasicOption<'Boolean'>;
-type ParagonUserOption = ParagonBasicOption<'User'>;
-type ParagonChannelOption = ParagonBasicOption<'Channel'> & {
+type SeyfertBooleanOption = SeyfertBasicOption<'Boolean'>;
+type SeyfertUserOption = SeyfertBasicOption<'User'>;
+type SeyfertChannelOption = SeyfertBasicOption<'Channel'> & {
 	channel_types?: ChannelType[];
 };
-type ParagonRoleOption = ParagonBasicOption<'Role'>;
-type ParagonMentionableOption = ParagonBasicOption<'Mentionable'>;
-type ParagonNumberOption = ParagonBasicOption<'Number'> & {
+type SeyfertRoleOption = SeyfertBasicOption<'Role'>;
+type SeyfertMentionableOption = SeyfertBasicOption<'Mentionable'>;
+type SeyfertNumberOption = SeyfertBasicOption<'Number'> & {
 	autocomplete?: AutocompleteCallback;
 	onAutocompleteError?: OnAutocompleteErrorCallback;
 	choices?: APIApplicationCommandOptionChoice<ReturnOptionsTypes[ApplicationCommandOptionType.Number]>[];
 	min_value?: number;
 	max_value?: number;
 };
-type ParagonAttachmentOption = ParagonBasicOption<'Attachment'>;
+type SeyfertAttachmentOption = SeyfertBasicOption<'Attachment'>;
 
-export function createStringOption<T extends ParagonStringOption = ParagonStringOption>(data: T) {
+export function createStringOption<T extends SeyfertStringOption = SeyfertStringOption>(data: T) {
 	return { ...data, type: ApplicationCommandOptionType.String } as const;
 }
 
-export function createIntegerOption<T extends ParagonIntegerOption = ParagonIntegerOption>(data: T) {
+export function createIntegerOption<T extends SeyfertIntegerOption = SeyfertIntegerOption>(data: T) {
 	return { ...data, type: ApplicationCommandOptionType.Integer } as const;
 }
 
-export function createBooleanOption<T extends ParagonBooleanOption = ParagonBooleanOption>(data: T) {
+export function createBooleanOption<T extends SeyfertBooleanOption = SeyfertBooleanOption>(data: T) {
 	return { ...data, type: ApplicationCommandOptionType.Boolean } as const;
 }
 
-export function createUserOption<T extends ParagonUserOption = ParagonUserOption>(data: T) {
+export function createUserOption<T extends SeyfertUserOption = SeyfertUserOption>(data: T) {
 	return { ...data, type: ApplicationCommandOptionType.User } as const;
 }
 
-export function createChannelOption<T extends ParagonChannelOption = ParagonChannelOption>(data: T) {
+export function createChannelOption<T extends SeyfertChannelOption = SeyfertChannelOption>(data: T) {
 	return { ...data, type: ApplicationCommandOptionType.Channel } as const;
 }
 
-export function createRoleOption<T extends ParagonRoleOption = ParagonRoleOption>(data: T) {
+export function createRoleOption<T extends SeyfertRoleOption = SeyfertRoleOption>(data: T) {
 	return { ...data, type: ApplicationCommandOptionType.Role } as const;
 }
 
-export function createMentionableOption<T extends ParagonMentionableOption = ParagonMentionableOption>(data: T) {
+export function createMentionableOption<T extends SeyfertMentionableOption = SeyfertMentionableOption>(data: T) {
 	return { ...data, type: ApplicationCommandOptionType.Mentionable } as const;
 }
 
-export function createNumberOption<T extends ParagonNumberOption = ParagonNumberOption>(data: T) {
+export function createNumberOption<T extends SeyfertNumberOption = SeyfertNumberOption>(data: T) {
 	return { ...data, type: ApplicationCommandOptionType.Number } as const;
 }
 
-export function createAttachmentOption<T extends ParagonAttachmentOption = ParagonAttachmentOption>(data: T) {
+export function createAttachmentOption<T extends SeyfertAttachmentOption = SeyfertAttachmentOption>(data: T) {
 	return { ...data, type: ApplicationCommandOptionType.Attachment } as const;
 }
 

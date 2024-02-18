@@ -379,7 +379,7 @@ export class Interaction<
 			.messages(messageId)
 			.patch({
 				body: BaseInteraction.transformBody(data),
-				files: body.files ? await resolveFiles(body.files) : undefined,
+				files: files ? await resolveFiles(files) : undefined,
 			});
 
 		this.client.components.onRequestInteractionUpdate(body, apiMessage);
@@ -521,7 +521,7 @@ export class StringSelectMenuInteraction<
 	Omit<SelectMenuInteraction, 'data'>,
 	StringSelectMenuInteraction
 >) {
-	declare data: ObjectToLower<OmitInsert<APIMessageStringSelectInteractionData, 'values', { values: T }>>;
+	declare data: OmitInsert<ObjectToLower<APIMessageStringSelectInteractionData>, 'values', { values: T }>;
 	declare values: T;
 }
 

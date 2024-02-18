@@ -1,6 +1,6 @@
 <div align='center'>
 
-  # **Paragonjs**
+  # **Seyfert**
 
   <img src="https://github.com/potoland/potocuit/raw/main/assets/icon.png" alt="potocuit" width="200px" />
 
