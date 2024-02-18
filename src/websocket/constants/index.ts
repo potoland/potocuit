@@ -5,8 +5,8 @@ const COMPRESS = false;
 
 const properties = {
 	os: process.platform,
-	browser: 'Paragonjs',
-	device: 'Paragonjs',
+	browser: 'Seyfert',
+	device: 'Seyfert',
 };
 
 const ShardManagerDefaults: Partial<ShardManagerOptions> = {
