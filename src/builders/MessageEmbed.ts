@@ -15,7 +15,7 @@ import {
  * Represents a message embed.
  * @example
  * const embed = new MessageEmbed();
- * embed.setTitle('Biscuitjs');
+ * embed.setTitle('Seyfert');
  * embed.setDescription('Better than discord.js');
  * embed.setColor('Green');
  * const embedJSON = embed.json();
@@ -147,7 +147,7 @@ export class Embed {
 	 * @param url - The URL of the embed.
 	 * @returns The updated MessageEmbed instance.
 	 * @example
-	 * embed.setURL('https://biscuitjs.com');
+	 * embed.setURL('https://seyfert.com');
 	 */
 	setURL(url: string): this {
 		this.data.url = url;
