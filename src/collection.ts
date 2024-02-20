@@ -294,7 +294,7 @@ export class LimitedCollection<K, V> {
 	get(key: K) {
 		const data = this.data.get(key);
 		if (this.options.resetOnDemand && data && data.expire !== -1) {
-			const oldExpireOn = data.expireOn
+			const oldExpireOn = data.expireOn;
 			data.expireOn = Date.now() + data.expire;
 			if (this.closer!.expireOn === oldExpireOn) {
 				this.resetTimeout();
@@ -329,8 +329,7 @@ export class LimitedCollection<K, V> {
 	 */
 	delete(key: K) {
 		const value = this.raw(key);
-		if (value && value.expireOn === this.closer!.expireOn)
-			setImmediate(() => this.resetTimeout());
+		if (value && value.expireOn === this.closer!.expireOn) setImmediate(() => this.resetTimeout());
 		return this.data.delete(key);
 	}
 

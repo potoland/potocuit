@@ -89,7 +89,8 @@ export class CommandHandler extends BaseHandler {
 					option.onInternalError =
 						option.onInternalError?.bind(option) ?? commandInstance.onInternalError?.bind(commandInstance);
 					option.onAfterRun = option.onAfterRun?.bind(option) ?? commandInstance.onAfterRun?.bind(commandInstance);
-					option.onPermissionsFail = option.onPermissionsFail?.bind(option) ?? commandInstance.onPermissionsFail?.bind(commandInstance);
+					option.onPermissionsFail =
+						option.onPermissionsFail?.bind(option) ?? commandInstance.onPermissionsFail?.bind(commandInstance);
 				}
 			}
 

@@ -39,25 +39,25 @@ type Wrap<N extends ApplicationCommandOptionType> = N extends
 	| ApplicationCommandOptionType.SubcommandGroup
 	? never
 	: {
-		required?: boolean;
-		value?(
-			data: { context: CommandContext; value: ReturnOptionsTypes[N] },
-			ok: OKFunction<any>,
-			fail: StopFunction,
-		): void;
-	} & {
-		description: string;
-		description_localizations?: APIApplicationCommandBasicOption['description_localizations'];
-		name_localizations?: APIApplicationCommandBasicOption['name_localizations'];
-	};
+			required?: boolean;
+			value?(
+				data: { context: CommandContext; value: ReturnOptionsTypes[N] },
+				ok: OKFunction<any>,
+				fail: StopFunction,
+			): void;
+	  } & {
+			description: string;
+			description_localizations?: APIApplicationCommandBasicOption['description_localizations'];
+			name_localizations?: APIApplicationCommandBasicOption['name_localizations'];
+	  };
 
 export type __TypeWrapper<T extends ApplicationCommandOptionType> = Wrap<T>;
 
 export type __TypesWrapper = {
 	[P in keyof typeof ApplicationCommandOptionType]: `${(typeof ApplicationCommandOptionType)[P]}` extends `${infer D extends
-	number}`
-	? Wrap<D>
-	: never;
+		number}`
+		? Wrap<D>
+		: never;
 };
 
 export type AutocompleteCallback = (interaction: AutocompleteInteraction) => any;
@@ -78,21 +78,21 @@ type KeysWithoutRequired<T extends OptionsRecord> = {
 
 type ContextOptionsAux<T extends OptionsRecord> = {
 	[K in Exclude<keyof T, KeysWithoutRequired<T>>]: T[K]['value'] extends (...args: any) => any
-	? T[K]['required'] extends true
-	? Parameters<Parameters<T[K]['value']>[1]>[0]
-	: never
-	: T[K]['required'] extends true
-	? ReturnOptionsTypes[T[K]['type']]
-	: never;
-} & {
-		[K in KeysWithoutRequired<T>]?: T[K]['value'] extends (...args: any) => any
 		? T[K]['required'] extends true
-		? never
-		: Parameters<Parameters<T[K]['value']>[1]>[0]
+			? Parameters<Parameters<T[K]['value']>[1]>[0]
+			: never
 		: T[K]['required'] extends true
-		? never
-		: ReturnOptionsTypes[T[K]['type']];
-	};
+		  ? ReturnOptionsTypes[T[K]['type']]
+		  : never;
+} & {
+	[K in KeysWithoutRequired<T>]?: T[K]['value'] extends (...args: any) => any
+		? T[K]['required'] extends true
+			? never
+			: Parameters<Parameters<T[K]['value']>[1]>[0]
+		: T[K]['required'] extends true
+		  ? never
+		  : ReturnOptionsTypes[T[K]['type']];
+};
 
 export type ContextOptions<T extends OptionsRecord> = ContextOptionsAux<T>;
 
@@ -138,11 +138,11 @@ class BaseCommand {
 		for (const i of resolver.hoistedOptions) {
 			try {
 				const option = command.options!.find(x => x.name === i.name) as __CommandOption;
-				const value = (await new Promise(
+				const value = await new Promise(
 					(res, rej) =>
 						option.value?.({ context: ctx, value: resolver.getValue(i.name) } as never, res, rej) ||
 						res(resolver.getValue(i.name)),
-				))
+				);
 
 				if (value === undefined) {
 					if (option.required) {
@@ -159,14 +159,14 @@ class BaseCommand {
 				data[i.name] = {
 					failed: false,
 					value,
-				}
+				};
 			} catch (e) {
 				errored = true;
 				data[i.name] = {
 					failed: true,
 					value: e instanceof Error ? e.message : `${e}`,
 				};
-			};
+			}
 		}
 		return [errored, data];
 	}
@@ -251,12 +251,12 @@ class BaseCommand {
 	}
 
 	run?(context: CommandContext<any>): any;
-	onAfterRun?(context: CommandContext<any>, error: unknown | undefined): any
-	onRunError?(context: CommandContext<any>, error: unknown): any
-	onOptionsError?(context: CommandContext<{}, never>, metadata: OnOptionsReturnObject): any
-	onMiddlewaresError?(context: CommandContext<{}, never>, error: unknown): any
-	onPermissionsFail?(context: CommandContext<{}, never>, permissions: PermissionStrings): any
-	onInternalError?(client: UsingClient, error?: unknown): any
+	onAfterRun?(context: CommandContext<any>, error: unknown | undefined): any;
+	onRunError?(context: CommandContext<any>, error: unknown): any;
+	onOptionsError?(context: CommandContext<{}, never>, metadata: OnOptionsReturnObject): any;
+	onMiddlewaresError?(context: CommandContext<{}, never>, error: unknown): any;
+	onPermissionsFail?(context: CommandContext<{}, never>, permissions: PermissionStrings): any;
+	onInternalError?(client: UsingClient, error?: unknown): any;
 }
 
 export class Command extends BaseCommand {
@@ -296,19 +296,19 @@ export class Command extends BaseCommand {
 	}
 
 	onRunError(context: CommandContext<any>, error: unknown): any {
-		context.client.logger.fatal(`${this.name}.<onRunError>`, context.author.id, error)
+		context.client.logger.fatal(`${this.name}.<onRunError>`, context.author.id, error);
 	}
 	onOptionsError(context: CommandContext<{}, never>, metadata: OnOptionsReturnObject): any {
-		context.client.logger.fatal(`${this.name}.<onOptionsError>`, context.author.id, metadata)
+		context.client.logger.fatal(`${this.name}.<onOptionsError>`, context.author.id, metadata);
 	}
 	onMiddlewaresError(context: CommandContext<{}, never>, error: unknown): any {
-		context.client.logger.fatal(`${this.name}.<onMiddlewaresError>`, context.author.id, error)
+		context.client.logger.fatal(`${this.name}.<onMiddlewaresError>`, context.author.id, error);
 	}
 	onPermissionsFail(context: CommandContext<{}, never>, permissions: PermissionStrings): any {
-		context.client.logger.fatal(`${this.name}.<onPermissionsFail>`, context.author.id, permissions)
+		context.client.logger.fatal(`${this.name}.<onPermissionsFail>`, context.author.id, permissions);
 	}
 	onInternalError(client: UsingClient, error?: unknown): any {
-		client.logger.fatal(`${this.name}.<onInternalError>`, error)
+		client.logger.fatal(`${this.name}.<onInternalError>`, error);
 	}
 }
 

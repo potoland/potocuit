@@ -1,4 +1,3 @@
-
 export type BitFieldResolvable<T extends object> = keyof T | number | bigint | (keyof T | number | bigint)[];
 
 export class BitField<T extends object> {
@@ -74,18 +73,22 @@ export class BitField<T extends object> {
 	keys(...bits: BitFieldResolvable<T>[]) {
 		const bitsResolved = bits.map(bit => BigInt(this.resolve(bit)));
 		return Object.entries(this.Flags).reduce((acc, value) => {
-			if (bitsResolved.some(bit => (bit & value[1]) === value[1]))
-				return [...acc, value[0]]
-			return acc
-		}, [] as string[])
+			if (bitsResolved.some(bit => (bit & value[1]) === value[1])) {
+				acc.push(value[0]);
+				return acc;
+			}
+			return acc;
+		}, [] as string[]);
 	}
 
 	values(...bits: BitFieldResolvable<T>[]) {
 		const bitsResolved = bits.map(bit => BigInt(this.resolve(bit)));
 		return Object.entries(this.Flags).reduce((acc, value) => {
-			if (bitsResolved.some(bit => (bit & value[1]) === value[1]))
-				return [...acc, value[1]]
-			return acc
-		}, [] as bigint[])
+			if (bitsResolved.some(bit => (bit & value[1]) === value[1])) {
+				acc.push(value[1]);
+				return acc;
+			}
+			return acc;
+		}, [] as bigint[]);
 	}
 }

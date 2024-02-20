@@ -1,4 +1,4 @@
-import { PermissionStrings, magicImport, type ApplicationCommandType, type LocaleString } from '../../common';
+import { type PermissionStrings, magicImport, type ApplicationCommandType, type LocaleString } from '../../common';
 import type { RegisteredMiddlewares } from '../decorators';
 import type { MenuCommandContext } from './menucontext';
 import type { NextFunction, PassFunction, StopFunction, UsingClient } from './shared';
@@ -102,13 +102,13 @@ export abstract class ContextMenuCommand {
 	abstract run?(context: MenuCommandContext<any>): any;
 	onAfterRun?(context: MenuCommandContext<any>, error: unknown | undefined): any;
 	onRunError(context: MenuCommandContext<any, never>, error: unknown): any {
-		context.client.logger.fatal(`${this.name}.<onRunError>`, context.author.id, error)
+		context.client.logger.fatal(`${this.name}.<onRunError>`, context.author.id, error);
 	}
 	onMiddlewaresError(context: MenuCommandContext<any, never>, error: unknown): any {
-		context.client.logger.fatal(`${this.name}.<onMiddlewaresError>`, context.author.id, error)
+		context.client.logger.fatal(`${this.name}.<onMiddlewaresError>`, context.author.id, error);
 	}
 	onPermissionsFail(context: MenuCommandContext<any, never>, permissions: PermissionStrings): any {
-		context.client.logger.fatal(`${this.name}.<onPermissionsFail>`, context.author.id, permissions)
+		context.client.logger.fatal(`${this.name}.<onPermissionsFail>`, context.author.id, permissions);
 	}
 	onInternalError(client: UsingClient, error?: unknown): any {
 		client.logger.fatal(error);

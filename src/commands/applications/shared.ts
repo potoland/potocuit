@@ -6,10 +6,10 @@ export type StopFunction = (error: string) => void;
 export type NextFunction<T = unknown> = (data: T) => void;
 export type PassFunction = () => void;
 
-export interface GlobalMetadata { }
-export interface DefaultLocale { }
-export interface ExtendContext { }
-export interface UsingClient extends BaseClient { }
+export interface GlobalMetadata {}
+export interface DefaultLocale {}
+export interface ExtendContext {}
+export interface UsingClient extends BaseClient {}
 export type ParseClient<T extends BaseClient> = T;
 
 export type MiddlewareContext<T = any, C = any> = (context: {
@@ -24,19 +24,20 @@ export type CommandMetadata<T extends readonly (keyof RegisteredMiddlewares)[]> 
 	...infer rest,
 ]
 	? first extends keyof RegisteredMiddlewares
-	? {
-		[key in first]: MetadataMiddleware<RegisteredMiddlewares[first]>;
-	} & (rest extends readonly (keyof RegisteredMiddlewares)[] ? CommandMetadata<rest> : {})
-	: {}
+		? {
+				[key in first]: MetadataMiddleware<RegisteredMiddlewares[first]>;
+		  } & (rest extends readonly (keyof RegisteredMiddlewares)[] ? CommandMetadata<rest> : {})
+		: {}
 	: {};
 
 export type OnOptionsReturnObject = Record<
 	string,
-	{
-		failed: false;
-		value: unknown;
-	} | {
-		failed: true;
-		value: string;
-	}
+	| {
+			failed: false;
+			value: unknown;
+	  }
+	| {
+			failed: true;
+			value: string;
+	  }
 >;

@@ -47,7 +47,8 @@ export async function onInteraction(
 						await command.autocomplete(interaction);
 					} catch (error) {
 						self.logger.error(
-							`${optionsResolver.fullCommandName} ${command.name} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+							`${optionsResolver.fullCommandName} ${command.name} just threw an error, ${
+								error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 							}`,
 						);
 						await command.onAutocompleteError?.(interaction, error);
@@ -84,9 +85,11 @@ export async function onInteraction(
 							Object.assign(context, extendContext);
 							try {
 								if (command.botPermissions && interaction.appPermissions) {
-									const permissions = interaction.appPermissions.missings(...interaction.appPermissions.values(command.botPermissions))
+									const permissions = interaction.appPermissions.missings(
+										...interaction.appPermissions.values(command.botPermissions),
+									);
 									if (permissions.length) {
-										return command.onPermissionsFail?.(context, interaction.appPermissions.keys(permissions))
+										return command.onPermissionsFail?.(context, interaction.appPermissions.keys(permissions));
 									}
 								}
 								const resultRunGlobalMiddlewares = await command.__runGlobalMiddlewares(context);
@@ -104,7 +107,6 @@ export async function onInteraction(
 								if ('error' in resultRunMiddlewares) {
 									return command.onMiddlewaresError(context, resultRunMiddlewares.error);
 								}
-
 							} catch (error) {
 								try {
 									await command.onInternalError(self, error);
@@ -139,9 +141,11 @@ export async function onInteraction(
 							Object.assign(context, extendContext);
 							try {
 								if (command.botPermissions && interaction.appPermissions) {
-									const permissions = interaction.appPermissions.missings(...interaction.appPermissions.values(command.botPermissions))
+									const permissions = interaction.appPermissions.missings(
+										...interaction.appPermissions.values(command.botPermissions),
+									);
 									if (permissions.length) {
-										return command.onPermissionsFail?.(context, interaction.appPermissions.keys(permissions))
+										return command.onPermissionsFail?.(context, interaction.appPermissions.keys(permissions));
 									}
 								}
 								const [erroredOptions, result] = await command.__runOptions(context, optionsResolver);
@@ -168,7 +172,8 @@ export async function onInteraction(
 									await command.onAfterRun?.(context, undefined);
 								} catch (error) {
 									self.logger.error(
-										`${optionsResolver.fullCommandName} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+										`${optionsResolver.fullCommandName} just threw an error, ${
+											error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 										}`,
 									);
 									await command.onRunError?.(context, error);
