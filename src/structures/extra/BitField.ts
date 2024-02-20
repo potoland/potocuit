@@ -1,10 +1,11 @@
+
 export type BitFieldResolvable<T extends object> = keyof T | number | bigint | (keyof T | number | bigint)[];
 
 export class BitField<T extends object> {
-	static None = 0;
-	Flags: Partial<Record<string, bigint>> = {};
+	static None = 0n;
+	Flags: Record<string, bigint> = {};
 
-	private bit: number;
+	private bit: bigint;
 
 	constructor(bitfields?: BitFieldResolvable<T>) {
 		this.bit = this.resolve(bitfields);
@@ -14,11 +15,11 @@ export class BitField<T extends object> {
 		this.bit = this.resolve(bits);
 	}
 
-	get bits(): number {
+	get bits(): bigint {
 		return this.bit;
 	}
 
-	add(...bits: BitFieldResolvable<T>[]): number {
+	add(...bits: BitFieldResolvable<T>[]): bigint {
 		let reduced = BitField.None;
 
 		for (const bit of bits) {
@@ -28,7 +29,7 @@ export class BitField<T extends object> {
 		return (this.bit |= reduced);
 	}
 
-	remove(...bits: BitFieldResolvable<T>[]): number {
+	remove(...bits: BitFieldResolvable<T>[]): bigint {
 		let reduced = BitField.None;
 
 		for (const bit of bits) {
@@ -43,18 +44,23 @@ export class BitField<T extends object> {
 		return bitsResolved.every(bit => (this.bits & bit) === bit);
 	}
 
+	missings(...bits: BitFieldResolvable<T>[]) {
+		const bitsResolved = bits.map(bit => this.resolve(bit));
+		return bitsResolved.filter(bit => (this.bits & bit) !== bit);
+	}
+
 	equals(other: BitFieldResolvable<T>) {
 		return this.bits === this.resolve(other);
 	}
 
-	resolve(bits?: BitFieldResolvable<T>): number {
+	resolve(bits?: BitFieldResolvable<T>): bigint {
 		switch (typeof bits) {
 			case 'number':
-				return bits;
+				return BigInt(bits);
 			case 'string':
 				return this.resolve(this.Flags[bits]);
 			case 'bigint':
-				return Number(bits);
+				return bits;
 			case 'object':
 				if (!Array.isArray(bits)) {
 					throw new TypeError(`Cannot resolve permission: ${bits}`);
@@ -63,5 +69,23 @@ export class BitField<T extends object> {
 			default:
 				throw new TypeError(`Cannot resolve permission: ${typeof bits === 'symbol' ? String(bits) : (bits as any)}`);
 		}
+	}
+
+	keys(...bits: BitFieldResolvable<T>[]) {
+		const bitsResolved = bits.map(bit => BigInt(this.resolve(bit)));
+		return Object.entries(this.Flags).reduce((acc, value) => {
+			if (bitsResolved.some(bit => (bit & value[1]) === value[1]))
+				return [...acc, value[0]]
+			return acc
+		}, [] as string[])
+	}
+
+	values(...bits: BitFieldResolvable<T>[]) {
+		const bitsResolved = bits.map(bit => BigInt(this.resolve(bit)));
+		return Object.entries(this.Flags).reduce((acc, value) => {
+			if (bitsResolved.some(bit => (bit & value[1]) === value[1]))
+				return [...acc, value[1]]
+			return acc
+		}, [] as bigint[])
 	}
 }

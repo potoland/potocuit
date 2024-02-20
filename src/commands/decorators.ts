@@ -2,32 +2,32 @@ import { ApplicationCommandType, PermissionFlagsBits, type LocaleString, type Pe
 import type { CommandOption, OptionsRecord, SubCommand } from './applications/chat';
 import type { MiddlewareContext } from './applications/shared';
 
-export interface RegisteredMiddlewares {}
+export interface RegisteredMiddlewares { }
 
 type DeclareOptions =
 	| {
+		name: string;
+		description: string;
+		botPermissions?: PermissionStrings | bigint;
+		defaultPermissions?: PermissionStrings | bigint;
+		guildId?: string[];
+		dm?: boolean;
+		nsfw?: boolean;
+	}
+	| (Omit<
+		{
 			name: string;
 			description: string;
-			permissions?: PermissionStrings | bigint;
+			botPermissions?: PermissionStrings | bigint;
 			defaultPermissions?: PermissionStrings | bigint;
 			guildId?: string[];
 			dm?: boolean;
 			nsfw?: boolean;
-	  }
-	| (Omit<
-			{
-				name: string;
-				description: string;
-				permissions?: PermissionStrings | bigint;
-				defaultPermissions?: PermissionStrings | bigint;
-				guildId?: string[];
-				dm?: boolean;
-				nsfw?: boolean;
-			},
-			'type' | 'description'
-	  > & {
-			type: ApplicationCommandType.User | ApplicationCommandType.Message;
-	  });
+		},
+		'type' | 'description'
+	> & {
+		type: ApplicationCommandType.User | ApplicationCommandType.Message;
+	});
 
 export function Locales({
 	name: names,
@@ -36,7 +36,7 @@ export function Locales({
 	name?: [language: LocaleString, value: string][];
 	description?: [language: LocaleString, value: string][];
 }) {
-	return <T extends { new (...args: any[]): {} }>(target: T) =>
+	return <T extends { new(...args: any[]): {} }>(target: T) =>
 		class extends target {
 			name_localizations = names ? Object.fromEntries(names) : undefined;
 			description_localizations = descriptions ? Object.fromEntries(descriptions) : undefined;
@@ -44,7 +44,7 @@ export function Locales({
 }
 
 export function LocalesT(name: string, description: string) {
-	return <T extends { new (...args: any[]): {} }>(target: T) =>
+	return <T extends { new(...args: any[]): {} }>(target: T) =>
 		class extends target {
 			__t = { name, description };
 		};
@@ -60,7 +60,7 @@ export function GroupsT(
 		}
 	>,
 ) {
-	return <T extends { new (...args: any[]): {} }>(target: T) =>
+	return <T extends { new(...args: any[]): {} }>(target: T) =>
 		class extends target {
 			__tGroups = groups;
 		};
@@ -76,35 +76,35 @@ export function Groups(
 		}
 	>,
 ) {
-	return <T extends { new (...args: any[]): {} }>(target: T) =>
+	return <T extends { new(...args: any[]): {} }>(target: T) =>
 		class extends target {
 			groups = groups;
 		};
 }
 
 export function Group(groupName: string) {
-	return <T extends { new (...args: any[]): {} }>(target: T) =>
+	return <T extends { new(...args: any[]): {} }>(target: T) =>
 		class extends target {
 			group = groupName;
 		};
 }
 
 export function Options(options: (new () => SubCommand)[] | OptionsRecord) {
-	return <T extends { new (...args: any[]): {} }>(target: T) =>
+	return <T extends { new(...args: any[]): {} }>(target: T) =>
 		class extends target {
 			options: SubCommand[] | CommandOption[] = Array.isArray(options)
 				? options.map(x => new x())
 				: Object.entries(options).map(([name, option]) => {
-						return {
-							name,
-							...option,
-						} as CommandOption;
-				  });
+					return {
+						name,
+						...option,
+					} as CommandOption;
+				});
 		};
 }
 
 export function AutoLoad() {
-	return <T extends { new (...args: any[]): {} }>(target: T) =>
+	return <T extends { new(...args: any[]): {} }>(target: T) =>
 		class extends target {
 			__d = true;
 		};
@@ -115,14 +115,14 @@ export type ParseMiddlewares<T extends Record<string, MiddlewareContext>> = {
 };
 
 export function Middlewares(cbs: readonly (keyof RegisteredMiddlewares)[]) {
-	return <T extends { new (...args: any[]): {} }>(target: T) =>
+	return <T extends { new(...args: any[]): {} }>(target: T) =>
 		class extends target {
 			middlewares = cbs;
 		};
 }
 
 export function Declare(declare: DeclareOptions) {
-	return <T extends { new (...args: any[]): {} }>(target: T) =>
+	return <T extends { new(...args: any[]): {} }>(target: T) =>
 		class extends target {
 			name = declare.name;
 			dm = !!declare.dm;
@@ -131,9 +131,9 @@ export function Declare(declare: DeclareOptions) {
 			default_member_permissions = Array.isArray(declare.defaultPermissions)
 				? declare.defaultPermissions?.reduce((acc, prev) => acc | PermissionFlagsBits[prev], BigInt(0)).toString()
 				: declare.defaultPermissions;
-			permissions = Array.isArray(declare.permissions)
-				? declare.permissions?.reduce((acc, prev) => acc | PermissionFlagsBits[prev], BigInt(0))
-				: declare.permissions;
+			botPermissions = Array.isArray(declare.botPermissions)
+				? declare.botPermissions?.reduce((acc, prev) => acc | PermissionFlagsBits[prev], BigInt(0))
+				: declare.botPermissions;
 			description = '';
 			type: ApplicationCommandType = ApplicationCommandType.ChatInput;
 			constructor(...args: any[]) {

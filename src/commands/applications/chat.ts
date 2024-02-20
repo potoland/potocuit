@@ -4,6 +4,7 @@ import type {
 	APIApplicationCommandSubcommandGroupOption,
 	APIAttachment,
 	LocaleString,
+	PermissionStrings,
 } from '../../common';
 import { ApplicationCommandOptionType, ApplicationCommandType, magicImport } from '../../common';
 import type { AllChannels, AutocompleteInteraction, GuildRole, InteractionGuildMember, User } from '../../structures';
@@ -38,25 +39,25 @@ type Wrap<N extends ApplicationCommandOptionType> = N extends
 	| ApplicationCommandOptionType.SubcommandGroup
 	? never
 	: {
-			required?: boolean;
-			value?(
-				data: { context: CommandContext; value: ReturnOptionsTypes[N] },
-				ok: OKFunction<any>,
-				fail: StopFunction,
-			): void;
-	  } & {
-			description: string;
-			description_localizations?: APIApplicationCommandBasicOption['description_localizations'];
-			name_localizations?: APIApplicationCommandBasicOption['name_localizations'];
-	  };
+		required?: boolean;
+		value?(
+			data: { context: CommandContext; value: ReturnOptionsTypes[N] },
+			ok: OKFunction<any>,
+			fail: StopFunction,
+		): void;
+	} & {
+		description: string;
+		description_localizations?: APIApplicationCommandBasicOption['description_localizations'];
+		name_localizations?: APIApplicationCommandBasicOption['name_localizations'];
+	};
 
 export type __TypeWrapper<T extends ApplicationCommandOptionType> = Wrap<T>;
 
 export type __TypesWrapper = {
 	[P in keyof typeof ApplicationCommandOptionType]: `${(typeof ApplicationCommandOptionType)[P]}` extends `${infer D extends
-		number}`
-		? Wrap<D>
-		: never;
+	number}`
+	? Wrap<D>
+	: never;
 };
 
 export type AutocompleteCallback = (interaction: AutocompleteInteraction) => any;
@@ -77,21 +78,21 @@ type KeysWithoutRequired<T extends OptionsRecord> = {
 
 type ContextOptionsAux<T extends OptionsRecord> = {
 	[K in Exclude<keyof T, KeysWithoutRequired<T>>]: T[K]['value'] extends (...args: any) => any
-		? T[K]['required'] extends true
-			? Parameters<Parameters<T[K]['value']>[1]>[0]
-			: never
-		: T[K]['required'] extends true
-		  ? ReturnOptionsTypes[T[K]['type']]
-		  : never;
+	? T[K]['required'] extends true
+	? Parameters<Parameters<T[K]['value']>[1]>[0]
+	: never
+	: T[K]['required'] extends true
+	? ReturnOptionsTypes[T[K]['type']]
+	: never;
 } & {
-	[K in KeysWithoutRequired<T>]?: T[K]['value'] extends (...args: any) => any
+		[K in KeysWithoutRequired<T>]?: T[K]['value'] extends (...args: any) => any
 		? T[K]['required'] extends true
-			? never
-			: Parameters<Parameters<T[K]['value']>[1]>[0]
+		? never
+		: Parameters<Parameters<T[K]['value']>[1]>[0]
 		: T[K]['required'] extends true
-		  ? never
-		  : ReturnOptionsTypes[T[K]['type']];
-};
+		? never
+		: ReturnOptionsTypes[T[K]['type']];
+	};
 
 export type ContextOptions<T extends OptionsRecord> = ContextOptionsAux<T>;
 
@@ -116,7 +117,7 @@ class BaseCommand {
 	nsfw?: boolean;
 	description!: string;
 	default_member_permissions?: string;
-	permissions?: bigint;
+	botPermissions?: bigint;
 	dm?: boolean;
 	name_localizations?: Partial<Record<LocaleString, string>>;
 	description_localizations?: Partial<Record<LocaleString, string>>;
@@ -135,36 +136,36 @@ class BaseCommand {
 		const data: OnOptionsReturnObject = {};
 		let errored = false;
 		for (const i of resolver.hoistedOptions) {
-			const option = command.options!.find(x => x.name === i.name) as __CommandOption;
-			const value = (await new Promise(
-				resolve =>
-					option.value?.({ context: ctx, value: resolver.getValue(i.name) } as never, resolve, resolve) ||
-					resolve(resolver.getValue(i.name)),
-			)) as unknown | Error;
-			if (value instanceof Error) {
+			try {
+				const option = command.options!.find(x => x.name === i.name) as __CommandOption;
+				const value = (await new Promise(
+					(res, rej) =>
+						option.value?.({ context: ctx, value: resolver.getValue(i.name) } as never, res, rej) ||
+						res(resolver.getValue(i.name)),
+				))
+
+				if (value === undefined) {
+					if (option.required) {
+						errored = true;
+						data[i.name] = {
+							failed: true,
+							value: `${i.name} is required but returned no value`,
+						};
+						continue;
+					}
+				}
+				// @ts-expect-error
+				ctx.options[i.name] = value;
+				data[i.name] = {
+					failed: false,
+					value,
+				}
+			} catch (e) {
 				errored = true;
 				data[i.name] = {
 					failed: true,
-					value,
+					value: e instanceof Error ? e.message : `${e}`,
 				};
-				continue;
-			}
-
-			if (value === undefined) {
-				if (option.required) {
-					errored = true;
-					data[i.name] = {
-						failed: true,
-						value: new Error(`${i.name} is required but returned no value`),
-					};
-					continue;
-				}
-			}
-			// @ts-expect-error
-			ctx.options[i.name] = value;
-			data[i.name] = {
-				failed: false,
-				value,
 			};
 		}
 		return [errored, data];
@@ -175,9 +176,9 @@ class BaseCommand {
 		context: CommandContext<{}, never>,
 		middlewares: (keyof RegisteredMiddlewares)[],
 		global: boolean,
-	): Promise<undefined | Error | 'pass'> {
+	): Promise<{ error?: unknown; pass?: boolean }> {
 		if (!middlewares.length) {
-			return Promise.resolve(undefined);
+			return Promise.resolve({});
 		}
 		let index = 0;
 
@@ -188,7 +189,7 @@ class BaseCommand {
 					return;
 				}
 				running = false;
-				return res('pass');
+				return res({ pass: true });
 			};
 			const next: NextFunction<any> = obj => {
 				if (!running) {
@@ -199,7 +200,7 @@ class BaseCommand {
 				context[global ? 'globalMetadata' : 'metadata'][middlewares[index]] = obj;
 				if (++index >= middlewares.length) {
 					running = false;
-					return res(undefined);
+					return res({});
 				}
 				context.client.middlewares![middlewares[index]]({ context, next, stop, pass });
 			};
@@ -208,7 +209,7 @@ class BaseCommand {
 					return;
 				}
 				running = false;
-				return res(err);
+				return res({ error: err });
 			};
 			context.client.middlewares![middlewares[0]]({ context, next, stop, pass });
 		});
@@ -250,14 +251,12 @@ class BaseCommand {
 	}
 
 	run?(context: CommandContext<any>): any;
-	onAfterRun?(context: CommandContext<any>, error: unknown | undefined): any;
-	onRunError?(context: CommandContext<any>, error: unknown): any;
-	onOptionsError?(context: CommandContext<{}, never>, metadata: OnOptionsReturnObject): any;
-	onMiddlewaresError?(context: CommandContext<{}, never>, error: Error): any;
-
-	onInternalError(client: UsingClient, error?: unknown): any {
-		client.logger.fatal(error);
-	}
+	onAfterRun?(context: CommandContext<any>, error: unknown | undefined): any
+	onRunError?(context: CommandContext<any>, error: unknown): any
+	onOptionsError?(context: CommandContext<{}, never>, metadata: OnOptionsReturnObject): any
+	onMiddlewaresError?(context: CommandContext<{}, never>, error: unknown): any
+	onPermissionsFail?(context: CommandContext<{}, never>, permissions: PermissionStrings): any
+	onInternalError?(client: UsingClient, error?: unknown): any
 }
 
 export class Command extends BaseCommand {
@@ -295,6 +294,22 @@ export class Command extends BaseCommand {
 			options,
 		};
 	}
+
+	onRunError(context: CommandContext<any>, error: unknown): any {
+		context.client.logger.fatal(`${this.name}.<onRunError>`, context.author.id, error)
+	}
+	onOptionsError(context: CommandContext<{}, never>, metadata: OnOptionsReturnObject): any {
+		context.client.logger.fatal(`${this.name}.<onOptionsError>`, context.author.id, metadata)
+	}
+	onMiddlewaresError(context: CommandContext<{}, never>, error: unknown): any {
+		context.client.logger.fatal(`${this.name}.<onMiddlewaresError>`, context.author.id, error)
+	}
+	onPermissionsFail(context: CommandContext<{}, never>, permissions: PermissionStrings): any {
+		context.client.logger.fatal(`${this.name}.<onPermissionsFail>`, context.author.id, permissions)
+	}
+	onInternalError(client: UsingClient, error?: unknown): any {
+		client.logger.fatal(`${this.name}.<onInternalError>`, error)
+	}
 }
 
 export abstract class SubCommand extends BaseCommand {
@@ -312,5 +327,4 @@ export abstract class SubCommand extends BaseCommand {
 	}
 
 	abstract run(context: CommandContext<any>): any;
-	onRunError?(context: CommandContext<any>, error: unknown): any;
 }

@@ -47,15 +47,14 @@ export async function onInteraction(
 						await command.autocomplete(interaction);
 					} catch (error) {
 						self.logger.error(
-							`${optionsResolver.fullCommandName} ${command.name} just threw an error, ${
-								error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+							`${optionsResolver.fullCommandName} ${command.name} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 							}`,
 						);
 						await command.onAutocompleteError?.(interaction, error);
 					}
 				} catch (error) {
 					try {
-						await optionsResolver.getCommand()?.onInternalError(self, error);
+						await optionsResolver.getCommand()?.onInternalError?.(self, error);
 					} catch {
 						// supress error
 					}
@@ -84,34 +83,28 @@ export async function onInteraction(
 							const extendContext = self.options?.context?.(interaction) ?? {};
 							Object.assign(context, extendContext);
 							try {
+								if (command.botPermissions && interaction.appPermissions) {
+									const permissions = interaction.appPermissions.missings(...interaction.appPermissions.values(command.botPermissions))
+									if (permissions.length) {
+										return command.onPermissionsFail?.(context, interaction.appPermissions.keys(permissions))
+									}
+								}
 								const resultRunGlobalMiddlewares = await command.__runGlobalMiddlewares(context);
-								if (resultRunGlobalMiddlewares === 'pass') {
+								if (resultRunGlobalMiddlewares.pass) {
 									return;
 								}
-								if (resultRunGlobalMiddlewares) {
-									return command.onMiddlewaresError?.(context, resultRunGlobalMiddlewares);
+								if ('error' in resultRunGlobalMiddlewares) {
+									return command.onMiddlewaresError(context, resultRunGlobalMiddlewares.error);
 								}
 
 								const resultRunMiddlewares = await command.__runMiddlewares(context);
-								if (resultRunMiddlewares === 'pass') {
+								if (resultRunMiddlewares.pass) {
 									return;
 								}
-								if (resultRunGlobalMiddlewares) {
-									return command.onMiddlewaresError?.(context, resultRunGlobalMiddlewares);
+								if ('error' in resultRunMiddlewares) {
+									return command.onMiddlewaresError(context, resultRunMiddlewares.error);
 								}
 
-								try {
-									await command.run(context);
-									await command.onAfterRun?.(context, undefined);
-								} catch (error) {
-									self.logger.error(
-										`${command.name} just threw an error, ${
-											error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
-										}`,
-									);
-									await command.onRunError?.(context, error);
-									await command.onAfterRun?.(context, error);
-								}
 							} catch (error) {
 								try {
 									await command.onInternalError(self, error);
@@ -145,24 +138,29 @@ export async function onInteraction(
 							const extendContext = self.options?.context?.(interaction) ?? {};
 							Object.assign(context, extendContext);
 							try {
+								if (command.botPermissions && interaction.appPermissions) {
+									const permissions = interaction.appPermissions.missings(...interaction.appPermissions.values(command.botPermissions))
+									if (permissions.length) {
+										return command.onPermissionsFail?.(context, interaction.appPermissions.keys(permissions))
+									}
+								}
 								const [erroredOptions, result] = await command.__runOptions(context, optionsResolver);
 								if (erroredOptions) {
 									return command.onOptionsError?.(context, result);
 								}
 								const resultRunGlobalMiddlewares = await command.__runGlobalMiddlewares(context);
-								if (resultRunGlobalMiddlewares === 'pass') {
+								if (resultRunGlobalMiddlewares.pass) {
 									return;
 								}
-								if (resultRunGlobalMiddlewares) {
-									return command.onMiddlewaresError?.(context, resultRunGlobalMiddlewares);
+								if ('error' in resultRunGlobalMiddlewares) {
+									return command.onMiddlewaresError?.(context, resultRunGlobalMiddlewares.error);
 								}
-
 								const resultRunMiddlewares = await command.__runMiddlewares(context);
-								if (resultRunMiddlewares === 'pass') {
+								if (resultRunMiddlewares.pass) {
 									return;
 								}
-								if (resultRunMiddlewares) {
-									return command.onMiddlewaresError?.(context, resultRunMiddlewares);
+								if ('error' in resultRunMiddlewares) {
+									return command.onMiddlewaresError?.(context, resultRunMiddlewares.error);
 								}
 
 								try {
@@ -170,8 +168,7 @@ export async function onInteraction(
 									await command.onAfterRun?.(context, undefined);
 								} catch (error) {
 									self.logger.error(
-										`${optionsResolver.fullCommandName} just threw an error, ${
-											error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+										`${optionsResolver.fullCommandName} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 										}`,
 									);
 									await command.onRunError?.(context, error);
@@ -179,7 +176,7 @@ export async function onInteraction(
 								}
 							} catch (error) {
 								try {
-									await command.onInternalError(self, error);
+									await command.onInternalError?.(self, error);
 								} catch {
 									// supress error
 								}

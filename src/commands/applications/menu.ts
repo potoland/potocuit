@@ -1,8 +1,7 @@
-import type { BaseClient } from '../../client/base';
-import { magicImport, type ApplicationCommandType, type LocaleString } from '../../common';
+import { PermissionStrings, magicImport, type ApplicationCommandType, type LocaleString } from '../../common';
 import type { RegisteredMiddlewares } from '../decorators';
 import type { MenuCommandContext } from './menucontext';
-import type { NextFunction, PassFunction, StopFunction } from './shared';
+import type { NextFunction, PassFunction, StopFunction, UsingClient } from './shared';
 
 export abstract class ContextMenuCommand {
 	middlewares: (keyof RegisteredMiddlewares)[] = [];
@@ -16,7 +15,7 @@ export abstract class ContextMenuCommand {
 	nsfw?: boolean;
 	description!: string;
 	default_member_permissions?: string;
-	permissions?: bigint;
+	botPermissions?: bigint;
 	dm?: boolean;
 	name_localizations?: Partial<Record<LocaleString, string>>;
 	description_localizations?: Partial<Record<LocaleString, string>>;
@@ -26,9 +25,9 @@ export abstract class ContextMenuCommand {
 		context: MenuCommandContext<any>,
 		middlewares: (keyof RegisteredMiddlewares)[],
 		global: boolean,
-	): Promise<undefined | Error | 'pass'> {
+	): Promise<{ error?: unknown; pass?: boolean }> {
 		if (!middlewares.length) {
-			return Promise.resolve(undefined);
+			return Promise.resolve({});
 		}
 		let index = 0;
 
@@ -39,7 +38,7 @@ export abstract class ContextMenuCommand {
 					return;
 				}
 				running = false;
-				return res('pass');
+				return res({ pass: true });
 			};
 			const next: NextFunction<any> = obj => {
 				if (!running) {
@@ -50,7 +49,7 @@ export abstract class ContextMenuCommand {
 				context[global ? 'globalMetadata' : 'metadata'][middlewares[index]] = obj;
 				if (++index >= middlewares.length) {
 					running = false;
-					return res(undefined);
+					return res({});
 				}
 				context.client.middlewares![middlewares[index]]({ context, next, stop, pass });
 			};
@@ -59,7 +58,7 @@ export abstract class ContextMenuCommand {
 					return;
 				}
 				running = false;
-				return res(err);
+				return res({ error: err });
 			};
 			context.client.middlewares![middlewares[0]]({ context, next, stop, pass });
 		});
@@ -102,10 +101,16 @@ export abstract class ContextMenuCommand {
 
 	abstract run?(context: MenuCommandContext<any>): any;
 	onAfterRun?(context: MenuCommandContext<any>, error: unknown | undefined): any;
-	onRunError?(context: MenuCommandContext<any>, error: unknown): any;
-	onMiddlewaresError?(context: MenuCommandContext<any, never>, error: Error): any;
-
-	onInternalError(client: BaseClient, error?: unknown): any {
+	onRunError(context: MenuCommandContext<any, never>, error: unknown): any {
+		context.client.logger.fatal(`${this.name}.<onRunError>`, context.author.id, error)
+	}
+	onMiddlewaresError(context: MenuCommandContext<any, never>, error: unknown): any {
+		context.client.logger.fatal(`${this.name}.<onMiddlewaresError>`, context.author.id, error)
+	}
+	onPermissionsFail(context: MenuCommandContext<any, never>, permissions: PermissionStrings): any {
+		context.client.logger.fatal(`${this.name}.<onPermissionsFail>`, context.author.id, permissions)
+	}
+	onInternalError(client: UsingClient, error?: unknown): any {
 		client.logger.fatal(error);
 	}
 }

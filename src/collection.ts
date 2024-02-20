@@ -262,7 +262,7 @@ export class LimitedCollection<K, V> {
 			}
 		}
 
-		if (this.closer!.expireOn >= expireOn) {
+		if (this.closer!.expireOn === expireOn) {
 			this.resetTimeout();
 		}
 	}
@@ -294,10 +294,11 @@ export class LimitedCollection<K, V> {
 	get(key: K) {
 		const data = this.data.get(key);
 		if (this.options.resetOnDemand && data && data.expire !== -1) {
-			if (this.closer?.expireOn === data.expireOn) {
-				setImmediate(() => this.resetTimeout());
-			}
+			const oldExpireOn = data.expireOn
 			data.expireOn = Date.now() + data.expire;
+			if (this.closer!.expireOn === oldExpireOn) {
+				this.resetTimeout();
+			}
 		}
 		return data?.value;
 	}
@@ -327,7 +328,9 @@ export class LimitedCollection<K, V> {
 	 * console.log(collection.delete(2)); // Output: false
 	 */
 	delete(key: K) {
-		setImmediate(() => this.resetTimeout());
+		const value = this.raw(key);
+		if (value && value.expireOn === this.closer!.expireOn)
+			setImmediate(() => this.resetTimeout());
 		return this.data.delete(key);
 	}
 
