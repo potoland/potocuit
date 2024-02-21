@@ -9,19 +9,18 @@ import {
 } from '../../common';
 import { Message, User, type MessageCommandInteraction, type UserCommandInteraction } from '../../structures';
 import type { RegisteredMiddlewares } from '../decorators';
-import type { CommandMetadata, DefaultLocale, ExtendContext, GlobalMetadata, UsingClient } from './shared';
+import type { CommandMetadata, ExtendContext, GlobalMetadata, UsingClient } from './shared';
 
 export type InteractionTarget<T> = T extends MessageCommandInteraction ? Message : User;
 export class MenuCommandContext<
 	T extends MessageCommandInteraction | UserCommandInteraction,
 	M extends keyof RegisteredMiddlewares = never,
-> implements ExtendContext
-{
+> implements ExtendContext {
 	constructor(
 		readonly client: UsingClient,
 		readonly interaction: T,
 		readonly shardId: number,
-	) {}
+	) { }
 
 	metadata: CommandMetadata<UnionToTuple<M>> = {} as never;
 	globalMetadata: GlobalMetadata = {};
@@ -44,7 +43,7 @@ export class MenuCommandContext<
 		}
 	}
 
-	get t(): DefaultLocale {
+	get t() {
 		return this.client.langs.get(this.interaction.locale);
 	}
 

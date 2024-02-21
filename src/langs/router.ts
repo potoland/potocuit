@@ -1,7 +1,7 @@
 import type { DefaultLocale } from '../commands';
 
 export const LangRouter = (userLocale: string, defaultLang: string, langs: Partial<Record<string, any>>) => {
-	function createProxy(route = [] as string[], args: any[] = []): DefaultLocale {
+	function createProxy(route = [] as string[], args: any[] = []): __InternalParseLocale<DefaultLocale> & { get(locale?: string): DefaultLocale } {
 		const noop = () => {
 			return;
 		};
@@ -15,13 +15,13 @@ export const LangRouter = (userLocale: string, defaultLang: string, langs: Parti
 						return value;
 					}
 					return (locale?: string) => {
-						let object;
+						let result;
 						try {
-							object = getValue(locale ?? userLocale);
+							result = getValue(locale ?? userLocale);
 						} catch {
-							object = getValue(defaultLang);
+							result = getValue(defaultLang);
 						}
-						const value = typeof object === 'function' ? object(...args) : object;
+						const value = typeof result === 'function' ? result(...args) : result;
 						return value;
 					};
 				}
@@ -30,22 +30,22 @@ export const LangRouter = (userLocale: string, defaultLang: string, langs: Parti
 			apply: (...[, , args]) => {
 				return createProxy(route, args);
 			},
-		});
+		}) as any
 	}
 	return createProxy;
 };
 
-type ParseLocale<T extends Record<string, any>> = {
+export type __InternalParseLocale<T extends Record<string, any>> = {
 	[K in keyof T]: T[K] extends (...args: any[]) => any
-		? (...args: Parameters<T[K]>) => { get(locale?: string): any }
-		: T[K] extends string
-		  ? { get(locale?: string): T[K] }
-		  : T[K] extends unknown[]
-			  ? { get(locale?: string): T[K] }
-			  : T[K] extends Record<string, any>
-				  ? ParseLocales<T[K]> & { get(locale?: string): T[K] }
-				  : never;
+	? (...args: Parameters<T[K]>) => { get(locale?: string): ReturnType<T[K]> }
+	: T[K] extends string
+	? { get(locale?: string): T[K] }
+	: T[K] extends unknown[]
+	? { get(locale?: string): T[K] }
+	: T[K] extends Record<string, any>
+	? __InternalParseLocale<T[K]> & { get(locale?: string): T[K] }
+	: never;
 };
 
-export type ParseLocales<T extends Record<string, any>> = ParseLocale<T> & { get(locale?: string): T };
-/**Code inspiration from: FreeAoi */
+export type ParseLocales<T extends Record<string, any>> = T
+/**Idea inspiration from: FreeAoi */

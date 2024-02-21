@@ -1,10 +1,9 @@
-import type { DefaultLocale } from '../commands';
-import { BaseHandler } from '../common';
+import { BaseHandler, Locale } from '../common';
 import { LangRouter } from './router';
 
 export class LangsHandler extends BaseHandler {
 	values: Partial<Record<string, any>> = {};
-	protected filter = (path: string) => path.endsWith('.js') || path.endsWith('.ts');
+	protected filter = (path: string) => path.endsWith('.js') || path.endsWith('.ts') || path.endsWith('.json');
 	defaultLang?: string;
 
 	getKey(lang: string, message: string) {
@@ -21,19 +20,17 @@ export class LangsHandler extends BaseHandler {
 		return value;
 	}
 
-	parse(str: string, metadata: Record<string, any>) {
-		const regex = /{{(.*?)}}/g;
-		return str.replace(regex, match => metadata[match.slice(2, -2)] ?? match);
-	}
-
-	get(userLocale: string): DefaultLocale {
+	get(userLocale: string) {
 		return LangRouter(userLocale, this.defaultLang ?? userLocale, this.values)();
 	}
 
 	async load(dir: string) {
 		const files = await this.loadFilesK<Record<string, any>>(await this.getFiles(dir));
 		for (const i of files) {
-			this.values[i.name.slice(0, -3) as string] = i.file;
+			const locale = i.name.split('.').slice(0, -1).join('.')
+			if (!Object.values<string>(Locale).includes(locale))
+				this.logger.warn(`[${locale}](${i.path.split(process.cwd()).slice(1).join(process.cwd())}) is not a valid DiscordLocale, loading anyways..`);
+			this.values[locale] = i.file;
 		}
 	}
 }

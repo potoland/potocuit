@@ -1,7 +1,7 @@
 import { basename, dirname } from 'node:path';
 import type { BaseClient } from '../client/base';
 import type { Logger } from '../common';
-import { BaseHandler, type LocaleString } from '../common';
+import { BaseHandler, Locale, type LocaleString } from '../common';
 import { Command, SubCommand } from './applications/chat';
 import { ContextMenuCommand } from './applications/menu';
 
@@ -112,6 +112,7 @@ export class CommandHandler extends BaseHandler {
 			command.name_localizations = {};
 			command.description_localizations = {};
 			for (const locale of Object.keys(client.langs.values)) {
+				if (!Object.values<string>(Locale).includes(locale)) return;
 				const valueName = client.langs.getKey(locale, command.__t.name);
 				if (valueName) {
 					command.name_localizations[locale as LocaleString] = valueName;
@@ -126,6 +127,7 @@ export class CommandHandler extends BaseHandler {
 		if (command instanceof Command && command.__tGroups) {
 			command.groups = {};
 			for (const locale of Object.keys(client.langs.values)) {
+				if (!Object.values<string>(Locale).includes(locale)) return;
 				for (const group in command.__tGroups) {
 					command.groups[group] ??= {
 						defaultDescription: command.__tGroups[group].defaultDescription,

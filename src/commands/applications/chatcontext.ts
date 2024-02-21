@@ -8,17 +8,16 @@ import type { ChatInputCommandInteraction } from '../../structures';
 import type { RegisteredMiddlewares } from '../decorators';
 import type { OptionResolver } from '../optionresolver';
 import type { ContextOptions, OptionsRecord } from './chat';
-import type { CommandMetadata, DefaultLocale, ExtendContext, GlobalMetadata, UsingClient } from './shared';
+import type { CommandMetadata, ExtendContext, GlobalMetadata, UsingClient } from './shared';
 
 export class CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never>
-	implements ExtendContext
-{
+	implements ExtendContext {
 	constructor(
 		readonly client: UsingClient,
 		readonly interaction: ChatInputCommandInteraction,
 		public resolver: OptionResolver,
 		readonly shardId: number,
-	) {}
+	) { }
 
 	options: ContextOptions<T> = {} as never;
 	metadata: CommandMetadata<UnionToTuple<M>> = {} as never;
@@ -28,7 +27,7 @@ export class CommandContext<T extends OptionsRecord = {}, M extends keyof Regist
 		return this.client.proxy;
 	}
 
-	get t(): DefaultLocale {
+	get t() {
 		return this.client.langs.get(this.interaction.locale);
 	}
 
