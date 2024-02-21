@@ -1,7 +1,10 @@
 import type { DefaultLocale } from '../commands';
 
 export const LangRouter = (userLocale: string, defaultLang: string, langs: Partial<Record<string, any>>) => {
-	function createProxy(route = [] as string[], args: any[] = []): __InternalParseLocale<DefaultLocale> & { get(locale?: string): DefaultLocale } {
+	function createProxy(
+		route = [] as string[],
+		args: any[] = [],
+	): __InternalParseLocale<DefaultLocale> & { get(locale?: string): DefaultLocale } {
 		const noop = () => {
 			return;
 		};
@@ -30,22 +33,22 @@ export const LangRouter = (userLocale: string, defaultLang: string, langs: Parti
 			apply: (...[, , args]) => {
 				return createProxy(route, args);
 			},
-		}) as any
+		}) as any;
 	}
 	return createProxy;
 };
 
 export type __InternalParseLocale<T extends Record<string, any>> = {
 	[K in keyof T]: T[K] extends (...args: any[]) => any
-	? (...args: Parameters<T[K]>) => { get(locale?: string): ReturnType<T[K]> }
-	: T[K] extends string
-	? { get(locale?: string): T[K] }
-	: T[K] extends unknown[]
-	? { get(locale?: string): T[K] }
-	: T[K] extends Record<string, any>
-	? __InternalParseLocale<T[K]> & { get(locale?: string): T[K] }
-	: never;
+		? (...args: Parameters<T[K]>) => { get(locale?: string): ReturnType<T[K]> }
+		: T[K] extends string
+		  ? { get(locale?: string): T[K] }
+		  : T[K] extends unknown[]
+			  ? { get(locale?: string): T[K] }
+			  : T[K] extends Record<string, any>
+				  ? __InternalParseLocale<T[K]> & { get(locale?: string): T[K] }
+				  : never;
 };
 
-export type ParseLocales<T extends Record<string, any>> = T
+export type ParseLocales<T extends Record<string, any>> = T;
 /**Idea inspiration from: FreeAoi */

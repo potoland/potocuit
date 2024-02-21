@@ -11,13 +11,14 @@ import type { ContextOptions, OptionsRecord } from './chat';
 import type { CommandMetadata, ExtendContext, GlobalMetadata, UsingClient } from './shared';
 
 export class CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never>
-	implements ExtendContext {
+	implements ExtendContext
+{
 	constructor(
 		readonly client: UsingClient,
 		readonly interaction: ChatInputCommandInteraction,
 		public resolver: OptionResolver,
 		readonly shardId: number,
-	) { }
+	) {}
 
 	options: ContextOptions<T> = {} as never;
 	metadata: CommandMetadata<UnionToTuple<M>> = {} as never;
