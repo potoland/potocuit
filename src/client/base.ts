@@ -8,7 +8,7 @@ import { CommandHandler } from '../commands/handler';
 import {
 	ChannelShorter,
 	GuildShorter,
-	LocaleString,
+	type LocaleString,
 	LogLevels,
 	Logger,
 	UsersShorter,
@@ -104,10 +104,8 @@ export class BaseClient {
 			);
 		}
 		if (langs) {
-			if (langs.default)
-				this.langs.defaultLang = langs.default;
-			if (langs.aliases)
-				this.langs.aliases = Object.entries(langs.aliases);
+			if (langs.default) this.langs.defaultLang = langs.default;
+			if (langs.aliases) this.langs.aliases = Object.entries(langs.aliases);
 		}
 		if (middlewares) {
 			this.middlewares = middlewares;
@@ -299,8 +297,8 @@ export type ServicesOptions = {
 	rest?: REST;
 	cache?: { adapter: Adapter; disabledCache?: Cache['disabledCache'] };
 	langs?: {
-		default?: string
-		aliases?: Record<string, LocaleString[]>
+		default?: string;
+		aliases?: Record<string, LocaleString[]>;
 	};
 	middlewares?: Record<string, MiddlewareContext>;
 };

@@ -9,7 +9,10 @@ export class CommandHandler extends BaseHandler {
 	values: (Command | ContextMenuCommand)[] = [];
 	protected filter = (path: string) => path.endsWith('.js') || path.endsWith('.ts');
 
-	constructor(protected logger: Logger, protected client: BaseClient) {
+	constructor(
+		protected logger: Logger,
+		protected client: BaseClient,
+	) {
 		super(logger);
 	}
 
@@ -123,13 +126,13 @@ export class CommandHandler extends BaseHandler {
 						if (valueKey) command.description_localizations[locale as LocaleString] = valueKey;
 					}
 				}
-				for (let i of aliases) {
+				for (const i of aliases) {
 					if (command.__t.name) {
 						const valueName = client.langs.getKey(locale, command.__t.name!);
 						if (valueName) command.name_localizations[i] = valueName;
 					}
 				}
-				for (let i of aliases) {
+				for (const i of aliases) {
 					if (command.__t.description) {
 						const valueKey = client.langs.getKey(locale, command.__t.description!);
 						if (valueKey) command.description_localizations[i] = valueKey;
@@ -164,7 +167,7 @@ export class CommandHandler extends BaseHandler {
 						}
 					}
 
-					for (let i of aliases) {
+					for (const i of aliases) {
 						if (command.__tGroups[group].name) {
 							const valueName = client.langs.getKey(locale, command.__tGroups[group].name!);
 							if (valueName) {
@@ -172,7 +175,7 @@ export class CommandHandler extends BaseHandler {
 							}
 						}
 					}
-					for (let i of aliases) {
+					for (const i of aliases) {
 						if (command.__tGroups[group].description) {
 							const valueKey = client.langs.getKey(locale, command.__tGroups[group].description!);
 							if (valueKey) {

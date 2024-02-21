@@ -1,4 +1,4 @@
-import { BaseHandler, Locale, LocaleString } from '../common';
+import { BaseHandler, type Locale, type LocaleString } from '../common';
 import { LangRouter } from './router';
 
 export class LangsHandler extends BaseHandler {
@@ -8,7 +8,7 @@ export class LangsHandler extends BaseHandler {
 	aliases: [string, LocaleString[]][] = [];
 
 	getLocale(locale: string) {
-		return this.aliases.find(([_key, aliases]) => aliases.includes(locale as Locale))?.[0] ?? locale
+		return this.aliases.find(([_key, aliases]) => aliases.includes(locale as Locale))?.[0] ?? locale;
 	}
 
 	getKey(lang: string, message: string) {
