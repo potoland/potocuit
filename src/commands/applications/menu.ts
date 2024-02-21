@@ -1,4 +1,4 @@
-import { type PermissionStrings, magicImport, type ApplicationCommandType, type LocaleString } from '../../common';
+import { magicImport, type ApplicationCommandType, type LocaleString, type PermissionStrings } from '../../common';
 import type { RegisteredMiddlewares } from '../decorators';
 import type { MenuCommandContext } from './menucontext';
 import type { NextFunction, PassFunction, StopFunction, UsingClient } from './shared';
@@ -7,7 +7,7 @@ export abstract class ContextMenuCommand {
 	middlewares: (keyof RegisteredMiddlewares)[] = [];
 
 	__filePath?: string;
-	__t?: { name: string; description: string };
+	__t?: { name: string | undefined; description: string | undefined };
 
 	guild_id?: string[];
 	name!: string;

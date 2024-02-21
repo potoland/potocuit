@@ -8,6 +8,7 @@ import { CommandHandler } from '../commands/handler';
 import {
 	ChannelShorter,
 	GuildShorter,
+	LocaleString,
 	LogLevels,
 	Logger,
 	UsersShorter,
@@ -46,8 +47,8 @@ export class BaseClient {
 		name: '[Seyfert]',
 	});
 
-	commands = new CommandHandler(this.logger);
 	langs = new LangsHandler(this.logger);
+	commands = new CommandHandler(this.logger, this);
 	components = new ComponentHandler(this.logger, this);
 
 	private _applicationId?: string;
@@ -90,7 +91,7 @@ export class BaseClient {
 		return new Router(this.rest).createProxy();
 	}
 
-	setServices({ rest, cache, defaultLang, middlewares }: ServicesOptions) {
+	setServices({ rest, cache, langs, middlewares }: ServicesOptions) {
 		if (rest) {
 			this.rest = rest;
 		}
@@ -102,8 +103,11 @@ export class BaseClient {
 				this,
 			);
 		}
-		if (defaultLang) {
-			this.langs.defaultLang = defaultLang;
+		if (langs) {
+			if (langs.default)
+				this.langs.defaultLang = langs.default;
+			if (langs.aliases)
+				this.langs.aliases = Object.entries(langs.aliases);
 		}
 		if (middlewares) {
 			this.middlewares = middlewares;
@@ -294,6 +298,9 @@ export type RuntimeConfig = OmitInsert<InternalRuntimeConfig, 'intents', { inten
 export type ServicesOptions = {
 	rest?: REST;
 	cache?: { adapter: Adapter; disabledCache?: Cache['disabledCache'] };
-	defaultLang?: string;
+	langs?: {
+		default?: string
+		aliases?: Record<string, LocaleString[]>
+	};
 	middlewares?: Record<string, MiddlewareContext>;
 };

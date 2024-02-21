@@ -225,7 +225,7 @@ export class LimitedCollection<K, V> {
 	private readonly options: LimitedCollectionOptions;
 	private timeout: NodeJS.Timeout | undefined = undefined;
 
-	constructor(options: Partial<LimitedCollectionOptions>) {
+	constructor(options: Partial<LimitedCollectionOptions> = {}) {
 		this.options = MergeOptions(LimitedCollection.default, options);
 	}
 

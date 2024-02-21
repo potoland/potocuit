@@ -9,7 +9,7 @@ export class CommandHandler extends BaseHandler {
 	values: (Command | ContextMenuCommand)[] = [];
 	protected filter = (path: string) => path.endsWith('.js') || path.endsWith('.ts');
 
-	constructor(protected logger: Logger) {
+	constructor(protected logger: Logger, protected client: BaseClient) {
 		super(logger);
 	}
 
@@ -112,14 +112,28 @@ export class CommandHandler extends BaseHandler {
 			command.name_localizations = {};
 			command.description_localizations = {};
 			for (const locale of Object.keys(client.langs.values)) {
-				if (!Object.values<string>(Locale).includes(locale)) return;
-				const valueName = client.langs.getKey(locale, command.__t.name);
-				if (valueName) {
-					command.name_localizations[locale as LocaleString] = valueName;
+				const aliases = this.client.langs.aliases.find(x => x[0] === locale)?.[1] ?? [];
+				if (Object.values<string>(Locale).includes(locale)) {
+					if (command.__t.name) {
+						const valueName = client.langs.getKey(locale, command.__t.name!);
+						if (valueName) command.name_localizations[locale as LocaleString] = valueName;
+					}
+					if (command.__t.description) {
+						const valueKey = client.langs.getKey(locale, command.__t.description!);
+						if (valueKey) command.description_localizations[locale as LocaleString] = valueKey;
+					}
 				}
-				const valueKey = client.langs.getKey(locale, command.__t.description);
-				if (valueKey) {
-					command.description_localizations[locale as LocaleString] = valueKey;
+				for (let i of aliases) {
+					if (command.__t.name) {
+						const valueName = client.langs.getKey(locale, command.__t.name!);
+						if (valueName) command.name_localizations[i] = valueName;
+					}
+				}
+				for (let i of aliases) {
+					if (command.__t.description) {
+						const valueKey = client.langs.getKey(locale, command.__t.description!);
+						if (valueKey) command.description_localizations[i] = valueKey;
+					}
 				}
 			}
 		}
@@ -127,7 +141,7 @@ export class CommandHandler extends BaseHandler {
 		if (command instanceof Command && command.__tGroups) {
 			command.groups = {};
 			for (const locale of Object.keys(client.langs.values)) {
-				if (!Object.values<string>(Locale).includes(locale)) return;
+				const aliases = this.client.langs.aliases.find(x => x[0] === locale)?.[1] ?? [];
 				for (const group in command.__tGroups) {
 					command.groups[group] ??= {
 						defaultDescription: command.__tGroups[group].defaultDescription,
@@ -135,14 +149,36 @@ export class CommandHandler extends BaseHandler {
 						name: [],
 					};
 
-					const valueName = client.langs.getKey(locale, command.__tGroups[group].name);
-					if (valueName) {
-						command.groups[group].name!.push([locale as LocaleString, valueName]);
+					if (Object.values<string>(Locale).includes(locale)) {
+						if (command.__tGroups[group].name) {
+							const valueName = client.langs.getKey(locale, command.__tGroups[group].name!);
+							if (valueName) {
+								command.groups[group].name!.push([locale as LocaleString, valueName]);
+							}
+						}
+						if (command.__tGroups[group].description) {
+							const valueKey = client.langs.getKey(locale, command.__tGroups[group].description!);
+							if (valueKey) {
+								command.groups[group].description!.push([locale as LocaleString, valueKey]);
+							}
+						}
 					}
 
-					const valueKey = client.langs.getKey(locale, command.__tGroups[group].description);
-					if (valueKey) {
-						command.groups[group].description!.push([locale as LocaleString, valueKey]);
+					for (let i of aliases) {
+						if (command.__tGroups[group].name) {
+							const valueName = client.langs.getKey(locale, command.__tGroups[group].name!);
+							if (valueName) {
+								command.groups[group].name!.push([i as LocaleString, valueName]);
+							}
+						}
+					}
+					for (let i of aliases) {
+						if (command.__tGroups[group].description) {
+							const valueKey = client.langs.getKey(locale, command.__tGroups[group].description!);
+							if (valueKey) {
+								command.groups[group].description!.push([i as LocaleString, valueKey]);
+							}
+						}
 					}
 				}
 			}

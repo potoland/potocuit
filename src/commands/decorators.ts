@@ -1,11 +1,21 @@
 import { ApplicationCommandType, PermissionFlagsBits, type LocaleString, type PermissionStrings } from '../common';
 import type { CommandOption, OptionsRecord, SubCommand } from './applications/chat';
-import type { MiddlewareContext } from './applications/shared';
+import type { DefaultLocale, MiddlewareContext } from './applications/shared';
 
-export interface RegisteredMiddlewares {}
+export interface RegisteredMiddlewares { }
 
 type DeclareOptions =
 	| {
+		name: string;
+		description: string;
+		botPermissions?: PermissionStrings | bigint;
+		defaultPermissions?: PermissionStrings | bigint;
+		guildId?: string[];
+		dm?: boolean;
+		nsfw?: boolean;
+	}
+	| (Omit<
+		{
 			name: string;
 			description: string;
 			botPermissions?: PermissionStrings | bigint;
@@ -13,21 +23,11 @@ type DeclareOptions =
 			guildId?: string[];
 			dm?: boolean;
 			nsfw?: boolean;
-	  }
-	| (Omit<
-			{
-				name: string;
-				description: string;
-				botPermissions?: PermissionStrings | bigint;
-				defaultPermissions?: PermissionStrings | bigint;
-				guildId?: string[];
-				dm?: boolean;
-				nsfw?: boolean;
-			},
-			'type' | 'description'
-	  > & {
-			type: ApplicationCommandType.User | ApplicationCommandType.Message;
-	  });
+		},
+		'type' | 'description'
+	> & {
+		type: ApplicationCommandType.User | ApplicationCommandType.Message;
+	});
 
 export function Locales({
 	name: names,
@@ -36,15 +36,15 @@ export function Locales({
 	name?: [language: LocaleString, value: string][];
 	description?: [language: LocaleString, value: string][];
 }) {
-	return <T extends { new (...args: any[]): {} }>(target: T) =>
+	return <T extends { new(...args: any[]): {} }>(target: T) =>
 		class extends target {
 			name_localizations = names ? Object.fromEntries(names) : undefined;
 			description_localizations = descriptions ? Object.fromEntries(descriptions) : undefined;
 		};
 }
 
-export function LocalesT(name: string, description: string) {
-	return <T extends { new (...args: any[]): {} }>(target: T) =>
+export function LocalesT(name?: FlatObjectKeys<DefaultLocale>, description?: FlatObjectKeys<DefaultLocale>) {
+	return <T extends { new(...args: any[]): {} }>(target: T) =>
 		class extends target {
 			__t = { name, description };
 		};
@@ -54,13 +54,13 @@ export function GroupsT(
 	groups: Record<
 		string /* name for group*/,
 		{
-			name: string;
-			description: string;
+			name?: FlatObjectKeys<DefaultLocale>;
+			description?: FlatObjectKeys<DefaultLocale>;
 			defaultDescription: string;
 		}
 	>,
 ) {
-	return <T extends { new (...args: any[]): {} }>(target: T) =>
+	return <T extends { new(...args: any[]): {} }>(target: T) =>
 		class extends target {
 			__tGroups = groups;
 		};
@@ -76,35 +76,35 @@ export function Groups(
 		}
 	>,
 ) {
-	return <T extends { new (...args: any[]): {} }>(target: T) =>
+	return <T extends { new(...args: any[]): {} }>(target: T) =>
 		class extends target {
 			groups = groups;
 		};
 }
 
 export function Group(groupName: string) {
-	return <T extends { new (...args: any[]): {} }>(target: T) =>
+	return <T extends { new(...args: any[]): {} }>(target: T) =>
 		class extends target {
 			group = groupName;
 		};
 }
 
 export function Options(options: (new () => SubCommand)[] | OptionsRecord) {
-	return <T extends { new (...args: any[]): {} }>(target: T) =>
+	return <T extends { new(...args: any[]): {} }>(target: T) =>
 		class extends target {
 			options: SubCommand[] | CommandOption[] = Array.isArray(options)
 				? options.map(x => new x())
 				: Object.entries(options).map(([name, option]) => {
-						return {
-							name,
-							...option,
-						} as CommandOption;
-				  });
+					return {
+						name,
+						...option,
+					} as CommandOption;
+				});
 		};
 }
 
 export function AutoLoad() {
-	return <T extends { new (...args: any[]): {} }>(target: T) =>
+	return <T extends { new(...args: any[]): {} }>(target: T) =>
 		class extends target {
 			__d = true;
 		};
@@ -115,14 +115,14 @@ export type ParseMiddlewares<T extends Record<string, MiddlewareContext>> = {
 };
 
 export function Middlewares(cbs: readonly (keyof RegisteredMiddlewares)[]) {
-	return <T extends { new (...args: any[]): {} }>(target: T) =>
+	return <T extends { new(...args: any[]): {} }>(target: T) =>
 		class extends target {
 			middlewares = cbs;
 		};
 }
 
 export function Declare(declare: DeclareOptions) {
-	return <T extends { new (...args: any[]): {} }>(target: T) =>
+	return <T extends { new(...args: any[]): {} }>(target: T) =>
 		class extends target {
 			name = declare.name;
 			dm = !!declare.dm;
@@ -144,3 +144,10 @@ export function Declare(declare: DeclareOptions) {
 			}
 		};
 }
+
+export type FlatObjectKeys<T extends Record<string, any>, Key = keyof T> = Key extends string
+	? T[Key] extends Record<string, unknown>
+	? `${Key}.${FlatObjectKeys<T[Key]>}`
+	: T[Key] extends string ? `${Key}`
+	: never
+	: never;
