@@ -254,7 +254,7 @@ class BaseCommand {
 	onAfterRun?(context: CommandContext<any>, error: unknown | undefined): any;
 	onRunError?(context: CommandContext<any>, error: unknown): any;
 	onOptionsError?(context: CommandContext<{}, never>, metadata: OnOptionsReturnObject): any;
-	onMiddlewaresError?(context: CommandContext<{}, never>, error: unknown): any;
+	onMiddlewaresError?(context: CommandContext<{}, never>, error: string): any;
 	onPermissionsFail?(context: CommandContext<{}, never>, permissions: PermissionStrings): any;
 	onInternalError?(client: UsingClient, error?: unknown): any;
 }
