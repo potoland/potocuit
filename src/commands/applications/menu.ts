@@ -25,7 +25,7 @@ export abstract class ContextMenuCommand {
 		context: MenuCommandContext<any>,
 		middlewares: (keyof RegisteredMiddlewares)[],
 		global: boolean,
-	): Promise<{ error?: unknown; pass?: boolean }> {
+	): Promise<{ error?: string; pass?: boolean }> {
 		if (!middlewares.length) {
 			return Promise.resolve({});
 		}
@@ -104,7 +104,7 @@ export abstract class ContextMenuCommand {
 	onRunError(context: MenuCommandContext<any, never>, error: unknown): any {
 		context.client.logger.fatal(`${this.name}.<onRunError>`, context.author.id, error);
 	}
-	onMiddlewaresError(context: MenuCommandContext<any, never>, error: unknown): any {
+	onMiddlewaresError(context: MenuCommandContext<any, never>, error: string): any {
 		context.client.logger.fatal(`${this.name}.<onMiddlewaresError>`, context.author.id, error);
 	}
 	onPermissionsFail(context: MenuCommandContext<any, never>, permissions: PermissionStrings): any {
