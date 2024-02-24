@@ -1,3 +1,4 @@
+import type { Client, WorkerClient } from '../../client';
 import { MessageFlags, type UnionToTuple } from '../../common';
 import type {
 	InteractionCreateBodyRequest,
@@ -52,7 +53,10 @@ export class CommandContext<T extends OptionsRecord = {}, M extends keyof Regist
 
 	deferReply(ephemeral = false) {
 		if (this.interaction) return this.interaction.deferReply(ephemeral ? MessageFlags.Ephemeral : undefined);
-		return this.client.channels.typing(this.message!.channelId)
+		const options = (this.client as Client | WorkerClient).options?.commands
+		return this.message![options?.reply ? 'reply' : 'write'](
+			options?.deferReplyResponse ?? { content: 'Thinking...' }
+		);
 	}
 
 	async editResponse(body: InteractionMessageUpdateBodyRequest) {
