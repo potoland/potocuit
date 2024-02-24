@@ -90,6 +90,12 @@ export class BaseGuildMember extends DiscordBase {
 			values: Object.freeze(this._roles),
 			add: (id: string) => this.client.members.roles.add(this.guildId, this.id, id),
 			remove: (id: string) => this.client.members.roles.remove(this.guildId, this.id, id),
+			permissions: async () =>
+				new PermissionsBitField(
+					((await this.cache.roles?.bulk(this.roles.values as string[])) ?? [])
+						.filter(x => x)
+						.map(x => BigInt(x!.permissions.bits)),
+				),
 		};
 	}
 
@@ -172,6 +178,11 @@ export class GuildMember extends BaseGuildMember {
 		}
 
 		return this.rest.cdn.guildMemberAvatar(this.guildId, this.id, this.avatar, options);
+	}
+
+	async fetchPermissions() {
+		if ('permissions' in this) return this.permissions as PermissionsBitField;
+		return this.roles.permissions();
 	}
 }
 

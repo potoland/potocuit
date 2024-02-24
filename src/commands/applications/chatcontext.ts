@@ -4,7 +4,7 @@ import type {
 	InteractionMessageUpdateBodyRequest,
 	ModalCreateBodyRequest,
 } from '../../common/types/write';
-import type { ChatInputCommandInteraction } from '../../structures';
+import { type ChatInputCommandInteraction, Message } from '../../structures';
 import type { RegisteredMiddlewares } from '../decorators';
 import type { OptionResolver } from '../optionresolver';
 import type { ContextOptions, OptionsRecord } from './chat';
@@ -13,12 +13,21 @@ import type { CommandMetadata, ExtendContext, GlobalMetadata, UsingClient } from
 export class CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never>
 	implements ExtendContext
 {
+	interaction?: ChatInputCommandInteraction;
+	message?: Message;
+	messageResponse?: Message;
 	constructor(
 		readonly client: UsingClient,
-		readonly interaction: ChatInputCommandInteraction,
+		data: ChatInputCommandInteraction | Message,
 		public resolver: OptionResolver,
 		readonly shardId: number,
-	) {}
+	) {
+		if (data instanceof Message) {
+			this.message = data;
+		} else {
+			this.interaction = data;
+		}
+	}
 
 	options: ContextOptions<T> = {} as never;
 	metadata: CommandMetadata<UnionToTuple<M>> = {} as never;
@@ -29,42 +38,54 @@ export class CommandContext<T extends OptionsRecord = {}, M extends keyof Regist
 	}
 
 	get t() {
-		return this.client.langs.get(this.interaction.locale);
+		return this.client.langs.get(this.interaction?.locale ?? this.client.langs.defaultLang ?? 'en-US');
 	}
 
-	write(body: InteractionCreateBodyRequest) {
-		return this.interaction.write(body);
+	async write(body: InteractionCreateBodyRequest) {
+		if (this.interaction) return this.interaction.write(body);
+		return (this.messageResponse = await this.message!.write(body));
 	}
 
 	modal(body: ModalCreateBodyRequest) {
-		return this.interaction.modal(body);
+		if (this.interaction) return this.interaction.modal(body);
+		throw new Error('Not supported');
 	}
 
 	deferReply(ephemeral = false) {
-		return this.interaction.deferReply(ephemeral ? MessageFlags.Ephemeral : undefined);
+		if (this.interaction) return this.interaction.deferReply(ephemeral ? MessageFlags.Ephemeral : undefined);
+		return this.message!.write({ content: 'Thinking...' });
 	}
 
-	editResponse(body: InteractionMessageUpdateBodyRequest) {
-		return this.interaction.editResponse(body);
+	async editResponse(body: InteractionMessageUpdateBodyRequest) {
+		if (this.interaction) return this.interaction.editResponse(body);
+		return (this.messageResponse = await this.messageResponse!.edit(body));
 	}
 
 	deleteResponse() {
-		return this.interaction.deleteResponse();
+		if (this.interaction) return this.interaction.deleteResponse();
+		return this.messageResponse!.delete();
 	}
 
 	editOrReply(body: InteractionCreateBodyRequest | InteractionMessageUpdateBodyRequest) {
-		return this.interaction.editOrReply(body as InteractionCreateBodyRequest);
+		if (this.interaction) return this.interaction.editOrReply(body as InteractionCreateBodyRequest);
+		if (this.messageResponse) {
+			return this.editResponse(body);
+		}
+		return this.write(body as InteractionCreateBodyRequest);
 	}
 
 	fetchResponse() {
-		return this.interaction.fetchResponse();
+		if (this.interaction) return this.interaction.fetchResponse();
+		return this.messageResponse!.fetch();
 	}
 
 	get author() {
-		return this.interaction.user;
+		if (this.interaction) return this.interaction.user;
+		return this.message!.author;
 	}
 
 	get member() {
-		return this.interaction.member;
+		if (this.interaction) return this.interaction.member;
+		return this.message!.member;
 	}
 }

@@ -9,14 +9,18 @@ export { Collection, LimitedCollection } from './collection';
 //
 export * from './api';
 export * from './builders';
+export * from './cache';
 export * from './commands';
-export { ComponentCommand, ComponentsListener, ModalCommand } from './components';
-export type { ParseLocales } from './langs';
+export * from './components';
+export * from './events';
+export * from './langs';
+//
 export { ShardManager, WorkerManager } from './websocket/discord';
 //
 export * from './structures';
 //
 export * from './client';
+//
 
 export function throwError(msg: string): never {
 	throw new Error(msg);

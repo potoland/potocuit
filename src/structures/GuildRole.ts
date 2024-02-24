@@ -8,16 +8,19 @@ import type {
 	RESTPostAPIGuildRoleJSONBody,
 } from '../common';
 import { DiscordBase } from './extra/DiscordBase';
+import { PermissionsBitField } from './extra/Permissions';
 
-export interface GuildRole extends DiscordBase, ObjectToLower<APIRole> {}
+export interface GuildRole extends DiscordBase, ObjectToLower<Omit<APIRole, 'permissions'>> {}
 
 export class GuildRole extends DiscordBase {
+	permissions: PermissionsBitField;
 	constructor(
 		client: BaseClient,
 		data: APIRole,
 		readonly guildId: string,
 	) {
 		super(client, data);
+		this.permissions = new PermissionsBitField(BigInt(data.permissions));
 	}
 
 	async guild(force = false) {

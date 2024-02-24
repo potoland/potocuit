@@ -1,8 +1,6 @@
 import {
 	ComponentType,
 	SelectMenuDefaultValueType,
-	fastFlat,
-	fastMap,
 	type APIChannelSelectComponent,
 	type APIMentionableSelectComponent,
 	type APIMessageComponentEmoji,
@@ -44,7 +42,7 @@ function mappedDefault<T extends SelectMenuDefaultValueType>(
 	ids: RestOrArray<string>,
 	type: T,
 ): APISelectMenuDefaultValue<T>[] {
-	return fastMap(fastFlat(ids), id => ({ id, type }));
+	return ids.flat().map(id => ({ id, type }));
 }
 
 /**
@@ -269,7 +267,7 @@ export class StringSelectMenu extends SelectMenu<APIStringSelectComponent, Strin
 	 */
 	addOption(...options: RestOrArray<APISelectMenuOption>): this {
 		this.data.options ??= [];
-		this.data.options = this.data.options.concat(fastFlat(options));
+		this.data.options = this.data.options.concat(options.flat());
 		return this;
 	}
 

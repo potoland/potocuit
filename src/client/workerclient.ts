@@ -18,7 +18,9 @@ import type {
 import type { ManagerMessages } from '../websocket/discord/workermanager';
 import type { BaseClientOptions, StartOptions } from './base';
 import { BaseClient } from './base';
-import { onInteraction } from './oninteraction';
+import type { Client } from './client';
+import { onInteractionCreate } from './oninteractioncreate';
+import { onMessageCreate } from './onmessagecreate';
 
 const workerData = __workerData__ as WorkerData;
 
@@ -205,10 +207,12 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 				}
 				this.debugger?.debug(`#${shardId} [${packet.d.user.username}](${this.botId}) is online...`);
 				break;
-			case 'INTERACTION_CREATE': {
-				await onInteraction(shardId, packet.d, this);
+			case 'INTERACTION_CREATE':
+				await onInteractionCreate(this, packet.d, shardId);
 				break;
-			}
+			case 'MESSAGE_CREATE':
+				await onMessageCreate(this, packet.d, shardId);
+				break;
 			case 'GUILD_CREATE': {
 				if (this.__handleGuilds.has(packet.d.id)) {
 					this.__handleGuilds.delete(packet.d.id);
@@ -244,4 +248,5 @@ export function generateShardInfo(shard: Shard): WorkerShardInfo {
 
 interface WorkerClientOptions extends BaseClientOptions {
 	disabledCache: Cache['disabledCache'];
+	commands?: NonNullable<Client['options']>['commands'];
 }

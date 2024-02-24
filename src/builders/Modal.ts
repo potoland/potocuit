@@ -1,6 +1,5 @@
 import {
 	ComponentType,
-	fastFlat,
 	type APIActionRowComponent,
 	type APIModalInteractionResponseCallbackData,
 	type APITextInputComponent,
@@ -43,7 +42,7 @@ export class Modal<T extends ModalBuilderComponents = TextInput> {
 	 * @returns The current Modal instance.
 	 */
 	addComponents(...components: RestOrArray<ActionRow<T>>): this {
-		this.components = this.components.concat(fastFlat(components));
+		this.components = this.components.concat(components.flat());
 		return this;
 	}
 

@@ -11,10 +11,10 @@ import type {
 import { AutocompleteInteraction, BaseInteraction } from '../structures';
 import type { BaseClient } from './base';
 
-export async function onInteraction(
-	shardId: number,
-	body: APIInteraction,
+export async function onInteractionCreate(
 	self: BaseClient,
+	body: APIInteraction,
+	shardId: number,
 	__reply?: __InternalReplyFunction,
 ) {
 	self.debugger?.debug(`[${InteractionType[body.type] ?? body.type}] Interaction received.`);
@@ -218,8 +218,8 @@ export async function onInteraction(
 		case InteractionType.MessageComponent:
 			{
 				const interaction = BaseInteraction.from(self, body, __reply) as ComponentInteraction;
-				if (self.components.hasComponent(body.message.interaction!.id, interaction.customId)) {
-					await self.components.onComponent(body.message.interaction!.id, interaction);
+				if (self.components.hasComponent(body.message.interaction?.id ?? body.message.id, interaction.customId)) {
+					await self.components.onComponent(body.message.interaction?.id ?? body.message.id, interaction);
 				} else {
 					await self.components.executeComponent(interaction);
 				}

@@ -1,7 +1,6 @@
 import type { Client, WorkerClient } from '../client';
 import {
 	BaseHandler,
-	type OnFailCallback,
 	ReplaceRegex,
 	magicImport,
 	type GatewayDispatchPayload,
@@ -9,6 +8,7 @@ import {
 	type GatewayMessageDeleteBulkDispatch,
 	type GatewayMessageDeleteDispatch,
 	type MakeRequired,
+	type OnFailCallback,
 	type SnakeCase,
 } from '../common';
 import type { ClientEvents } from '../events/hooks';
@@ -49,8 +49,8 @@ export class EventHandler extends BaseHandler {
 			case 'MESSAGE_CREATE':
 				{
 					const { d: data } = args[0] as GatewayMessageCreateDispatch;
-					if (args[1].components.values.has(data.interaction?.id ?? '')) {
-						args[1].components.values.get(data.interaction!.id)!.messageId = data.id;
+					if (args[1].components.values.has(data.interaction?.id ?? data.id)) {
+						args[1].components.values.get(data.interaction?.id ?? data.id)!.messageId = data.id;
 					}
 				}
 				break;

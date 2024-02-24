@@ -7,9 +7,9 @@ import type { AutocompleteCallback, OnAutocompleteErrorCallback, ReturnOptionsTy
 import type { CommandContext } from './chatcontext';
 import type { MiddlewareContext } from './shared';
 
-type SeyfertBasicOption<T extends keyof __TypesWrapper, D = {}> = __TypesWrapper[T] & D;
+export type SeyfertBasicOption<T extends keyof __TypesWrapper, D = {}> = __TypesWrapper[T] & D;
 
-type SeyfertStringOption = SeyfertBasicOption<'String'> & {
+export type SeyfertStringOption = SeyfertBasicOption<'String'> & {
 	autocomplete?: AutocompleteCallback;
 	onAutocompleteError?: OnAutocompleteErrorCallback;
 	choices?:
@@ -18,28 +18,28 @@ type SeyfertStringOption = SeyfertBasicOption<'String'> & {
 	min_length?: number;
 	max_length?: number;
 };
-type SeyfertIntegerOption = SeyfertBasicOption<'Integer'> & {
+export type SeyfertIntegerOption = SeyfertBasicOption<'Integer'> & {
 	autocomplete?: AutocompleteCallback;
 	onAutocompleteError?: OnAutocompleteErrorCallback;
 	choices?: APIApplicationCommandOptionChoice<ReturnOptionsTypes[ApplicationCommandOptionType.Integer]>[];
 	min_value?: number;
 	max_value?: number;
 };
-type SeyfertBooleanOption = SeyfertBasicOption<'Boolean'>;
-type SeyfertUserOption = SeyfertBasicOption<'User'>;
-type SeyfertChannelOption = SeyfertBasicOption<'Channel'> & {
+export type SeyfertBooleanOption = SeyfertBasicOption<'Boolean'>;
+export type SeyfertUserOption = SeyfertBasicOption<'User'>;
+export type SeyfertChannelOption = SeyfertBasicOption<'Channel'> & {
 	channel_types?: ChannelType[];
 };
-type SeyfertRoleOption = SeyfertBasicOption<'Role'>;
-type SeyfertMentionableOption = SeyfertBasicOption<'Mentionable'>;
-type SeyfertNumberOption = SeyfertBasicOption<'Number'> & {
+export type SeyfertRoleOption = SeyfertBasicOption<'Role'>;
+export type SeyfertMentionableOption = SeyfertBasicOption<'Mentionable'>;
+export type SeyfertNumberOption = SeyfertBasicOption<'Number'> & {
 	autocomplete?: AutocompleteCallback;
 	onAutocompleteError?: OnAutocompleteErrorCallback;
 	choices?: APIApplicationCommandOptionChoice<ReturnOptionsTypes[ApplicationCommandOptionType.Number]>[];
 	min_value?: number;
 	max_value?: number;
 };
-type SeyfertAttachmentOption = SeyfertBasicOption<'Attachment'>;
+export type SeyfertAttachmentOption = SeyfertBasicOption<'Attachment'>;
 
 export function createStringOption<T extends SeyfertStringOption = SeyfertStringOption>(data: T) {
 	return { ...data, type: ApplicationCommandOptionType.String } as const;

@@ -15,7 +15,7 @@ export * from './ActionRow';
 export * from './Attachment';
 export * from './Base';
 export * from './Button';
-export * from './MessageEmbed';
+export * from './Embed';
 export * from './Modal';
 export * from './SelectMenu';
 export * from './types';

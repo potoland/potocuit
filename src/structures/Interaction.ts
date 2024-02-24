@@ -204,7 +204,7 @@ export class BaseInteraction<
 			body.type === InteractionResponseType.Modal
 				? this.user.id
 				: body.type === InteractionResponseType.UpdateMessage
-				  ? this.message!.interaction!.id
+				  ? this.message!.interaction?.id ?? this.message!.id
 				  : this.id,
 			body,
 		);

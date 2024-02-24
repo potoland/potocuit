@@ -4,7 +4,7 @@ import type { APIInteraction, DeepPartial } from '../common';
 import { InteractionResponseType, InteractionType } from '../common';
 import type { InternalRuntimeConfigHTTP, StartOptions } from './base';
 import { BaseClient } from './base';
-import { onInteraction } from './oninteraction';
+import { onInteractionCreate } from './oninteractioncreate';
 
 let UWS: typeof import('uWebSockets.js');
 let nacl: typeof import('tweetnacl');
@@ -128,7 +128,7 @@ export class HttpClient extends BaseClient {
 						.end(JSON.stringify({ type: InteractionResponseType.Pong }));
 					break;
 				default:
-					await onInteraction(-1, rawBody, this, async ({ body, files }) => {
+					await onInteractionCreate(this, rawBody, -1, async ({ body, files }) => {
 						let response;
 						let headers: { 'Content-Type'?: string } = {};
 

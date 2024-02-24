@@ -9,6 +9,10 @@ export class Roles extends GuildRelatedResource {
 		return rawRole ? new GuildRole(this.client, rawRole, rawRole.guild_id) : undefined;
 	}
 
+	override async bulk(ids: string[]) {
+		return (await super.bulk(ids)).map(rawRole => new GuildRole(this.client, rawRole, rawRole.guild_id));
+	}
+
 	override async values(guild: string) {
 		const roles = await super.values(guild);
 		return roles.map(rawRole => new GuildRole(this.client, rawRole, rawRole.guild_id));

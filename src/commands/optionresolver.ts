@@ -1,9 +1,5 @@
-import type {
-	APIApplicationCommandInteractionDataOption,
-	APIAttachment,
-	APIInteractionDataResolved,
-	MakeRequired,
-} from '../common';
+import { Attachment, GuildMember } from '..';
+import type { APIApplicationCommandInteractionDataOption, APIInteractionDataResolved, MakeRequired } from '../common';
 import { ApplicationCommandOptionType } from '../common';
 import type { AllChannels } from '../structures';
 import { GuildRole, InteractionGuildMember, User } from '../structures';
@@ -154,22 +150,25 @@ export class OptionResolver {
 			const member = resolved.members?.[value];
 
 			if (member) {
-				resolve.member = new InteractionGuildMember(this.client, member, user!, this.guildId!);
+				resolve.member =
+					member instanceof GuildMember
+						? member
+						: new InteractionGuildMember(this.client, member, user!, this.guildId!);
 			}
 
 			const channel = resolved.channels?.[value];
 			if (channel) {
-				resolve.channel = channelFrom(channel, this.client);
+				resolve.channel = 'fetch' in channel ? (channel as unknown as AllChannels) : channelFrom(channel, this.client);
 			}
 
 			const role = resolved.roles?.[value];
 			if (role) {
-				resolve.role = new GuildRole(this.client, role, this.guildId!);
+				resolve.role = role instanceof GuildRole ? role : new GuildRole(this.client, role, this.guildId!);
 			}
 
 			const attachment = resolved.attachments?.[value];
 			if (attachment) {
-				resolve.attachment = attachment;
+				resolve.attachment = new Attachment(attachment);
 			}
 		}
 
@@ -183,8 +182,8 @@ export interface OptionResolved {
 	value?: string | number | boolean;
 	options?: OptionResolved[];
 	user?: User;
-	member?: InteractionGuildMember;
-	attachment?: APIAttachment;
+	member?: GuildMember | InteractionGuildMember;
+	attachment?: Attachment;
 	channel?: AllChannels;
 	role?: GuildRole;
 	focused?: boolean;

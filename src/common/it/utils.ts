@@ -27,37 +27,6 @@ export function resolveColor(color: ColorResolvable): number {
 }
 
 /**
- * Flattens an array to a certain depth.
- * @param arr The array to flatten.
- * @returns The flattened array.
- */
-export function fastFlat<A extends any[]>(arr: A): FlatArray<A, 1>[] {
-	let newArr: any[] = [];
-	for (const element of arr) {
-		newArr = newArr.concat(element);
-	}
-	return newArr as FlatArray<A, 1>[];
-}
-
-/**
- * Creates a new array with the results of calling a provided function on every element in the array.
- * @param arr The array to iterate over.
- * @param fn The function that produces an element of the new array.
- * @returns A new array with the results of calling the provided function on every element in the array.
- */
-export function fastMap<U, T extends any[]>(arr: T, fn: (value: T[number], index: number, array: T) => U): U[] {
-	const newArr: U[] = [];
-	let key = 0;
-
-	for (const value of arr) {
-		newArr.push(fn(value, key, arr));
-		key++;
-	}
-
-	return newArr;
-}
-
-/**
  * Delays the resolution of a Promise by the specified time.
  * @param time The time in milliseconds to delay the resolution.
  * @param result The value to resolve with after the delay.

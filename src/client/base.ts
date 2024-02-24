@@ -8,12 +8,12 @@ import { CommandHandler } from '../commands/handler';
 import {
 	ChannelShorter,
 	GuildShorter,
-	type LocaleString,
 	LogLevels,
 	Logger,
 	UsersShorter,
 	filterSplit,
 	magicImport,
+	type LocaleString,
 	type MakeRequired,
 } from '../common';
 import { MemberShorter } from '../common/shorters/members';
@@ -187,9 +187,10 @@ export class BaseClient {
 
 	async loadCommands(dir?: string) {
 		dir ??= await this.getRC().then(x => x.commands);
-		BaseClient.assertString(dir);
-		await this.commands.load(dir, this);
-		this.logger.info('CommandHandler loaded');
+		if (dir) {
+			await this.commands.load(dir, this);
+			this.logger.info('CommandHandler loaded');
+		}
 	}
 
 	async loadComponents(dir?: string) {
@@ -200,16 +201,16 @@ export class BaseClient {
 		}
 	}
 
-	t(locale: string) {
-		return this.langs.get(locale);
-	}
-
 	async loadLangs(dir?: string) {
 		dir ??= await this.getRC().then(x => x.langs);
 		if (dir) {
 			await this.langs.load(dir);
 			this.logger.info('LangsHandler loaded');
 		}
+	}
+
+	t(locale: string) {
+		return this.langs.get(locale);
 	}
 
 	async getRC<
@@ -227,9 +228,9 @@ export class BaseClient {
 			events:
 				'events' in locations && locations.events ? join(process.cwd(), locations.output, locations.events) : undefined,
 			components: locations.components ? join(process.cwd(), locations.output, locations.components) : undefined,
+			commands: locations.commands ? join(process.cwd(), locations.output, locations.commands) : undefined,
 			base: join(process.cwd(), locations.base),
 			output: join(process.cwd(), locations.output),
-			commands: join(process.cwd(), locations.output, locations.commands),
 		};
 	}
 }
@@ -259,7 +260,7 @@ interface RC extends Variables {
 	locations: {
 		base: string;
 		output: string;
-		commands: string;
+		commands?: string;
 		langs?: string;
 		templates?: string;
 		events?: string;

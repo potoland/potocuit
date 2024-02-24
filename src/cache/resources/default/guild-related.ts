@@ -46,6 +46,10 @@ export class GuildRelatedResource<T = any> {
 		return this.adapter.get(this.hashId(id));
 	}
 
+	async bulk(ids: string[]): Promise<(T & { guild_id: string })[]> {
+		return (await this.adapter.get(ids.map(x => this.hashId(x)))).filter(x => x);
+	}
+
 	async set(__keys: string, guild: string, data: any): Promise<void>;
 	async set(__keys: [string, any][], guild: string): Promise<void>;
 	async set(__keys: string | [string, any][], guild: string, data?: any) {

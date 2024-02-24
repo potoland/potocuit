@@ -18,9 +18,9 @@ export class RoleShorter extends BaseShorter {
 			list: async (guildId: string, force = false) => {
 				let roles: APIRole[] = [];
 				if (!force) {
-					roles = (await this.client.cache.roles?.values(guildId)) ?? [];
-					if (roles.length) {
-						return roles.map(r => new GuildRole(this.client, r, guildId));
+					const cachedRoles = (await this.client.cache.roles?.values(guildId)) ?? [];
+					if (cachedRoles.length) {
+						return cachedRoles;
 					}
 				}
 				roles = await this.client.proxy.guilds(guildId).roles.get();

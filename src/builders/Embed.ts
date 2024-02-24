@@ -1,5 +1,4 @@
 import {
-	fastFlat,
 	resolveColor,
 	toSnakeCase,
 	type APIEmbed,
@@ -76,7 +75,7 @@ export class Embed {
 	 * embed.addFields({ name: 'Field 1', value: 'Value 1' }, { name: 'Field 2', value: 'Value 2' });
 	 */
 	addFields(...fields: RestOrArray<APIEmbedField>): this {
-		this.data.fields = this.data.fields!.concat(fastFlat(fields));
+		this.data.fields = this.data.fields!.concat(fields.flat());
 		return this;
 	}
 

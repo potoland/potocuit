@@ -1,4 +1,5 @@
 import { parentPort, workerData } from 'node:worker_threads';
+import type { Command, Message, SubCommand } from '..';
 import type {
 	DeepPartial,
 	GatewayDispatchPayload,
@@ -14,7 +15,8 @@ import { MemberUpdateHandler } from '../websocket/discord/events/memberUpdate';
 import { PresenceUpdateHandler } from '../websocket/discord/events/presenceUpdate';
 import type { BaseClientOptions, InternalRuntimeConfig, ServicesOptions, StartOptions } from './base';
 import { BaseClient } from './base';
-import { onInteraction } from './oninteraction';
+import { onInteractionCreate } from './oninteractioncreate';
+import { onMessageCreate } from './onmessagecreate';
 
 export class Client<Ready extends boolean = boolean> extends BaseClient {
 	gateway!: ShardManager;
@@ -91,8 +93,8 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 				},
 				presence: this.options?.presence,
 				debug: debugRC,
-				shardStart: this.options?.shardStart,
-				shardEnd: this.options?.shardEnd,
+				shardStart: this.options?.shards?.start,
+				shardEnd: this.options?.shards?.end,
 			});
 		}
 
@@ -105,7 +107,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 		}
 	}
 
-	protected async onPacket(shardId: number, packet: GatewayDispatchPayload) {
+	protected async onPacket(shardId: number, packet: GatewayDispatchPayload): Promise<any> {
 		switch (packet.t) {
 			//// Cases where we must obtain the old data before updating
 			case 'GUILD_MEMBER_UPDATE':
@@ -132,6 +134,12 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 			default: {
 				await this.cache.onPacket(packet);
 				switch (packet.t) {
+					case 'INTERACTION_CREATE':
+						await onInteractionCreate(this, packet.d, shardId);
+						break;
+					case 'MESSAGE_CREATE':
+						await onMessageCreate(this, packet.d, shardId);
+						break;
 					case 'READY':
 						for (const g of packet.d.guilds) {
 							this.__handleGuilds.add(g.id);
@@ -151,10 +159,6 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 						}
 						this.debugger?.debug(`#${shardId}[${packet.d.user.username}](${this.botId}) is online...`);
 						break;
-					case 'INTERACTION_CREATE': {
-						await onInteraction(shardId, packet.d, this);
-						break;
-					}
 					case 'GUILD_CREATE': {
 						if (this.__handleGuilds.has(packet.d.id)) {
 							this.__handleGuilds.delete(packet.d.id);
@@ -181,6 +185,12 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 
 export interface ClientOptions extends BaseClientOptions {
 	presence?: (shardId: number) => GatewayPresenceUpdateData;
-	shardStart?: number;
-	shardEnd?: number;
+	shards?: {
+		start: number;
+		end: number
+	}
+	commands?: {
+		prefix: (message: Message) => Promise<string[]> | string[];
+		argsParser?: (content: string, command: SubCommand | Command) => Record<string, string>
+	}
 }
