@@ -287,13 +287,6 @@ export type RuntimeConfigHTTP = Omit<MakeRequired<RC, 'publicKey' | 'application
 export type InternalRuntimeConfig = Omit<MakeRequired<RC, 'intents'>, 'publicKey' | 'port'>;
 export type RuntimeConfig = OmitInsert<InternalRuntimeConfig, 'intents', { intents?: IntentStrings | number }>;
 
-// export interface IClients {
-// 	base: BaseClient;
-// 	http: HttpClient;
-// 	client: Client<true>;
-// 	worker: WorkerClient<true>;
-// }
-
 export type ServicesOptions = {
 	rest?: REST;
 	cache?: { adapter: Adapter; disabledCache?: Cache['disabledCache'] };
