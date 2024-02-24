@@ -191,7 +191,7 @@ export interface ClientOptions extends BaseClientOptions {
 	};
 	commands?: {
 		prefix: (message: Message) => Promise<string[]> | string[];
-		deferReplyResponse?: Parameters<Message['write']>[0]
+		deferReplyResponse?: Parameters<Message['write']>[0];
 		reply?: boolean;
 		argsParser?: (content: string, command: SubCommand | Command) => Record<string, string>;
 	};
