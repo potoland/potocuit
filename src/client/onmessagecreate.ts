@@ -43,14 +43,14 @@ function getCommandFromContent(
 	const command =
 		(groupName || subcommandName) && parent instanceof Command
 			? (parent.options?.find(opt => {
-					if (opt instanceof SubCommand) {
-						if (groupName) {
-							if (opt.group !== groupName) return false;
-						}
-						return subcommandName === opt.name;
+				if (opt instanceof SubCommand) {
+					if (groupName) {
+						if (opt.group !== groupName) return false;
 					}
-					return false;
-			  }) as SubCommand)
+					return subcommandName === opt.name;
+				}
+				return false;
+			}) as SubCommand)
 			: parent;
 
 	return {
@@ -64,6 +64,7 @@ export async function onMessageCreate(
 	rawMessage: GatewayMessageCreateDispatchData,
 	shardId: number,
 ) {
+	if (!self.options?.commands) return;
 	const message = new Message(self, rawMessage);
 	const prefixes = ((await self.options?.commands?.prefix?.(message)) ?? []).sort((a, b) => b.length - a.length);
 	const prefix = prefixes.find(x => message.content.startsWith(x));
@@ -71,39 +72,14 @@ export async function onMessageCreate(
 	if (!prefix || !message.content.startsWith(prefix)) return;
 
 	const content = message.content.slice(prefix.length).trimStart();
-	// const commandRaw = content
-	// 	.split('-')[0]
-	// 	.split(' ')
-	// 	.filter(x => x)
-	// 	.slice(0, 3);
-	// const parentName = commandRaw[0];
-	// const groupName = commandRaw.length === 3 ? commandRaw[1] : undefined;
-	// const subcommandName = groupName ? commandRaw[2] : commandRaw[1];
-	// const parent = self.commands.values.find(x => x.name === parentName);
-
-	// if (parent instanceof ContextMenuCommand) return;
-	// const command =
-	// 	(groupName || subcommandName) && parent instanceof Command
-	// 		? (parent.options?.find(opt => {
-	// 			if (opt instanceof SubCommand) {
-	// 				if (groupName) {
-	// 					if (opt.group !== groupName) return false;
-	// 				}
-	// 				return subcommandName === opt.name;
-	// 			}
-	// 			return false;
-	// 		}) as SubCommand)
-	// 		: parent;
-
-	// const fullCommandName = `${parentName}${groupName ? ` ${groupName} ${subcommandName}` : ` ${subcommandName ?? ''}`}`;
 	const rawCommand = getCommandFromContent(
 		content.split(' ').filter(x => x),
 		self,
 	);
 	if (!rawCommand || !rawCommand.command?.run)
 		return self.logger.warn(`${rawCommand.fullCommandName} command does not have 'run' callback`);
-	const command = rawCommand.command;
 
+	const command = rawCommand.command;
 	const resolved: MakeRequired<APIInteractionDataResolved, keyof APIInteractionDataResolved> = {
 		channels: {},
 		roles: {},
@@ -165,8 +141,7 @@ export async function onMessageCreate(
 			await command.onAfterRun?.(context, undefined);
 		} catch (error) {
 			self.logger.error(
-				`${rawCommand.fullCommandName} just threw an error, ${
-					error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+				`${rawCommand.fullCommandName} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 				}`,
 			);
 			await command.onRunError?.(context, error);
