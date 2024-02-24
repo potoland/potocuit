@@ -2,7 +2,7 @@ import FormData from 'form-data';
 import type { HttpRequest, HttpResponse } from 'uWebSockets.js';
 import type { APIInteraction, DeepPartial } from '../common';
 import { InteractionResponseType, InteractionType } from '../common';
-import type { InternalRuntimeConfigHTTP, StartOptions } from './base';
+import type { BaseClientOptions, InternalRuntimeConfigHTTP, StartOptions } from './base';
 import { BaseClient } from './base';
 import { onInteractionCreate } from './oninteractioncreate';
 
@@ -26,8 +26,8 @@ export class HttpClient extends BaseClient {
 	publicKey!: string;
 	publicKeyHex!: Buffer;
 
-	constructor() {
-		super();
+	constructor(options?: BaseClientOptions) {
+		super(options);
 		if (!UWS) {
 			throw new Error('No uws installed.');
 		}
@@ -98,9 +98,9 @@ export class HttpClient extends BaseClient {
 
 	// https://discord.com/developers/docs/interactions/receiving-and-responding#security-and-authorization
 	protected async verifySignature(res: HttpResponse, req: HttpRequest) {
-		const body = await HttpClient.readJson<APIInteraction>(res);
 		const timestamp = req.getHeader('x-signature-timestamp');
 		const ed25519 = req.getHeader('x-signature-ed25519');
+		const body = await HttpClient.readJson<APIInteraction>(res);
 		if (
 			nacl.sign.detached.verify(
 				Buffer.from(timestamp + JSON.stringify(body)),
