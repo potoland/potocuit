@@ -4,15 +4,14 @@ import type {
 	InteractionMessageUpdateBodyRequest,
 	ModalCreateBodyRequest,
 } from '../../common/types/write';
-import { type ChatInputCommandInteraction, Message } from '../../structures';
+import { Message, type ChatInputCommandInteraction } from '../../structures';
 import type { RegisteredMiddlewares } from '../decorators';
 import type { OptionResolver } from '../optionresolver';
 import type { ContextOptions, OptionsRecord } from './chat';
 import type { CommandMetadata, ExtendContext, GlobalMetadata, UsingClient } from './shared';
 
 export class CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never>
-	implements ExtendContext
-{
+	implements ExtendContext {
 	interaction?: ChatInputCommandInteraction;
 	message?: Message;
 	messageResponse?: Message;
@@ -53,7 +52,7 @@ export class CommandContext<T extends OptionsRecord = {}, M extends keyof Regist
 
 	deferReply(ephemeral = false) {
 		if (this.interaction) return this.interaction.deferReply(ephemeral ? MessageFlags.Ephemeral : undefined);
-		return this.message!.write({ content: 'Thinking...' });
+		return this.client.channels.typing(this.message!.channelId)
 	}
 
 	async editResponse(body: InteractionMessageUpdateBodyRequest) {
