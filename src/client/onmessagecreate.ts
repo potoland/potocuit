@@ -16,43 +16,47 @@ import {
 	type SeyfertIntegerOption,
 	type SeyfertNumberOption,
 	type SeyfertStringOption,
-	type WorkerClient
+	type WorkerClient,
 } from '..';
 import type { MakeRequired } from '../common';
 import { Message } from '../structures';
 
-function getCommandFromContent(commandRaw: string[], self: Client | WorkerClient): {
+function getCommandFromContent(
+	commandRaw: string[],
+	self: Client | WorkerClient,
+): {
 	command?: Command | SubCommand;
-	fullCommandName: string
+	fullCommandName: string;
 } {
 	const parentName = commandRaw[0];
 	const groupName = commandRaw.length === 3 ? commandRaw[1] : undefined;
 	const subcommandName = groupName ? commandRaw[2] : commandRaw[1];
 	const parent = self.commands.values.find(x => x.name === parentName);
-	const fullCommandName = `${parentName}${groupName ? ` ${groupName} ${subcommandName}` : ` ${subcommandName ?? ''}`}`
+	const fullCommandName = `${parentName}${groupName ? ` ${groupName} ${subcommandName}` : ` ${subcommandName ?? ''}`}`;
 
-	if (!(parent instanceof Command)) return { fullCommandName }
+	if (!(parent instanceof Command)) return { fullCommandName };
 
 	if (groupName && !parent.groups?.[groupName!]) return getCommandFromContent([parentName, subcommandName], self);
-	if (subcommandName && !parent.options?.some(x => x instanceof SubCommand && x.name === subcommandName)) return getCommandFromContent([parentName], self);
+	if (subcommandName && !parent.options?.some(x => x instanceof SubCommand && x.name === subcommandName))
+		return getCommandFromContent([parentName], self);
 
 	const command =
 		(groupName || subcommandName) && parent instanceof Command
 			? (parent.options?.find(opt => {
-				if (opt instanceof SubCommand) {
-					if (groupName) {
-						if (opt.group !== groupName) return false;
+					if (opt instanceof SubCommand) {
+						if (groupName) {
+							if (opt.group !== groupName) return false;
+						}
+						return subcommandName === opt.name;
 					}
-					return subcommandName === opt.name;
-				}
-				return false;
-			}) as SubCommand)
+					return false;
+			  }) as SubCommand)
 			: parent;
 
 	return {
 		command,
-		fullCommandName
-	}
+		fullCommandName,
+	};
 }
 
 export async function onMessageCreate(
@@ -60,9 +64,9 @@ export async function onMessageCreate(
 	rawMessage: GatewayMessageCreateDispatchData,
 	shardId: number,
 ) {
-	const message = new Message(self, rawMessage)
-	const prefixes = (await self.options?.commands?.prefix?.(message) ?? []).sort((a, b) => b.length - a.length);
-	const prefix = prefixes.find(x => message.content.startsWith(x))
+	const message = new Message(self, rawMessage);
+	const prefixes = ((await self.options?.commands?.prefix?.(message)) ?? []).sort((a, b) => b.length - a.length);
+	const prefix = prefixes.find(x => message.content.startsWith(x));
 
 	if (!prefix || !message.content.startsWith(prefix)) return;
 
@@ -92,9 +96,13 @@ export async function onMessageCreate(
 	// 		: parent;
 
 	// const fullCommandName = `${parentName}${groupName ? ` ${groupName} ${subcommandName}` : ` ${subcommandName ?? ''}`}`;
-	const rawCommand = getCommandFromContent(content.split(' ').filter(x => x), self);
-	if (!rawCommand || !rawCommand.command?.run) return self.logger.warn(`${rawCommand.fullCommandName} command does not have 'run' callback`);
-	const command = rawCommand.command
+	const rawCommand = getCommandFromContent(
+		content.split(' ').filter(x => x),
+		self,
+	);
+	if (!rawCommand || !rawCommand.command?.run)
+		return self.logger.warn(`${rawCommand.fullCommandName} command does not have 'run' callback`);
+	const command = rawCommand.command;
 
 	const resolved: MakeRequired<APIInteractionDataResolved, keyof APIInteractionDataResolved> = {
 		channels: {},
@@ -103,7 +111,7 @@ export async function onMessageCreate(
 		members: {},
 		attachments: {},
 	};
-	const args = (self.options?.commands?.argsParser ?? defaultArgsParser)(content, command)
+	const args = (self.options?.commands?.argsParser ?? defaultArgsParser)(content, command);
 	const { options, errors } = await parseOptions(self, command, rawMessage, args, resolved);
 	const optionsResolver = new OptionResolver(self, options, command as Command, message.guildId, resolved);
 	const context = new CommandContext(self, message, optionsResolver, shardId);
@@ -157,7 +165,8 @@ export async function onMessageCreate(
 			await command.onAfterRun?.(context, undefined);
 		} catch (error) {
 			self.logger.error(
-				`${rawCommand.fullCommandName} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+				`${rawCommand.fullCommandName} just threw an error, ${
+					error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 				}`,
 			);
 			await command.onRunError?.(context, error);
@@ -315,55 +324,57 @@ async function parseOptions(
 				}
 				break;
 			case ApplicationCommandOptionType.Number:
-			case ApplicationCommandOptionType.Integer: {
-				value = Number(args[i.name]);
-				if (args[i.name] === undefined) {
-					value = undefined;
-					break;
-				}
-				if (Number.isNaN(value)) {
-					value = undefined;
-					errors.push({
-						name: i.name,
-						error: 'The entered choice is an invalid number.',
-					});
-					break
-				}
-				const option = i as SeyfertNumberOption | SeyfertIntegerOption;
-				if (option.min_value) {
-					if (value < option.min_value) {
+			case ApplicationCommandOptionType.Integer:
+				{
+					value = Number(args[i.name]);
+					if (args[i.name] === undefined) {
+						value = undefined;
+						break;
+					}
+					if (Number.isNaN(value)) {
 						value = undefined;
 						errors.push({
 							name: i.name,
-							error: `The entered number is less than ${option.min_value}. The minimum allowed is ${option.min_value}`,
+							error: 'The entered choice is an invalid number.',
 						});
 						break;
 					}
-				}
-				if (option.max_value) {
-					if (value > option.max_value) {
-						value = undefined;
-						errors.push({
-							name: i.name,
-							error: `The entered number is greater than ${option.max_value}. The maximum allowed is ${option.max_value}`,
-						});
-						break;
+					const option = i as SeyfertNumberOption | SeyfertIntegerOption;
+					if (option.min_value) {
+						if (value < option.min_value) {
+							value = undefined;
+							errors.push({
+								name: i.name,
+								error: `The entered number is less than ${option.min_value}. The minimum allowed is ${option.min_value}`,
+							});
+							break;
+						}
+					}
+					if (option.max_value) {
+						if (value > option.max_value) {
+							value = undefined;
+							errors.push({
+								name: i.name,
+								error: `The entered number is greater than ${option.max_value}. The maximum allowed is ${option.max_value}`,
+							});
+							break;
+						}
+					}
+					if (option.choices?.length) {
+						if (!option.choices.some(x => x.name === value)) {
+							value = undefined;
+							errors.push({
+								name: i.name,
+								error: `The entered choice is invalid. Please choose one of the following options: ${option.choices
+									.map(x => x.name)
+									.join(', ')}.`,
+							});
+							break;
+						}
+						value = option.choices.find(x => x.name === value)!.value;
 					}
 				}
-				if (option.choices?.length) {
-					if (!option.choices.some(x => x.name === value)) {
-						value = undefined;
-						errors.push({
-							name: i.name,
-							error: `The entered choice is invalid. Please choose one of the following options: ${option.choices
-								.map(x => x.name)
-								.join(', ')}.`,
-						});
-						break;
-					}
-					value = option.choices.find(x => x.name === value)!.value;
-				}
-			} break;
+				break;
 			default:
 				break;
 		}
@@ -380,7 +391,7 @@ async function parseOptions(
 }
 
 function defaultArgsParser(content: string) {
-	const args: Record<string, string> = {}
+	const args: Record<string, string> = {};
 	for (const i of content.match(/-(.*?)(?=\s-|$)/gs) ?? []) {
 		args[i.slice(1).split(' ')[0]] = i.split(' ').slice(1).join(' ');
 	}

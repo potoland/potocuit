@@ -187,10 +187,10 @@ export interface ClientOptions extends BaseClientOptions {
 	presence?: (shardId: number) => GatewayPresenceUpdateData;
 	shards?: {
 		start: number;
-		end: number
-	}
+		end: number;
+	};
 	commands?: {
 		prefix: (message: Message) => Promise<string[]> | string[];
-		argsParser?: (content: string, command: SubCommand | Command) => Record<string, string>
-	}
+		argsParser?: (content: string, command: SubCommand | Command) => Record<string, string>;
+	};
 }
