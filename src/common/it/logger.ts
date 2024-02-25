@@ -209,5 +209,5 @@ export class Logger {
  * @returns The formatted string representing memory usage.
  */
 function formatMemoryUsage(data: number) {
-	return `[RAM Usage ${Math.round((data / 1024 / 1024) * 100) / 100} MB]`;
+	return `[RAM Usage ${(Math.round((data / 1024 / 1024) * 100) / 100).toFixed(2)} MB]`;
 }
