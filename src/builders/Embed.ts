@@ -13,7 +13,7 @@ import {
 /**
  * Represents a message embed.
  * @example
- * const embed = new MessageEmbed();
+ * const embed = new Embed();
  * embed.setTitle('Seyfert');
  * embed.setDescription('Better than discord.js');
  * embed.setColor('Green');
@@ -21,10 +21,10 @@ import {
  */
 export class Embed {
 	/**
-	 * Creates a new instance of MessageEmbed.
+	 * Creates a new instance of Embed.
 	 * @param data - The initial data for the embed.
 	 * @example
-	 * const embed = new MessageEmbed({ title: 'Hello', description: 'This is an example embed' });
+	 * const embed = new Embed({ title: 'Hello', description: 'This is an example embed' });
 	 */
 	constructor(public data: Partial<APIEmbed> = {}) {
 		if (!data.fields) this.data.fields = [];
@@ -33,7 +33,7 @@ export class Embed {
 	/**
 	 * Sets the author of the embed.
 	 * @param author - The author information.
-	 * @returns The updated MessageEmbed instance.
+	 * @returns The updated Embed instance.
 	 * @example
 	 * embed.setAuthor({ name: 'John Doe', iconURL: 'https://example.com/avatar.png' });
 	 */
@@ -45,7 +45,7 @@ export class Embed {
 	/**
 	 * Sets the color of the embed.
 	 * @param color - The color of the embed.
-	 * @returns The updated MessageEmbed instance.
+	 * @returns The updated Embed instance.
 	 * @example
 	 * embed.setColor('#FF0000');
 	 * embed.setColor('Blurple');
@@ -58,7 +58,7 @@ export class Embed {
 	/**
 	 * Sets the description of the embed.
 	 * @param desc - The description of the embed.
-	 * @returns The updated MessageEmbed instance.
+	 * @returns The updated Embed instance.
 	 * @example
 	 * embed.setDescription('This is the description of the embed');
 	 */
@@ -70,7 +70,7 @@ export class Embed {
 	/**
 	 * Adds one or more fields to the embed.
 	 * @param fields - The fields to add to the embed.
-	 * @returns The updated MessageEmbed instance.
+	 * @returns The updated Embed instance.
 	 * @example
 	 * embed.addFields({ name: 'Field 1', value: 'Value 1' }, { name: 'Field 2', value: 'Value 2' });
 	 */
@@ -82,7 +82,7 @@ export class Embed {
 	/**
 	 * Sets the fields of the embed.
 	 * @param fields - The fields of the embed.
-	 * @returns The updated MessageEmbed instance.
+	 * @returns The updated Embed instance.
 	 * @example
 	 * embed.setFields([{ name: 'Field 1', value: 'Value 1' }, { name: 'Field 2', value: 'Value 2' }]);
 	 */
@@ -94,7 +94,7 @@ export class Embed {
 	/**
 	 * Sets the footer of the embed.
 	 * @param footer - The footer information.
-	 * @returns The updated MessageEmbed instance.
+	 * @returns The updated Embed instance.
 	 * @example
 	 * embed.setFooter({ text: 'This is the footer', iconURL: 'https://example.com/footer.png' });
 	 */
@@ -106,7 +106,7 @@ export class Embed {
 	/**
 	 * Sets the image of the embed.
 	 * @param url - The URL of the image.
-	 * @returns The updated MessageEmbed instance.
+	 * @returns The updated Embed instance.
 	 * @example
 	 * embed.setImage('https://example.com/image.png');
 	 */
@@ -118,7 +118,7 @@ export class Embed {
 	/**
 	 * Sets the timestamp of the embed.
 	 * @param time - The timestamp value.
-	 * @returns The updated MessageEmbed instance.
+	 * @returns The updated Embed instance.
 	 * @example
 	 * embed.setTimestamp();
 	 * embed.setTimestamp(1628761200000);
@@ -132,7 +132,7 @@ export class Embed {
 	/**
 	 * Sets the title of the embed.
 	 * @param title - The title of the embed.
-	 * @returns The updated MessageEmbed instance.
+	 * @returns The updated Embed instance.
 	 * @example
 	 * embed.setTitle('This is the title');
 	 */
@@ -144,7 +144,7 @@ export class Embed {
 	/**
 	 * Sets the URL of the embed.
 	 * @param url - The URL of the embed.
-	 * @returns The updated MessageEmbed instance.
+	 * @returns The updated Embed instance.
 	 * @example
 	 * embed.setURL('https://seyfert.com');
 	 */
@@ -156,7 +156,7 @@ export class Embed {
 	/**
 	 * Sets the thumbnail of the embed.
 	 * @param url - The URL of the thumbnail.
-	 * @returns The updated MessageEmbed instance.
+	 * @returns The updated Embed instance.
 	 * @example
 	 * embed.setThumbnail('https://example.com/thumbnail.png');
 	 */
@@ -166,7 +166,7 @@ export class Embed {
 	}
 
 	/**
-	 * Converts the MessageEmbed instance to a JSON object.
+	 * Converts the Embed instance to a JSON object.
 	 * @returns The JSON representation of the MessageEmbed instance.
 	 */
 	toJSON(): APIEmbed {
