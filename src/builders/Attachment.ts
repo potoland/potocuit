@@ -12,7 +12,10 @@ export interface AttachmentResolvableMap {
 	buffer: Buffer | ArrayBuffer;
 	path: string;
 }
-export type AttachmentResolvable = AttachmentResolvableMap[keyof AttachmentResolvableMap] | AttachmentBuilder | Attachment;
+export type AttachmentResolvable =
+	| AttachmentResolvableMap[keyof AttachmentResolvableMap]
+	| AttachmentBuilder
+	| Attachment;
 export type AttachmentDataType = keyof AttachmentResolvableMap;
 export interface AttachmentData {
 	name: string;
@@ -21,7 +24,7 @@ export interface AttachmentData {
 	type: AttachmentDataType;
 }
 
-export interface Attachment extends ObjectToLower<APIAttachment> { }
+export interface Attachment extends ObjectToLower<APIAttachment> {}
 export class Attachment extends Base {
 	constructor(
 		client: BaseClient,
@@ -37,7 +40,7 @@ export class AttachmentBuilder {
 	 * Creates a new Attachment instance.
 	 * @param data - The partial attachment data.
 	 */
-	constructor(public data: Partial<AttachmentData> = { name: `${randomBytes(8).toString('base64url')}.jpg` }) { }
+	constructor(public data: Partial<AttachmentData> = { name: `${randomBytes(8).toString('base64url')}.jpg` }) {}
 
 	/**
 	 * Sets the name of the attachment.
@@ -144,7 +147,7 @@ export async function resolveFiles(resources: (AttachmentBuilder | RawFile | Att
 				return { ...resolve, key: `files[${i}]`, name } as RawFile;
 			}
 			if (resource instanceof Attachment) {
-				const resolve = await resolveAttachmentData(resource.url, 'url')
+				const resolve = await resolveAttachmentData(resource.url, 'url');
 				return {
 					data: resolve.data,
 					contentType: resolve.contentType,
@@ -200,7 +203,7 @@ export async function resolveAttachmentData(data: AttachmentResolvable, type: At
 			// @ts-expect-error
 			if (typeof data[Symbol.asyncIterator] === 'function') {
 				const buffers = [];
-				for await (const resource of (data as unknown as AsyncIterable<ArrayBuffer>)) buffers.push(Buffer.from(resource));
+				for await (const resource of data as unknown as AsyncIterable<ArrayBuffer>) buffers.push(Buffer.from(resource));
 				return { data: Buffer.concat(buffers) };
 			}
 			return throwError(
