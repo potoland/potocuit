@@ -1,8 +1,8 @@
+import type { Attachment } from '../../builders';
 import type {
 	APIApplicationCommandBasicOption,
 	APIApplicationCommandOption,
 	APIApplicationCommandSubcommandGroupOption,
-	APIAttachment,
 	LocaleString,
 	PermissionStrings,
 } from '../../common';
@@ -31,7 +31,7 @@ export interface ReturnOptionsTypes {
 	8: GuildRole;
 	9: GuildRole | AllChannels | User;
 	10: number; // number
-	11: APIAttachment;
+	11: Attachment;
 }
 
 type Wrap<N extends ApplicationCommandOptionType> = N extends

@@ -118,14 +118,14 @@ export class Message extends BaseMessage {
 		return this.client.messages.fetch(this.id, this.channelId);
 	}
 
-	reply(body: Omit<MessageCreateBodyRequest, 'message_reference'>) {
+	reply(body: Omit<MessageCreateBodyRequest, 'message_reference'>, fail = true) {
 		return this.write({
 			...body,
 			message_reference: {
 				message_id: this.id,
 				channel_id: this.channelId,
 				guild_id: this.guildId,
-				fail_if_not_exists: true,
+				fail_if_not_exists: fail,
 			},
 		});
 	}
