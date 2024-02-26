@@ -44,7 +44,9 @@ export class CommandContext<T extends OptionsRecord = {}, M extends keyof Regist
 
 	async write(body: InteractionCreateBodyRequest) {
 		if (this.interaction) return this.interaction.write(body);
-		return (this.messageResponse = await this.message!.write(body));
+		const options = (this.client as Client | WorkerClient).options?.commands;
+		return (this.messageResponse =
+			await this.message![!this.messageResponse && options?.reply ? 'reply' : 'write'](body));
 	}
 
 	modal(body: ModalCreateBodyRequest) {
