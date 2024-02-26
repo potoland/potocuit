@@ -12,8 +12,7 @@ import type { ContextOptions, OptionsRecord } from './chat';
 import type { CommandMetadata, ExtendContext, GlobalMetadata, UsingClient } from './shared';
 
 export class CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never>
-	implements ExtendContext
-{
+	implements ExtendContext {
 	interaction?: ChatInputCommandInteraction;
 	message?: Message;
 	messageResponse?: Message;
@@ -46,7 +45,7 @@ export class CommandContext<T extends OptionsRecord = {}, M extends keyof Regist
 		if (this.interaction) return this.interaction.write(body);
 		const options = (this.client as Client | WorkerClient).options?.commands;
 		return (this.messageResponse =
-			await this.message![!this.messageResponse && options?.reply ? 'reply' : 'write'](body));
+			await this.message![!this.messageResponse && options?.reply?.(this) ? 'reply' : 'write'](body));
 	}
 
 	modal(body: ModalCreateBodyRequest) {
@@ -57,8 +56,8 @@ export class CommandContext<T extends OptionsRecord = {}, M extends keyof Regist
 	async deferReply(ephemeral = false) {
 		if (this.interaction) return this.interaction.deferReply(ephemeral ? MessageFlags.Ephemeral : undefined);
 		const options = (this.client as Client | WorkerClient).options?.commands;
-		return (this.messageResponse = await this.message![options?.reply ? 'reply' : 'write'](
-			options?.deferReplyResponse ?? { content: 'Thinking...' },
+		return (this.messageResponse = await this.message![options?.reply?.(this) ? 'reply' : 'write'](
+			options?.deferReplyResponse?.(this) ?? { content: 'Thinking...' },
 		));
 	}
 

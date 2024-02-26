@@ -1,5 +1,5 @@
 import { parentPort, workerData } from 'node:worker_threads';
-import type { Command, Message, SubCommand } from '..';
+import type { Command, CommandContext, Message, SubCommand } from '..';
 import type {
 	DeepPartial,
 	GatewayDispatchPayload,
@@ -191,8 +191,8 @@ export interface ClientOptions extends BaseClientOptions {
 	};
 	commands?: {
 		prefix: (message: Message) => Promise<string[]> | string[];
-		deferReplyResponse?: Parameters<Message['write']>[0];
-		reply?: boolean;
+		deferReplyResponse?: (ctx: CommandContext) => Parameters<Message['write']>[0];
+		reply?: (ctx: CommandContext) => boolean;
 		argsParser?: (content: string, command: SubCommand | Command) => Record<string, string>;
 	};
 }
