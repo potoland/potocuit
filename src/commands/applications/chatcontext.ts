@@ -12,8 +12,7 @@ import type { ContextOptions, OptionsRecord } from './chat';
 import type { CommandMetadata, ExtendContext, GlobalMetadata, UsingClient } from './shared';
 
 export class CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never>
-	implements ExtendContext
-{
+	implements ExtendContext {
 	interaction?: ChatInputCommandInteraction;
 	message?: Message;
 	messageResponse?: Message;
@@ -83,6 +82,22 @@ export class CommandContext<T extends OptionsRecord = {}, M extends keyof Regist
 	fetchResponse() {
 		if (this.interaction) return this.interaction.fetchResponse();
 		return this.messageResponse!.fetch();
+	}
+
+	channel(force = false) {
+		return this.interaction?.channel || this.message!.channel(force)
+	}
+
+	me(force = false) {
+		return this.guildId ? this.client.members.fetch(this.guildId, this.client.botId, force) : undefined
+	}
+
+	get guildId() {
+		return this.interaction?.guildId || this.message!.guildId
+	}
+
+	get channelId() {
+		return this.interaction?.channelId || this.message!.channelId
 	}
 
 	get author() {
