@@ -12,7 +12,8 @@ import type { ContextOptions, OptionsRecord } from './chat';
 import type { CommandMetadata, ExtendContext, GlobalMetadata, UsingClient } from './shared';
 
 export class CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never>
-	implements ExtendContext {
+	implements ExtendContext
+{
 	interaction?: ChatInputCommandInteraction;
 	message?: Message;
 	messageResponse?: Message;
