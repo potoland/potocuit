@@ -1,16 +1,18 @@
-import type { RESTAPIAttachment } from 'discord-api-types/v10';
+import type { APIAttachment, RESTAPIAttachment } from 'discord-api-types/v10';
 import { randomBytes } from 'node:crypto';
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { throwError, type RawFile } from '..';
-import type { ImageResolvable } from '../common';
+import type { BaseClient } from '../client/base';
+import type { ImageResolvable, ObjectToLower } from '../common';
+import { Base } from '../structures/extra/Base';
 
 export interface AttachmentResolvableMap {
 	url: string;
-	buffer: Buffer;
+	buffer: Buffer | ArrayBuffer;
 	path: string;
 }
-export type AttachmentResolvable = AttachmentResolvableMap[keyof AttachmentResolvableMap] | Attachment;
+export type AttachmentResolvable = AttachmentResolvableMap[keyof AttachmentResolvableMap] | AttachmentBuilder | Attachment;
 export type AttachmentDataType = keyof AttachmentResolvableMap;
 export interface AttachmentData {
 	name: string;
@@ -19,12 +21,23 @@ export interface AttachmentData {
 	type: AttachmentDataType;
 }
 
-export class Attachment {
+export interface Attachment extends ObjectToLower<APIAttachment> { }
+export class Attachment extends Base {
+	constructor(
+		client: BaseClient,
+		public data: APIAttachment,
+	) {
+		super(client);
+		this.__patchThis(data);
+	}
+}
+
+export class AttachmentBuilder {
 	/**
 	 * Creates a new Attachment instance.
 	 * @param data - The partial attachment data.
 	 */
-	constructor(public data: Partial<AttachmentData> = { name: `${randomBytes(8).toString('base64url')}.jpg` }) {}
+	constructor(public data: Partial<AttachmentData> = { name: `${randomBytes(8).toString('base64url')}.jpg` }) { }
 
 	/**
 	 * Sets the name of the attachment.
@@ -109,7 +122,7 @@ export function resolveAttachment(
 ): Omit<RESTAPIAttachment, 'id'> {
 	if ('id' in resolve) return resolve;
 
-	if (resolve instanceof Attachment) {
+	if (resolve instanceof AttachmentBuilder) {
 		const data = resolve.toJSON();
 		return { filename: data.name, description: data.description };
 	}
@@ -122,13 +135,22 @@ export function resolveAttachment(
  * @param resources - The list of attachments to resolve.
  * @returns The resolved raw files.
  */
-export async function resolveFiles(resources: (Attachment | RawFile)[]): Promise<RawFile[]> {
+export async function resolveFiles(resources: (AttachmentBuilder | RawFile | Attachment)[]): Promise<RawFile[]> {
 	const data = await Promise.all(
 		resources.map(async (resource, i) => {
-			if (resource instanceof Attachment) {
+			if (resource instanceof AttachmentBuilder) {
 				const { type, resolvable, name } = resource.toJSON();
 				const resolve = await resolveAttachmentData(resolvable, type);
 				return { ...resolve, key: `files[${i}]`, name } as RawFile;
+			}
+			if (resource instanceof Attachment) {
+				const resolve = await resolveAttachmentData(resource.url, 'url')
+				return {
+					data: resolve.data,
+					contentType: resolve.contentType,
+					key: `files[${i}]`,
+					name: resource.filename,
+				} as RawFile;
 			}
 			return {
 				data: resource.data,
@@ -149,7 +171,7 @@ export async function resolveFiles(resources: (Attachment | RawFile)[]): Promise
  * @returns The resolved attachment data.
  */
 export async function resolveAttachmentData(data: AttachmentResolvable, type: AttachmentDataType) {
-	if (data instanceof Attachment) {
+	if (data instanceof AttachmentBuilder) {
 		if (!data.data.resolvable)
 			return throwError('The attachment type has been expressed as attachment but cannot be resolved as one.');
 		return { data: data.data.resolvable! };
@@ -178,7 +200,7 @@ export async function resolveAttachmentData(data: AttachmentResolvable, type: At
 			// @ts-expect-error
 			if (typeof data[Symbol.asyncIterator] === 'function') {
 				const buffers = [];
-				for await (const resource of data) buffers.push(Buffer.from(resource));
+				for await (const resource of (data as unknown as AsyncIterable<ArrayBuffer>)) buffers.push(Buffer.from(resource));
 				return { data: Buffer.concat(buffers) };
 			}
 			return throwError(
@@ -207,7 +229,7 @@ export function resolveBase64(data: string | Buffer) {
  * @returns The resolved base64 data URL.
  */
 export async function resolveImage(image: ImageResolvable): Promise<string> {
-	if (image instanceof Attachment) {
+	if (image instanceof AttachmentBuilder) {
 		const {
 			data: { type, resolvable },
 		} = image;
@@ -217,6 +239,11 @@ export async function resolveImage(image: ImageResolvable): Promise<string> {
 				type ?? 'Attachment'
 			).toUpperCase()} but cannot be resolved as one.`,
 		);
+	}
+
+	if (image instanceof Attachment) {
+		const response = await fetch(image.url);
+		return resolveBase64((await resolveAttachmentData(await response.arrayBuffer(), 'buffer')).data as Buffer);
 	}
 
 	const file = await resolveAttachmentData(image.data, image.type);

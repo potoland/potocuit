@@ -33,9 +33,8 @@ export class OptionResolver {
 	}
 
 	get fullCommandName() {
-		return `${this.parent?.name}${
-			this.group ? ` ${this.group} ${this.subCommand}` : this.subCommand ? ` ${this.subCommand}` : ''
-		}`;
+		return `${this.parent?.name}${this.group ? ` ${this.group} ${this.subCommand}` : this.subCommand ? ` ${this.subCommand}` : ''
+			}`;
 	}
 
 	getCommand() {
@@ -168,7 +167,7 @@ export class OptionResolver {
 
 			const attachment = resolved.attachments?.[value];
 			if (attachment) {
-				resolve.attachment = new Attachment(attachment);
+				resolve.attachment = new Attachment(this.client, attachment);
 			}
 		}
 
@@ -191,19 +190,19 @@ export interface OptionResolved {
 
 export type OptionResolvedWithValue = MakeRequired<Pick<OptionResolved, 'name' | 'value' | 'focused'>, 'value'> & {
 	type:
-		| ApplicationCommandOptionType.Boolean
-		| ApplicationCommandOptionType.Integer
-		| ApplicationCommandOptionType.Number
-		| ApplicationCommandOptionType.String;
+	| ApplicationCommandOptionType.Boolean
+	| ApplicationCommandOptionType.Integer
+	| ApplicationCommandOptionType.Number
+	| ApplicationCommandOptionType.String;
 };
 
 export type OptionResolvedWithProp = Exclude<
 	OptionResolved,
 	{
 		type:
-			| ApplicationCommandOptionType.Boolean
-			| ApplicationCommandOptionType.Integer
-			| ApplicationCommandOptionType.Number
-			| ApplicationCommandOptionType.String;
+		| ApplicationCommandOptionType.Boolean
+		| ApplicationCommandOptionType.Integer
+		| ApplicationCommandOptionType.Number
+		| ApplicationCommandOptionType.String;
 	}
 >;
