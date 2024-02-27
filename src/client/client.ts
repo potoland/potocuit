@@ -10,7 +10,7 @@ import type {
 } from '../common';
 import { EventHandler } from '../events';
 import { ClientUser } from '../structures';
-import { ShardManager } from '../websocket';
+import { ShardManager, type ShardManagerOptions } from '../websocket';
 import { MemberUpdateHandler } from '../websocket/discord/events/memberUpdate';
 import { PresenceUpdateHandler } from '../websocket/discord/events/presenceUpdate';
 import type { BaseClientOptions, InternalRuntimeConfig, ServicesOptions, StartOptions } from './base';
@@ -88,7 +88,8 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 				token,
 				info: await this.proxy.gateway.bot.get(),
 				intents,
-				handlePayload: (shardId, packet) => {
+				handlePayload: async (shardId, packet) => {
+					await this.options?.handlePayload?.(shardId, packet)
 					return this.onPacket(shardId, packet);
 				},
 				presence: this.options?.presence,
@@ -188,4 +189,5 @@ export interface ClientOptions extends BaseClientOptions {
 		reply?: (ctx: CommandContext) => boolean;
 		argsParser?: (content: string, command: SubCommand | Command) => Record<string, string>;
 	};
+	handlePayload?: ShardManagerOptions['handlePayload'];
 }
