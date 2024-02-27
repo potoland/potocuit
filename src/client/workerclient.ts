@@ -5,7 +5,7 @@ import type { GatewayDispatchPayload, GatewaySendPayload, When } from '../common
 import { LogLevels, Logger, type DeepPartial } from '../common';
 import { EventHandler } from '../events';
 import { ClientUser } from '../structures';
-import { Shard, type WorkerData } from '../websocket';
+import { Shard, type ShardManagerOptions, type WorkerData } from '../websocket';
 import type {
 	WorkerReady,
 	WorkerReceivePayload,
@@ -114,6 +114,7 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 				{
 					const cache = this.cache;
 					const onPacket = this.onPacket.bind(this);
+					const handlePayload = this.options?.handlePayload?.bind(this);
 					for (const id of workerData.shards) {
 						let shard = this.shards.get(id);
 						if (!shard) {
@@ -124,6 +125,7 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 								compress: data.compress,
 								debugger: this.debugger,
 								async handlePayload(shardId, payload) {
+									await handlePayload?.(shardId, payload)
 									await cache.onPacket(payload);
 									await onPacket?.(payload, shardId);
 									manager!.postMessage({
@@ -262,4 +264,5 @@ export function generateShardInfo(shard: Shard): WorkerShardInfo {
 interface WorkerClientOptions extends BaseClientOptions {
 	disabledCache: Cache['disabledCache'];
 	commands?: NonNullable<Client['options']>['commands'];
+	handlePayload?: ShardManagerOptions['handlePayload'];
 }
