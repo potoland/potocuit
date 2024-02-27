@@ -82,7 +82,7 @@ export class EventHandler extends BaseHandler {
 				break;
 		}
 
-		await this.runEvent(args[0].t, args[1], args[0], args[2]);
+		await this.runEvent(args[0].t, args[1], args[0].d, args[2]);
 	}
 
 	async runEvent(name: GatewayEvents, client: Client | WorkerClient, packet: any, shardId: number) {
