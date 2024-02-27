@@ -21,18 +21,18 @@ export class ApiHandler {
 	globalBlock = false;
 	ratelimits = new Map<string, Bucket>();
 	readyQueue: (() => void)[] = [];
-	cdn = new CDN()
+	cdn = new CDN();
 	debugger?: Logger;
 
 	constructor(options: ApiHandlerOptions) {
 		this.options = {
 			...options,
-			userAgent: DefaultUserAgent
+			userAgent: DefaultUserAgent,
 		};
 		if (options.debug) {
 			this.debugger = new Logger({
-				name: '[API]'
-			})
+				name: '[API]',
+			});
 		}
 	}
 
@@ -71,15 +71,15 @@ export class ApiHandler {
 
 			try {
 				const url = `${this.options.domain}/${this.options.baseUrl}${finalUrl}`;
-				this.debugger?.debug(`Sending, Method: ${method} | Url: [${url}](${route}) | Auth: ${auth}`)
+				this.debugger?.debug(`Sending, Method: ${method} | Url: [${url}](${route}) | Auth: ${auth}`);
 				response = await fetch(url, {
 					method,
 					headers,
 					body: data,
 				});
-				this.debugger?.debug(`Received response: ${response.statusText}(${response.status})`)
+				this.debugger?.debug(`Received response: ${response.statusText}(${response.status})`);
 			} catch (err) {
-				this.debugger?.debug("Fetch error", err)
+				this.debugger?.debug('Fetch error', err);
 				next();
 				reject(err);
 				return;
@@ -110,14 +110,14 @@ export class ApiHandler {
 						try {
 							result = JSON.parse(result);
 						} catch (err) {
-							this.debugger?.warn("Error parsing result error (", result, ')', err)
+							this.debugger?.warn('Error parsing result error (', result, ')', err);
 							reject(err);
 							return;
 						}
 					}
 				}
-				const parsedError = this.parseError(response, result)
-				this.debugger?.warn(parsedError)
+				const parsedError = this.parseError(response, result);
+				this.debugger?.warn(parsedError);
 				reject(parsedError);
 				return;
 			}
@@ -127,7 +127,7 @@ export class ApiHandler {
 					try {
 						result = JSON.parse(result);
 					} catch (err) {
-						this.debugger?.warn("Error parsing result (", result, ')', err)
+						this.debugger?.warn('Error parsing result (', result, ')', err);
 						next();
 						reject(err);
 						return;
@@ -174,8 +174,8 @@ export class ApiHandler {
 	}
 
 	async handle50X(method: HttpMethods, url: `/${string}`, request: ApiRequestOptions, next: () => void) {
-		const wait = Math.floor(Math.random() * 1900 + 100)
-		this.debugger?.warn(`Handling a 50X status, retrying in ${wait}ms`)
+		const wait = Math.floor(Math.random() * 1900 + 100);
+		this.debugger?.warn(`Handling a 50X status, retrying in ${wait}ms`);
 		next();
 		await delay(wait);
 		return this.request(method, url, {
@@ -204,16 +204,19 @@ export class ApiHandler {
 		try {
 			retryAfter = JSON.parse(result).retry_after * 1000;
 		} catch (err) {
-			this.debugger?.warn(`Unexpected error: ${err}`)
+			this.debugger?.warn(`Unexpected error: ${err}`);
 			reject(err);
 			return false;
 		}
 
 		this.debugger?.info(
-			`${response.headers.get('x-ratelimit-global') ? 'Global' : 'Unexpected'
-			} 429: ${result}\n${content} ${now} ${route} ${response.status}: ${this.ratelimits.get(route)!.remaining
-			}/${this.ratelimits.get(route)!.limit} left | Reset ${retryAfter} (${this.ratelimits.get(route)!.reset - now
-			}ms left) | Scope ${response.headers.get('x-ratelimit-scope')}`,
+			`${
+				response.headers.get('x-ratelimit-global') ? 'Global' : 'Unexpected'
+			} 429: ${result}\n${content} ${now} ${route} ${response.status}: ${this.ratelimits.get(route)!.remaining}/${
+				this.ratelimits.get(route)!.limit
+			} left | Reset ${retryAfter} (${this.ratelimits.get(route)!.reset - now}ms left) | Scope ${response.headers.get(
+				'x-ratelimit-scope',
+			)}`,
 		);
 		if (retryAfter) {
 			await delay(retryAfter);
@@ -386,9 +389,9 @@ export type RequestObject<
 	(M extends `${ProxyRequestMethod.Get}`
 		? unknown
 		: {
-			body?: B;
-			files?: F;
-		});
+				body?: B;
+				files?: F;
+		  });
 
 export type RestArguments<
 	M extends ProxyRequestMethod,
@@ -397,6 +400,6 @@ export type RestArguments<
 	F extends RawFile[] = RawFile[],
 > = M extends ProxyRequestMethod.Get
 	? Q extends never
-	? RequestObject<M, never, B, never>
-	: never
+		? RequestObject<M, never, B, never>
+		: never
 	: RequestObject<M, B, Q, F>;

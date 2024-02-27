@@ -11,7 +11,15 @@ import type {
 	RESTPostAPIWebhookWithTokenJSONBody,
 } from '..';
 import type { RawFile } from '../../api';
-import type { ActionRow, Attachment, AttachmentBuilder, BuilderComponents, Embed, Modal, TextInput } from '../../builders';
+import type {
+	ActionRow,
+	Attachment,
+	AttachmentBuilder,
+	BuilderComponents,
+	Embed,
+	Modal,
+	TextInput,
+} from '../../builders';
 import type { ComponentsListener } from '../../components/listener';
 
 import type { OmitInsert } from './util';
@@ -23,10 +31,10 @@ export type BodyModalComponentProper = {
 export interface ResolverProps {
 	embeds?: Embed[] | APIEmbed[] | undefined;
 	components?:
-	| ComponentsListener<BuilderComponents>
-	| APIActionRowComponent<APIMessageActionRowComponent>[]
-	| ActionRow<BuilderComponents>[]
-	| undefined;
+		| ComponentsListener<BuilderComponents>
+		| APIActionRowComponent<APIMessageActionRowComponent>[]
+		| ActionRow<BuilderComponents>[]
+		| undefined;
 	files?: AttachmentBuilder[] | Attachment[] | RawFile[] | undefined;
 }
 

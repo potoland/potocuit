@@ -26,7 +26,7 @@ export class Watcher extends ShardManager {
 	 */
 	constructor(options: WatcherOptions) {
 		super({
-			handlePayload() { },
+			handlePayload() {},
 			token: '',
 			intents: 0,
 			info: {
@@ -75,7 +75,7 @@ export class Watcher extends ShardManager {
 		this.rest ??= new ApiHandler({
 			baseUrl: 'api/v10',
 			domain: 'https://discord.com',
-			token: this.options.token
+			token: this.options.token,
 		});
 		this.options.intents = RC.intents;
 		this.options.info = await new Router(this.rest!).createProxy().gateway.bot.get();

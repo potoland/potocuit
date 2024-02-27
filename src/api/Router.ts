@@ -17,7 +17,7 @@ export class Router {
 		return;
 	};
 
-	constructor(private rest: ApiHandler) { }
+	constructor(private rest: ApiHandler) {}
 
 	createProxy(route = [] as string[]): APIRoutes {
 		return new Proxy(this.noop, {

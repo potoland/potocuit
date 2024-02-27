@@ -7,7 +7,7 @@ export interface ApiHandlerOptions {
 	baseUrl: string;
 	domain: string;
 	token: string;
-	debug?: boolean
+	debug?: boolean;
 	agent?: string;
 	smartBucket?: boolean;
 }

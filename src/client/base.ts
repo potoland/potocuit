@@ -143,7 +143,7 @@ export class BaseClient {
 				token,
 				baseUrl: 'api/v10',
 				domain: 'https://discord.com',
-				debug: (await this.getRC()).debug
+				debug: (await this.getRC()).debug,
 			});
 		}
 

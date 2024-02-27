@@ -20,7 +20,7 @@ type EventValue = MakeRequired<ClientEvent, '__filePath'> & { fired?: boolean };
 type GatewayEvents = Uppercase<SnakeCase<keyof ClientEvents>>;
 
 export class EventHandler extends BaseHandler {
-	protected onFail: OnFailCallback = (err) => this.logger.warn("<Client>.events.OnFail", err);
+	protected onFail: OnFailCallback = err => this.logger.warn('<Client>.events.OnFail', err);
 	protected filter = (path: string) => path.endsWith('.js') || path.endsWith('.ts');
 
 	values: Partial<Record<GatewayEvents, EventValue>> = {};
@@ -48,7 +48,7 @@ export class EventHandler extends BaseHandler {
 		switch (name) {
 			case 'GUILD_DELETE':
 			case 'CHANNEL_UPDATE':
-				await this.runEvent(args[0].t, args[1], args[0], args[2])
+				await this.runEvent(args[0].t, args[1], args[0], args[2]);
 				await args[1].cache.onPacket(args[0]);
 				return;
 			case 'MESSAGE_CREATE':
@@ -82,7 +82,7 @@ export class EventHandler extends BaseHandler {
 				break;
 		}
 
-		await this.runEvent(args[0].t, args[1], args[0], args[2])
+		await this.runEvent(args[0].t, args[1], args[0], args[2]);
 	}
 
 	async runEvent(name: GatewayEvents, client: Client | WorkerClient, packet: any, shardId: number) {

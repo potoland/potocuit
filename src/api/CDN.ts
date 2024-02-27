@@ -59,7 +59,7 @@ export interface MakeURLOptions {
  * The CDN link builder
  */
 export class CDN {
-	public constructor(private readonly base: string = CDN_URL) { }
+	public constructor(private readonly base: string = CDN_URL) {}
 
 	/**
 	 * Generates an app asset URL for a client's asset.

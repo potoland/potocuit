@@ -3,9 +3,9 @@ export class Bucket {
 	reset = 0;
 	resetAfter = 0;
 	queue: {
-		next: ((cb: () => void, resolve: (data: any) => void, reject: (err: unknown) => void) => any)
+		next: (cb: () => void, resolve: (data: any) => void, reject: (err: unknown) => void) => any;
 		resolve: (data: any) => void;
-		reject: (err: unknown) => void
+		reject: (err: unknown) => void;
 	}[] = [];
 	processing?: NodeJS.Timeout | boolean;
 	processingResetAfter?: NodeJS.Timeout | boolean;
@@ -32,23 +32,30 @@ export class Bucket {
 		}
 		this.last = now;
 		if (this.remaining <= 0) {
-			this.processing = setTimeout(() => {
-				this.processing = false;
-				this.process(true);
-			}, this.resetAfter ? 0.500 : Math.max(0, (this.reset || 0) - now) + 1);
+			this.processing = setTimeout(
+				() => {
+					this.processing = false;
+					this.process(true);
+				},
+				this.resetAfter ? 0.5 : Math.max(0, (this.reset || 0) - now) + 1,
+			);
 			return;
 		}
 		--this.remaining;
 		this.processing = true;
 
 		const shift = this.queue.shift()!;
-		shift.next(() => {
-			if (this.queue.length > 0) {
-				this.process(true);
-			} else {
-				this.processing = false;
-			}
-		}, shift.resolve, shift.reject);
+		shift.next(
+			() => {
+				if (this.queue.length > 0) {
+					this.process(true);
+				} else {
+					this.processing = false;
+				}
+			},
+			shift.resolve,
+			shift.reject,
+		);
 	}
 
 	push(func: this['queue'][number], unshift?: boolean) {

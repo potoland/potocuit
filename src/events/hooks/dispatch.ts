@@ -11,5 +11,5 @@ export const RESUMED = (_self: BaseClient, _data: GatewayResumedDispatch['d']) =
 };
 
 export const RAW = (_self: BaseClient, data: GatewayDispatchPayload) => {
-	return data
+	return data;
 };
