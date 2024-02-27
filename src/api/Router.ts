@@ -1,5 +1,6 @@
 import { CDN_URL } from '../common';
-import type { APIRoutes, CDNRoute, REST } from './index';
+import type { APIRoutes, ApiHandler, CDNRoute } from './index';
+import type { HttpMethods } from './shared';
 
 export enum ProxyRequestMethod {
 	Delete = 'delete',
@@ -16,13 +17,13 @@ export class Router {
 		return;
 	};
 
-	constructor(private rest: REST) {}
+	constructor(private rest: ApiHandler) { }
 
 	createProxy(route = [] as string[]): APIRoutes {
 		return new Proxy(this.noop, {
 			get: (_, key: string) => {
 				if (ArrRequestsMethods.includes(key)) {
-					return (...options: any[]) => this.rest[key as ProxyRequestMethod](`/${route.join('/')}`, ...options);
+					return (...options: any[]) => this.rest.request(key as HttpMethods, `/${route.join('/')}`, ...options);
 				}
 				return this.createProxy([...route, key]);
 			},

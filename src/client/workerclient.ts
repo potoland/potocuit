@@ -175,65 +175,76 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 					this.events.values.BOT_READY &&
 					(this.events.values.BOT_READY.fired ? !this.events.values.BOT_READY.data.once : true)
 				) {
-					this.events.values.BOT_READY.fired = true;
-					await this.events.values.BOT_READY.run(this.me!, this, -1);
+					await this.events.runEvent('BOT_READY', this, this.me, -1)
 				}
 				break;
 		}
 	}
 
 	protected async onPacket(packet: GatewayDispatchPayload, shardId: number) {
+		await this.events.execute('RAW', packet, this as WorkerClient<true>, shardId)
 		switch (packet.t) {
-			case 'READY':
-				for (const g of packet.d.guilds) {
-					this.__handleGuilds.add(g.id);
-				}
-				this.botId = packet.d.user.id;
-				this.applicationId = packet.d.application.id;
-				this.me = new ClientUser(this, packet.d.user, packet.d.application) as never;
-				if (!this.__handleGuilds.size) {
-					if (
-						[...this.shards.values()].every(shard => shard.data.session_id) &&
-						this.events.values.WORKER_READY &&
-						(this.events.values.WORKER_READY.fired ? !this.events.values.WORKER_READY.data.once : true)
-					) {
-						manager!.postMessage({
-							type: 'WORKER_READY',
-							workerId: this.workerId,
-						} as WorkerReady);
-						this.events.values.WORKER_READY.fired = true;
-						await this.events.values.WORKER_READY.run(this.me!, this, -1);
+			case 'GUILD_MEMBER_UPDATE':
+				await this.events.execute(packet.t, packet, this as WorkerClient<true>, shardId);
+				await this.cache.onPacket(packet);
+				break;
+			case 'PRESENCE_UPDATE':
+				await this.events.execute(packet.t, packet, this as WorkerClient<true>, shardId);
+				await this.cache.onPacket(packet);
+				break;
+			//rest of the events
+			default: {
+				switch (packet.t) {
+					case 'READY':
+						for (const g of packet.d.guilds) {
+							this.__handleGuilds.add(g.id);
+						}
+						this.botId = packet.d.user.id;
+						this.applicationId = packet.d.application.id;
+						this.me = new ClientUser(this, packet.d.user, packet.d.application) as never;
+						if (!this.__handleGuilds.size) {
+							if (
+								[...this.shards.values()].every(shard => shard.data.session_id) &&
+								this.events.values.WORKER_READY &&
+								(this.events.values.WORKER_READY.fired ? !this.events.values.WORKER_READY.data.once : true)
+							) {
+								manager!.postMessage({
+									type: 'WORKER_READY',
+									workerId: this.workerId,
+								} as WorkerReady);
+								await this.events.runEvent('WORKER_READY', this, this.me, -1)
+							}
+						}
+						this.debugger?.debug(`#${shardId} [${packet.d.user.username}](${this.botId}) is online...`);
+						break;
+					case 'INTERACTION_CREATE':
+						await onInteractionCreate(this, packet.d, shardId);
+						break;
+					case 'MESSAGE_CREATE':
+						await onMessageCreate(this, packet.d, shardId);
+						break;
+					case 'GUILD_CREATE': {
+						if (this.__handleGuilds.has(packet.d.id)) {
+							this.__handleGuilds.delete(packet.d.id);
+							if (
+								!this.__handleGuilds.size &&
+								[...this.shards.values()].every(shard => shard.data.session_id) &&
+								this.events.values.WORKER_READY &&
+								(this.events.values.WORKER_READY.fired ? !this.events.values.WORKER_READY.data.once : true)
+							) {
+								manager!.postMessage({
+									type: 'WORKER_READY',
+									workerId: this.workerId,
+								} as WorkerReady);
+								await this.events.runEvent('WORKER_READY', this, this.me, -1)
+							}
+							return;
+						}
 					}
 				}
-				this.debugger?.debug(`#${shardId} [${packet.d.user.username}](${this.botId}) is online...`);
-				break;
-			case 'INTERACTION_CREATE':
-				await onInteractionCreate(this, packet.d, shardId);
-				break;
-			case 'MESSAGE_CREATE':
-				await onMessageCreate(this, packet.d, shardId);
-				break;
-			case 'GUILD_CREATE': {
-				if (this.__handleGuilds.has(packet.d.id)) {
-					this.__handleGuilds.delete(packet.d.id);
-					if (
-						!this.__handleGuilds.size &&
-						[...this.shards.values()].every(shard => shard.data.session_id) &&
-						this.events.values.WORKER_READY &&
-						(this.events.values.WORKER_READY.fired ? !this.events.values.WORKER_READY.data.once : true)
-					) {
-						manager!.postMessage({
-							type: 'WORKER_READY',
-							workerId: this.workerId,
-						} as WorkerReady);
-						this.events.values.WORKER_READY.fired = true;
-						await this.events.values.WORKER_READY.run(this.me!, this, -1);
-					}
-					return;
-				}
-			}
+				await this.events.execute(packet.t, packet, this, shardId);
+			} break
 		}
-		await this.events.execute(packet.t, packet, this, shardId);
 	}
 }
 

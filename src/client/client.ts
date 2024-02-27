@@ -108,6 +108,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 	}
 
 	protected async onPacket(shardId: number, packet: GatewayDispatchPayload) {
+		await this.events.execute('RAW', packet, this as Client<true>, shardId)
 		switch (packet.t) {
 			//// Cases where we must obtain the old data before updating
 			case 'GUILD_MEMBER_UPDATE':
@@ -124,12 +125,6 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 				await this.events.execute(packet.t, packet, this as Client<true>, shardId);
 				await this.cache.onPacket(packet);
 				break;
-			case 'GUILD_DELETE':
-			case 'CHANNEL_UPDATE': {
-				await this.events.execute(packet.t, packet, this as Client<true>, shardId);
-				await this.cache.onPacket(packet);
-				break;
-			}
 			//rest of the events
 			default: {
 				await this.cache.onPacket(packet);
@@ -153,8 +148,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 								this.events.values.BOT_READY &&
 								(this.events.values.BOT_READY.fired ? !this.events.values.BOT_READY.data.once : true)
 							) {
-								this.events.values.BOT_READY.fired = true;
-								await this.events.values.BOT_READY.run(this.me!, this, -1);
+								await this.events.runEvent('BOT_READY', this, this.me, -1)
 							}
 						}
 						this.debugger?.debug(`#${shardId}[${packet.d.user.username}](${this.botId}) is online...`);
@@ -168,8 +162,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 								this.events.values.BOT_READY &&
 								(this.events.values.BOT_READY.fired ? !this.events.values.BOT_READY.data.once : true)
 							) {
-								this.events.values.BOT_READY.fired = true;
-								await this.events.values.BOT_READY.run(this.me!, this, -1);
+								await this.events.runEvent('BOT_READY', this, this.me, -1)
 							}
 							return;
 						}

@@ -20,7 +20,7 @@ type EventValue = MakeRequired<ClientEvent, '__filePath'> & { fired?: boolean };
 type GatewayEvents = Uppercase<SnakeCase<keyof ClientEvents>>;
 
 export class EventHandler extends BaseHandler {
-	protected onFail?: OnFailCallback;
+	protected onFail: OnFailCallback = (err) => this.logger.warn("<Client>.events.OnFail", err);
 	protected filter = (path: string) => path.endsWith('.js') || path.endsWith('.ts');
 
 	values: Partial<Record<GatewayEvents, EventValue>> = {};
@@ -46,6 +46,11 @@ export class EventHandler extends BaseHandler {
 
 	async execute(name: GatewayEvents, ...args: [GatewayDispatchPayload, Client<true> | WorkerClient<true>, number]) {
 		switch (name) {
+			case 'GUILD_DELETE':
+			case 'CHANNEL_UPDATE':
+				await this.runEvent(args[0].t, args[1], args[0], args[2])
+				await args[1].cache.onPacket(args[0]);
+				return;
 			case 'MESSAGE_CREATE':
 				{
 					const { d: data } = args[0] as GatewayMessageCreateDispatch;
@@ -77,6 +82,10 @@ export class EventHandler extends BaseHandler {
 				break;
 		}
 
+		await this.runEvent(args[0].t, args[1], args[0], args[2])
+	}
+
+	async runEvent(name: GatewayEvents, client: Client | WorkerClient, packet: any, shardId: number) {
 		const Event = this.values[name];
 		if (!Event) {
 			return;
@@ -86,8 +95,8 @@ export class EventHandler extends BaseHandler {
 				return;
 			}
 			Event.fired = true;
-			const hook = await RawEvents[args[0].t]?.(args[1], args[0].d as never);
-			await Event.run(...[hook, args[1], args[2]]);
+			const hook = await RawEvents[name]?.(client, packet as never);
+			await Event.run(...[hook, client, shardId]);
 		} catch (e) {
 			await this.onFail?.(e);
 		}

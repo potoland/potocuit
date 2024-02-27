@@ -1,5 +1,5 @@
 import type { BaseClient } from '../../client/base';
-import type { GatewayReadyDispatchData, GatewayResumedDispatch } from '../../common';
+import type { GatewayDispatchPayload, GatewayReadyDispatchData, GatewayResumedDispatch } from '../../common';
 import { ClientUser } from '../../structures';
 
 export const READY = (self: BaseClient, data: GatewayReadyDispatchData) => {
@@ -8,4 +8,8 @@ export const READY = (self: BaseClient, data: GatewayReadyDispatchData) => {
 
 export const RESUMED = (_self: BaseClient, _data: GatewayResumedDispatch['d']) => {
 	return;
+};
+
+export const RAW = (_self: BaseClient, data: GatewayDispatchPayload) => {
+	return data
 };

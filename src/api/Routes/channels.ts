@@ -53,7 +53,7 @@ import type {
 	RESTPutAPIChannelRecipientResult,
 	RESTPutAPIChannelThreadMembersResult,
 } from '../../common';
-import type { RestArguments } from '../REST';
+import type { RestArguments } from '../api';
 import type { ProxyRequestMethod } from '../Router';
 
 export interface ChannelRoutes {

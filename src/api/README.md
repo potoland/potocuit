@@ -11,7 +11,3 @@
   [![Discord](https://img.shields.io/discord/1003825077969764412?color=%23406da2&label=support&logo=discord&style=flat-square)](https://discord.com/invite/XNw2RZFzaP)
 
 </div>
-
-
-> [!NOTE]
-> This is **literally** a fork of [@discordjs/rest](https://github.com/discordjs/discord.js/tree/main/packages/rest) with some modifications, much of the work is from the discordjs team.

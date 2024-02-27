@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { REST, Router } from '../api';
+import { ApiHandler, Router } from '../api';
 import type { Adapter } from '../cache';
 import { Cache, MemoryAdapter } from '../cache';
 import type { RegisteredMiddlewares } from '../commands';
@@ -29,7 +29,7 @@ import type { ChatInputCommandInteraction, MessageCommandInteraction, UserComman
 export class BaseClient {
 	/** @internal */
 	__handleGuilds = new Set<string>();
-	rest!: REST;
+	rest!: ApiHandler;
 	cache!: Cache;
 
 	users = new UsersShorter(this).users;
@@ -139,9 +139,11 @@ export class BaseClient {
 
 		if (!this.rest) {
 			BaseClient.assertString(token, 'token is not a string');
-			this.rest = new REST({
+			this.rest = new ApiHandler({
 				token,
-				debug: false, //(await this.getRC()).debug,
+				baseUrl: 'api/v10',
+				domain: 'https://discord.com',
+				debug: (await this.getRC()).debug
 			});
 		}
 
@@ -288,7 +290,7 @@ export type InternalRuntimeConfig = Omit<MakeRequired<RC, 'intents'>, 'publicKey
 export type RuntimeConfig = OmitInsert<InternalRuntimeConfig, 'intents', { intents?: IntentStrings | number }>;
 
 export type ServicesOptions = {
-	rest?: REST;
+	rest?: ApiHandler;
 	cache?: { adapter: Adapter; disabledCache?: Cache['disabledCache'] };
 	langs?: {
 		default?: string;

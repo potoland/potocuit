@@ -113,8 +113,8 @@ import type {
 	RESTPutAPIGuildMemberRoleResult,
 	RESTPutAPIGuildTemplateSyncResult,
 } from '../../common';
-import type { RestArguments } from '../REST';
 import type { ProxyRequestMethod } from '../Router';
+import type { RestArguments } from '../api';
 import type { RawFile } from '../shared';
 
 export interface GuildRoutes {

@@ -2,7 +2,7 @@ import { watch } from 'chokidar';
 import type { GatewayDispatchPayload, GatewaySendPayload } from 'discord-api-types/v10';
 import { execSync } from 'node:child_process';
 import { Worker } from 'node:worker_threads';
-import { REST, Router } from '../../api';
+import { ApiHandler, Router } from '../../api';
 import { BaseClient, type InternalRuntimeConfig } from '../../client/base';
 import { ShardManager, type ShardManagerOptions } from '../../websocket';
 import { Logger } from '../it/logger';
@@ -16,7 +16,7 @@ export class Watcher extends ShardManager {
 	logger = new Logger({
 		name: '[Watcher]',
 	});
-	rest?: REST;
+	rest?: ApiHandler;
 
 	declare options: MakeRequired<WatcherOptions, 'intents' | 'token' | 'handlePayload' | 'info'>;
 
@@ -26,7 +26,7 @@ export class Watcher extends ShardManager {
 	 */
 	constructor(options: WatcherOptions) {
 		super({
-			handlePayload() {},
+			handlePayload() { },
 			token: '',
 			intents: 0,
 			info: {
@@ -72,8 +72,10 @@ export class Watcher extends ShardManager {
 	async spawnShards() {
 		const RC = await BaseClient.prototype.getRC<InternalRuntimeConfig>();
 		this.options.token = RC.token;
-		this.rest ??= new REST({
-			token: this.options.token,
+		this.rest ??= new ApiHandler({
+			baseUrl: 'api/v10',
+			domain: 'https://discord.com',
+			token: this.options.token
 		});
 		this.options.intents = RC.intents;
 		this.options.info = await new Router(this.rest!).createProxy().gateway.bot.get();
