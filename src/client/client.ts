@@ -89,7 +89,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 				info: await this.proxy.gateway.bot.get(),
 				intents,
 				handlePayload: async (shardId, packet) => {
-					await this.options?.handlePayload?.(shardId, packet)
+					await this.options?.handlePayload?.(shardId, packet);
 					return this.onPacket(shardId, packet);
 				},
 				presence: this.options?.presence,
