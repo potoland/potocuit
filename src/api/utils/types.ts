@@ -2,6 +2,7 @@ export interface RequestHeaders {
 	Authorization?: string;
 	'User-Agent': string;
 	'X-Audit-Log-Reason'?: string;
+	'Content-Type'?: string;
 }
 
 /**

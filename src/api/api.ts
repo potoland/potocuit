@@ -13,6 +13,7 @@ import {
 	type ApiRequestOptions,
 	type HttpMethods,
 	type RawFile,
+	type RequestHeaders,
 } from './shared';
 import { isBufferLike } from './utils/utils';
 
@@ -53,13 +54,9 @@ export class ApiHandler {
 		let attempts = 0;
 
 		const callback = async (next: () => void, resolve: (data: any) => void, reject: (err: unknown) => void) => {
-			const headers: {
-				'User-Agent': string;
-				Authorization?: string;
-				'Content-Type'?: string;
-			} = {
+			const headers = {
 				'User-Agent': this.options.userAgent,
-			};
+			} satisfies RequestHeaders;
 
 			const { data, finalUrl } = this.parseRequest({
 				url,
@@ -210,10 +207,8 @@ export class ApiHandler {
 		}
 
 		this.debugger?.info(
-			`${
-				response.headers.get('x-ratelimit-global') ? 'Global' : 'Unexpected'
-			} 429: ${result}\n${content} ${now} ${route} ${response.status}: ${this.ratelimits.get(route)!.remaining}/${
-				this.ratelimits.get(route)!.limit
+			`${response.headers.get('x-ratelimit-global') ? 'Global' : 'Unexpected'
+			} 429: ${result}\n${content} ${now} ${route} ${response.status}: ${this.ratelimits.get(route)!.remaining}/${this.ratelimits.get(route)!.limit
 			} left | Reset ${retryAfter} (${this.ratelimits.get(route)!.reset - now}ms left) | Scope ${response.headers.get(
 				'x-ratelimit-scope',
 			)}`,
@@ -291,7 +286,7 @@ export class ApiHandler {
 
 	parseRequest(options: {
 		url: string;
-		headers: Record<string, any>;
+		headers: RequestHeaders
 		request: ApiRequestOptions;
 	}) {
 		let finalUrl = options.url;
@@ -342,6 +337,9 @@ export class ApiHandler {
 			options.headers['Content-Type'] = 'application/json';
 			data = JSON.stringify(options.request.body);
 		}
+		if (options.request.reason) {
+			options.headers['X-Audit-Log-Reason'] = encodeURIComponent(options.request.reason)
+		}
 
 		return { data, finalUrl } as { data: typeof data; finalUrl: `/${string}` };
 	}
@@ -389,9 +387,9 @@ export type RequestObject<
 	(M extends `${ProxyRequestMethod.Get}`
 		? unknown
 		: {
-				body?: B;
-				files?: F;
-		  });
+			body?: B;
+			files?: F;
+		});
 
 export type RestArguments<
 	M extends ProxyRequestMethod,
@@ -400,6 +398,6 @@ export type RestArguments<
 	F extends RawFile[] = RawFile[],
 > = M extends ProxyRequestMethod.Get
 	? Q extends never
-		? RequestObject<M, never, B, never>
-		: never
+	? RequestObject<M, never, B, never>
+	: never
 	: RequestObject<M, B, Q, F>;
