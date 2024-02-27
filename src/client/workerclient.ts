@@ -125,7 +125,7 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 								compress: data.compress,
 								debugger: this.debugger,
 								async handlePayload(shardId, payload) {
-									await handlePayload?.(shardId, payload)
+									await handlePayload?.(shardId, payload);
 									await cache.onPacket(payload);
 									await onPacket?.(payload, shardId);
 									manager!.postMessage({
