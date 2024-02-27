@@ -36,7 +36,7 @@ export class Button<Type extends boolean = boolean> {
 	 * @param id - The custom ID to set.
 	 * @returns The modified Button instance.
 	 */
-	setCustomId(id: string): Omit<this, 'setURL'> {
+	setCustomId(id: string) {
 		// @ts-expect-error
 		this.data.custom_id = id;
 		return this;
@@ -47,7 +47,7 @@ export class Button<Type extends boolean = boolean> {
 	 * @param url - The URL to set.
 	 * @returns The modified Button instance.
 	 */
-	setURL(url: string): Omit<this, 'setCustomId' | 'run'> {
+	setURL(url: string) {
 		// @ts-expect-error
 		this.data.url = url;
 		return this;
@@ -85,9 +85,7 @@ export class Button<Type extends boolean = boolean> {
 		return this;
 	}
 
-	setStyle(style: ButtonStyle.Link): Omit<this, 'setCustomId' | 'run'>;
-	setStyle(style: ButtonStylesForID): Omit<this, 'setURL'>;
-	setStyle(style: ButtonStyle): Omit<this, 'setURL'> | Omit<this, 'setCustomId' | 'run'> {
+	setStyle(style: ButtonStyle) {
 		this.data.style = style;
 		return this;
 	}
@@ -97,7 +95,7 @@ export class Button<Type extends boolean = boolean> {
 	 * @param func - The callback function to set.
 	 * @returns The modified Button instance.
 	 */
-	run(func: ComponentCallback<ButtonInteraction>): Omit<this, 'setURL'> {
+	run(func: ComponentCallback<ButtonInteraction>) {
 		this.__exec = func;
 		return this;
 	}
