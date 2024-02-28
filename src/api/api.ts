@@ -68,7 +68,7 @@ export class ApiHandler {
 
 			try {
 				const url = `${this.options.domain}/${this.options.baseUrl}${finalUrl}`;
-				this.debugger?.debug(`Sending, Method: ${method} | Url: [${url}](${route}) | Auth: ${auth}`);
+				this.debugger?.debug(`Sending, Method: ${method} | Url: [${finalUrl}](${route}) | Auth: ${auth}`);
 				response = await fetch(url, {
 					method,
 					headers,
@@ -207,10 +207,8 @@ export class ApiHandler {
 		}
 
 		this.debugger?.info(
-			`${
-				response.headers.get('x-ratelimit-global') ? 'Global' : 'Unexpected'
-			} 429: ${result}\n${content} ${now} ${route} ${response.status}: ${this.ratelimits.get(route)!.remaining}/${
-				this.ratelimits.get(route)!.limit
+			`${response.headers.get('x-ratelimit-global') ? 'Global' : 'Unexpected'
+			} 429: ${result}\n${content} ${now} ${route} ${response.status}: ${this.ratelimits.get(route)!.remaining}/${this.ratelimits.get(route)!.limit
 			} left | Reset ${retryAfter} (${this.ratelimits.get(route)!.reset - now}ms left) | Scope ${response.headers.get(
 				'x-ratelimit-scope',
 			)}`,
@@ -389,9 +387,9 @@ export type RequestObject<
 	(M extends `${ProxyRequestMethod.Get}`
 		? unknown
 		: {
-				body?: B;
-				files?: F;
-		  });
+			body?: B;
+			files?: F;
+		});
 
 export type RestArguments<
 	M extends ProxyRequestMethod,
@@ -400,6 +398,6 @@ export type RestArguments<
 	F extends RawFile[] = RawFile[],
 > = M extends ProxyRequestMethod.Get
 	? Q extends never
-		? RequestObject<M, never, B, never>
-		: never
+	? RequestObject<M, never, B, never>
+	: never
 	: RequestObject<M, B, Q, F>;

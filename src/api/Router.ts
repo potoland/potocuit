@@ -17,13 +17,13 @@ export class Router {
 		return;
 	};
 
-	constructor(private rest: ApiHandler) {}
+	constructor(private rest: ApiHandler) { }
 
 	createProxy(route = [] as string[]): APIRoutes {
 		return new Proxy(this.noop, {
 			get: (_, key: string) => {
 				if (ArrRequestsMethods.includes(key)) {
-					return (...options: any[]) => this.rest.request(key as HttpMethods, `/${route.join('/')}`, ...options);
+					return (...options: any[]) => this.rest.request(key.toUpperCase() as HttpMethods, `/${route.join('/')}`, ...options);
 				}
 				return this.createProxy([...route, key]);
 			},
