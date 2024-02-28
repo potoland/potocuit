@@ -5,10 +5,9 @@ export class Members extends GuildBasedResource {
 	namespace = 'member';
 
 	override parse(data: any, key: string, guild_id: string) {
-		data.guild_id = guild_id;
-		data.id = data.user?.id ?? key;
-		const { user, ...obj } = data;
-		return obj;
+		const modified = super.parse(data, data.user?.id ?? key, guild_id)
+		const { user, ...rest } = modified;
+		return rest;
 	}
 
 	override async get(id: string, guild: string): Promise<GuildMember | undefined> {

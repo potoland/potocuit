@@ -4,10 +4,10 @@ import { GuildRelatedResource } from './default/guild-related';
 export class VoiceStates extends GuildRelatedResource<VoiceStateResource> {
 	namespace = 'voice-state';
 
-	override parse(data: any, _id: string, guild_id: string): VoiceStateResource {
-		data.guild_id = guild_id;
-		delete data.member;
-		return data;
+	override parse(data: any, id: string, guild_id: string): VoiceStateResource {
+		const modified = super.parse(data, id, guild_id)
+		const { member, ...rest } = modified
+		return rest;
 	}
 }
 

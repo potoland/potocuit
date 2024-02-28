@@ -20,7 +20,8 @@ export class GuildRelatedResource<T = any> {
 		this.client = client;
 	}
 
-	parse(data: any, _id: string, guild_id: string) {
+	parse(data: any, id: string, guild_id: string) {
+		data.id = id
 		data.guild_id = guild_id;
 		return data;
 	}
@@ -102,17 +103,17 @@ export class GuildRelatedResource<T = any> {
 		return guild === '*'
 			? await this.adapter.scan(this.hashId(guild), true)
 			: (async () => {
-					return (await this.adapter.getToRelationship(this.hashId(guild))).map(x => `${this.namespace}.${x}`);
-			  })();
+				return (await this.adapter.getToRelationship(this.hashId(guild))).map(x => `${this.namespace}.${x}`);
+			})();
 	}
 
 	async values(guild: string): Promise<(T & { guild_id: string })[]> {
 		return guild === '*'
 			? await this.adapter.scan(this.hashId(guild))
 			: (async () => {
-					const keys = (await this.adapter.getToRelationship(this.hashId(guild))).map(x => `${this.namespace}.${x}`);
-					return this.adapter.get(keys);
-			  })();
+				const keys = (await this.adapter.getToRelationship(this.hashId(guild))).map(x => `${this.namespace}.${x}`);
+				return this.adapter.get(keys);
+			})();
 	}
 
 	async count(to: string) {

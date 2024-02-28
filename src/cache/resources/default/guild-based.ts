@@ -20,7 +20,8 @@ export class GuildBasedResource<T = any> {
 		this.client = client;
 	}
 
-	parse(data: any, _id: string, guild_id: string) {
+	parse(data: any, id: string, guild_id: string) {
+		data.id = id
 		data.guild_id = guild_id;
 		return data;
 	}
