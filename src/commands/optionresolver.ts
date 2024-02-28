@@ -33,14 +33,13 @@ export class OptionResolver {
 	}
 
 	get fullCommandName() {
-		return `${this.parent?.name}${
-			this.group ? ` ${this.group} ${this.subCommand}` : this.subCommand ? ` ${this.subCommand}` : ''
-		}`;
+		return `${this.parent?.name}${this.group ? ` ${this.group} ${this.subCommand}` : this.subCommand ? ` ${this.subCommand}` : ''
+			}`;
 	}
 
 	getCommand() {
 		if (this.subCommand) {
-			return (this.parent?.options as SubCommand[]).find(
+			return (this.parent?.options as (SubCommand[] | undefined))?.find(
 				x => (this.group ? x.group === this.group : true) && x.name === this.subCommand,
 			);
 		}
@@ -191,19 +190,19 @@ export interface OptionResolved {
 
 export type OptionResolvedWithValue = MakeRequired<Pick<OptionResolved, 'name' | 'value' | 'focused'>, 'value'> & {
 	type:
-		| ApplicationCommandOptionType.Boolean
-		| ApplicationCommandOptionType.Integer
-		| ApplicationCommandOptionType.Number
-		| ApplicationCommandOptionType.String;
+	| ApplicationCommandOptionType.Boolean
+	| ApplicationCommandOptionType.Integer
+	| ApplicationCommandOptionType.Number
+	| ApplicationCommandOptionType.String;
 };
 
 export type OptionResolvedWithProp = Exclude<
 	OptionResolved,
 	{
 		type:
-			| ApplicationCommandOptionType.Boolean
-			| ApplicationCommandOptionType.Integer
-			| ApplicationCommandOptionType.Number
-			| ApplicationCommandOptionType.String;
+		| ApplicationCommandOptionType.Boolean
+		| ApplicationCommandOptionType.Integer
+		| ApplicationCommandOptionType.Number
+		| ApplicationCommandOptionType.String;
 	}
 >;
