@@ -5,7 +5,7 @@ export class Members extends GuildBasedResource {
 	namespace = 'member';
 
 	override parse(data: any, key: string, guild_id: string) {
-		const modified = super.parse(data, data.user?.id ?? key, guild_id)
+		const modified = super.parse(data, data.user?.id ?? key, guild_id);
 		const { user, ...rest } = modified;
 		return rest;
 	}

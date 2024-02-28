@@ -7,7 +7,7 @@ export class Presences extends GuildRelatedResource<PresenceResource> {
 	override parse(data: any, key: string, guild_id: string): PresenceResource {
 		const modified = super.parse(data, key, guild_id);
 		modified.user_id = modified.user?.id ?? key;
-		const { user, ...rest } = modified
+		const { user, ...rest } = modified;
 		return rest;
 	}
 }
