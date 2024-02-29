@@ -9,12 +9,12 @@ import { Message, type ChatInputCommandInteraction } from '../../structures';
 import type { RegisteredMiddlewares } from '../decorators';
 import type { OptionResolver } from '../optionresolver';
 import type { ContextOptions, OptionsRecord } from './chat';
-import type { CommandMetadata, ExtendContext, GlobalMetadata, UsingClient } from './shared';
+import type { CommandMetadata, ExtendContext, GlobalMetadata, InternalOptions, UsingClient } from './shared';
 
 export interface CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never>
-	extends ExtendContext {}
+	extends ExtendContext { }
 
-export type InferWithPrefix = UsingClient extends { withPrefix: infer P } ? P : false;
+export type InferWithPrefix = InternalOptions extends { withPrefix: infer P } ? P : false;
 
 export class CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never> {
 	message!: If<InferWithPrefix, Message | undefined>;
