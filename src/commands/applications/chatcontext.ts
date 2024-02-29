@@ -12,7 +12,7 @@ import type { ContextOptions, OptionsRecord } from './chat';
 import type { CommandMetadata, ExtendContext, GlobalMetadata, InternalOptions, UsingClient } from './shared';
 
 export interface CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never>
-	extends ExtendContext { }
+	extends ExtendContext {}
 
 export type InferWithPrefix = InternalOptions extends { withPrefix: infer P } ? P : false;
 
