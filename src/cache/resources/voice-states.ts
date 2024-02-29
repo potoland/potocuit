@@ -5,8 +5,7 @@ export class VoiceStates extends GuildRelatedResource<VoiceStateResource> {
 	namespace = 'voice-state';
 
 	override parse(data: any, id: string, guild_id: string): VoiceStateResource {
-		const modified = super.parse(data, id, guild_id);
-		const { member, ...rest } = modified;
+		const { member, ...rest } = super.parse(data, id, guild_id);
 		return rest;
 	}
 }

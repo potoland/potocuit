@@ -30,7 +30,7 @@ export class MenuCommandContext<
 		return this.client.proxy;
 	}
 
-	// biome-ignore lint/suspicious/useGetterReturn: bugged
+	// biome-ignore lint/suspicious/useGetterReturn: default don't exist.
 	get target(): InteractionTarget<T> {
 		switch (this.interaction.data.type) {
 			case ApplicationCommandType.Message: {

@@ -1,5 +1,5 @@
 import type { Client, WorkerClient } from '../../client';
-import { MessageFlags, type UnionToTuple } from '../../common';
+import { MessageFlags, type If, type UnionToTuple } from '../../common';
 import type {
 	InteractionCreateBodyRequest,
 	InteractionMessageUpdateBodyRequest,
@@ -11,12 +11,16 @@ import type { OptionResolver } from '../optionresolver';
 import type { ContextOptions, OptionsRecord } from './chat';
 import type { CommandMetadata, ExtendContext, GlobalMetadata, UsingClient } from './shared';
 
-export class CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never>
-	implements ExtendContext
-{
-	interaction?: ChatInputCommandInteraction;
-	message?: Message;
-	messageResponse?: Message;
+export interface CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never>
+	extends ExtendContext {}
+
+export type InferWithPrefix = UsingClient extends { withPrefix: infer P } ? P : false;
+
+export class CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never> {
+	message!: If<InferWithPrefix, Message | undefined>;
+	interaction!: If<InferWithPrefix, ChatInputCommandInteraction | undefined, ChatInputCommandInteraction>;
+
+	messageResponse?: If<InferWithPrefix, Message | undefined>;
 	constructor(
 		readonly client: UsingClient,
 		data: ChatInputCommandInteraction | Message,
