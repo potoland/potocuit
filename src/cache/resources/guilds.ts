@@ -7,13 +7,13 @@ export class Guilds extends BaseResource {
 	namespace = 'guild';
 
 	override get(id: string): ReturnCache<Guild<'cached'> | undefined> {
-		return fakePromise(super.get(id))
-			.then(guild => guild ? new Guild<'cached'>(this.client, guild) : undefined)
+		return fakePromise(super.get(id)).then(guild => (guild ? new Guild<'cached'>(this.client, guild) : undefined));
 	}
 
 	override values(): ReturnCache<Guild<'cached'>[]> {
-		return fakePromise(super.values() as APIGuild[])
-			.then(guilds => guilds.map(x => new Guild<'cached'>(this.client, x)));
+		return fakePromise(super.values() as APIGuild[]).then(guilds =>
+			guilds.map(x => new Guild<'cached'>(this.client, x)),
+		);
 	}
 
 	override async remove(id: string) {

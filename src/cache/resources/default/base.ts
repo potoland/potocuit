@@ -30,14 +30,14 @@ export class BaseResource<T = any> {
 
 	removeIfNI(intent: keyof typeof GatewayIntentBits, id: string) {
 		if (!this.cache.hasIntent(intent)) {
-			return this.remove(id)
+			return this.remove(id);
 		}
 		return;
 	}
 
 	setIfNI(intent: keyof typeof GatewayIntentBits, id: string, data: any) {
 		if (!this.cache.hasIntent(intent)) {
-			return fakePromise(this.set(id, data)).then(() => data)
+			return fakePromise(this.set(id, data)).then(() => data);
 		}
 	}
 
@@ -46,18 +46,15 @@ export class BaseResource<T = any> {
 	}
 
 	set(id: string, data: any) {
-		return fakePromise(this.addToRelationship(id))
-			.then(() => this.adapter.set(this.hashId(id), data))
+		return fakePromise(this.addToRelationship(id)).then(() => this.adapter.set(this.hashId(id), data));
 	}
 
 	patch<T extends Record<any, any> = Record<any, any>>(id: string, data: T) {
-		return fakePromise(this.addToRelationship(id))
-			.then(() => this.adapter.patch(false, this.hashId(id), data))
+		return fakePromise(this.addToRelationship(id)).then(() => this.adapter.patch(false, this.hashId(id), data));
 	}
 
 	remove(id: string) {
-		return fakePromise(this.removeToRelationship(id))
-			.then(() => this.adapter.remove(this.hashId(id)))
+		return fakePromise(this.removeToRelationship(id)).then(() => this.adapter.remove(this.hashId(id)));
 	}
 
 	keys(): ReturnCache<string[]> {

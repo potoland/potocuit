@@ -7,8 +7,9 @@ export class Roles extends GuildRelatedResource {
 	namespace = 'role';
 
 	override get(id: string): ReturnCache<GuildRole | undefined> {
-		return fakePromise(super.get(id))
-			.then(rawRole => rawRole ? new GuildRole(this.client, rawRole, rawRole.guild_id) : undefined)
+		return fakePromise(super.get(id)).then(rawRole =>
+			rawRole ? new GuildRole(this.client, rawRole, rawRole.guild_id) : undefined,
+		);
 	}
 
 	override bulk(ids: string[]): ReturnCache<GuildRole[]> {

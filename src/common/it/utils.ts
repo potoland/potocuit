@@ -98,7 +98,7 @@ export class BaseHandler {
 	 * Initializes a new instance of the BaseHandler class.
 	 * @param logger The logger instance.
 	 */
-	constructor(protected logger: Logger) { }
+	constructor(protected logger: Logger) {}
 
 	/**
 	 * Filters a file path.
@@ -256,11 +256,13 @@ export async function magicImport(path: string) {
 
 export type OnFailCallback = (error: unknown) => any;
 
-export function fakePromise<T = unknown | Promise<unknown>>(value: T): {
-	then<R>(callback: (arg: Awaited<T>) => R): R
+export function fakePromise<T = unknown | Promise<unknown>>(
+	value: T,
+): {
+	then<R>(callback: (arg: Awaited<T>) => R): R;
 } {
-	if (value instanceof Promise) return value as any
+	if (value instanceof Promise) return value as any;
 	return {
-		then: (callback) => callback(value as Awaited<T>)
-	}
+		then: callback => callback(value as Awaited<T>),
+	};
 }

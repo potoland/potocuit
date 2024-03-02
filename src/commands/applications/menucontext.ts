@@ -24,12 +24,13 @@ export type InteractionTarget<T> = T extends MessageCommandInteraction ? Message
 export class MenuCommandContext<
 	T extends MessageCommandInteraction | UserCommandInteraction,
 	M extends keyof RegisteredMiddlewares = never,
-> implements ExtendContext {
+> implements ExtendContext
+{
 	constructor(
 		readonly client: UsingClient,
 		readonly interaction: T,
 		readonly shardId: number,
-	) { }
+	) {}
 
 	metadata: CommandMetadata<UnionToTuple<M>> = {} as never;
 	globalMetadata: GlobalMetadata = {};

@@ -8,16 +8,14 @@ export class Channels extends GuildRelatedResource {
 	namespace = 'channel';
 
 	override get(id: string): ReturnCache<AllChannels | undefined> {
-		return fakePromise(super.get(id))
-			.then(rawChannel => rawChannel ? channelFrom(rawChannel, this.client) : undefined);
+		return fakePromise(super.get(id)).then(rawChannel =>
+			rawChannel ? channelFrom(rawChannel, this.client) : undefined,
+		);
 	}
 
-	override values(guild: string):
-		ReturnCache<
-			ReturnType<typeof channelFrom>[]
-		> {
-		return (fakePromise(super.values(guild)).then(channels =>
+	override values(guild: string): ReturnCache<ReturnType<typeof channelFrom>[]> {
+		return fakePromise(super.values(guild)).then(channels =>
 			channels.map(rawChannel => channelFrom(rawChannel, this.client)),
-		))
+		);
 	}
 }

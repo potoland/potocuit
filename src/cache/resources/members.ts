@@ -11,9 +11,11 @@ export class Members extends GuildBasedResource {
 	}
 
 	override get(id: string, guild: string): ReturnCache<GuildMember | undefined> {
-		return fakePromise(super.get(id, guild))
-			.then(rawMember => fakePromise(this.client.cache.users?.get(id))
-				.then((user) => rawMember && user ? new GuildMember(this.client, rawMember, user, guild) : undefined))
+		return fakePromise(super.get(id, guild)).then(rawMember =>
+			fakePromise(this.client.cache.users?.get(id)).then(user =>
+				rawMember && user ? new GuildMember(this.client, rawMember, user, guild) : undefined,
+			),
+		);
 	}
 
 	override values(guild: string): ReturnCache<GuildMember[]> {

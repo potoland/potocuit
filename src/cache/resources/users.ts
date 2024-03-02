@@ -7,8 +7,7 @@ export class Users extends BaseResource {
 	namespace = 'user';
 
 	override get(id: string): ReturnCache<User | undefined> {
-		return fakePromise(super.get(id))
-			.then(rawUser => rawUser ? new User(this.client, rawUser) : undefined)
+		return fakePromise(super.get(id)).then(rawUser => (rawUser ? new User(this.client, rawUser) : undefined));
 	}
 
 	override values(): ReturnCache<User[]> {

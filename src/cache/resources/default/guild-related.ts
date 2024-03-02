@@ -38,8 +38,7 @@ export class GuildRelatedResource<T = any> {
 
 	setIfNI(intent: keyof typeof GatewayIntentBits, id: string, guildId: string, data: any) {
 		if (!this.cache.hasIntent(intent)) {
-			return fakePromise(this.set(id, guildId, data))
-				.then(() => data)
+			return fakePromise(this.set(id, guildId, data)).then(() => data);
 		}
 	}
 
@@ -48,8 +47,7 @@ export class GuildRelatedResource<T = any> {
 	}
 
 	bulk(ids: string[]): ReturnCache<(T & { guild_id: string })[]> {
-		return fakePromise(this.adapter.get(ids.map(x => this.hashId(x))))
-			.then(x => x.filter(y => y))
+		return fakePromise(this.adapter.get(ids.map(x => this.hashId(x)))).then(x => x.filter(y => y));
 	}
 
 	set(__keys: string, guild: string, data: any): ReturnCache<void>;
@@ -60,11 +58,16 @@ export class GuildRelatedResource<T = any> {
 		return fakePromise(
 			this.addToRelationship(
 				keys.map(x => x[0]),
-				guild
-			)
-		).then(() => this.adapter.set(keys.map(([key, value]) => {
-			return [this.hashId(key), this.parse(value, key, guild)];
-		})) as void)
+				guild,
+			),
+		).then(
+			() =>
+				this.adapter.set(
+					keys.map(([key, value]) => {
+						return [this.hashId(key), this.parse(value, key, guild)];
+					}),
+				) as void,
+		);
 	}
 
 	patch(__keys: string, guild?: string, data?: any): ReturnCache<void>;
@@ -73,43 +76,52 @@ export class GuildRelatedResource<T = any> {
 		const keys: [string, any][] = Array.isArray(__keys) ? __keys : [[__keys, data]];
 
 		if (guild) {
-			return fakePromise(this.addToRelationship(
-				keys.map(x => x[0]),
-				guild,
-			)).then(() =>
-				this.adapter.patch(
-					false,
-					keys.map(([key, value]) => {
-						return [this.hashId(key), this.parse(value, key, guild)];
-					}),
-				) as void
-			)
+			return fakePromise(
+				this.addToRelationship(
+					keys.map(x => x[0]),
+					guild,
+				),
+			).then(
+				() =>
+					this.adapter.patch(
+						false,
+						keys.map(([key, value]) => {
+							return [this.hashId(key), this.parse(value, key, guild)];
+						}),
+					) as void,
+			);
 		}
-		return fakePromise(this.adapter.patch(
-			true,
-			keys.map(([key, value]) => {
-				return [this.hashId(key), value];
-			}),
-		)).then(x => x);
+		return fakePromise(
+			this.adapter.patch(
+				true,
+				keys.map(([key, value]) => {
+					return [this.hashId(key), value];
+				}),
+			),
+		).then(x => x);
 	}
 
 	remove(id: string | string[], guild: string) {
 		const ids = Array.isArray(id) ? id : [id];
-		return fakePromise(this.removeToRelationship(ids, guild))
-			.then(() => this.adapter.remove(ids.map(x => this.hashId(x))))
+		return fakePromise(this.removeToRelationship(ids, guild)).then(() =>
+			this.adapter.remove(ids.map(x => this.hashId(x))),
+		);
 	}
 
 	keys(guild: string): ReturnCache<string[]> {
 		return guild === '*'
-			? this.adapter.scan(this.hashId(guild), true) as string[]
-			: fakePromise(this.adapter.getToRelationship(this.hashId(guild))).then(keys => keys.map(x => `${this.namespace}.${x}`)) as string[]
+			? (this.adapter.scan(this.hashId(guild), true) as string[])
+			: (fakePromise(this.adapter.getToRelationship(this.hashId(guild))).then(keys =>
+					keys.map(x => `${this.namespace}.${x}`),
+			  ) as string[]);
 	}
 
 	values(guild: string): ReturnCache<(T & { guild_id: string })[]> {
 		return guild === '*'
-			? fakePromise(this.adapter.scan(this.hashId(guild))).then(x => x) as (T & { guild_id: string })[]
-			: fakePromise(this.adapter.getToRelationship(this.hashId(guild))).then(keys => this.adapter.get(keys.map(x => `${this.namespace}.${x}`))) as (T & { guild_id: string })[]
-
+			? (fakePromise(this.adapter.scan(this.hashId(guild))).then(x => x) as (T & { guild_id: string })[])
+			: (fakePromise(this.adapter.getToRelationship(this.hashId(guild))).then(keys =>
+					this.adapter.get(keys.map(x => `${this.namespace}.${x}`)),
+			  ) as (T & { guild_id: string })[]);
 	}
 
 	count(to: string) {
