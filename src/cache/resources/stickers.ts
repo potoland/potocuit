@@ -1,5 +1,5 @@
 import type { ReturnCache } from '../..';
-import { fakePromise } from '../../common';
+import { fakePromise, type APISticker } from '../../common';
 import { Sticker } from '../../structures';
 import { GuildRelatedResource } from './default/guild-related';
 
@@ -12,8 +12,9 @@ export class Stickers extends GuildRelatedResource {
 		);
 	}
 
-	// override async values(guild: string) {
-	// 	const emojis = (await super.values(guild)) as APISticker[];
-	// 	return emojis.map(rawSticker => new Sticker(this.client, rawSticker));
-	// }
+	override values(guild: string): ReturnCache<Sticker[]> {
+		return fakePromise(super.values(guild) as APISticker[]).then(emojis =>
+			emojis.map(rawSticker => new Sticker(this.client, rawSticker)),
+		);
+	}
 }

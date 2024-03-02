@@ -1,5 +1,5 @@
 import type { ReturnCache } from '../..';
-import { fakePromise } from '../../common';
+import { fakePromise, type APIThreadChannel } from '../../common';
 import { ThreadChannel } from '../../structures';
 import { GuildRelatedResource } from './default/guild-related';
 
@@ -12,8 +12,9 @@ export class Threads extends GuildRelatedResource {
 		);
 	}
 
-	// override async values(guild: string) {
-	// 	const members = (await super.values(guild)) as APIThreadChannel[];
-	// 	return members.map(rawThread => new ThreadChannel(this.client, rawThread));
-	// }
+	override values(guild: string): ReturnCache<ThreadChannel[]> {
+		return fakePromise(super.values(guild) as APIThreadChannel[]).then(threads =>
+			threads.map(rawThread => new ThreadChannel(this.client, rawThread)),
+		);
+	}
 }

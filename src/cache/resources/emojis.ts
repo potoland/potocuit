@@ -1,5 +1,5 @@
 import type { ReturnCache } from '../..';
-import { fakePromise } from '../../common';
+import { fakePromise, type APIEmoji } from '../../common';
 import { GuildEmoji } from '../../structures';
 import { GuildRelatedResource } from './default/guild-related';
 
@@ -12,8 +12,8 @@ export class Emojis extends GuildRelatedResource {
 		);
 	}
 
-	// override async values(guild: string) {
-	// 	const emojis = (await super.values(guild)) as (APIEmoji & { id: string; guild_id: string })[];
-	// 	return emojis.map(rawEmoji => new GuildEmoji(this.client, rawEmoji, rawEmoji.guild_id));
-	// }
+	override values(guild: string): ReturnCache<GuildEmoji[]> {
+		return fakePromise(super.values(guild) as (APIEmoji & { id: string; guild_id: string })[])
+			.then(emojis => emojis.map(rawEmoji => new GuildEmoji(this.client, rawEmoji, rawEmoji.guild_id)))
+	}
 }

@@ -43,14 +43,14 @@ function getCommandFromContent(
 	const command =
 		(groupName || subcommandName) && parent instanceof Command
 			? (parent.options?.find(opt => {
-					if (opt instanceof SubCommand) {
-						if (groupName) {
-							if (opt.group !== groupName) return false;
-						}
-						return subcommandName === opt.name;
+				if (opt instanceof SubCommand) {
+					if (groupName) {
+						if (opt.group !== groupName) return false;
 					}
-					return false;
-			  }) as SubCommand)
+					return subcommandName === opt.name;
+				}
+				return false;
+			}) as SubCommand)
 			: parent;
 
 	return {
@@ -141,8 +141,7 @@ export async function onMessageCreate(
 			await command.onAfterRun?.(context, undefined);
 		} catch (error) {
 			self.logger.error(
-				`${rawCommand.fullCommandName} just threw an error, ${
-					error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+				`${rawCommand.fullCommandName} just threw an error, ${error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 				}`,
 			);
 			await command.onRunError?.(context, error);
@@ -217,6 +216,7 @@ async function parseOptions(
 									: await self.cache.roles?.get(rawId);
 								if (role) {
 									value = rawId;
+									//@ts-expect-error
 									resolved.roles[rawId] = role;
 									break;
 								}
@@ -242,6 +242,7 @@ async function parseOptions(
 							: await self.cache.roles?.get(rawId);
 						if (role) {
 							value = rawId;
+							//@ts-expect-error
 							resolved.roles[rawId] = role;
 						}
 					}

@@ -18,8 +18,8 @@ export class Roles extends GuildRelatedResource {
 		);
 	}
 
-	// override async values(guild: string) {
-	// 	const roles = await super.values(guild);
-	// 	return roles.map(rawRole => new GuildRole(this.client, rawRole, rawRole.guild_id));
-	// }
+	override  values(guild: string): ReturnCache<GuildRole[]> {
+		return fakePromise(super.values(guild))
+			.then(roles => roles.map(rawRole => new GuildRole(this.client, rawRole, rawRole.guild_id)))
+	}
 }
