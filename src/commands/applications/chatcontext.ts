@@ -14,7 +14,7 @@ import type { ContextOptions, OptionsRecord } from './chat';
 import type { CommandMetadata, ExtendContext, GlobalMetadata, InternalOptions, UsingClient } from './shared';
 
 export interface CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never>
-	extends ExtendContext {}
+	extends ExtendContext { }
 
 export type InferWithPrefix = InternalOptions extends { withPrefix: infer P } ? P : false;
 
@@ -90,11 +90,12 @@ export class CommandContext<T extends OptionsRecord = {}, M extends keyof Regist
 		return this.messageResponse as undefined;
 	}
 
-	channel(mode?: 'rest' | 'flow'): Promise<AllChannels>;
-	channel(mode?: 'cache'): ReturnCache<AllChannels>;
+	channel(mode?: 'rest' | 'flow'): Promise<If<InferWithPrefix, AllChannels | undefined, AllChannels>>;
+	channel(mode?: 'cache'): ReturnCache<If<InferWithPrefix, AllChannels | undefined, AllChannels>>;
 	channel(mode: 'cache' | 'rest' | 'flow' = 'cache') {
 		if (this.interaction?.channel && mode === 'cache')
 			return this.client.cache.asyncCache ? Promise.resolve(this.interaction.channel) : this.interaction.channel;
+		if (mode === 'cache') return this.client.cache.channels?.get(this.channelId)
 		return this.client.channels.fetch(this.channelId, mode === 'rest');
 	}
 
