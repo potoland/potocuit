@@ -99,7 +99,7 @@ export class BaseClient {
 			this.cache = new Cache(
 				this.cache?.intents ?? 0,
 				cache.adapter,
-				cache.asyncCache ?? this.cache.asyncCache,
+				cache.asyncCache ?? this.cache?.asyncCache,
 				cache.disabledCache ?? this.cache?.disabledCache,
 				this,
 			);
