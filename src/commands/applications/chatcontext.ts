@@ -14,7 +14,7 @@ import type { ContextOptions, OptionsRecord } from './chat';
 import type { CommandMetadata, ExtendContext, GlobalMetadata, InternalOptions, UsingClient } from './shared';
 
 export interface CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never>
-	extends ExtendContext { }
+	extends ExtendContext {}
 
 export type InferWithPrefix = InternalOptions extends { withPrefix: infer P } ? P : false;
 
@@ -97,7 +97,10 @@ export class CommandContext<T extends OptionsRecord = {}, M extends keyof Regist
 			return this.client.cache.asyncCache ? Promise.resolve(this.interaction.channel) : this.interaction.channel;
 		switch (mode) {
 			case 'cache':
-				return this.client.cache.channels?.get(this.channelId) || (this.client.cache.asyncCache ? Promise.resolve() as any : undefined)
+				return (
+					this.client.cache.channels?.get(this.channelId) ||
+					(this.client.cache.asyncCache ? (Promise.resolve() as any) : undefined)
+				);
 			default:
 				return this.client.channels.fetch(this.channelId, mode === 'rest');
 		}
@@ -110,7 +113,10 @@ export class CommandContext<T extends OptionsRecord = {}, M extends keyof Regist
 			return mode === 'cache' ? (this.client.cache.asyncCache ? Promise.resolve() : undefined) : Promise.resolve();
 		switch (mode) {
 			case 'cache':
-				return this.client.cache.members?.get(this.client.botId, this.guildId) || (this.client.cache.asyncCache ? Promise.resolve() as any : undefined)
+				return (
+					this.client.cache.members?.get(this.client.botId, this.guildId) ||
+					(this.client.cache.asyncCache ? (Promise.resolve() as any) : undefined)
+				);
 			default:
 				return this.client.members.fetch(this.guildId, this.client.botId, mode === 'rest');
 		}
@@ -120,12 +126,17 @@ export class CommandContext<T extends OptionsRecord = {}, M extends keyof Regist
 	guild(mode?: 'cache'): ReturnCache<Guild<'cached'> | undefined>;
 	guild(mode: 'cache' | 'rest' | 'flow' = 'cache') {
 		if (!this.guildId)
-			return (
-				mode === 'cache' ? (this.client.cache.asyncCache ? Promise.resolve() : undefined) : Promise.resolve()
-			) as unknown as undefined;
+			return (mode === 'cache'
+				? this.client.cache.asyncCache
+					? Promise.resolve()
+					: undefined
+				: Promise.resolve()) as unknown as undefined;
 		switch (mode) {
 			case 'cache':
-				return this.client.cache.guilds?.get(this.guildId) || (this.client.cache.asyncCache ? Promise.resolve() as any : undefined)
+				return (
+					this.client.cache.guilds?.get(this.guildId) ||
+					(this.client.cache.asyncCache ? (Promise.resolve() as any) : undefined)
+				);
 			default:
 				return this.client.guilds.fetch(this.guildId, mode === 'rest');
 		}
