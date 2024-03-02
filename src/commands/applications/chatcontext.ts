@@ -95,8 +95,12 @@ export class CommandContext<T extends OptionsRecord = {}, M extends keyof Regist
 	channel(mode: 'cache' | 'rest' | 'flow' = 'cache') {
 		if (this.interaction?.channel && mode === 'cache')
 			return this.client.cache.asyncCache ? Promise.resolve(this.interaction.channel) : this.interaction.channel;
-		if (mode === 'cache') return this.client.cache.channels?.get(this.channelId)
-		return this.client.channels.fetch(this.channelId, mode === 'rest');
+		switch (mode) {
+			case 'cache':
+				return this.client.cache.channels?.get(this.channelId);
+			default:
+				return this.client.channels.fetch(this.channelId, mode === 'rest');
+		}
 	}
 
 	me(mode?: 'rest' | 'flow'): Promise<GuildMember>;
