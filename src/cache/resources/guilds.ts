@@ -1,19 +1,19 @@
-import type { Cache } from '..';
-import type { APIGuild } from '../../common';
+import type { Cache, ReturnCache } from '..';
+import { fakePromise, type APIGuild } from '../../common';
 import { Guild } from '../../structures';
 import { BaseResource } from './default/base';
 
 export class Guilds extends BaseResource {
 	namespace = 'guild';
 
-	override async get(id: string): Promise<Guild<'cached'> | undefined> {
-		const guild = (await super.get(id)) as APIGuild | undefined;
-		return guild ? new Guild<'cached'>(this.client, guild) : undefined;
+	override get(id: string): ReturnCache<Guild<'cached'> | undefined> {
+		return fakePromise(super.get(id))
+			.then(guild => guild ? new Guild<'cached'>(this.client, guild) : undefined)
 	}
 
-	override async values() {
-		const guilds = (await super.values()) as APIGuild[];
-		return guilds.map(x => new Guild<'cached'>(this.client, x));
+	override values(): ReturnCache<Guild<'cached'>[]> {
+		return fakePromise(super.values() as APIGuild[])
+			.then(guilds => guilds.map(x => new Guild<'cached'>(this.client, x)));
 	}
 
 	override async remove(id: string) {

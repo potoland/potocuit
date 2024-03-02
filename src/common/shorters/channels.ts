@@ -1,6 +1,6 @@
 import type { RESTPatchAPIChannelJSONBody } from '..';
 import { BaseChannel, Message } from '../../structures';
-import channelFrom from '../../structures/channels';
+import channelFrom, { type AllChannels } from '../../structures/channels';
 import { BaseShorter } from './base';
 
 export class ChannelShorter extends BaseShorter {
@@ -12,7 +12,7 @@ export class ChannelShorter extends BaseShorter {
 			 * @param force Whether to force fetching the channel from the API even if it exists in the cache.
 			 * @returns A Promise that resolves to the fetched channel.
 			 */
-			fetch: async (id: string, force?: boolean) => {
+			fetch: async (id: string, force?: boolean): Promise<AllChannels> => {
 				let channel;
 				if (!force) {
 					channel = await this.client.cache.channels?.get(id);

@@ -40,25 +40,25 @@ type Wrap<N extends ApplicationCommandOptionType> = N extends
 	| ApplicationCommandOptionType.SubcommandGroup
 	? never
 	: {
-			required?: boolean;
-			value?(
-				data: { context: CommandContext; value: ReturnOptionsTypes[N] },
-				ok: OKFunction<any>,
-				fail: StopFunction,
-			): void;
-	  } & {
-			description: string;
-			description_localizations?: APIApplicationCommandBasicOption['description_localizations'];
-			name_localizations?: APIApplicationCommandBasicOption['name_localizations'];
-	  };
+		required?: boolean;
+		value?(
+			data: { context: CommandContext; value: ReturnOptionsTypes[N] },
+			ok: OKFunction<any>,
+			fail: StopFunction,
+		): void;
+	} & {
+		description: string;
+		description_localizations?: APIApplicationCommandBasicOption['description_localizations'];
+		name_localizations?: APIApplicationCommandBasicOption['name_localizations'];
+	};
 
 export type __TypeWrapper<T extends ApplicationCommandOptionType> = Wrap<T>;
 
 export type __TypesWrapper = {
 	[P in keyof typeof ApplicationCommandOptionType]: `${(typeof ApplicationCommandOptionType)[P]}` extends `${infer D extends
-		number}`
-		? Wrap<D>
-		: never;
+	number}`
+	? Wrap<D>
+	: never;
 };
 
 export type AutocompleteCallback = (interaction: AutocompleteInteraction) => any;
@@ -79,21 +79,21 @@ type KeysWithoutRequired<T extends OptionsRecord> = {
 
 type ContextOptionsAux<T extends OptionsRecord> = {
 	[K in Exclude<keyof T, KeysWithoutRequired<T>>]: T[K]['value'] extends (...args: any) => any
-		? Parameters<Parameters<T[K]['value']>[1]>[0]
-		: T[K] extends SeyfertStringOption | SeyfertNumberOption
-		  ? T[K]['choices'] extends NonNullable<SeyfertStringOption['choices'] | SeyfertNumberOption['choices']>
-				? T[K]['choices'][number]['value']
-				: ReturnOptionsTypes[T[K]['type']]
-		  : ReturnOptionsTypes[T[K]['type']];
+	? Parameters<Parameters<T[K]['value']>[1]>[0]
+	: T[K] extends SeyfertStringOption | SeyfertNumberOption
+	? T[K]['choices'] extends NonNullable<SeyfertStringOption['choices'] | SeyfertNumberOption['choices']>
+	? T[K]['choices'][number]['value']
+	: ReturnOptionsTypes[T[K]['type']]
+	: ReturnOptionsTypes[T[K]['type']];
 } & {
-	[K in KeysWithoutRequired<T>]?: T[K]['value'] extends (...args: any) => any
+		[K in KeysWithoutRequired<T>]?: T[K]['value'] extends (...args: any) => any
 		? Parameters<Parameters<T[K]['value']>[1]>[0]
 		: T[K] extends SeyfertStringOption | SeyfertNumberOption
-		  ? T[K]['choices'] extends NonNullable<SeyfertStringOption['choices'] | SeyfertNumberOption['choices']>
-				? T[K]['choices'][number]['value']
-				: ReturnOptionsTypes[T[K]['type']]
-		  : ReturnOptionsTypes[T[K]['type']];
-};
+		? T[K]['choices'] extends NonNullable<SeyfertStringOption['choices'] | SeyfertNumberOption['choices']>
+		? T[K]['choices'][number]['value']
+		: ReturnOptionsTypes[T[K]['type']]
+		: ReturnOptionsTypes[T[K]['type']];
+	};
 
 export type ContextOptions<T extends OptionsRecord> = ContextOptionsAux<T>;
 
@@ -142,10 +142,10 @@ class BaseCommand {
 				const value =
 					resolver.getHoisted(i.name)?.value !== undefined
 						? await new Promise(
-								(res, rej) =>
-									option.value?.({ context: ctx, value: resolver.getValue(i.name) } as never, res, rej) ||
-									res(resolver.getValue(i.name)),
-						  )
+							(res, rej) =>
+								option.value?.({ context: ctx, value: resolver.getValue(i.name) } as never, res, rej) ||
+								res(resolver.getValue(i.name)),
+						)
 						: undefined;
 
 				if (value === undefined) {
@@ -234,7 +234,7 @@ class BaseCommand {
 	}
 
 	toJSON() {
-		return {
+		const data = {
 			name: this.name,
 			type: this.type,
 			nsfw: this.nsfw || false,
@@ -242,9 +242,20 @@ class BaseCommand {
 			name_localizations: this.name_localizations,
 			description_localizations: this.description_localizations,
 			guild_id: this.guild_id,
-			dm_permission: this.dm,
 			default_member_permissions: this.default_member_permissions,
-		};
+		} as {
+			name: BaseCommand['name'];
+			type: BaseCommand['type'];
+			nsfw: BaseCommand['nsfw'];
+			description: BaseCommand['description'];
+			name_localizations: BaseCommand['name_localizations'];
+			description_localizations: BaseCommand['description_localizations'];
+			guild_id: BaseCommand['guild_id'];
+			default_member_permissions: BaseCommand['default_member_permissions'];
+			dm_permission?: boolean;
+		}
+		if ('dm' in this) data.dm_permission = this.dm
+		return data;
 	}
 
 	async reload() {

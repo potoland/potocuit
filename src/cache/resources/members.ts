@@ -1,4 +1,5 @@
-import type { APIGuildMember } from '../../common';
+import type { ReturnCache } from '../..';
+import { fakePromise } from '../../common';
 import { GuildMember } from '../../structures';
 import { GuildBasedResource } from './default/guild-based';
 export class Members extends GuildBasedResource {
@@ -9,21 +10,24 @@ export class Members extends GuildBasedResource {
 		return rest;
 	}
 
-	override async get(id: string, guild: string): Promise<GuildMember | undefined> {
-		const rawMember = (await super.get(id, guild)) as APIGuildMember;
-		const user = await this.client.cache.users?.get(id);
-		return rawMember && user ? new GuildMember(this.client, rawMember, user, guild) : undefined;
+	override get(id: string, guild: string): ReturnCache<GuildMember | undefined> {
+		return fakePromise(super.get(id, guild))
+			.then(rawMember => fakePromise(this.client.cache.users?.get(id))
+				.then((user) => rawMember && user ? new GuildMember(this.client, rawMember, user, guild) : undefined))
 	}
 
-	override async values(guild: string) {
-		const members = await super.values(guild);
-		const users = (await this.client.cache.users?.values()) ?? [];
-		return members
-			.map(rawMember => {
-				const user = users.find(x => x.id === rawMember.id);
-				return user ? new GuildMember(this.client, rawMember, user, guild) : undefined;
-			})
-			.filter(Boolean) as GuildMember[];
+	override values(guild: string): ReturnCache<GuildMember[]> {
+		return fakePromise(super.values(guild)).then(members =>
+			fakePromise(this.client.cache.users?.values() ?? []).then(
+				users =>
+					members
+						.map(rawMember => {
+							const user = users.find(x => x.id === rawMember.id);
+							return user ? new GuildMember(this.client, rawMember, user, guild) : undefined;
+						})
+						.filter(Boolean) as GuildMember[],
+			),
+		);
 	}
 
 	override async set(memberId: string, guildId: string, data: any): Promise<void>;

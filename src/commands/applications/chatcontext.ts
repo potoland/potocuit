@@ -1,23 +1,25 @@
+import type { AllChannels, Guild, ReturnCache, WebhookMessage } from '../..';
 import type { Client, WorkerClient } from '../../client';
 import { MessageFlags, type If, type UnionToTuple } from '../../common';
-import type {
-	InteractionCreateBodyRequest,
-	InteractionMessageUpdateBodyRequest,
-	ModalCreateBodyRequest,
-} from '../../common/types/write';
-import { Message, type ChatInputCommandInteraction } from '../../structures';
+import type { InteractionCreateBodyRequest, InteractionMessageUpdateBodyRequest } from '../../common/types/write';
+import {
+	Message,
+	type ChatInputCommandInteraction,
+	type GuildMember,
+	type InteractionGuildMember,
+} from '../../structures';
 import type { RegisteredMiddlewares } from '../decorators';
 import type { OptionResolver } from '../optionresolver';
 import type { ContextOptions, OptionsRecord } from './chat';
 import type { CommandMetadata, ExtendContext, GlobalMetadata, InternalOptions, UsingClient } from './shared';
 
 export interface CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never>
-	extends ExtendContext {}
+	extends ExtendContext { }
 
 export type InferWithPrefix = InternalOptions extends { withPrefix: infer P } ? P : false;
 
 export class CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never> {
-	message!: If<InferWithPrefix, Message | undefined>;
+	message!: If<InferWithPrefix, Message | undefined, undefined>;
 	interaction!: If<InferWithPrefix, ChatInputCommandInteraction | undefined, ChatInputCommandInteraction>;
 
 	messageResponse?: If<InferWithPrefix, Message | undefined>;
@@ -28,7 +30,7 @@ export class CommandContext<T extends OptionsRecord = {}, M extends keyof Regist
 		readonly shardId: number,
 	) {
 		if (data instanceof Message) {
-			this.message = data;
+			this.message = data as never;
 		} else {
 			this.interaction = data;
 		}
@@ -49,19 +51,15 @@ export class CommandContext<T extends OptionsRecord = {}, M extends keyof Regist
 	async write(body: InteractionCreateBodyRequest) {
 		if (this.interaction) return this.interaction.write(body);
 		const options = (this.client as Client | WorkerClient).options?.commands;
-		return (this.messageResponse =
-			await this.message![!this.messageResponse && options?.reply?.(this) ? 'reply' : 'write'](body));
-	}
-
-	modal(body: ModalCreateBodyRequest) {
-		if (this.interaction) return this.interaction.modal(body);
-		throw new Error('Not supported');
+		return (this.messageResponse = await (this.message! as Message)[
+			!this.messageResponse && options?.reply?.(this) ? 'reply' : 'write'
+		](body));
 	}
 
 	async deferReply(ephemeral = false) {
 		if (this.interaction) return this.interaction.deferReply(ephemeral ? MessageFlags.Ephemeral : undefined);
 		const options = (this.client as Client | WorkerClient).options?.commands;
-		return (this.messageResponse = await this.message![options?.reply?.(this) ? 'reply' : 'write'](
+		return (this.messageResponse = await (this.message! as Message)[options?.reply?.(this) ? 'reply' : 'write'](
 			options?.deferReplyResponse?.(this) ?? { content: 'Thinking...' },
 		));
 	}
@@ -84,34 +82,61 @@ export class CommandContext<T extends OptionsRecord = {}, M extends keyof Regist
 		return this.write(body as InteractionCreateBodyRequest);
 	}
 
-	fetchResponse() {
+	async fetchResponse(): Promise<If<InferWithPrefix, WebhookMessage | Message | undefined, WebhookMessage | undefined>> {
 		if (this.interaction) return this.interaction.fetchResponse();
-		return this.messageResponse!.fetch();
+		this.messageResponse = await this.messageResponse?.fetch();
+		return this.messageResponse as undefined;
 	}
 
-	channel(force = false) {
-		return this.interaction?.channel || this.message!.channel(force);
+	channel(mode?: 'rest' | 'flow'): Promise<AllChannels>;
+	channel(mode?: 'cache'): ReturnCache<AllChannels>;
+	channel(mode: 'cache' | 'rest' | 'flow' = 'cache') {
+		if (this.interaction?.channel && mode === 'cache')
+			return this.client.cache.asyncCache ? Promise.resolve(this.interaction.channel) : this.interaction.channel
+		return this.client.channels.fetch(this.channelId, mode === 'rest')
 	}
 
-	me(force = false) {
-		return this.guildId ? this.client.members.fetch(this.guildId, this.client.botId, force) : undefined;
+	me(mode?: 'rest' | 'flow'): Promise<GuildMember>;
+	me(mode?: 'cache'): ReturnCache<GuildMember | undefined>;
+	me(mode: 'cache' | 'rest' | 'flow' = 'cache') {
+		if (!this.guildId) return mode === 'cache' ? this.client.cache.asyncCache ? Promise.resolve() : undefined : Promise.resolve()
+		switch (mode) {
+			case 'cache':
+				return this.client.cache.members?.get(this.client.botId, this.guildId);
+			default:
+				return this.client.members.fetch(this.guildId, this.client.botId, mode === 'rest')
+		}
+	}
+
+	guild(mode?: 'rest' | 'flow'): Promise<Guild<'cached' | 'api'> | undefined>;
+	guild(mode?: 'cache'): ReturnCache<Guild<'cached'> | undefined>;
+	guild(mode: 'cache' | 'rest' | 'flow' = 'cache') {
+		if (!this.guildId) return (mode === 'cache' ? this.client.cache.asyncCache ? Promise.resolve() : undefined : Promise.resolve()) as any
+		switch (mode) {
+			case 'cache':
+				return this.client.cache.guilds?.get(this.guildId);
+			default:
+				return this.client.guilds.fetch(this.guildId, mode === 'rest')
+		}
 	}
 
 	get guildId() {
-		return this.interaction?.guildId || this.message!.guildId;
+		return this.interaction?.guildId || (this.message! as Message | undefined)?.guildId;
 	}
 
 	get channelId() {
-		return this.interaction?.channelId || this.message!.channelId;
+		return this.interaction?.channelId || (this.message! as Message).channelId;
 	}
 
 	get author() {
-		if (this.interaction) return this.interaction.user;
-		return this.message!.author;
+		return this.interaction?.user || (this.message! as Message).author
 	}
 
-	get member() {
-		if (this.interaction) return this.interaction.member;
-		return this.message!.member;
+	get member(): If<
+		InferWithPrefix,
+		GuildMember | InteractionGuildMember | undefined,
+		InteractionGuildMember | undefined
+	> {
+		return this.interaction?.member || ((this.message! as Message)?.member as any)
 	}
 }

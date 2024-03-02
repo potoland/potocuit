@@ -1,17 +1,17 @@
-import type { APIUser } from '../../common';
+import type { ReturnCache } from '../..';
+import { fakePromise, type APIUser } from '../../common';
 import { User } from '../../structures';
 import { BaseResource } from './default/base';
 
 export class Users extends BaseResource {
 	namespace = 'user';
 
-	override async get(id: string) {
-		const rawUser = (await super.get(id)) as APIUser | undefined;
-		return rawUser ? new User(this.client, rawUser) : undefined;
+	override get(id: string): ReturnCache<User | undefined> {
+		return fakePromise(super.get(id))
+			.then(rawUser => rawUser ? new User(this.client, rawUser) : undefined)
 	}
 
-	override async values() {
-		const members = (await super.values()) as APIUser[];
-		return members.map(rawUser => new User(this.client, rawUser));
+	override values(): ReturnCache<User[]> {
+		return fakePromise(super.values() as APIUser[]).then(users => users.map(rawUser => new User(this.client, rawUser)));
 	}
 }

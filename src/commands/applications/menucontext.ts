@@ -1,3 +1,4 @@
+import type { ReturnCache } from '../..';
 import {
 	ApplicationCommandType,
 	MessageFlags,
@@ -7,7 +8,15 @@ import {
 	type ModalCreateBodyRequest,
 	type UnionToTuple,
 } from '../../common';
-import { Message, User, type MessageCommandInteraction, type UserCommandInteraction } from '../../structures';
+import {
+	Message,
+	User,
+	type AllChannels,
+	type Guild,
+	type GuildMember,
+	type MessageCommandInteraction,
+	type UserCommandInteraction,
+} from '../../structures';
 import type { RegisteredMiddlewares } from '../decorators';
 import type { CommandMetadata, ExtendContext, GlobalMetadata, UsingClient } from './shared';
 
@@ -15,13 +24,12 @@ export type InteractionTarget<T> = T extends MessageCommandInteraction ? Message
 export class MenuCommandContext<
 	T extends MessageCommandInteraction | UserCommandInteraction,
 	M extends keyof RegisteredMiddlewares = never,
-> implements ExtendContext
-{
+> implements ExtendContext {
 	constructor(
 		readonly client: UsingClient,
 		readonly interaction: T,
 		readonly shardId: number,
-	) {}
+	) { }
 
 	metadata: CommandMetadata<UnionToTuple<M>> = {} as never;
 	globalMetadata: GlobalMetadata = {};
@@ -74,6 +82,50 @@ export class MenuCommandContext<
 
 	fetchResponse() {
 		return this.interaction.fetchResponse();
+	}
+
+	channel(mode?: 'rest' | 'flow'): Promise<AllChannels>;
+	channel(mode?: 'cache'): ReturnCache<AllChannels>;
+	channel(mode: 'cache' | 'rest' | 'flow' = 'cache') {
+		if (this.interaction?.channel && mode === 'cache')
+			return this.client.cache.asyncCache ? Promise.resolve(this.interaction.channel) : this.interaction.channel;
+		return this.client.channels.fetch(this.channelId, mode === 'rest');
+	}
+
+	me(mode?: 'rest' | 'flow'): Promise<GuildMember>;
+	me(mode?: 'cache'): ReturnCache<GuildMember | undefined>;
+	me(mode: 'cache' | 'rest' | 'flow' = 'cache') {
+		if (!this.guildId)
+			return mode === 'cache' ? (this.client.cache.asyncCache ? Promise.resolve() : undefined) : Promise.resolve();
+		switch (mode) {
+			case 'cache':
+				return this.client.cache.members?.get(this.client.botId, this.guildId);
+			default:
+				return this.client.members.fetch(this.guildId, this.client.botId, mode === 'rest');
+		}
+	}
+
+	guild(mode?: 'rest' | 'flow'): Promise<Guild<'cached' | 'api'> | undefined>;
+	guild(mode?: 'cache'): ReturnCache<Guild<'cached'> | undefined>;
+	guild(mode: 'cache' | 'rest' | 'flow' = 'cache') {
+		if (!this.guildId)
+			return (
+				mode === 'cache' ? (this.client.cache.asyncCache ? Promise.resolve() : undefined) : Promise.resolve()
+			) as any;
+		switch (mode) {
+			case 'cache':
+				return this.client.cache.guilds?.get(this.guildId);
+			default:
+				return this.client.guilds.fetch(this.guildId, mode === 'rest');
+		}
+	}
+
+	get guildId() {
+		return this.interaction.guildId;
+	}
+
+	get channelId() {
+		return this.interaction.channelId!;
 	}
 
 	get author() {

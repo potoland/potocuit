@@ -1,6 +1,6 @@
 import type { BaseClient } from '../../../client/base';
-import type { GatewayIntentBits } from '../../../common';
-import type { Cache } from '../../index';
+import { fakePromise, type GatewayIntentBits } from '../../../common';
+import type { Cache, ReturnCache } from '../../index';
 
 export class BaseResource<T = any> {
 	client!: BaseClient;
@@ -28,64 +28,64 @@ export class BaseResource<T = any> {
 		return this.cache.adapter;
 	}
 
-	async removeIfNI(intent: keyof typeof GatewayIntentBits, id: string) {
+	removeIfNI(intent: keyof typeof GatewayIntentBits, id: string) {
 		if (!this.cache.hasIntent(intent)) {
-			await this.remove(id);
+			return this.remove(id)
+		}
+		return;
+	}
+
+	setIfNI(intent: keyof typeof GatewayIntentBits, id: string, data: any) {
+		if (!this.cache.hasIntent(intent)) {
+			return fakePromise(this.set(id, data)).then(() => data)
 		}
 	}
 
-	async setIfNI(intent: keyof typeof GatewayIntentBits, id: string, data: any) {
-		if (!this.cache.hasIntent(intent)) {
-			await this.set(id, data);
-			return data;
-		}
-	}
-
-	async get(id: string): Promise<T | undefined> {
+	get(id: string): ReturnCache<T | undefined> {
 		return this.adapter.get(this.hashId(id));
 	}
 
-	async set(id: string, data: any) {
-		await this.addToRelationship(id);
-		await this.adapter.set(this.hashId(id), data);
+	set(id: string, data: any) {
+		return fakePromise(this.addToRelationship(id))
+			.then(() => this.adapter.set(this.hashId(id), data))
 	}
 
-	async patch<T extends Record<any, any> = Record<any, any>>(id: string, data: T) {
-		await this.addToRelationship(id);
-		await this.adapter.patch(false, this.hashId(id), data);
+	patch<T extends Record<any, any> = Record<any, any>>(id: string, data: T) {
+		return fakePromise(this.addToRelationship(id))
+			.then(() => this.adapter.patch(false, this.hashId(id), data))
 	}
 
-	async remove(id: string) {
-		await this.removeToRelationship(id);
-		await this.adapter.remove(this.hashId(id));
+	remove(id: string) {
+		return fakePromise(this.removeToRelationship(id))
+			.then(() => this.adapter.remove(this.hashId(id)))
 	}
 
-	async keys(): Promise<string[]> {
-		return this.adapter.keys(this.namespace);
+	keys(): ReturnCache<string[]> {
+		return this.adapter.keys(this.namespace) as string[];
 	}
 
-	async values(): Promise<T[]> {
-		return this.adapter.values(this.namespace);
+	values(): ReturnCache<T[]> {
+		return this.adapter.values(this.namespace) as T[];
 	}
 
-	async count() {
+	count() {
 		return this.adapter.count(this.namespace);
 	}
 
-	async contains(id: string) {
+	contains(id: string) {
 		return this.adapter.contains(this.namespace, id);
 	}
 
-	async getToRelationship() {
+	getToRelationship() {
 		return this.adapter.getToRelationship(this.namespace);
 	}
 
-	async addToRelationship(id: string | string[]) {
-		await this.adapter.addToRelationship(this.namespace, id);
+	addToRelationship(id: string | string[]) {
+		return this.adapter.addToRelationship(this.namespace, id);
 	}
 
-	async removeToRelationship(id: string | string[]) {
-		await this.adapter.removeToRelationship(this.namespace, id);
+	removeToRelationship(id: string | string[]) {
+		return this.adapter.removeToRelationship(this.namespace, id);
 	}
 
 	hashId(id: string) {

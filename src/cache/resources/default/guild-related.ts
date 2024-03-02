@@ -1,6 +1,6 @@
 import type { BaseClient } from '../../../client/base';
-import type { GatewayIntentBits } from '../../../common';
-import type { Cache } from '../../index';
+import { fakePromise, type GatewayIntentBits } from '../../../common';
+import type { Cache, ReturnCache } from '../../index';
 
 export class GuildRelatedResource<T = any> {
 	client!: BaseClient;
@@ -30,114 +30,110 @@ export class GuildRelatedResource<T = any> {
 		return this.cache.adapter;
 	}
 
-	async removeIfNI(intent: keyof typeof GatewayIntentBits, id: string | string[], guildId: string) {
+	removeIfNI(intent: keyof typeof GatewayIntentBits, id: string | string[], guildId: string) {
 		if (!this.cache.hasIntent(intent)) {
-			await this.remove(id, guildId);
+			return this.remove(id, guildId);
 		}
 	}
 
-	async setIfNI(intent: keyof typeof GatewayIntentBits, id: string, guildId: string, data: any) {
+	setIfNI(intent: keyof typeof GatewayIntentBits, id: string, guildId: string, data: any) {
 		if (!this.cache.hasIntent(intent)) {
-			await this.set(id, guildId, data);
-			return data;
+			return fakePromise(this.set(id, guildId, data))
+				.then(() => data)
 		}
 	}
 
-	async get(id: string): Promise<(T & { guild_id: string }) | undefined> {
+	get(id: string): ReturnCache<(T & { guild_id: string }) | undefined> {
 		return this.adapter.get(this.hashId(id));
 	}
 
-	async bulk(ids: string[]): Promise<(T & { guild_id: string })[]> {
-		return (await this.adapter.get(ids.map(x => this.hashId(x)))).filter(x => x);
+	bulk(ids: string[]): ReturnCache<(T & { guild_id: string })[]> {
+		return fakePromise(this.adapter.get(ids.map(x => this.hashId(x))))
+			.then(x => x.filter(y => y))
 	}
 
-	async set(__keys: string, guild: string, data: any): Promise<void>;
-	async set(__keys: [string, any][], guild: string): Promise<void>;
-	async set(__keys: string | [string, any][], guild: string, data?: any) {
+	set(__keys: string, guild: string, data: any): ReturnCache<void>;
+	set(__keys: [string, any][], guild: string): ReturnCache<void>;
+	set(__keys: string | [string, any][], guild: string, data?: any): ReturnCache<void> {
 		const keys: [string, any][] = Array.isArray(__keys) ? __keys : [[__keys, data]];
 
-		await this.addToRelationship(
-			keys.map(x => x[0]),
-			guild,
-		);
-		await this.adapter.set(
-			keys.map(([key, value]) => {
-				return [this.hashId(key), this.parse(value, key, guild)];
-			}),
-		);
+		return fakePromise(
+			this.addToRelationship(
+				keys.map(x => x[0]),
+				guild
+			)
+		).then(() => this.adapter.set(keys.map(([key, value]) => {
+			return [this.hashId(key), this.parse(value, key, guild)];
+		})) as void)
 	}
 
-	async patch(__keys: string, guild?: string, data?: any): Promise<void>;
-	async patch(__keys: [string, any][], guild?: string): Promise<void>;
-	async patch(__keys: string | [string, any][], guild?: string, data?: any) {
+	patch(__keys: string, guild?: string, data?: any): ReturnCache<void>;
+	patch(__keys: [string, any][], guild?: string): ReturnCache<void>;
+	patch(__keys: string | [string, any][], guild?: string, data?: any): ReturnCache<void> {
 		const keys: [string, any][] = Array.isArray(__keys) ? __keys : [[__keys, data]];
 
 		if (guild) {
-			await this.addToRelationship(
+			return fakePromise(this.addToRelationship(
 				keys.map(x => x[0]),
 				guild,
-			);
-			await this.adapter.patch(
-				false,
-				keys.map(([key, value]) => {
-					return [this.hashId(key), this.parse(value, key, guild)];
-				}),
-			);
-		} else {
-			await this.adapter.patch(
-				true,
-				keys.map(([key, value]) => {
-					return [this.hashId(key), value];
-				}),
-			);
+			)).then(() =>
+				this.adapter.patch(
+					false,
+					keys.map(([key, value]) => {
+						return [this.hashId(key), this.parse(value, key, guild)];
+					}),
+				) as void
+			)
 		}
+		return fakePromise(this.adapter.patch(
+			true,
+			keys.map(([key, value]) => {
+				return [this.hashId(key), value];
+			}),
+		)).then(x => x);
 	}
 
-	async remove(id: string | string[], guild: string) {
+	remove(id: string | string[], guild: string) {
 		const ids = Array.isArray(id) ? id : [id];
-		await this.removeToRelationship(ids, guild);
-		await this.adapter.remove(ids.map(x => this.hashId(x)));
+		return fakePromise(this.removeToRelationship(ids, guild))
+			.then(() => this.adapter.remove(ids.map(x => this.hashId(x))))
 	}
 
-	async keys(guild: string): Promise<string[]> {
+	keys(guild: string): ReturnCache<string[]> {
 		return guild === '*'
-			? await this.adapter.scan(this.hashId(guild), true)
-			: (async () => {
-					return (await this.adapter.getToRelationship(this.hashId(guild))).map(x => `${this.namespace}.${x}`);
-			  })();
+			? this.adapter.scan(this.hashId(guild), true) as string[]
+			: fakePromise(this.adapter.getToRelationship(this.hashId(guild))).then(keys => keys.map(x => `${this.namespace}.${x}`)) as string[]
 	}
 
-	async values(guild: string): Promise<(T & { guild_id: string })[]> {
+	values(guild: string): ReturnCache<(T & { guild_id: string })[]> {
 		return guild === '*'
-			? await this.adapter.scan(this.hashId(guild))
-			: (async () => {
-					const keys = (await this.adapter.getToRelationship(this.hashId(guild))).map(x => `${this.namespace}.${x}`);
-					return this.adapter.get(keys);
-			  })();
+			? fakePromise(this.adapter.scan(this.hashId(guild))).then(x => x) as (T & { guild_id: string })[]
+			: fakePromise(this.adapter.getToRelationship(this.hashId(guild))).then(keys => this.adapter.get(keys.map(x => `${this.namespace}.${x}`))) as (T & { guild_id: string })[]
+
 	}
 
-	async count(to: string) {
+	count(to: string) {
 		return this.adapter.count(this.hashId(to));
 	}
 
-	async contains(id: string, guild: string) {
+	contains(id: string, guild: string) {
 		return this.adapter.contains(this.hashId(guild), id);
 	}
 
-	async getToRelationship(guild: string) {
+	getToRelationship(guild: string) {
 		return this.adapter.getToRelationship(this.hashId(guild));
 	}
 
-	async addToRelationship(id: string | string[], guild: string) {
-		await this.adapter.addToRelationship(this.hashId(guild), id);
+	addToRelationship(id: string | string[], guild: string) {
+		return this.adapter.addToRelationship(this.hashId(guild), id);
 	}
 
-	async removeToRelationship(id: string | string[], guild: string) {
-		await this.adapter.removeToRelationship(this.hashId(guild), id);
+	removeToRelationship(id: string | string[], guild: string) {
+		return this.adapter.removeToRelationship(this.hashId(guild), id);
 	}
 
-	async removeRelationship(id: string | string[]) {
-		await this.adapter.removeRelationship((Array.isArray(id) ? id : [id]).map(x => this.hashId(x)));
+	removeRelationship(id: string | string[]) {
+		return this.adapter.removeRelationship((Array.isArray(id) ? id : [id]).map(x => this.hashId(x)));
 	}
 
 	hashId(id: string) {
