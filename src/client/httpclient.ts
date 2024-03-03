@@ -1,5 +1,7 @@
-import FormData from 'form-data';
+import { filetypeinfo } from 'magic-bytes.js';
 import type { HttpRequest, HttpResponse } from 'uWebSockets.js';
+import { OverwrittenMimeTypes } from '../api';
+import { isBufferLike } from '../api/utils/utils';
 import type { APIInteraction, DeepPartial } from '../common';
 import { InteractionResponseType, InteractionType } from '../common';
 import type { BaseClientOptions, InternalRuntimeConfigHTTP, StartOptions } from './base';
@@ -130,18 +132,33 @@ export class HttpClient extends BaseClient {
 				default:
 					await onInteractionCreate(this, rawBody, -1, async ({ body, files }) => {
 						let response;
-						let headers: { 'Content-Type'?: string } = {};
+						const headers: { 'Content-Type'?: string } = {};
 
-						if (files?.length) {
+						if (files) {
 							response = new FormData();
-							for (const key in files) {
-								const file = files[key];
-								response.append(key, file.data, file);
+							for (const [index, file] of files.entries()) {
+								const fileKey = file.key ?? `files[${index}]`;
+								if (isBufferLike(file.data)) {
+									let contentType = file.contentType;
+
+									if (!contentType) {
+										const [parsedType] = filetypeinfo(file.data);
+
+										if (parsedType) {
+											contentType =
+												OverwrittenMimeTypes[parsedType.mime as keyof typeof OverwrittenMimeTypes] ??
+												parsedType.mime ??
+												'application/octet-stream';
+										}
+									}
+									response.append(fileKey, new Blob([file.data], { type: contentType }), file.name);
+								} else {
+									response.append(fileKey, new Blob([`${file.data}`], { type: file.contentType }), file.name);
+								}
 							}
 							if (body) {
 								response.append('payload_json', JSON.stringify(body));
 							}
-							headers = Object.assign(headers, response.getHeaders());
 						} else {
 							response = body ?? {};
 							headers['Content-Type'] = 'application/json';
