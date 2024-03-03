@@ -45,6 +45,10 @@ export class BaseResource<T = any> {
 		return this.adapter.get(this.hashId(id));
 	}
 
+	bulk(ids: string[]): ReturnCache<T[]> {
+		return fakePromise(this.adapter.get(ids.map(id => this.hashId(id)))).then(x => x.filter(y => y))
+	}
+
 	set(id: string, data: any) {
 		return fakePromise(this.addToRelationship(id)).then(() => this.adapter.set(this.hashId(id), data));
 	}

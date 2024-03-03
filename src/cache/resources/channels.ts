@@ -13,6 +13,12 @@ export class Channels extends GuildRelatedResource {
 		);
 	}
 
+	override bulk(ids: string[]): ReturnCache<ReturnType<typeof channelFrom>[]> {
+		return fakePromise(super.bulk(ids)).then(channels =>
+			channels.map(rawChannel => channelFrom(rawChannel, this.client)),
+		);
+	}
+
 	override values(guild: string): ReturnCache<ReturnType<typeof channelFrom>[]> {
 		return fakePromise(super.values(guild)).then(channels =>
 			channels.map(rawChannel => channelFrom(rawChannel, this.client)),

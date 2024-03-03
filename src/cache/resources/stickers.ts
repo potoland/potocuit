@@ -12,6 +12,12 @@ export class Stickers extends GuildRelatedResource {
 		);
 	}
 
+	override bulk(ids: string[]): ReturnCache<Sticker[]> {
+		return fakePromise(super.bulk(ids) as APISticker[]).then(emojis =>
+			emojis.map(rawSticker => new Sticker(this.client, rawSticker)),
+		);
+	}
+
 	override values(guild: string): ReturnCache<Sticker[]> {
 		return fakePromise(super.values(guild) as APISticker[]).then(emojis =>
 			emojis.map(rawSticker => new Sticker(this.client, rawSticker)),

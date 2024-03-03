@@ -10,6 +10,10 @@ export class Users extends BaseResource {
 		return fakePromise(super.get(id)).then(rawUser => (rawUser ? new User(this.client, rawUser) : undefined));
 	}
 
+	override bulk(ids: string[]): ReturnCache<User[]> {
+		return fakePromise(super.bulk(ids) as APIUser[]).then(users => users.map(rawUser => new User(this.client, rawUser)));
+	}
+
 	override values(): ReturnCache<User[]> {
 		return fakePromise(super.values() as APIUser[]).then(users => users.map(rawUser => new User(this.client, rawUser)));
 	}

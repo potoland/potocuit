@@ -12,6 +12,12 @@ export class Emojis extends GuildRelatedResource {
 		);
 	}
 
+	override bulk(ids: string[]): ReturnCache<GuildEmoji[]> {
+		return fakePromise(super.bulk(ids) as (APIEmoji & { id: string; guild_id: string })[]).then(emojis =>
+			emojis.map(rawEmoji => new GuildEmoji(this.client, rawEmoji, rawEmoji.guild_id)),
+		);
+	}
+
 	override values(guild: string): ReturnCache<GuildEmoji[]> {
 		return fakePromise(super.values(guild) as (APIEmoji & { id: string; guild_id: string })[]).then(emojis =>
 			emojis.map(rawEmoji => new GuildEmoji(this.client, rawEmoji, rawEmoji.guild_id)),

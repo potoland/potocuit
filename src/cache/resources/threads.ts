@@ -12,6 +12,12 @@ export class Threads extends GuildRelatedResource {
 		);
 	}
 
+	override bulk(ids: string[]): ReturnCache<ThreadChannel[]> {
+		return fakePromise(super.bulk(ids) as APIThreadChannel[]).then(threads =>
+			threads.map(rawThread => new ThreadChannel(this.client, rawThread)),
+		);
+	}
+
 	override values(guild: string): ReturnCache<ThreadChannel[]> {
 		return fakePromise(super.values(guild) as APIThreadChannel[]).then(threads =>
 			threads.map(rawThread => new ThreadChannel(this.client, rawThread)),

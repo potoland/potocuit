@@ -10,6 +10,12 @@ export class Guilds extends BaseResource {
 		return fakePromise(super.get(id)).then(guild => (guild ? new Guild<'cached'>(this.client, guild) : undefined));
 	}
 
+	override bulk(ids: string[]): ReturnCache<Guild<'cached'>[]> {
+		return fakePromise(super.bulk(ids) as APIGuild[]).then(guilds =>
+			guilds.map(x => new Guild<'cached'>(this.client, x)),
+		);
+	}
+
 	override values(): ReturnCache<Guild<'cached'>[]> {
 		return fakePromise(super.values() as APIGuild[]).then(guilds =>
 			guilds.map(x => new Guild<'cached'>(this.client, x)),

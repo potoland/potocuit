@@ -18,6 +18,20 @@ export class Members extends GuildBasedResource {
 		);
 	}
 
+	override bulk(ids: string[], guild: string): ReturnCache<GuildMember[]> {
+		return fakePromise(super.bulk(ids, guild)).then(members =>
+			fakePromise(this.client.cache.users?.bulk(ids) ?? []).then(
+				users =>
+					members
+						.map(rawMember => {
+							const user = users.find(x => x.id === rawMember.id);
+							return user ? new GuildMember(this.client, rawMember, user, guild) : undefined;
+						})
+						.filter(Boolean) as GuildMember[],
+			),
+		);
+	}
+
 	override values(guild: string): ReturnCache<GuildMember[]> {
 		return fakePromise(super.values(guild)).then(members =>
 			fakePromise(this.client.cache.users?.values() ?? []).then(
