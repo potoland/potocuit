@@ -48,7 +48,7 @@ export class GuildBasedResource<T = any> {
 	}
 
 	bulk(ids: string[], guild: string): ReturnCache<(T & { guild_id: string })[]> {
-		return fakePromise(this.adapter.get(ids.map(id => this.hashGuildId(id, guild)))).then(x => x.filter(y => y))
+		return fakePromise(this.adapter.get(ids.map(id => this.hashGuildId(id, guild)))).then(x => x.filter(y => y));
 	}
 
 	set(__keys: string, guild: string, data: any): ReturnCache<void>;
