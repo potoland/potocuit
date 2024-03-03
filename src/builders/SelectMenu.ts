@@ -1,3 +1,4 @@
+import { throwError } from '..';
 import {
 	ComponentType,
 	SelectMenuDefaultValueType,
@@ -11,6 +12,7 @@ import {
 	type APIStringSelectComponent,
 	type APIUserSelectComponent,
 	type ChannelType,
+	type EmojiResolvable,
 	type RestOrArray,
 } from '../common';
 import type {
@@ -21,6 +23,7 @@ import type {
 	StringSelectMenuInteraction,
 	UserSelectMenuInteraction,
 } from '../structures';
+import { resolvePartialEmoji } from '../structures/extra/functions';
 import { BaseComponentBuilder, type OptionValuesLength } from './Base';
 import type { ComponentCallback } from './types';
 
@@ -256,17 +259,19 @@ export class ChannelSelectMenu extends SelectMenu<APIChannelSelectComponent, Cha
  * ]);
  */
 export class StringSelectMenu extends SelectMenu<APIStringSelectComponent, StringSelectMenuInteraction> {
+	// @ts-ignore
+	declare data: Omit<APIStringSelectComponent, 'options'> & { options: StringSelectOption[] };
 	constructor(data: Partial<APIStringSelectComponent> = {}) {
 		super({ ...data, type: ComponentType.StringSelect });
+		this.data.options = (data.options ?? []).map(x => new StringSelectOption(x));
 	}
 
 	/**
 	 * Adds options to the string select menu.
-	 * @param {...RestOrArray<APISelectMenuOption>} options - Options to be added.
+	 * @param options - Options to be added.
 	 * @returns The current StringSelectMenu instance.
 	 */
-	addOption(...options: RestOrArray<APISelectMenuOption>): this {
-		this.data.options ??= [];
+	addOption(...options: RestOrArray<StringSelectOption>): this {
 		this.data.options = this.data.options.concat(options.flat());
 		return this;
 	}
@@ -276,9 +281,17 @@ export class StringSelectMenu extends SelectMenu<APIStringSelectComponent, Strin
 	 *  options - Options to be set.
 	 * @returns The current StringSelectMenu instance.
 	 */
-	setOptions(options: APISelectMenuOption[]): this {
+	setOptions(options: StringSelectOption[]): this {
 		this.data.options = options;
 		return this;
+	}
+
+	toJSON(): APIStringSelectComponent {
+		const { options, ...raw } = super.toJSON();
+		return {
+			...raw,
+			options: this.data.options.map(x => x.toJSON()),
+		};
 	}
 }
 
@@ -332,11 +345,13 @@ export class StringSelectOption {
 
 	/**
 	 * Sets the emoji for the option.
-	 *  emoji - The emoji for the option.
-	 * @returns The current StringSelectOption instance.
+	 * @param emoji - The emoji to set.
+	 * @returns The modified option instance.
 	 */
-	setEmoji(emoji: APIMessageComponentEmoji): this {
-		this.data.emoji = emoji;
+	setEmoji(emoji: EmojiResolvable) {
+		const resolve = resolvePartialEmoji(emoji);
+		if (!resolve) return throwError('Invalid Emoji');
+		this.data.emoji = resolve as APIMessageComponentEmoji;
 		return this;
 	}
 
