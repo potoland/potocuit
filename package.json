@@ -22,7 +22,6 @@
 	"dependencies": {
 		"chokidar": "^3.5.3",
 		"discord-api-types": "^0.37.71",
-		"ioredis": "^5.3.2",
 		"magic-bytes.js": "^1.7.0",
 		"ts-mixer": "^6.0.3",
 		"ws": "^8.16.0"
@@ -37,6 +36,7 @@
 		"typescript": "^5.3.3"
 	},
 	"optionalDependencies": {
+		"ioredis": "^5.3.2",
 		"tweetnacl": "^1.0.3",
 		"uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.39.0"
 	},

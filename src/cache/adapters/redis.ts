@@ -1,16 +1,26 @@
 import type { RedisOptions } from 'ioredis';
-import { Redis } from 'ioredis';
 import type { Adapter } from './types';
+
+let Redis: typeof import('ioredis').Redis | undefined;
+
+try {
+	Redis = require('ioredis').Redis;
+} catch {
+	// potocuit > seyfert
+}
 
 interface RedisAdapterOptions {
 	namespace?: string;
 }
 
 export class RedisAdapter implements Adapter {
-	client: Redis;
+	client: import('ioredis').Redis;
 	namespace: string;
 
-	constructor(data: ({ client: Redis } | { redisOptions: RedisOptions }) & RedisAdapterOptions) {
+	constructor(data: ({ client: import('ioredis').Redis } | { redisOptions: RedisOptions }) & RedisAdapterOptions) {
+		if (!Redis) {
+			throw new Error('No ioredis installed');
+		}
 		this.client = 'client' in data ? data.client : new Redis(data.redisOptions);
 		this.namespace = data.namespace ?? 'seyfert';
 	}

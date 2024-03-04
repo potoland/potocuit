@@ -8,8 +8,8 @@ import type { BaseClientOptions, InternalRuntimeConfigHTTP, StartOptions } from 
 import { BaseClient } from './base';
 import { onInteractionCreate } from './oninteractioncreate';
 
-let UWS: typeof import('uWebSockets.js');
-let nacl: typeof import('tweetnacl');
+let UWS: typeof import('uWebSockets.js') | undefined;
+let nacl: typeof import('tweetnacl') | undefined;
 
 try {
 	UWS = require('uWebSockets.js');
@@ -24,7 +24,7 @@ try {
 }
 
 export class HttpClient extends BaseClient {
-	app!: ReturnType<typeof UWS.App>;
+	app!: ReturnType<typeof import('uWebSockets.js').App>;
 	publicKey!: string;
 	publicKeyHex!: Buffer;
 
@@ -84,7 +84,7 @@ export class HttpClient extends BaseClient {
 
 		this.publicKey = publicKey;
 		this.publicKeyHex = Buffer.from(this.publicKey, 'hex');
-		this.app = UWS.App();
+		this.app = UWS!.App();
 		this.app.post('/interactions', (res, req) => {
 			return this.onPacket(res, req);
 		});
@@ -104,7 +104,7 @@ export class HttpClient extends BaseClient {
 		const ed25519 = req.getHeader('x-signature-ed25519');
 		const body = await HttpClient.readJson<APIInteraction>(res);
 		if (
-			nacl.sign.detached.verify(
+			nacl!.sign.detached.verify(
 				Buffer.from(timestamp + JSON.stringify(body)),
 				Buffer.from(ed25519, 'hex'),
 				this.publicKeyHex,
