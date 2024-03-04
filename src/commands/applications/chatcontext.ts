@@ -24,7 +24,7 @@ import type { ContextOptions, OptionsRecord } from './chat';
 import type { CommandMetadata, ExtendContext, GlobalMetadata, UsingClient } from './shared';
 
 export interface CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never>
-	extends ExtendContext { }
+	extends ExtendContext {}
 
 export class CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never> {
 	message!: If<InferWithPrefix, Message | undefined, undefined>;

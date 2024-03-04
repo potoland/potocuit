@@ -20,8 +20,8 @@ export type SeyfertStringOption = SeyfertBasicOption<'String'> & {
 	autocomplete?: AutocompleteCallback;
 	onAutocompleteError?: OnAutocompleteErrorCallback;
 	choices?:
-	| readonly { readonly name: string; readonly value: string }[]
-	| APIApplicationCommandOptionChoice<ReturnOptionsTypes[ApplicationCommandOptionType.String]>[];
+		| readonly { readonly name: string; readonly value: string }[]
+		| APIApplicationCommandOptionChoice<ReturnOptionsTypes[ApplicationCommandOptionType.String]>[];
 	min_length?: number;
 	max_length?: number;
 };
@@ -90,9 +90,9 @@ export type ParseMiddlewareType<T> = T extends MiddlewareContext<
 >
 	? T
 	: MiddlewareContext<
-		T,
-		CommandContext | MenuCommandContext<MessageCommandInteraction<boolean> | UserCommandInteraction<boolean>>
-	>;
+			T,
+			CommandContext | MenuCommandContext<MessageCommandInteraction<boolean> | UserCommandInteraction<boolean>>
+	  >;
 
 export function createMiddleware<T = ParseMiddlewareType<unknown>>(data: ParseMiddlewareType<T>) {
 	return data;

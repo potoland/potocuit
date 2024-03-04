@@ -7,4 +7,3 @@ export * from './applications/menucontext';
 export * from './applications/options';
 export * from './decorators';
 export * from './optionresolver';
-
