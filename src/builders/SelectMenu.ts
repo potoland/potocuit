@@ -290,7 +290,7 @@ export class StringSelectMenu extends (SelectMenu as unknown as ToClass<
 	}
 
 	toJSON(): APIStringSelectComponent {
-		const { options, ...raw } = this.data
+		const { options, ...raw } = this.data;
 		return {
 			...raw,
 			options: this.data.options.map(x => x.toJSON()),
@@ -304,7 +304,7 @@ export class StringSelectMenu extends (SelectMenu as unknown as ToClass<
  * const option = new StringSelectOption().setLabel("Option 1").setValue("option_1");
  */
 export class StringSelectOption {
-	constructor(public data: Partial<APISelectMenuOption> = {}) { }
+	constructor(public data: Partial<APISelectMenuOption> = {}) {}
 
 	/**
 	 * Sets the label for the option.
