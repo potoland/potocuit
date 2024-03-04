@@ -1,4 +1,14 @@
-import type { AllChannels, Guild, InferWithPrefix, ReturnCache, WebhookMessage } from '../..';
+import {
+	MenuCommandContext,
+	User,
+	type AllChannels,
+	type Guild,
+	type InferWithPrefix,
+	type MessageCommandInteraction,
+	type ReturnCache,
+	type UserCommandInteraction,
+	type WebhookMessage,
+} from '../..';
 import type { Client, WorkerClient } from '../../client';
 import { MessageFlags, type If, type UnionToTuple } from '../../common';
 import type { InteractionCreateBodyRequest, InteractionMessageUpdateBodyRequest } from '../../common/types/write';
@@ -14,7 +24,7 @@ import type { ContextOptions, OptionsRecord } from './chat';
 import type { CommandMetadata, ExtendContext, GlobalMetadata, UsingClient } from './shared';
 
 export interface CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never>
-	extends ExtendContext {}
+	extends ExtendContext { }
 
 export class CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never> {
 	message!: If<InferWithPrefix, Message | undefined, undefined>;
@@ -158,5 +168,21 @@ export class CommandContext<T extends OptionsRecord = {}, M extends keyof Regist
 		InteractionGuildMember | undefined
 	> {
 		return this.interaction?.member || ((this.message! as Message)?.member as any);
+	}
+
+	isChat(): this is CommandContext {
+		return this instanceof CommandContext;
+	}
+
+	isMenu(): this is MenuCommandContext<any> {
+		return this instanceof MenuCommandContext;
+	}
+
+	isMenuUser(): this is MenuCommandContext<UserCommandInteraction> {
+		return this instanceof MenuCommandContext && this.target instanceof User;
+	}
+
+	isMenuMessage(): this is MenuCommandContext<MessageCommandInteraction> {
+		return this instanceof MenuCommandContext && this.target instanceof Message;
 	}
 }

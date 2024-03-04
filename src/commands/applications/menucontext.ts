@@ -1,4 +1,4 @@
-import type { ReturnCache } from '../..';
+import { CommandContext, type ReturnCache } from '../..';
 import {
 	ApplicationCommandType,
 	MessageFlags,
@@ -20,16 +20,21 @@ import type { RegisteredMiddlewares } from '../decorators';
 import type { CommandMetadata, ExtendContext, GlobalMetadata, UsingClient } from './shared';
 
 export type InteractionTarget<T> = T extends MessageCommandInteraction ? Message : User;
+
+export interface MenuCommandContext<
+	T extends MessageCommandInteraction | UserCommandInteraction,
+	M extends keyof RegisteredMiddlewares = never,
+> extends ExtendContext { }
+
 export class MenuCommandContext<
 	T extends MessageCommandInteraction | UserCommandInteraction,
 	M extends keyof RegisteredMiddlewares = never,
-> implements ExtendContext
-{
+> {
 	constructor(
 		readonly client: UsingClient,
 		readonly interaction: T,
 		readonly shardId: number,
-	) {}
+	) { }
 
 	metadata: CommandMetadata<UnionToTuple<M>> = {} as never;
 	globalMetadata: GlobalMetadata = {};
@@ -134,5 +139,21 @@ export class MenuCommandContext<
 
 	get member() {
 		return this.interaction.member;
+	}
+
+	isChat(): this is CommandContext {
+		return this instanceof CommandContext;
+	}
+
+	isMenu(): this is MenuCommandContext<any> {
+		return this instanceof MenuCommandContext;
+	}
+
+	isMenuUser(): this is MenuCommandContext<UserCommandInteraction> {
+		return this instanceof MenuCommandContext && this.target instanceof User;
+	}
+
+	isMenuMessage(): this is MenuCommandContext<MessageCommandInteraction> {
+		return this instanceof MenuCommandContext && this.target instanceof Message;
 	}
 }
