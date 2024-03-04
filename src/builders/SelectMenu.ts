@@ -14,6 +14,7 @@ import {
 	type ChannelType,
 	type EmojiResolvable,
 	type RestOrArray,
+	type ToClass,
 } from '../common';
 import type {
 	ChannelSelectMenuInteraction,
@@ -258,8 +259,10 @@ export class ChannelSelectMenu extends SelectMenu<APIChannelSelectComponent, Cha
  *   { label: "Option 3", value: "option_3" },
  * ]);
  */
-export class StringSelectMenu extends SelectMenu<APIStringSelectComponent, StringSelectMenuInteraction> {
-	// @ts-ignore
+export class StringSelectMenu extends (SelectMenu as unknown as ToClass<
+	Omit<SelectMenu<APIStringSelectComponent, StringSelectMenuInteraction>, 'data' | 'toJSON'>,
+	StringSelectMenu
+>) {
 	declare data: Omit<APIStringSelectComponent, 'options'> & { options: StringSelectOption[] };
 	constructor(data: Partial<APIStringSelectComponent> = {}) {
 		super({ ...data, type: ComponentType.StringSelect });
@@ -287,7 +290,7 @@ export class StringSelectMenu extends SelectMenu<APIStringSelectComponent, Strin
 	}
 
 	toJSON(): APIStringSelectComponent {
-		const { options, ...raw } = super.toJSON();
+		const { options, ...raw } = this.data
 		return {
 			...raw,
 			options: this.data.options.map(x => x.toJSON()),
@@ -301,7 +304,7 @@ export class StringSelectMenu extends SelectMenu<APIStringSelectComponent, Strin
  * const option = new StringSelectOption().setLabel("Option 1").setValue("option_1");
  */
 export class StringSelectOption {
-	constructor(public data: Partial<APISelectMenuOption> = {}) {}
+	constructor(public data: Partial<APISelectMenuOption> = {}) { }
 
 	/**
 	 * Sets the label for the option.
