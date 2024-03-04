@@ -5,7 +5,6 @@ import {
 	toSnakeCase,
 	type InteractionCreateBodyRequest,
 	type InteractionMessageUpdateBodyRequest,
-	type ModalCreateBodyRequest,
 	type UnionToTuple,
 } from '../../common';
 import {
@@ -61,8 +60,8 @@ export class MenuCommandContext<
 		return this.interaction.write(body);
 	}
 
-	modal(body: ModalCreateBodyRequest) {
-		return this.interaction.modal(body);
+	get modal() {
+		return this.interaction.modal;
 	}
 
 	deferReply(ephemeral = false) {

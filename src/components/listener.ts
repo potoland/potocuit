@@ -6,7 +6,7 @@ export class ComponentsListener<T extends BuilderComponents> {
 	idle?: NodeJS.Timeout;
 	timeout?: NodeJS.Timeout;
 
-	constructor(readonly options: ListenerOptions) {}
+	constructor(readonly options: ListenerOptions = {}) {}
 
 	addRows(...row: RestOrArray<ActionRow<T>>) {
 		this.components = this.components.concat(row.flat());

@@ -6,6 +6,8 @@ export type StopFunction = (error: string) => void;
 export type NextFunction<T = unknown> = (data: T) => void;
 export type PassFunction = () => void;
 
+export type InferWithPrefix = InternalOptions extends { withPrefix: infer P } ? P : false;
+
 export interface GlobalMetadata {}
 export interface DefaultLocale {}
 export interface ExtendContext {}

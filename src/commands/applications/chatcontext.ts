@@ -1,4 +1,4 @@
-import type { AllChannels, Guild, ReturnCache, WebhookMessage } from '../..';
+import type { AllChannels, Guild, InferWithPrefix, ReturnCache, WebhookMessage } from '../..';
 import type { Client, WorkerClient } from '../../client';
 import { MessageFlags, type If, type UnionToTuple } from '../../common';
 import type { InteractionCreateBodyRequest, InteractionMessageUpdateBodyRequest } from '../../common/types/write';
@@ -11,12 +11,10 @@ import {
 import type { RegisteredMiddlewares } from '../decorators';
 import type { OptionResolver } from '../optionresolver';
 import type { ContextOptions, OptionsRecord } from './chat';
-import type { CommandMetadata, ExtendContext, GlobalMetadata, InternalOptions, UsingClient } from './shared';
+import type { CommandMetadata, ExtendContext, GlobalMetadata, UsingClient } from './shared';
 
 export interface CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never>
 	extends ExtendContext {}
-
-export type InferWithPrefix = InternalOptions extends { withPrefix: infer P } ? P : false;
 
 export class CommandContext<T extends OptionsRecord = {}, M extends keyof RegisteredMiddlewares = never> {
 	message!: If<InferWithPrefix, Message | undefined, undefined>;
