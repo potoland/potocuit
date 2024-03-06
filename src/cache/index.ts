@@ -108,6 +108,9 @@ export class Cache {
 		if (!this.disabledCache.includes('members')) {
 			this.members = new Members(this, client);
 		}
+		if (!this.disabledCache.includes('voiceStates')) {
+			this.voiceStates = new VoiceStates(this, client);
+		}
 
 		// guild based
 		if (!this.disabledCache.includes('roles')) {
@@ -125,9 +128,6 @@ export class Cache {
 		if (!this.disabledCache.includes('presences')) {
 			this.presences = new Presences(this, client);
 		}
-		if (!this.disabledCache.includes('voiceStates')) {
-			this.voiceStates = new VoiceStates(this, client);
-		}
 		if (!this.disabledCache.includes('threads')) {
 			this.threads = new Threads(this, client);
 		}
@@ -142,13 +142,13 @@ export class Cache {
 		this.guilds?.__setClient(client);
 
 		this.members?.__setClient(client);
+		this.voiceStates?.__setClient(client);
 
 		this.roles?.__setClient(client);
 		this.channels?.__setClient(client);
 		this.emojis?.__setClient(client);
 		this.stickers?.__setClient(client);
 		this.presences?.__setClient(client);
-		this.voiceStates?.__setClient(client);
 		this.threads?.__setClient(client);
 		this.stageInstances?.__setClient(client);
 	}
@@ -193,24 +193,25 @@ export class Cache {
 	async bulkGet(
 		keys: (
 			| readonly [
-					/* type */
-					NonGuildBased | GuildRelated,
-					/* source id */
-					string,
-			  ]
+				/* type */
+				NonGuildBased | GuildRelated,
+				/* source id */
+				string,
+			]
 			| readonly [
-					/* type */
-					GuildBased,
-					/* source id */
-					string,
-					/* guild id */
-					string,
-			  ]
+				/* type */
+				GuildBased,
+				/* source id */
+				string,
+				/* guild id */
+				string,
+			]
 		)[],
 	) {
 		const allData: Partial<Record<NonGuildBased | GuildBased | GuildRelated, string[][]>> = {};
 		for (const [type, id, guildId] of keys) {
 			switch (type) {
+				case 'voiceStates':
 				case 'members':
 					{
 						if (!allData[type]) {
@@ -224,7 +225,6 @@ export class Cache {
 				case 'stickers':
 				case 'channels':
 				case 'presences':
-				case 'voiceStates':
 				case 'stageInstances':
 				case 'emojis':
 				case 'users':
@@ -264,23 +264,23 @@ export class Cache {
 	async bulkPatch(
 		keys: (
 			| readonly [
-					/* type */
-					NonGuildBased,
-					/* data */
-					any,
-					/* source id */
-					string,
-			  ]
+				/* type */
+				NonGuildBased,
+				/* data */
+				any,
+				/* source id */
+				string,
+			]
 			| readonly [
-					/* type */
-					GuildBased | GuildRelated,
-					/* data */
-					any,
-					/* source id */
-					string,
-					/* guild id */
-					string,
-			  ]
+				/* type */
+				GuildBased | GuildRelated,
+				/* data */
+				any,
+				/* source id */
+				string,
+				/* guild id */
+				string,
+			]
 		)[],
 	) {
 		const allData: [string, any][] = [];
@@ -292,7 +292,6 @@ export class Cache {
 				case 'stickers':
 				case 'channels':
 				case 'presences':
-				case 'voiceStates':
 				case 'stageInstances':
 				case 'emojis':
 					{
@@ -308,6 +307,7 @@ export class Cache {
 						allData.push([this[type]!.hashId(id), this[type]!.parse(data, id, guildId!)]);
 					}
 					break;
+				case 'voiceStates':
 				case 'members':
 					{
 						const hashId = this[type]?.hashId(guildId!);
@@ -348,23 +348,23 @@ export class Cache {
 	async bulkSet(
 		keys: (
 			| readonly [
-					/* type */
-					NonGuildBased,
-					/* data */
-					any,
-					/* source id */
-					string,
-			  ]
+				/* type */
+				NonGuildBased,
+				/* data */
+				any,
+				/* source id */
+				string,
+			]
 			| readonly [
-					/* type */
-					GuildBased | GuildRelated,
-					/* data */
-					any,
-					/* source id */
-					string,
-					/* guild id */
-					string,
-			  ]
+				/* type */
+				GuildBased | GuildRelated,
+				/* data */
+				any,
+				/* source id */
+				string,
+				/* guild id */
+				string,
+			]
 		)[],
 	) {
 		const allData: [string, any][] = [];
@@ -376,7 +376,6 @@ export class Cache {
 				case 'stickers':
 				case 'channels':
 				case 'presences':
-				case 'voiceStates':
 				case 'stageInstances':
 				case 'emojis':
 					{
@@ -392,6 +391,7 @@ export class Cache {
 						allData.push([this[type]!.hashId(id), this[type]!.parse(data, id, guildId!)]);
 					}
 					break;
+				case 'voiceStates':
 				case 'members':
 					{
 						const hashId = this[type]?.hashId(guildId!);
