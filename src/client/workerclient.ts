@@ -25,6 +25,7 @@ import { onMessageCreate } from './onmessagecreate';
 const workerData = __workerData__ as WorkerData;
 
 export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
+	private __handleGuilds?: Set<string>;
 	logger = new Logger({
 		name: `[Worker #${workerData.workerId}]`,
 	});
@@ -36,7 +37,7 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 
 	constructor(options?: WorkerClientOptions) {
 		super(options);
-
+		this.__handleGuilds = new Set();
 		if (!manager) {
 			throw new Error('WorkerClient cannot spawn without manager');
 		}
@@ -200,12 +201,12 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 					switch (packet.t) {
 						case 'READY':
 							for (const g of packet.d.guilds) {
-								this.__handleGuilds.add(g.id);
+								this.__handleGuilds?.add(g.id);
 							}
 							this.botId = packet.d.user.id;
 							this.applicationId = packet.d.application.id;
 							this.me = new ClientUser(this, packet.d.user, packet.d.application) as never;
-							if (!this.__handleGuilds.size) {
+							if (!this.__handleGuilds?.size) {
 								if (
 									[...this.shards.values()].every(shard => shard.data.session_id) &&
 									this.events.values.WORKER_READY &&
@@ -216,6 +217,7 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 										workerId: this.workerId,
 									} as WorkerReady);
 									await this.events.runEvent('WORKER_READY', this, this.me, -1);
+									delete this.__handleGuilds;
 								}
 							}
 							this.debugger?.debug(`#${shardId} [${packet.d.user.username}](${this.botId}) is online...`);
@@ -227,7 +229,7 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 							await onMessageCreate(this, packet.d, shardId);
 							break;
 						case 'GUILD_CREATE': {
-							if (this.__handleGuilds.has(packet.d.id)) {
+							if (this.__handleGuilds?.has(packet.d.id)) {
 								this.__handleGuilds.delete(packet.d.id);
 								if (
 									!this.__handleGuilds.size &&

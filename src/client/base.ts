@@ -27,8 +27,6 @@ import { LangsHandler } from '../langs/handler';
 import type { ChatInputCommandInteraction, MessageCommandInteraction, UserCommandInteraction } from '../structures';
 
 export class BaseClient {
-	/** @internal */
-	__handleGuilds = new Set<string>();
 	rest!: ApiHandler;
 	cache!: Cache;
 

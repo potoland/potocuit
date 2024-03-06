@@ -19,6 +19,7 @@ import { onInteractionCreate } from './oninteractioncreate';
 import { onMessageCreate } from './onmessagecreate';
 
 export class Client<Ready extends boolean = boolean> extends BaseClient {
+	private __handleGuilds?: Set<string>;
 	gateway!: ShardManager;
 	events = new EventHandler(this.logger);
 	me!: If<Ready, ClientUser>;
@@ -36,6 +37,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 	}: ServicesOptions & {
 		gateway?: ShardManager;
 	}) {
+		this.__handleGuilds = new Set();
 		super.setServices(rest);
 		if (gateway) {
 			const onPacket = this.onPacket.bind(this);
@@ -138,24 +140,25 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
 						break;
 					case 'READY':
 						for (const g of packet.d.guilds) {
-							this.__handleGuilds.add(g.id);
+							this.__handleGuilds?.add(g.id);
 						}
 						this.botId = packet.d.user.id;
 						this.applicationId = packet.d.application.id;
 						this.me = new ClientUser(this, packet.d.user, packet.d.application) as never;
-						if (!this.__handleGuilds.size) {
+						if (!this.__handleGuilds?.size) {
 							if (
 								[...this.gateway.values()].every(shard => shard.data.session_id) &&
 								this.events.values.BOT_READY &&
 								(this.events.values.BOT_READY.fired ? !this.events.values.BOT_READY.data.once : true)
 							) {
 								await this.events.runEvent('BOT_READY', this, this.me, -1);
+								delete this.__handleGuilds;
 							}
 						}
 						this.debugger?.debug(`#${shardId}[${packet.d.user.username}](${this.botId}) is online...`);
 						break;
 					case 'GUILD_CREATE': {
-						if (this.__handleGuilds.has(packet.d.id)) {
+						if (this.__handleGuilds?.has(packet.d.id)) {
 							this.__handleGuilds.delete(packet.d.id);
 							if (
 								!this.__handleGuilds.size &&
