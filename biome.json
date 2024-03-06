@@ -71,10 +71,5 @@
 	},
 	"organizeImports": {
 		"enabled": false
-	},
-	"vcs": {
-		"clientKind": "git",
-		"enabled": true,
-		"defaultBranch": "main"
 	}
 }
