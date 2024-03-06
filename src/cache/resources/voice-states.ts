@@ -1,7 +1,7 @@
 import type { GatewayVoiceState } from '../../common';
-import { GuildRelatedResource } from './default/guild-related';
+import { GuildBasedResource } from './default/guild-based';
 
-export class VoiceStates extends GuildRelatedResource<VoiceStateResource> {
+export class VoiceStates extends GuildBasedResource<VoiceStateResource> {
 	namespace = 'voice-state';
 
 	override parse(data: any, id: string, guild_id: string): VoiceStateResource {

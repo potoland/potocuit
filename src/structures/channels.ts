@@ -182,7 +182,7 @@ export class BaseGuildChannel extends BaseChannel<ChannelType> {
 			}) || [];
 	}
 
-	async guild(force = false) {
+	guild(force = false) {
 		return this.client.guilds.fetch(this.guildId!, force);
 	}
 

@@ -23,7 +23,7 @@ export class GuildRole extends DiscordBase {
 		this.permissions = new PermissionsBitField(BigInt(data.permissions));
 	}
 
-	async guild(force = false) {
+	guild(force = false) {
 		if (!this.guildId) return;
 		return this.client.guilds.fetch(this.guildId, force);
 	}

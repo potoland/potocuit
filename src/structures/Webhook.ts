@@ -38,7 +38,7 @@ export class Webhook extends DiscordBase {
 		});
 	}
 
-	async guild(force = false) {
+	guild(force = false) {
 		if (!this.sourceGuild?.id) return;
 		return this.client.guilds.fetch(this.sourceGuild.id, force);
 	}

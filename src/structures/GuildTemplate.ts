@@ -16,7 +16,7 @@ export class GuildTemplate extends Base {
 		this.__patchThis(data);
 	}
 
-	async guild(force = false) {
+	guild(force = false) {
 		return this.client.guilds.fetch(this.sourceGuildId, force);
 	}
 

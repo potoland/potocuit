@@ -70,6 +70,14 @@ export class BaseGuildMember extends DiscordBase {
 		return this.client.members.edit(this.guildId, this.id, body, reason);
 	}
 
+	presence() {
+		return this.cache.presences?.get(this.id);
+	}
+
+	voice() {
+		return this.cache.voiceStates?.get(this.id, this.guildId);
+	}
+
 	toString() {
 		return `<@${this.id}>`;
 	}

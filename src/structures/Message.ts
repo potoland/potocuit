@@ -49,7 +49,7 @@ export class BaseMessage extends DiscordBase {
 		return messageLink(this.channelId, this.id, this.guildId);
 	}
 
-	async guild(force = false) {
+	guild(force = false) {
 		if (!this.guildId) return;
 		return this.client.guilds.fetch(this.guildId, force);
 	}

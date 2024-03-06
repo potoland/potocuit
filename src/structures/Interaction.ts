@@ -274,7 +274,7 @@ export class BaseInteraction<
 		}
 	}
 
-	guild(force = false) {
+	fetchGuild(force = false) {
 		return this.guildId ? this.client.guilds.fetch(this.guildId, force) : undefined;
 	}
 }

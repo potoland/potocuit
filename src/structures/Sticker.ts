@@ -21,7 +21,7 @@ export class Sticker extends DiscordBase {
 		}
 	}
 
-	async guild(force = false) {
+	guild(force = false) {
 		if (!this.guildId) return;
 		return this.client.guilds.fetch(this.id, force);
 	}

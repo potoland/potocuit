@@ -38,6 +38,10 @@ export class User extends DiscordBase<APIUser> {
 		return this.rest.cdn.avatar(this.id, this.avatar, options);
 	}
 
+	presence() {
+		return this.cache.presences?.get(this.id);
+	}
+
 	toString() {
 		return `<@${this.id}>`;
 	}
