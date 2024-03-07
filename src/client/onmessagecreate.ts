@@ -26,6 +26,7 @@ function getCommandFromContent(
 	self: Client | WorkerClient,
 ): {
 	command?: Command | SubCommand;
+	parent?: Command;
 	fullCommandName: string;
 } {
 	const parentName = commandRaw[0];
@@ -57,6 +58,7 @@ function getCommandFromContent(
 	return {
 		command,
 		fullCommandName,
+		parent,
 	};
 }
 
@@ -73,7 +75,7 @@ export async function onMessageCreate(
 	if (!prefix || !message.content.startsWith(prefix)) return;
 
 	const content = message.content.slice(prefix.length).trimStart();
-	const { fullCommandName, command } = getCommandFromContent(
+	const { fullCommandName, command, parent } = getCommandFromContent(
 		content.split(' ').filter(x => x),
 		self,
 	);
@@ -91,7 +93,7 @@ export async function onMessageCreate(
 	};
 	const args = (self.options?.commands?.argsParser ?? defaultArgsParser)(content, command);
 	const { options, errors } = await parseOptions(self, command, rawMessage, args, resolved);
-	const optionsResolver = new OptionResolver(self, options, command as Command, message.guildId, resolved);
+	const optionsResolver = new OptionResolver(self, options, parent as Command, message.guildId, resolved);
 	const context = new CommandContext(self, message, optionsResolver, shardId);
 	try {
 		if (command.botPermissions && message.guildId) {
