@@ -28,6 +28,7 @@ export class WorkerAdapter implements Adapter {
 		const promise = new Promise<any>((res, rej) => {
 			resolve = res;
 			setTimeout(() => {
+				this.promises.delete(nonce);
 				rej(new Error('Timeout cache request'));
 			}, 60e3);
 		});
