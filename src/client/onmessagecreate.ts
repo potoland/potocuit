@@ -73,14 +73,15 @@ export async function onMessageCreate(
 	if (!prefix || !message.content.startsWith(prefix)) return;
 
 	const content = message.content.slice(prefix.length).trimStart();
-	const rawCommand = getCommandFromContent(
+	const { fullCommandName, command } = getCommandFromContent(
 		content.split(' ').filter(x => x),
 		self,
 	);
-	if (!rawCommand || !rawCommand.command?.run)
-		return self.logger.warn(`${rawCommand.fullCommandName} command does not have 'run' callback`);
+	if (!command?.run) return self.logger.warn(`${fullCommandName} command does not have 'run' callback`);
 
-	const command = rawCommand.command;
+	if (command.dm && !message.guildId) return;
+	if (command.guild_id && !command.guild_id?.includes(message.guildId!)) return;
+
 	const resolved: MakeRequired<APIInteractionDataResolved, keyof APIInteractionDataResolved> = {
 		channels: {},
 		roles: {},
@@ -142,7 +143,7 @@ export async function onMessageCreate(
 			await command.onAfterRun?.(context, undefined);
 		} catch (error) {
 			self.logger.error(
-				`${rawCommand.fullCommandName} just threw an error, ${
+				`${fullCommandName} just threw an error, ${
 					error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
 				}`,
 			);

@@ -130,23 +130,24 @@ export function Middlewares(cbs: readonly (keyof RegisteredMiddlewares)[]) {
 export function Declare(declare: DeclareOptions) {
 	return <T extends { new (...args: any[]): {} }>(target: T) =>
 		class extends target {
-			dm?: boolean;
 			name = declare.name;
 			nsfw = declare.nsfw;
-			guild_id = declare.guildId;
 			default_member_permissions = Array.isArray(declare.defaultPermissions)
 				? declare.defaultPermissions?.reduce((acc, prev) => acc | PermissionFlagsBits[prev], BigInt(0)).toString()
 				: declare.defaultPermissions;
 			botPermissions = Array.isArray(declare.botPermissions)
 				? declare.botPermissions?.reduce((acc, prev) => acc | PermissionFlagsBits[prev], BigInt(0))
 				: declare.botPermissions;
+			dm?: boolean;
 			description = '';
 			type: ApplicationCommandType = ApplicationCommandType.ChatInput;
+			guild_id?: string[];
 			constructor(...args: any[]) {
 				super(...args);
 				if ('description' in declare) this.description = declare.description;
 				if ('type' in declare) this.type = declare.type;
 				if ('dm' in declare) this.dm = !!declare.dm;
+				if ('guildId' in declare) this.guild_id = declare.guildId;
 				// check if all properties are valid
 			}
 		};
