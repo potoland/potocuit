@@ -42,7 +42,7 @@ function getCommandFromContent(
 		return getCommandFromContent([parentName], self);
 
 	const command =
-		(groupName || subcommandName) && parent instanceof Command
+		groupName || subcommandName
 			? (parent.options?.find(opt => {
 					if (opt instanceof SubCommand) {
 						if (groupName) {
