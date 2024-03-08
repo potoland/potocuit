@@ -21,7 +21,7 @@ type GatewayEvents = Uppercase<SnakeCase<keyof ClientEvents>>;
 
 export class EventHandler extends BaseHandler {
 	protected onFail: OnFailCallback = err => this.logger.warn('<Client>.events.OnFail', err);
-	protected filter = (path: string) => path.endsWith('.js') || path.endsWith('.ts');
+	protected filter = (path: string) => path.endsWith('.js') || (!path.endsWith('.d.ts') && path.endsWith('.ts'));
 
 	values: Partial<Record<GatewayEvents, EventValue>> = {};
 

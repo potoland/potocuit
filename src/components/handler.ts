@@ -5,11 +5,11 @@ import { LimitedCollection } from '../collection';
 import {
 	BaseHandler,
 	InteractionResponseType,
-	type OnFailCallback,
 	magicImport,
 	type APIMessage,
 	type APIModalInteractionResponseCallbackData,
 	type Logger,
+	type OnFailCallback,
 } from '../common';
 import type {
 	InteractionMessageUpdateBodyRequest,
@@ -43,7 +43,7 @@ export class ComponentHandler extends BaseHandler {
 	// 10 minutes timeout, because discord dont send an event when the user cancel the modal
 	readonly modals = new LimitedCollection<string, ModalSubmitCallback>({ expire: 60e3 * 10 });
 	readonly commands: (ComponentCommand | ModalCommand)[] = [];
-	protected filter = (path: string) => path.endsWith('.js') || path.endsWith('.ts');
+	protected filter = (path: string) => path.endsWith('.js') || (!path.endsWith('.d.ts') && path.endsWith('.ts'));
 
 	constructor(
 		logger: Logger,

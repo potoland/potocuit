@@ -1,5 +1,4 @@
 import NodeWebSocket from 'ws';
-// import UWebSocket from 'uWebSockets.js';
 
 export class BaseSocket {
 	private internal: NodeWebSocket | WebSocket;

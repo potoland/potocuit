@@ -3,7 +3,8 @@ import { LangRouter } from './router';
 
 export class LangsHandler extends BaseHandler {
 	values: Partial<Record<string, any>> = {};
-	protected filter = (path: string) => path.endsWith('.js') || path.endsWith('.ts') || path.endsWith('.json');
+	protected filter = (path: string) =>
+		path.endsWith('.js') || (!path.endsWith('.d.ts') && path.endsWith('.ts')) || path.endsWith('.json');
 	defaultLang?: string;
 	aliases: [string, LocaleString[]][] = [];
 
