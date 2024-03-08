@@ -46,12 +46,13 @@ export async function onInteractionCreate(
 					try {
 						await command.autocomplete(interaction);
 					} catch (error) {
-						self.logger.error(
-							`${optionsResolver.fullCommandName} ${command.name} just threw an error, ${
-								error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
-							}`,
-						);
-						await command.onAutocompleteError?.(interaction, error);
+						if (!command.onAutocompleteError)
+							return self.logger.error(
+								`${optionsResolver.fullCommandName} ${command.name} just threw an error, ${
+									error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
+								}`,
+							);
+						await command.onAutocompleteError(interaction, error);
 					}
 				} catch (error) {
 					try {
@@ -112,11 +113,6 @@ export async function onInteractionCreate(
 									await command.run(context);
 									await command.onAfterRun?.(context, undefined);
 								} catch (error) {
-									self.logger.error(
-										`${command.name} just threw an error, ${
-											error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
-										}`,
-									);
 									await command.onRunError?.(context, error);
 									await command.onAfterRun?.(context, error);
 								}
@@ -184,11 +180,6 @@ export async function onInteractionCreate(
 									await command.run(context);
 									await command.onAfterRun?.(context, undefined);
 								} catch (error) {
-									self.logger.error(
-										`${optionsResolver.fullCommandName} just threw an error, ${
-											error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
-										}`,
-									);
 									await command.onRunError?.(context, error);
 									await command.onAfterRun?.(context, error);
 								}

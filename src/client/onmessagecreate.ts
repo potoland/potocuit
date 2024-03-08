@@ -79,7 +79,9 @@ export async function onMessageCreate(
 		content.split(' ').filter(x => x),
 		self,
 	);
-	if (!command?.run) return self.logger.warn(`${fullCommandName} command does not have 'run' callback`);
+
+	if (!command) return;
+	if (!command.run) return self.logger.warn(`${fullCommandName} command does not have 'run' callback`);
 
 	if (command.dm && !message.guildId) return;
 	if (command.guild_id && !command.guild_id?.includes(message.guildId!)) return;
@@ -144,11 +146,6 @@ export async function onMessageCreate(
 			await command.run?.(context);
 			await command.onAfterRun?.(context, undefined);
 		} catch (error) {
-			self.logger.error(
-				`${fullCommandName} just threw an error, ${
-					error ? (typeof error === 'object' && 'message' in error ? error.message : error) : 'Unknown'
-				}`,
-			);
 			await command.onRunError?.(context, error);
 			await command.onAfterRun?.(context, error);
 		}
