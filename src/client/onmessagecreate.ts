@@ -69,7 +69,7 @@ export async function onMessageCreate(
 ) {
 	if (!self.options?.commands) return;
 	const message = new Message(self, rawMessage);
-	const prefixes = ((await self.options?.commands?.prefix?.(message)) ?? []).sort((a, b) => b.length - a.length);
+	const prefixes = ((await self.options.commands.prefix?.(message)) ?? []).sort((a, b) => b.length - a.length);
 	const prefix = prefixes.find(x => message.content.startsWith(x));
 
 	if (!prefix || !message.content.startsWith(prefix)) return;
