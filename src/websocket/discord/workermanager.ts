@@ -15,7 +15,7 @@ export class WorkerManager extends Map<number, Worker> {
 	debugger?: Logger;
 	connectQueue: ConnectQueue;
 	cacheAdapter: Adapter;
-	promises = new Map<string, (value: any) => void>();
+	promises = new Map<string, { resolve: (value: any) => void; timeout: NodeJS.Timeout }>();
 	memberUpdateHandler = new MemberUpdateHandler();
 	presenceUpdateHandler = new PresenceUpdateHandler();
 	constructor(options: WorkerManagerOptions) {
@@ -209,34 +209,37 @@ export class WorkerManager extends Map<number, Worker> {
 				break;
 			case 'RESULT_PAYLOAD':
 				{
-					const resolve = this.promises.get(message.nonce);
-					if (!resolve) {
+					const cacheData = this.promises.get(message.nonce);
+					if (!cacheData) {
 						return;
 					}
 					this.promises.delete(message.nonce);
-					resolve(true);
+					clearTimeout(cacheData.timeout);
+					cacheData.resolve(true);
 				}
 				break;
 			case 'SHARD_INFO':
 				{
 					const { nonce, type, ...data } = message;
-					const resolve = this.promises.get(nonce);
-					if (!resolve) {
+					const cacheData = this.promises.get(nonce);
+					if (!cacheData) {
 						return;
 					}
 					this.promises.delete(nonce);
-					resolve(data);
+					clearTimeout(cacheData.timeout);
+					cacheData.resolve(data);
 				}
 				break;
 			case 'WORKER_INFO':
 				{
 					const { nonce, type, ...data } = message;
-					const resolve = this.promises.get(nonce);
-					if (!resolve) {
+					const cacheData = this.promises.get(nonce);
+					if (!cacheData) {
 						return;
 					}
 					this.promises.delete(nonce);
-					resolve(data);
+					clearTimeout(cacheData.timeout);
+					cacheData.resolve(data);
 				}
 				break;
 			case 'WORKER_READY':
@@ -251,24 +254,28 @@ export class WorkerManager extends Map<number, Worker> {
 		}
 	}
 
-	private generateNonce(large = true) {
-		const nonce = randomUUID();
-		return large ? nonce : nonce.split('-')[0];
+	private generateNonce(large = true): string {
+		const uuid = randomUUID();
+		const nonce = large ? uuid : uuid.split('-')[0];
+		if (this.promises.has(nonce)) return this.generateNonce(large);
+		return nonce;
 	}
 
-	private generateSendPromise<T = unknown>(nonce: string, message = 'Timeout') {
+	private generateSendPromise<T = unknown>(nonce: string, message = 'Timeout'): Promise<T> {
 		let resolve = (_: T) => {
 			/**/
 		};
+		let timeout = -1 as unknown as NodeJS.Timeout;
 
 		const promise = new Promise<T>((res, rej) => {
 			resolve = res;
-			setTimeout(() => {
+			timeout = setTimeout(() => {
+				this.promises.delete(nonce);
 				rej(new Error(message));
 			}, 3e3);
 		});
 
-		this.promises.set(nonce, resolve);
+		this.promises.set(nonce, { resolve, timeout });
 
 		return promise;
 	}

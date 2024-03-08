@@ -5,7 +5,7 @@ import type { WorkerSendCacheRequest } from '../../websocket/discord/worker';
 import type { Adapter } from './types';
 
 export class WorkerAdapter implements Adapter {
-	promises = new Map<string, (value: unknown) => void>();
+	promises = new Map<string, { resolve: (value: unknown) => void; timeout: NodeJS.Timeout }>();
 
 	constructor(readonly parent: MessagePort) {}
 
@@ -24,16 +24,17 @@ export class WorkerAdapter implements Adapter {
 		let resolve = (_: any) => {
 			/**/
 		};
+		let timeout = -1 as unknown as NodeJS.Timeout;
 
 		const promise = new Promise<any>((res, rej) => {
 			resolve = res;
-			setTimeout(() => {
+			timeout = setTimeout(() => {
 				this.promises.delete(nonce);
 				rej(new Error('Timeout cache request'));
 			}, 60e3);
 		});
 
-		this.promises.set(nonce, resolve);
+		this.promises.set(nonce, { resolve, timeout });
 
 		return promise;
 	}

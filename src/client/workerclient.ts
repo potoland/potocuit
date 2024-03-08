@@ -77,9 +77,11 @@ export class WorkerClient<Ready extends boolean = boolean> extends BaseClient {
 	protected async handleManagerMessages(data: ManagerMessages) {
 		switch (data.type) {
 			case 'CACHE_RESULT':
-				if ((this.cache.adapter as WorkerAdapter).promises.has(data.nonce)) {
-					(this.cache.adapter as WorkerAdapter).promises.get(data.nonce)?.(data.result);
-					(this.cache.adapter as WorkerAdapter).promises.delete(data.nonce);
+				if (this.cache.adapter instanceof WorkerAdapter && this.cache.adapter.promises.has(data.nonce)) {
+					const cacheData = this.cache.adapter.promises.get(data.nonce)!;
+					clearTimeout(cacheData.timeout);
+					cacheData.resolve(data.result);
+					this.cache.adapter.promises.delete(data.nonce);
 				}
 				break;
 			case 'SEND_PAYLOAD':
