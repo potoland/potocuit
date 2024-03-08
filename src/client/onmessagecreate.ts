@@ -86,7 +86,7 @@ export async function onMessageCreate(
 	if (command.dm && !message.guildId) return;
 	if (command.guild_id && !command.guild_id?.includes(message.guildId!)) return;
 
-	const resolved: MakeRequired<APIInteractionDataResolved, keyof APIInteractionDataResolved> = {
+	const resolved: MakeRequired<APIInteractionDataResolved> = {
 		channels: {},
 		roles: {},
 		users: {},

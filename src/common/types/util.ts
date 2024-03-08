@@ -77,7 +77,7 @@ export type PickPartial<T, K extends keyof T> = {
 	[P in K]: T[P];
 };
 
-export type MakeRequired<T, K extends keyof T> = T & { [P in K]-?: NonFalsy<T[P]> };
+export type MakeRequired<T, K extends keyof T = keyof T> = T & { [P in K]-?: NonFalsy<T[P]> };
 
 export type NonFalsy<T> = T extends false | 0 | '' | null | undefined | 0n ? never : T;
 
