@@ -1,4 +1,7 @@
-import { bgBrightWhite, black, bold, brightBlack, cyan, gray, italic, red, yellow } from './colors';
+import { createWriteStream, existsSync, mkdirSync, type WriteStream } from 'node:fs';
+import { unlink } from 'node:fs/promises';
+import { join } from 'node:path';
+import { bgBrightWhite, black, bold, brightBlack, cyan, gray, italic, red, stripColor, yellow } from './colors';
 import { MergeOptions } from './utils';
 export enum LogLevels {
 	Debug = 0,
@@ -12,6 +15,7 @@ export type LoggerOptions = {
 	logLevel?: LogLevels;
 	name?: string;
 	active?: boolean;
+	saveOnFile?: boolean;
 };
 
 export type CustomCallback = (self: Logger, level: LogLevels, args: unknown[]) => unknown[];
@@ -24,6 +28,11 @@ export class Logger {
 	 * The options for configuring the logger.
 	 */
 	readonly options: Required<LoggerOptions>;
+
+	static streams: Partial<Record<string, WriteStream>> = {};
+	static saveOnFile?: string[] | 'all';
+	static dirname = 'seyfert-logs';
+	private static createdDir?: true;
 
 	/**
 	 * The custom callback function for logging.
@@ -40,6 +49,14 @@ export class Logger {
 	 */
 	static customize(cb: CustomCallback) {
 		Logger.__callback = cb;
+	}
+
+	static async clearLogs() {
+		for (const i in this.streams) {
+			await new Promise(res => this.streams[i]!.close(res));
+			await unlink(join(process.cwd(), Logger.dirname, i)).catch(() => {});
+			delete this.streams[i];
+		}
 	}
 
 	/**
@@ -62,6 +79,14 @@ export class Logger {
 	 */
 	get level(): LogLevels {
 		return this.options.logLevel;
+	}
+
+	set saveOnFile(saveOnFile: boolean) {
+		this.options.saveOnFile = saveOnFile;
+	}
+
+	get saveOnFile(): boolean {
+		return this.options.saveOnFile;
 	}
 
 	/**
@@ -118,7 +143,7 @@ export class Logger {
 		} else {
 			log = Logger.__callback(this, level, args);
 		}
-
+		this.__write(log);
 		return console.log(...log);
 	}
 
@@ -162,6 +187,21 @@ export class Logger {
 		this.rawLog(LogLevels.Fatal, ...args);
 	}
 
+	private __write(log: unknown[]) {
+		if (this.saveOnFile || Logger.saveOnFile === 'all' || Logger.saveOnFile?.includes(this.name)) {
+			if (!Logger.createdDir && !existsSync(join(process.cwd(), Logger.dirname))) {
+				Logger.createdDir = true;
+				mkdirSync(join(process.cwd(), Logger.dirname), { recursive: true });
+			}
+			const date = new Date();
+			const name = `${date.getMonth() + 1}-${date.getDate()}-${date.getFullYear()}${this.name}.log`;
+			if (!Logger.streams[name]) {
+				Logger.streams[name] = createWriteStream(join(process.cwd(), Logger.dirname, name));
+			}
+			Logger.streams[name]!.write(`${Buffer.from(stripColor(log.join(' ')))}\n`);
+		}
+	}
+
 	/**
 	 * The default options for the logger.
 	 */
@@ -169,6 +209,7 @@ export class Logger {
 		logLevel: LogLevels.Debug,
 		name: 'seyfert',
 		active: true,
+		saveOnFile: false,
 	};
 
 	/**
