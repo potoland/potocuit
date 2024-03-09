@@ -1,5 +1,6 @@
 import type {
 	GuildWidgetStyle,
+	RESTGetAPICurrentUserGuildsQuery,
 	RESTPatchAPIAutoModerationRuleJSONBody,
 	RESTPatchAPIChannelJSONBody,
 	RESTPatchAPIGuildChannelPositionsJSONBody,
@@ -12,7 +13,15 @@ import type {
 } from 'discord-api-types/v10';
 import type { ImageResolvable, ObjectToLower, OmitInsert } from '..';
 import { resolveFiles, resolveImage } from '../../builders';
-import { BaseChannel, Guild, GuildEmoji, Sticker, type CreateStickerBodyRequest } from '../../structures';
+import {
+	AnonymousGuild,
+	BaseChannel,
+	Guild,
+	GuildEmoji,
+	GuildMember,
+	Sticker,
+	type CreateStickerBodyRequest,
+} from '../../structures';
 import channelFrom from '../../structures/channels';
 import { BaseShorter } from './base';
 
@@ -63,6 +72,24 @@ export class GuildShorter extends BaseShorter {
 				}
 
 				return this.client.proxy.guilds(id).widget.get({ query });
+			},
+			list: (query?: RESTGetAPICurrentUserGuildsQuery) => {
+				return this.client.proxy
+					.users('@me')
+					.guilds.get({ query })
+					.then(guilds => guilds.map(guild => new AnonymousGuild(this.client, { ...guild, splash: null })));
+			},
+			fetchSelf: async (id: string) => {
+				const self = await this.client.proxy.users('@me').guilds(id).member.get();
+				await this.client.cache.members?.patch(self.user!.id, id, self);
+				return new GuildMember(this.client, self, self.user!, id);
+			},
+			leave: (id: string) => {
+				return this.client.proxy
+					.users('@me')
+					.guilds(id)
+					.delete()
+					.then(() => this.client.cache.guilds?.removeIfNI('Guilds', id));
 			},
 			channels: this.channels,
 			moderation: this.moderation,
