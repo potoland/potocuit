@@ -249,6 +249,21 @@ export class Logger {
  * @param data The memory usage data.
  * @returns The formatted string representing memory usage.
  */
-function formatMemoryUsage(data: number) {
-	return `[RAM Usage ${(Math.round((data / 1024 / 1024) * 100) / 100).toFixed(2)} MB]`;
+function formatMemoryUsage(bytes: number) {
+	const gigaBytes = bytes / 1024 ** 3;
+	if (gigaBytes >= 1) {
+		return `[RAM Usage ${gigaBytes.toFixed(3)} GB]`;
+	}
+
+	const megaBytes = bytes / 1024 ** 2;
+	if (megaBytes >= 1) {
+		return `[RAM Usage ${megaBytes.toFixed(2)} MB]`;
+	}
+
+	const kiloBytes = bytes / 1024;
+	if (kiloBytes >= 1) {
+		return `[RAM Usage ${kiloBytes.toFixed(2)} KB]`;
+	}
+
+	return `[RAM Usage ${bytes.toFixed(2)} B]`;
 }
