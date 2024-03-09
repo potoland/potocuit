@@ -26,7 +26,6 @@ import type {
 	MessageUpdateBodyRequest,
 	MethodContext,
 	ObjectToLower,
-	OverwriteType,
 	RESTGetAPIChannelMessageReactionUsersQuery,
 	RESTPatchAPIChannelJSONBody,
 	RESTPatchAPIGuildChannelPositionsJSONBody,
@@ -41,7 +40,6 @@ import type { GuildMember } from './GuildMember';
 import type { GuildRole } from './GuildRole';
 import { Webhook } from './Webhook';
 import { DiscordBase } from './extra/DiscordBase';
-import { PermissionsBitField } from './extra/Permissions';
 import { channelLink } from './extra/functions';
 
 export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBase<ChannelType>> {
@@ -168,24 +166,20 @@ interface IChannelTypes {
 
 export interface BaseGuildChannel extends ObjectToLower<Omit<APIGuildChannel<ChannelType>, 'permission_overwrites'>> {}
 export class BaseGuildChannel extends BaseChannel<ChannelType> {
-	permissionOverwrites: {
-		id: string;
-		type: OverwriteType;
-		allow: PermissionsBitField;
-		deny: PermissionsBitField;
-	}[] = [];
 	constructor(client: BaseClient, data: APIGuildChannel<ChannelType>) {
-		super(client, data);
-		this.permissionOverwrites =
-			data.permission_overwrites?.map(overwrite => {
-				return {
-					id: overwrite.id,
-					type: overwrite.type,
-					allow: new PermissionsBitField(BigInt(overwrite.allow)),
-					deny: new PermissionsBitField(BigInt(overwrite.deny)),
-				};
-			}) || [];
+		const { permission_overwrites, ...rest } = data;
+		super(client, rest);
 	}
+
+	permissionOverwrites = {
+		fetch: () => this.client.cache.overwrites?.get(this.id),
+		values: () => this.client.cache.overwrites?.values(this.guildId!) ?? [],
+		memberPermissions: (member: GuildMember, checkAdmin = true) =>
+			this.client.channels.overwrites.memberPermissions(this.id, member, checkAdmin),
+		rolePermissions: (role: GuildRole, checkAdmin = true) =>
+			this.client.channels.overwrites.rolePermissions(this.id, role, checkAdmin),
+		overwritesFor: (member: GuildMember) => this.client.channels.overwrites.overwritesFor(this.id, member),
+	};
 
 	memberPermissions(member: GuildMember, checkAdmin = true) {
 		return this.client.channels.overwrites.memberPermissions(this.id, member, checkAdmin);
