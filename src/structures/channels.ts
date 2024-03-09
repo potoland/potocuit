@@ -174,11 +174,6 @@ export class BaseGuildChannel extends BaseChannel<ChannelType> {
 	permissionOverwrites = {
 		fetch: () => this.client.cache.overwrites?.get(this.id),
 		values: () => this.client.cache.overwrites?.values(this.guildId!) ?? [],
-		memberPermissions: (member: GuildMember, checkAdmin = true) =>
-			this.client.channels.overwrites.memberPermissions(this.id, member, checkAdmin),
-		rolePermissions: (role: GuildRole, checkAdmin = true) =>
-			this.client.channels.overwrites.rolePermissions(this.id, role, checkAdmin),
-		overwritesFor: (member: GuildMember) => this.client.channels.overwrites.overwritesFor(this.id, member),
 	};
 
 	memberPermissions(member: GuildMember, checkAdmin = true) {
