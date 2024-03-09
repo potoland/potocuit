@@ -4,6 +4,7 @@ import { BitField, type BitFieldResolvable } from './BitField';
 
 export class PermissionsBitField extends BitField<typeof PermissionFlagsBits> {
 	Flags = PermissionFlagsBits;
+	static All = Object.values(PermissionFlagsBits).reduce((acc, value) => acc | value, 0n);
 
 	declare keys: (...bits: BitFieldResolvable<typeof PermissionFlagsBits>[]) => PermissionStrings;
 

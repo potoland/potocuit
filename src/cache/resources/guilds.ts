@@ -73,6 +73,8 @@ export class Guilds extends BaseResource {
 
 		for (const channel of data.channels ?? []) {
 			bulkData.push(['channels', channel, channel.id, id]);
+			if (channel.permission_overwrites?.length)
+				bulkData.push(['overwrites', channel.permission_overwrites, channel.id, id]);
 		}
 
 		for (const emoji of data.emojis ?? []) {
@@ -136,6 +138,11 @@ export class Guilds extends BaseResource {
 
 		for (const channel of data.channels ?? []) {
 			bulkData.push(['channels', channel, channel.id, id]);
+		}
+
+		for (const channel of data.channels ?? []) {
+			if (channel.permission_overwrites?.length)
+				bulkData.push(['overwrites', channel.permission_overwrites, channel.id, id]);
 		}
 
 		for (const emoji of data.emojis ?? []) {

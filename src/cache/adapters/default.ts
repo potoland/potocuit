@@ -54,14 +54,22 @@ export class MemoryAdapter implements Adapter {
 				if (updateOnly && !oldData) {
 					continue;
 				}
-				this.storage.set(key, JSON.stringify({ ...(oldData ?? {}), ...value }));
+				value;
+				//^?
+				this.storage.set(
+					key,
+					Array.isArray(value) ? JSON.stringify(value) : JSON.stringify({ ...(oldData ?? {}), ...value }),
+				);
 			}
 		} else {
 			const oldData = this.get(keys);
 			if (updateOnly && !oldData) {
 				return;
 			}
-			this.storage.set(keys, JSON.stringify({ ...(oldData ?? {}), ...data }));
+			this.storage.set(
+				keys,
+				Array.isArray(data) ? JSON.stringify(data) : JSON.stringify({ ...(oldData ?? {}), ...data }),
+			);
 		}
 	}
 

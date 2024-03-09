@@ -37,6 +37,8 @@ import type {
 	ToClass,
 } from '../common';
 import { ComponentsListener } from '../components';
+import type { GuildMember } from './GuildMember';
+import type { GuildRole } from './GuildRole';
 import { Webhook } from './Webhook';
 import { DiscordBase } from './extra/DiscordBase';
 import { PermissionsBitField } from './extra/Permissions';
@@ -69,7 +71,10 @@ export class BaseChannel<T extends ChannelType> extends DiscordBase<APIChannelBa
 	}
 
 	edit(body: RESTPatchAPIChannelJSONBody, reason?: string) {
-		return this.client.channels.edit(this.id, body, { reason });
+		return this.client.channels.edit(this.id, body, {
+			reason,
+			guildId: 'guildId' in this ? (this.guildId as string) : '@me',
+		});
 	}
 
 	toString() {
@@ -180,6 +185,18 @@ export class BaseGuildChannel extends BaseChannel<ChannelType> {
 					deny: new PermissionsBitField(BigInt(overwrite.deny)),
 				};
 			}) || [];
+	}
+
+	memberPermissions(member: GuildMember, checkAdmin = true) {
+		return this.client.channels.overwrites.memberPermissions(this.id, member, checkAdmin);
+	}
+
+	rolePermissions(role: GuildRole, checkAdmin = true) {
+		return this.client.channels.overwrites.rolePermissions(this.id, role, checkAdmin);
+	}
+
+	overwritesFor(member: GuildMember) {
+		return this.client.channels.overwrites.overwritesFor(this.id, member);
 	}
 
 	guild(force = false) {

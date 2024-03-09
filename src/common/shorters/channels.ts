@@ -1,6 +1,7 @@
-import type { RESTPatchAPIChannelJSONBody } from '..';
-import { BaseChannel, Message } from '../../structures';
+import { PermissionFlagsBits, type RESTPatchAPIChannelJSONBody } from '..';
+import { BaseChannel, Message, type GuildMember, type GuildRole } from '../../structures';
 import channelFrom, { type AllChannels } from '../../structures/channels';
+import { PermissionsBitField } from '../../structures/extra/Permissions';
 import { BaseShorter } from './base';
 
 export class ChannelShorter extends BaseShorter {
@@ -59,6 +60,13 @@ export class ChannelShorter extends BaseShorter {
 					optional.guildId!,
 					res,
 				);
+				if (body.permission_overwrites && 'permission_overwrites' in res)
+					await this.client.cache.overwrites?.setIfNI(
+						BaseChannel.__intent__(optional.guildId!),
+						res.id,
+						optional.guildId!,
+						res.permission_overwrites,
+					);
 				return channelFrom(res, this.client);
 			},
 
@@ -73,6 +81,7 @@ export class ChannelShorter extends BaseShorter {
 			 * Provides access to pinned messages in the channel.
 			 */
 			pins: this.pins,
+			overwrites: this.overwrites,
 		};
 	}
 
@@ -108,6 +117,67 @@ export class ChannelShorter extends BaseShorter {
 			 */
 			delete: (messageId: string, channelId: string, reason?: string) =>
 				this.client.proxy.channels(channelId).pins(messageId).delete({ reason }),
+		};
+	}
+
+	get overwrites() {
+		return {
+			memberPermissions: async (channelId: string, member: GuildMember, checkAdmin = true) => {
+				const permissions = await member.fetchPermissions();
+
+				if (checkAdmin && permissions.has(PermissionFlagsBits.Administrator)) {
+					return new PermissionsBitField(PermissionsBitField.All);
+				}
+
+				const overwrites = await this.overwrites.overwritesFor(channelId, member);
+
+				permissions.remove(overwrites.everyone?.deny.bits ?? 0n);
+				permissions.add(overwrites.everyone?.allow.bits ?? 0n);
+				permissions.remove(overwrites.roles.length > 0 ? overwrites.roles.map(role => role.deny.bits) : 0n);
+				permissions.add(overwrites.roles.length > 0 ? overwrites.roles.map(role => role.allow.bits) : 0n);
+				permissions.remove(overwrites.member?.deny.bits ?? 0n);
+				permissions.add(overwrites.member?.allow.bits ?? 0n);
+				return permissions;
+			},
+			overwritesFor: async (channelId: string, member: GuildMember) => {
+				const roleOverwrites = [];
+				let memberOverwrites;
+				let everyoneOverwrites;
+
+				const channelOverwrites = (await this.client.cache.overwrites?.get(channelId)) ?? [];
+
+				for (const overwrite of channelOverwrites) {
+					if (overwrite.id === member.guildId) {
+						everyoneOverwrites = overwrite;
+					} else if (member.roles.values.includes(overwrite.id)) {
+						roleOverwrites.push(overwrite);
+					} else if (overwrite.id === member.id) {
+						memberOverwrites = overwrite;
+					}
+				}
+
+				return {
+					everyone: everyoneOverwrites,
+					roles: roleOverwrites,
+					member: memberOverwrites,
+				};
+			},
+			rolePermissions: async (channelId: string, role: GuildRole, checkAdmin = true) => {
+				if (checkAdmin && role.permissions.has(PermissionFlagsBits.Administrator)) {
+					return new PermissionsBitField(PermissionsBitField.All);
+				}
+				const channelOverwrites = (await this.client.cache.overwrites?.get(channelId)) ?? [];
+
+				const everyoneOverwrites = channelOverwrites.find(x => x.id === role.guildId);
+				const roleOverwrites = channelOverwrites.find(x => x.id === role.id);
+				const permissions = new PermissionsBitField(role.permissions.bits);
+
+				permissions.remove(everyoneOverwrites?.deny.bits ?? 0n);
+				permissions.add(everyoneOverwrites?.allow.bits ?? 0n);
+				permissions.remove(roleOverwrites?.deny.bits ?? 0n);
+				permissions.add(roleOverwrites?.allow.bits ?? 0n);
+				return permissions;
+			},
 		};
 	}
 }

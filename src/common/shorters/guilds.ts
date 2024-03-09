@@ -80,7 +80,7 @@ export class GuildShorter extends BaseShorter {
 					.then(guilds => guilds.map(guild => new AnonymousGuild(this.client, { ...guild, splash: null })));
 			},
 			fetchSelf: async (id: string) => {
-				const self = await this.client.proxy.users('@me').guilds(id).member.get();
+				const self = await this.client.proxy.guilds(id).members(this.client.botId).get();
 				await this.client.cache.members?.patch(self.user!.id, id, self);
 				return new GuildMember(this.client, self, self.user!, id);
 			},

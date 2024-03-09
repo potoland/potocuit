@@ -25,6 +25,7 @@ import { VoiceStates } from './resources/voice-states';
 import type { BaseClient } from '../client/base';
 import type { InternalOptions } from '../commands';
 import { ChannelType, GatewayIntentBits } from '../common';
+import { Overwrites } from './resources/overwrites';
 
 export type InferAsyncCache = InternalOptions extends { asyncCache: infer P } ? P : false;
 export type ReturnCache<T> = If<InferAsyncCache, Promise<T>, T>;
@@ -33,7 +34,15 @@ export type ReturnCache<T> = If<InferAsyncCache, Promise<T>, T>;
 export type GuildBased = 'members' | 'voiceStates';
 
 // ClientGuildBased
-export type GuildRelated = 'emojis' | 'roles' | 'threads' | 'channels' | 'stickers' | 'presences' | 'stageInstances';
+export type GuildRelated =
+	| 'emojis'
+	| 'roles'
+	| 'threads'
+	| 'channels'
+	| 'stickers'
+	| 'presences'
+	| 'stageInstances'
+	| 'overwrites';
 
 // ClientBased
 export type NonGuildBased = 'users' | 'guilds';
@@ -80,6 +89,7 @@ export class Cache {
 	members?: Members;
 
 	// guild related
+	overwrites?: Overwrites;
 	roles?: Roles;
 	emojis?: Emojis;
 	threads?: Threads;
@@ -115,6 +125,9 @@ export class Cache {
 		// guild based
 		if (!this.disabledCache.includes('roles')) {
 			this.roles = new Roles(this, client);
+		}
+		if (!this.disabledCache.includes('overwrites')) {
+			this.overwrites = new Overwrites(this, client);
 		}
 		if (!this.disabledCache.includes('channels')) {
 			this.channels = new Channels(this, client);
@@ -229,6 +242,7 @@ export class Cache {
 				case 'emojis':
 				case 'users':
 				case 'guilds':
+				case 'overwrites':
 					{
 						if (!allData[type]) {
 							allData[type] = [];
@@ -294,6 +308,7 @@ export class Cache {
 				case 'presences':
 				case 'stageInstances':
 				case 'emojis':
+				case 'overwrites':
 					{
 						const hashId = this[type]?.hashId(guildId!);
 						if (!hashId) {
@@ -303,7 +318,9 @@ export class Cache {
 							relationshipsData[hashId] = [];
 						}
 						relationshipsData[hashId].push(id);
-						data.guild_id = guildId;
+						if (type !== 'overwrites') {
+							data.guild_id = guildId;
+						}
 						allData.push([this[type]!.hashId(id), this[type]!.parse(data, id, guildId!)]);
 					}
 					break;
@@ -378,6 +395,7 @@ export class Cache {
 				case 'presences':
 				case 'stageInstances':
 				case 'emojis':
+				case 'overwrites':
 					{
 						const hashId = this[type]?.hashId(guildId!);
 						if (!hashId) {
@@ -387,7 +405,9 @@ export class Cache {
 							relationshipsData[hashId] = [];
 						}
 						relationshipsData[hashId].push(id);
-						data.guild_id = guildId;
+						if (type !== 'overwrites') {
+							data.guild_id = guildId;
+						}
 						allData.push([this[type]!.hashId(id), this[type]!.parse(data, id, guildId!)]);
 					}
 					break;
@@ -452,6 +472,8 @@ export class Cache {
 			case 'CHANNEL_UPDATE':
 				if ('guild_id' in event.d) {
 					await this.channels?.set(event.d.id, event.d.guild_id!, event.d);
+					if (event.d.permission_overwrites?.length)
+						await this.overwrites?.set(event.d.id, event.d.guild_id!, event.d.permission_overwrites);
 					break;
 				}
 				if (event.d.type === ChannelType.DM) {
