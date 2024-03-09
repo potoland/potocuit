@@ -54,8 +54,6 @@ export class MemoryAdapter implements Adapter {
 				if (updateOnly && !oldData) {
 					continue;
 				}
-				value;
-				//^?
 				this.storage.set(
 					key,
 					Array.isArray(value) ? JSON.stringify(value) : JSON.stringify({ ...(oldData ?? {}), ...value }),
