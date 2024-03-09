@@ -50,10 +50,10 @@
 	"homepage": "https://biscuitjs.com",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/potoland/potocuit.git"
+		"url": "git+https://github.com/tiramisulabs/biscuit.git"
 	},
 	"bugs": {
-		"url": "https://github.com/potoland/potocuit"
+		"url": "https://github.com/tiramisulabs/biscuit"
 	},
 	"keywords": [
 		"api",
