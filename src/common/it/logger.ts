@@ -1,5 +1,5 @@
 import { createWriteStream, existsSync, mkdirSync, type WriteStream } from 'node:fs';
-import { unlink } from 'node:fs/promises';
+import { readdir, unlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import { bgBrightWhite, black, bold, brightBlack, cyan, gray, italic, red, stripColor, yellow } from './colors';
 import { MergeOptions } from './utils';
@@ -52,8 +52,8 @@ export class Logger {
 	}
 
 	static async clearLogs() {
-		for (const i in this.streams) {
-			await new Promise(res => this.streams[i]!.close(res));
+		for (const i of await readdir(join(process.cwd(), Logger.dirname))) {
+			if (this.streams[i]) await new Promise(res => this.streams[i]!.close(res));
 			await unlink(join(process.cwd(), Logger.dirname, i)).catch(() => {});
 			delete this.streams[i];
 		}
